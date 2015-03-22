@@ -1,0 +1,70 @@
+.status {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	background: url(../img/status.png?d=1415077322) no-repeat 0 -50px;
+}
+
+.status.approved {
+	background-position: 0 0;
+}
+
+.status.pending {
+	background-position: 0 -10px;
+}
+
+.status.spam {
+	background-position: 0 -40px;
+}
+
+.status.trashed {
+	background-position: 0 -20px;
+}
+
+
+.elementindex th[data-attribute="id"],
+.elementindex td[data-titlecell] {
+	display: none;
+}
+
+.elementindex td[data-title="Status"] {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	
+	/* .thin */
+	width: 0.01% !important;
+	vertical-align: middle;
+}
+
+
+
+
+
+.elementindex .comment-block .status {
+	display: block;
+	float: left;
+	margin: 3px 10px 0 0;
+}
+
+.elementindex .comment-block a {
+	float: left;
+}
+
+.elementindex .comment-block a small {
+	color: #aaa;
+	font-size: 85%;
+	display: block;
+}
+
+.elementindex .comment-block a:hover {
+	text-decoration: none;
+}
+
+.elementindex .comment-block a:hover small {
+	color: #666;
+	text-decoration: none;
+}
+
+.elementindex .comment-block a:hover span {
+	text-decoration: underline;
+}

@@ -1,0 +1,17 @@
+{% extends "_layouts/elementindex" %}
+
+{% includeCssResource 'comments/css/comments.css' %}
+
+{% set title = "Comments"|t %}
+
+{% set elementType = "Comments_Comment" %}
+
+{% set showStatusMenu = true %}
+
+{% set tabs = {
+    comments: { label: "Comments"|t, url: url('comments') },
+} %}
+
+{% block sidebar %}
+    {{ parent() }}
+{% endblock %}
