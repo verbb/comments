@@ -13,11 +13,9 @@ class Comments_CommentModel extends BaseElementModel
 	protected function defineAttributes()
 	{
         return array_merge(parent::defineAttributes(), array(
-			'title'			=> array(AttributeType::String),
 			'id'			=> array(AttributeType::Number),
 			'entryId'		=> array(AttributeType::Number),
 			'userId'		=> array(AttributeType::Number),
-			'parentId'		=> array(AttributeType::Number),
 			'structureId'   => array(AttributeType::Number),
 			'status'		=> array(AttributeType::Enum, 'values' => array(
 			    Comments_CommentModel::APPROVED,

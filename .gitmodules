@@ -1,0 +1,5 @@
+[submodule "wiki"]
+	path = wiki
+	url = https://engram-design@github.com/engram-design/Comments.wiki.git
+	fetchRecurseSubmodules = true
+	update = checkout

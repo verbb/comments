@@ -47,17 +47,16 @@ class CommentsController extends BaseController
         $commentModel->parentId = craft()->request->getPost('parentId');
         $commentModel->structureId = craft()->comments->getStructureId();
         
-        // Handle anonymous users
-        $commentModel->name = craft()->request->getPost('name');
-        $commentModel->email = craft()->request->getPost('email');
-        
         // Other handy stuff
         $commentModel->url = craft()->request->urlReferrer;
         $commentModel->ipAddress = craft()->request->getUserHostAddress();
         $commentModel->userAgent = craft()->request->getUserAgent();
             
-        // And of course, the actual comment
-        $commentModel->comment = craft()->request->getPost('comment');
+        // Handle the fields
+        $fields = craft()->request->getPost('fields');
+        $commentModel->name = array_key_exists('name', $fields) ? $fields['name'] : null;
+        $commentModel->email = array_key_exists('email', $fields) ? $fields['email'] : null;
+        $commentModel->comment = array_key_exists('comment', $fields) ? $fields['comment'] : null;
 
         // Set any new comment to be pending
         if ($plugin->getSettings()->requireModeration) {

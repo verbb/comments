@@ -8,16 +8,16 @@
 
         {% if not currentUser %}
 	        <div class="form-group name-input">
-	            <input class="form-control" name="name" type="text" placeholder="Your name" />
+	            <input class="form-control" name="fields[name]" type="text" placeholder="Your name" />
 	        </div>
 
 	        <div class="form-group email-input">
-	            <input class="form-control" name="email" type="text" placeholder="Your email" />
+	            <input class="form-control" name="fields[email]" type="text" placeholder="Your email" />
 	        </div>
         {% endif %}
 
         <div class="form-group comment-input">
-            <input class="form-control" name="comment" type="text" placeholder="Your comments" />
+            <input class="form-control" name="fields[comment]" type="text" placeholder="Your comments" />
         </div>
 
         <div class="form-group comment-input-btn">

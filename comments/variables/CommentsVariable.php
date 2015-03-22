@@ -15,7 +15,12 @@ class CommentsVariable
 		return craft()->comments->getCriteria(array('descendantOf' => $comment->id))->find();
 	}
 
-	public function form($entry, $criteria = null)
+	public function all($criteria = array())
+	{
+		return craft()->comments->getCriteria($criteria);
+	}
+
+	public function form($entry, $criteria = array())
 	{	
 		$settings = craft()->plugins->getPlugin('comments')->getSettings();
 
