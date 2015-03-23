@@ -37,6 +37,16 @@
 				        </div>
 
 			            <div class="meta-buttons">
+	                        <a href="#" class="comment-vote-up">
+	                            <span class="glyphicon glyphicon-chevron-up"></span>
+	                            <span class="count">0</span>
+	                        </a>
+
+	                        <a href="#" class="comment-vote-down">
+	                            <span class="glyphicon glyphicon-chevron-down"></span>
+	                            <span class="count">0</span>
+	                        </a>
+
 							<a href="#" class="comment-reply">
 								<span class="glyphicon glyphicon-share-alt"></span>
 								Reply
@@ -45,6 +55,11 @@
 							<a href="#" class="comment-toggle">
 								<span class="glyphicon glyphicon-comment"></span>
 								{{ comment.descendants | length }} comments
+							</a>
+							
+							<a href="#" class="comment-flag">
+								<span class="glyphicon glyphicon-flag"></span>
+								Flag as innapropriate
 							</a>
 						</div>
 			        </div>

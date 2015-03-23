@@ -48,6 +48,11 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Preserve comment formatting.
 - Provide simple WYSIWYG editor for front-end forms. Optional.
 - Allow comments to be flagged as inappropriate. Alerts site admin of potentially spammy or offensive comments.
+- Support closing comments.
+- Allow comments on any element type (entries, assets, categories, etc).
+- Support email notifications, configurable.
+- Support sharing comment. Post to social media, permalink.
+- Support comment ranking (upvote, downvote). Improves user reputation.
 
 
 ### Changelog
