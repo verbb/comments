@@ -37,15 +37,16 @@ class Comments_CommentElementType extends BaseElementType
     {
         $sources = array(
         	'*' => array('label' => Craft::t('All Comments')),
-        	'entries' => array('heading' => Craft::t('Entries')),
+        	'entries' => array('heading' => Craft::t('Sections')),
         );
 
 		foreach (craft()->comments->getEntriesWithComments() as $entry) {
-			$key = 'entry:'.$entry->id;
+			$key = 'entry:'.$entry->sectionId;
+			$section = craft()->sections->getSectionById($entry->sectionId);
 
 			$sources[$key] = array(
-				'label'    => $entry->title,
-				'criteria' => array('entryId' => $entry->id),
+				'label'    => $section->name,
+				'criteria' => array('sectionId' => $entry->sectionId),
 			);
 		}
 
@@ -127,6 +128,7 @@ class Comments_CommentElementType extends BaseElementType
         return array(
 			'entryId'		=> array(AttributeType::Number),
 			'userId'		=> array(AttributeType::Number),
+			'sectionId'		=> array(AttributeType::Number),
 			'structureId'	=> array(AttributeType::Number),
 			'status'		=> array(AttributeType::String),
 			'name'			=> array(AttributeType::String),
@@ -142,8 +144,10 @@ class Comments_CommentElementType extends BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
         $query
-		->addSelect('comments.entryId, comments.userId, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
+		->addSelect('comments.entryId, comments.userId, entries.sectionId, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
 		->join('comments comments', 'comments.id = elements.id')
+		->leftJoin('entries entries', 'entries.id = comments.entryId')
+		->leftJoin('sections sections', 'sections.id = entries.sectionId')
 		->leftJoin('structures structures', 'structures.id = comments.structureId')
 		->leftJoin('structureelements structureelements', array('and', 'structureelements.structureId = structures.id', 'structureelements.elementId = comments.id'));
 
@@ -153,6 +157,10 @@ class Comments_CommentElementType extends BaseElementType
 
 		if ($criteria->userId) {
 			$query->andWhere(DbHelper::parseParam('comments.userId', $criteria->userId, $query->params));
+		}
+
+		if ($criteria->sectionId) {
+			$query->andWhere(DbHelper::parseParam('entries.sectionId', $criteria->sectionId, $query->params));
 		}
 
 		if ($criteria->structureId) {
