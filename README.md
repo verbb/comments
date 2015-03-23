@@ -2,6 +2,8 @@
 
 Comments is a Craft CMS plugin that allows your users to comment on entries. Not a fan of using Disqus? All you comments are stored in your Craft install, and hooked up to your existing users.
 
+<img src="https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/main.png" />
+
 
 ## Currently in Beta
 
