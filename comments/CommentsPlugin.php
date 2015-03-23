@@ -32,7 +32,7 @@ class CommentsPlugin extends BasePlugin
 
     public function hasCpSection()
     {
-        return craft()->fieldManager->isCpSectionDisabled() ? false : true;
+        return true;
     }
 
     public function getSettingsHtml()
