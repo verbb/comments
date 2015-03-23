@@ -46,6 +46,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
 - Gravatar support.
 - Preserve comment formatting.
+- Provide simple WYSIWYG editor for front-end forms. Optional.
 
 
 ### Changelog
