@@ -1,0 +1,62 @@
+{% macro printComments(entry, comments) %}
+	{% import _self as self %}
+
+    <ul class="comments-list">
+		{% for comment in comments %}
+		    <li class="comment-single" data-id="{{ comment.id }}">
+		        <div class="comment-container">
+			        <div class="comment-image">
+			            {% if comment.userId %}
+			            	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
+
+			            	{% if photo %}
+				                <img src="{{ photo }}" />
+				            {% else %}
+					        	<img src="{{ resourceUrl('/images/user.gif') }}" />
+				            {% endif %}
+			            {% else %}
+				        	<img src="{{ resourceUrl('/images/user.gif') }}" />
+			            {% endif %}
+			        </div>
+
+			        <div class="comment-text">
+			            <span class="comment-heading">
+			            	<span class="title">
+					            {% if comment.userId %}
+					                {{ craft.users.id(comment.userId).first().fullName }}
+					            {% else %}
+					                {{ comment.name }}
+					            {% endif %}
+			            	</span>
+
+			            	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
+			            </span>
+
+			            <div class="comment-content">
+				            <p>{{ comment.comment }}</p>
+				        </div>
+
+			            <div class="meta-buttons">
+							<a href="#" class="comment-reply">
+								<span class="glyphicon glyphicon-share-alt"></span>
+								Reply
+							</a>
+							
+							<a href="#" class="comment-toggle">
+								<span class="glyphicon glyphicon-comment"></span>
+								{{ comment.descendants | length }} comments
+							</a>
+						</div>
+			        </div>
+		        </div>
+
+				{% include '_forms/templates/form' %}
+
+				{% if comment.hasDescendants %}
+					{{ self.printComments(entry, comment.children) }}
+				{% endif %}
+		    </li>
+
+		{% endfor %}
+	</ul>
+{% endmacro %}

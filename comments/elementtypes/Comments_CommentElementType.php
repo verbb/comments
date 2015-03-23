@@ -62,7 +62,7 @@ class Comments_CommentElementType extends BaseElementType
         return array(
             'id'			=> Craft::t(''),
             'comment'		=> Craft::t('Comment'),
-            'dateCreated' 	=> Craft::t('Created'),
+            'dateCreated' 	=> Craft::t('Date'),
             'entry' 		=> Craft::t('Entry'),
         );
     }
@@ -70,7 +70,7 @@ class Comments_CommentElementType extends BaseElementType
     public function defineSortableAttributes()
     {
         return array(
-            'dateCreated' 	=> Craft::t('Created'),
+            'dateCreated' 	=> Craft::t('Date'),
             'comment'		=> Craft::t('Comment'),
             'entry' 		=> Craft::t('Entry'),
         );

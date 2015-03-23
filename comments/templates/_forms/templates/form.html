@@ -1,0 +1,25 @@
+<form class="form-inline comment-form" role="form" method="post">
+    <input type="hidden" name="action" value="comments/add">
+    <input type="hidden" name="entryId" value="{{ entry.id }}">
+    {% if currentUser %}<input type="hidden" name="userId" value="{{ currentUser.id }}">{% endif %}
+    {% if comment is defined %}<input type="hidden" name="parentId" value="{{ comment.id }}">{% endif %}
+    {{ getCsrfInput() }}
+
+    {% if not currentUser %}
+        <div class="form-group name-input">
+            <input class="form-control" name="fields[name]" type="text" placeholder="Your name" />
+        </div>
+
+        <div class="form-group email-input">
+            <input class="form-control" name="fields[email]" type="text" placeholder="Your email" />
+        </div>
+    {% endif %}
+
+    <div class="form-group comment-input">
+        <input class="form-control" name="fields[comment]" type="text" placeholder="Your comments" />
+    </div>
+
+    <div class="form-group comment-input-btn">
+        <button class="btn btn-default">Add Comment</button>
+    </div>
+</form>

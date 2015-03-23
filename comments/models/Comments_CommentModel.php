@@ -56,7 +56,7 @@ class Comments_CommentModel extends BaseElementModel
     }
 
 	public function getExcerpt($startPos=0, $maxLength=100) {
-		if(strlen($this->comment) > $maxLength) {
+		if (strlen($this->comment) > $maxLength) {
 			$excerpt   = substr($this->comment, $startPos, $maxLength-3);
 			$lastSpace = strrpos($excerpt, ' ');
 			$excerpt   = substr($excerpt, 0, $lastSpace);

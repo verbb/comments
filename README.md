@@ -12,7 +12,7 @@ Please be aware that Comments is being released at this stage very much in beta.
 
 - Threaded comments - users can comment on other comments.
 - Anonymous users can comment (configurable).
-- Comment moderation by admins - prevent comments from appearing on your site until authorised.
+- Comment moderation by admins - prevent comments from appearing on your site until approved.
 - Ready-to-go, single template tag for full comments list and reply forms.
 - Template override folder, so you can completely customise your own comment forms.
 - [Full-featured examples](https://github.com/engram-design/Comments/wiki) including CSS and JS to get started quickly.
@@ -42,6 +42,8 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Social media login integration.
 - Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
+- Gravatar support.
+- Preserve comment formatting.
 
 
 ### Changelog

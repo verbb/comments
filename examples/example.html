@@ -1,148 +1,155 @@
-{% set params = {
-	order: 'dateCreated asc',
-} %}
+<html>
+<head>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<style>
 
-{{ craft.comments.form(entry, params) }}
+	.comments-box {
+	    border: 1px solid #bbb;
+	    margin: 20px;
+	}
+
+	.comments-box .comment-input {
+	    width: 80%;
+	}
+
+	.comments-box .comment-input-btn {
+	    width: 18%;
+	}
+
+	.comments-box .form-group * {
+	    width: 100%;
+	}
+
+	.comments-box .email-input,
+	.comments-box .name-input {
+	    width: 40%;
+	    margin-bottom: 10px;
+	}
+
+	.comments-list {
+		margin: 0;
+		padding: 0;
+	    list-style: none;
+	    overflow: auto;
+	}
+
+	.comment-single .comment-single {
+		padding-left: 40px;
+	}
+
+	.comment-single .comment-container {
+		padding: 15px 10px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.comments-list li .comment-text,
+	.comments-list li .comment-image {
+	    display: table-cell;
+	}
+
+	.comments-list .comment-form {
+		display: none;
+	}
+
+	.comment-image {
+	    width: 40px;
+	    margin-right: 10px;
+	    height: 40px;
+	    float: left;
+	}
+
+	.comment-image img {
+	    width: 100%;
+	    border-radius: 50%;
+	}
+
+	.comment-text p {
+	    margin: 0;
+	}
+
+	.comment-heading {
+	    color: #aaa;
+	    font-size: 12px;
+		margin-bottom: 5px;
+		display: block;
+	}
+
+	.comment-heading .meta {
+		margin-left: 10px;
+	}
+
+	.comment-single .comment-form {
+		margin: 20px 0 0 0;
+		padding-bottom: 0;
+		border-top: 1px dotted #bbb;
+		padding: 10px;
+		margin: 0;
+	}
+
+	.comment-form-container {
+		margin: 20px;
+	}
+
+	.meta-buttons {
+		margin-top: 10px;
+	}
+
+	.meta-buttons a {
+	    font-weight: bold;
+	    font-size: 11px;
+		padding: 0 15px 0 0;
+	}
+
+	</style>
+</head>
+<body>
+	
+
+	{% set params = {
+		order: 'dateCreated asc',
+	} %}
+
+	{{ craft.comments.form(entry, params) }}
 
 
-<!-- Begin example JS/CSS -->
-<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-<script>
-$( document ).ready(function() {
-	$(document).on('submit', '.comment-form', function(e) {
-	  e.preventDefault();
 
-	  var data = $(this).serialize();
+	<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script>
+	$( document ).ready(function() {
+		$(document).on('submit', '.comment-form', function(e) {
+		  e.preventDefault();
 
-		$.ajax({
-			method: 'POST',
-			url: data.action,
-			data: data,
-			headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-		})
-		.success(function(data) {
-			console.log('success', data);
-		})
-		.error(function(data) {
-			console.log('error', data);
+		  var data = $(this).serialize();
+
+			$.ajax({
+				method: 'POST',
+				url: data.action,
+				data: data,
+				headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+			})
+			.success(function(data) {
+				console.log('success', data);
+			})
+			.error(function(data) {
+				console.log('error', data);
+			});
+		});
+
+		// toggle to show/hide comments
+		$(document).on('click', 'a.comment-toggle', function(e) {
+			e.preventDefault();
+
+			$(this).parents('.comment-single:first').find('.comments-list:first').slideToggle();
+		});
+
+		// toggle to show/hide reply form
+		$(document).on('click', 'a.comment-reply', function(e) {
+			e.preventDefault();
+
+			$element = $(this).parents('.comment-single:first');
+			$element.find('form:first').slideToggle();
 		});
 	});
-
-	// toggle to show/hide comments
-	$(document).on('click', 'a.comment-toggle', function(e) {
-		e.preventDefault();
-
-		$(this).parents('.comment-single:first').find('.comments-list:first').slideToggle();
-	});
-
-	// toggle to show/hide reply form
-	$(document).on('click', 'a.comment-reply', function(e) {
-		e.preventDefault();
-
-		$element = $(this).parents('.comment-single:first');
-		$element.find('form:first').slideToggle();
-	});
-});
-</script>
-
-<style>
-@import url(//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css);
-
-.comments-box {
-    border: 1px solid #bbb;
-    margin: 20px;
-}
-
-.comments-box .comment-input {
-    width: 80%;
-}
-
-.comments-box .comment-input-btn {
-    width: 18%;
-}
-
-.comments-box .form-group * {
-    width: 100%;
-}
-
-.comments-box .email-input,
-.comments-box .name-input {
-    width: 40%;
-    margin-bottom: 10px;
-}
-
-.comments-list {
-	margin: 0;
-	padding: 0;
-    list-style: none;
-    overflow: auto;
-}
-
-.comment-single .comment-single {
-	padding-left: 40px;
-}
-
-.comment-single .comment-container {
-	padding: 15px 10px;
-	border-bottom: 1px solid #ddd;
-}
-
-.comments-list li .comment-text,
-.comments-list li .comment-image {
-    display: table-cell;
-}
-
-.comments-list .comment-form {
-	display: none;
-}
-
-.comment-image {
-    width: 40px;
-    margin-right: 10px;
-    height: 40px;
-    float: left;
-}
-
-.comment-image img {
-    width: 100%;
-    border-radius: 50%;
-}
-
-.comment-text p {
-    margin: 0;
-}
-
-.comment-heading {
-    color: #aaa;
-    font-size: 12px;
-	margin-bottom: 5px;
-	display: block;
-}
-
-.comment-heading .meta {
-	margin-left: 10px;
-}
-
-.comment-single .comment-form {
-	margin: 20px 0 0 0;
-	padding-bottom: 0;
-	border-top: 1px dotted #bbb;
-	padding: 10px;
-	margin: 0;
-}
-
-.comment-form-container {
-	margin: 20px;
-}
-
-.meta-buttons {
-	margin-top: 10px;
-}
-
-.meta-buttons a {
-    font-weight: bold;
-    font-size: 11px;
-	padding: 0 15px 0 0;
-}
-
-</style>
+	</script>
+</body>
+</html>

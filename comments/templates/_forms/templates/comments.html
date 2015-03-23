@@ -1,108 +1,13 @@
-{% macro commentForm(entry, comment) %}
-    <form class="form-inline comment-form" role="form" method="post">
-	    <input type="hidden" name="action" value="comments/add">
-	    <input type="hidden" name="entryId" value="{{ entry.id }}">
-	    {% if currentUser %}<input type="hidden" name="userId" value="{{ currentUser.id }}">{% endif %}
-	    {% if comment %}<input type="hidden" name="parentId" value="{{ comment.id }}">{% endif %}
-	    {{ getCsrfInput() }}
-
-        {% if not currentUser %}
-	        <div class="form-group name-input">
-	            <input class="form-control" name="fields[name]" type="text" placeholder="Your name" />
-	        </div>
-
-	        <div class="form-group email-input">
-	            <input class="form-control" name="fields[email]" type="text" placeholder="Your email" />
-	        </div>
-        {% endif %}
-
-        <div class="form-group comment-input">
-            <input class="form-control" name="fields[comment]" type="text" placeholder="Your comments" />
-        </div>
-
-        <div class="form-group comment-input-btn">
-            <button class="btn btn-default">Add Comment</button>
-        </div>
-	</form>
-{% endmacro %}
-
-
-{% macro printComments(entry, comments) %}
-	{% import _self as self %}
-
-    <ul class="comments-list">
-		{% for comment in comments %}
-		    <li class="comment-single" data-id="{{ comment.id }}">
-		        <div class="comment-container">
-			        <div class="comment-image">
-			            {% if comment.userId %}
-			            	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
-
-			            	{% if photo %}
-				                <img src="{{ photo }}" />
-				            {% else %}
-					        	<img src="{{ resourceUrl('/images/user.gif') }}" />
-				            {% endif %}
-			            {% else %}
-				        	<img src="{{ resourceUrl('/images/user.gif') }}" />
-			            {% endif %}
-			        </div>
-
-			        <div class="comment-text">
-			            <span class="comment-heading">
-			            	<span class="title">
-					            {% if comment.userId %}
-					                {{ craft.users.id(comment.userId).first().fullName }}
-					            {% else %}
-					                {{ comment.name }}
-					            {% endif %}
-			            	</span>
-
-			            	{{ comment.id }}
-
-			            	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
-			            </span>
-
-			            <div class="comment-content">
-				            <p>{{ comment.comment }}</p>
-				        </div>
-
-			            <div class="meta-buttons">
-							<a href="#" class="comment-reply">
-								<span class="glyphicon glyphicon-share-alt"></span>
-								Reply
-							</a>
-							
-							<a href="#" class="comment-toggle">
-								<span class="glyphicon glyphicon-comment"></span>
-								{{ comment.descendants | length }} comments
-							</a>
-						</div>
-			        </div>
-		        </div>
-
-				{{ self.commentForm(entry, comment) }}
-
-				{% if comment.hasDescendants %}
-					{{ self.printComments(entry, comment.children) }}
-				{% endif %}
-		    </li>
-
-		{% endfor %}
-	</ul>
-{% endmacro %}
-
-{% import _self as self %}
-
+{% import '_forms/templates/comment' as macros %}
 
 <div class="comments-box">
 	{# Print out a tree-structured list of all comments #}
 	<div class="comments-container">
-		{{ self.printComments(entry, comments) }}
+		{{ macros.printComments(entry, comments) }}
 	</div>
 
 	{# Provide a comment form at the bottom of page. Used when not replying to another comment #}
 	<div class="comment-form-container">
-		{{ self.commentForm(entry) }}
+		{% include '_forms/templates/form' %}
 	</div>
 </div>
