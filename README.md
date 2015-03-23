@@ -17,7 +17,7 @@ Please be aware that Comments is being released at this stage very much in beta.
 - Comment moderation by admins - prevent comments from appearing on your site until approved.
 - Ready-to-go, single template tag for full comments list and reply forms.
 - Template override folder, so you can completely customise your own comment forms.
-- [Full-featured examples](https://github.com/engram-design/Comments/wiki) including CSS and JS to get started quickly.
+- [Full-featured examples](https://github.com/engram-design/Comments/tree/master/examples) including CSS and JS to get started quickly.
 
 
 ## Install
