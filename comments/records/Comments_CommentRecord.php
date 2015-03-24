@@ -11,6 +11,7 @@ class Comments_CommentRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
+            'elementType'   => array(AttributeType::String),
 			'structureId'   => array(AttributeType::Number),
 			'status'		=> array(AttributeType::Enum, 'values' => array(
 			    Comments_CommentModel::APPROVED,
@@ -37,8 +38,7 @@ class Comments_CommentRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
-			'entry'  => array(static::BELONGS_TO, 'EntryRecord', 'onDelete' => static::CASCADE),
+			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'required' => true, 'onDelete' => static::CASCADE),
 			'user' => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
 		);
 	}

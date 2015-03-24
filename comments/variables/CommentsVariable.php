@@ -20,13 +20,14 @@ class CommentsVariable
 		return craft()->comments->getCriteria($criteria);
 	}
 
-	public function form($entry, $criteria = array())
+	public function form($elementId, $criteria = array())
 	{	
 		$settings = craft()->plugins->getPlugin('comments')->getSettings();
 		$oldPath = craft()->path->getTemplatesPath();
+		$element = craft()->elements->getElementById($elementId);
 
 		$criteria = array_merge($criteria, array(
-			'entryId' => $entry->id,
+			'elementId' => $element->id,
 			'level' => '1',
 			'status' => Comments_CommentModel::APPROVED,
 		));
@@ -53,7 +54,7 @@ class CommentsVariable
 		}
 
 		$variables = array(
-			'entry' => $entry,
+			'element' => $element,
 			'comments' => $comments,
 		);
 		

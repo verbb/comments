@@ -14,9 +14,10 @@ class Comments_CommentModel extends BaseElementModel
 	{
         return array_merge(parent::defineAttributes(), array(
 			'id'			=> array(AttributeType::Number),
-			'entryId'		=> array(AttributeType::Number),
-			'userId'		=> array(AttributeType::Number),
-			'structureId'   => array(AttributeType::Number),
+			'elementId'		=> array(AttributeType::Number),
+            'elementType'   => array(AttributeType::String),
+            'userId'		=> array(AttributeType::Number),
+            'structureId'   => array(AttributeType::Number),
 			'status'		=> array(AttributeType::Enum, 'values' => array(
 			    Comments_CommentModel::APPROVED,
 			    Comments_CommentModel::PENDING,

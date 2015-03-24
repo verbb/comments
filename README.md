@@ -1,6 +1,6 @@
 # Comments
 
-Comments is a Craft CMS plugin that allows your users to comment on entries. Not a fan of using Disqus? All you comments are stored in your Craft install, and hooked up to your existing users.
+Comments is a Craft CMS plugin that allows your users to comment on elements. Not a fan of using Disqus? All you comments are stored in your Craft install, and hooked up to your existing users.
 
 <img src="https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/main.png" />
 
@@ -18,6 +18,7 @@ Please be aware that Comments is being released at this stage very much in beta.
 - Ready-to-go, single template tag for full comments list and reply forms.
 - Template override folder, so you can completely customise your own comment forms.
 - [Full-featured examples](https://github.com/engram-design/Comments/tree/master/examples) including CSS and JS to get started quickly.
+- Comments can be made on any element type (entries, users, assets, etc).
 
 
 ## Install
@@ -41,7 +42,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 ## Roadmap
 
 - Implement anti-spam solution. Server-side validation for comments. Look at better third-party solutions to integrate.
-- Provide fieldtype to disable comments per-entry. Also provide global settings to opt-in to comments, rather than opt-out.
+- Provide fieldtype to disable comments per-element. Also provide global settings to opt-in to comments, rather than opt-out.
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Social media login integration.
 - Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
@@ -49,12 +50,15 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Preserve comment formatting.
 - Provide simple WYSIWYG editor for front-end forms. Optional.
 - Support closing comments.
-- Allow comments on any element type (entries, assets, categories, etc).
 - Support email notifications, configurable.
 - Support sharing comment. Post to social media, permalink.
 
 
 ### Changelog
+
+#### 0.1.2
+
+- Added support for comments to be made on any element type (entries, users, assets, etc).
 
 #### 0.1.1
 

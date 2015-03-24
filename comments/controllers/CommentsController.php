@@ -43,7 +43,8 @@ class CommentsController extends BaseController
 
         $commentModel = new Comments_CommentModel();
 
-        $commentModel->entryId = craft()->request->getPost('entryId');
+        $commentModel->elementId = craft()->request->getPost('elementId');
+        $commentModel->elementType = craft()->elements->getElementById($commentModel->elementId);
         $commentModel->userId = ($user) ? $user->id : null;
         $commentModel->parentId = craft()->request->getPost('parentId');
         $commentModel->structureId = craft()->comments->getStructureId();

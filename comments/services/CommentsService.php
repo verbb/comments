@@ -34,17 +34,17 @@ class CommentsService extends BaseApplicationComponent
         return array_values($this->_commentsById);
     }
 
-    public function getEntriesWithComments()
+    public function getElementsWithComments()
     {
         $criteria = new \CDbCriteria();
-        $criteria->group = 'entryId';
+        $criteria->group = 'elementId';
 
         $comments = Comments_CommentRecord::model()->findAll($criteria);
 
         $entries = array();
         foreach ($comments as $comment) {
-            $entry = craft()->entries->getEntryById($comment->entryId);
-            $entries[] = $entry;
+            $element = craft()->elements->getElementById($comment->elementId);
+            $entries[] = $element;
         }
 
         return $entries;

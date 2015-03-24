@@ -1,4 +1,4 @@
-{% macro printComments(entry, comments) %}
+{% macro printComments(element, comments) %}
 	{% import _self as self %}
 
     <ul class="comments-list">
@@ -91,7 +91,7 @@
 				{% include '_forms/templates/form' %}
 
 				{% if comment.hasDescendants %}
-					{{ self.printComments(entry, comment.children) }}
+					{{ self.printComments(element, comment.children) }}
 				{% endif %}
 		    </li>
 

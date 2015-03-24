@@ -101,9 +101,9 @@
 
                 <hr/>
 
-                <h5>{{ "Entry"|t }}</h5>
-                {% set entry = craft.entries.id(comment.entryId).first() %}
-                <p><a class="go" href="{{ entry.url }}">{{ entry.title }}</a></p>
+                <h5>{{ "Element"|t }}</h5>
+                {% set element = craft.entries.id(comment.elementId).first() %}
+                <p><a class="go" href="{{ element.url }}">{{ element.title }}</a></p>
 
                 <hr/>
 

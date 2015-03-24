@@ -37,16 +37,17 @@ class Comments_CommentElementType extends BaseElementType
     {
         $sources = array(
         	'*' => array('label' => Craft::t('All Comments')),
-        	'entries' => array('heading' => Craft::t('Sections')),
         );
 
-		foreach (craft()->comments->getEntriesWithComments() as $entry) {
-			$key = 'entry:'.$entry->sectionId;
-			$section = craft()->sections->getSectionById($entry->sectionId);
+		foreach (craft()->comments->getElementsWithComments() as $element) {
+			$elementType = craft()->elements->getElementType($element->elementType);
+			$key = 'elements:'.$elementType->classHandle;
 
-			$sources[$key] = array(
-				'label'    => $section->name,
-				'criteria' => array('sectionId' => $entry->sectionId),
+			$sources[$key] = array('heading' => $elementType->name);
+
+			$sources[$key.':all'] = array(
+				'label' => Craft::t('All ' . $elementType->name),
+				'criteria' => array('elementType' => $element->elementType),
 			);
 		}
 
@@ -64,7 +65,7 @@ class Comments_CommentElementType extends BaseElementType
             'id'			=> Craft::t(''),
             'comment'		=> Craft::t('Comment'),
             'dateCreated' 	=> Craft::t('Date'),
-            'entry' 		=> Craft::t('Entry'),
+            'element' 		=> Craft::t('Element'),
         );
     }
 
@@ -73,7 +74,7 @@ class Comments_CommentElementType extends BaseElementType
         return array(
             'dateCreated' 	=> Craft::t('Date'),
             'comment'		=> Craft::t('Comment'),
-            'entry' 		=> Craft::t('Entry'),
+            'element' 		=> Craft::t('Element'),
         );
     }
 
@@ -90,13 +91,13 @@ class Comments_CommentElementType extends BaseElementType
                     return "<a href='" . $url . "'>" . $user->getFriendlyName() . "</a>";
                 }
             }
-            case 'entry': {
-                $entry = craft()->entries->getEntryById($element->entryId);
+            case 'element': {
+                $element = craft()->elements->getElementById($element->elementId);
 
-                if ($entry == null) {
-                    return Craft::t('[Deleted Entry]');
+                if ($element == null) {
+                    return Craft::t('[Deleted element]');
                 } else {
-                    return "<a href='" . $entry->cpEditUrl . "'>" . $entry->title . "</a>";
+                    return "<a href='" . $element->cpEditUrl . "'>" . $element->title . "</a>";
                 }
             }
             case 'comment': {
@@ -126,9 +127,10 @@ class Comments_CommentElementType extends BaseElementType
     public function defineCriteriaAttributes()
     {
         return array(
-			'entryId'		=> array(AttributeType::Number),
+			'elementId'		=> array(AttributeType::Number),
+			'elementType'	=> array(AttributeType::String),
 			'userId'		=> array(AttributeType::Number),
-			'sectionId'		=> array(AttributeType::Number),
+			//'sectionId'		=> array(AttributeType::Number),
 			'structureId'	=> array(AttributeType::Number),
 			'status'		=> array(AttributeType::String),
 			'name'			=> array(AttributeType::String),
@@ -144,23 +146,21 @@ class Comments_CommentElementType extends BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
         $query
-		->addSelect('comments.entryId, comments.userId, entries.sectionId, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
+		->addSelect('comments.elementId, comments.userId, comments.elementType, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
 		->join('comments comments', 'comments.id = elements.id')
-		->leftJoin('entries entries', 'entries.id = comments.entryId')
-		->leftJoin('sections sections', 'sections.id = entries.sectionId')
 		->leftJoin('structures structures', 'structures.id = comments.structureId')
 		->leftJoin('structureelements structureelements', array('and', 'structureelements.structureId = structures.id', 'structureelements.elementId = comments.id'));
 
-		if ($criteria->entryId) {
-			$query->andWhere(DbHelper::parseParam('comments.entryId', $criteria->entryId, $query->params));
+		if ($criteria->elementId) {
+			$query->andWhere(DbHelper::parseParam('comments.elementId', $criteria->elementId, $query->params));
+		}
+
+		if ($criteria->elementType) {
+			$query->andWhere(DbHelper::parseParam('comments.elementType', $criteria->elementType, $query->params));
 		}
 
 		if ($criteria->userId) {
 			$query->andWhere(DbHelper::parseParam('comments.userId', $criteria->userId, $query->params));
-		}
-
-		if ($criteria->sectionId) {
-			$query->andWhere(DbHelper::parseParam('entries.sectionId', $criteria->sectionId, $query->params));
 		}
 
 		if ($criteria->structureId) {
@@ -205,6 +205,5 @@ class Comments_CommentElementType extends BaseElementType
 	{
 		return array('Comments_Status');
 	}
-
 
 }
