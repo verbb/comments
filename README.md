@@ -41,17 +41,34 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ## Roadmap
 
-- Implement anti-spam solution. Server-side validation for comments. Look at better third-party solutions to integrate.
-- Provide fieldtype to disable comments per-element. Also provide global settings to opt-in to comments, rather than opt-out.
-- Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
-- Social media login integration.
+**0.2.0**
+
+- Preserve comment formatting. Change to textarea in templates.
+- Support returning user collection that have flagged, or voted, on a comment - for use in templates.
 - Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
-- Gravatar support.
-- Preserve comment formatting.
-- Provide simple WYSIWYG editor for front-end forms. Optional.
-- Support closing comments.
-- Support email notifications, configurable.
+
+**0.3.0**
+
+- Provide fieldtype to disable comments per-element. Also provide global settings to opt-in to comments, rather than opt-out.
+- Implement anti-spam solution. Server-side validation for comments. Look at better third-party solutions to integrate.
+
+**0.4.0**
+
 - Support sharing comment. Post to social media, permalink.
+- Fully Ajax-support all endpoints.
+- Support closing comments. No new comments can be made.
+
+**0.5.0**
+
+- Provide a set of hooks for third-party plugins.
+
+**1.0+**
+
+- Provide simple WYSIWYG editor for front-end forms. Optional.
+- Social media login integration.
+- Gravatar support.
+- Support email notifications.
+- Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 
 
 ### Changelog
