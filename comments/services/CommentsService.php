@@ -92,6 +92,12 @@ class CommentsService extends BaseApplicationComponent
         $commentRecord->setAttributes($comment->getAttributes(), false);
 
 
+        // Fire an 'onBeforeSave' event
+        Craft::import('plugins.comments.events.CommentsEvent');
+        $event = new CommentsEvent($this, array('comment' => $comment));
+        craft()->comments->onBeforeSave($event);
+
+
         // Now, lets try to save all this
         if ($comment->validate()) {
             $success = craft()->elements->saveElement($comment);
@@ -195,6 +201,13 @@ class CommentsService extends BaseApplicationComponent
 
         // Must be set to the same one then
         return false;
+    }
+
+
+
+    public function onBeforeSave(CommentsEvent $event)
+    {
+        $this->raiseEvent('onBeforeSave', $event);
     }
 
 
