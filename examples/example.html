@@ -119,20 +119,26 @@ body {
 	color: #288ce4;
 }
 
-.comment-votes {
+.meta-buttons .comment-votes {
 	display: inline-block;
 	margin-right: 15px;
 }
 
-.comment-votes a {
+.meta-buttons .comment-votes a {
 	padding: 0 0 0 2px;
 }
 
-.comment-votes .count {
+.meta-buttons .comment-votes .count {
 	color: #a5b2b9;
 	font-weight: 500;
 	font-size: 13px;
 	margin-right: 2px;
+}
+
+.meta-buttons .static-label {
+	font-weight: bold;
+	font-size: 11px;
+	color: #a5b2b9;
 }
 
 </style>
@@ -149,8 +155,6 @@ body {
 } %}
 
 {{ craft.comments.form(entry, params) }}
-
-
 
 
 

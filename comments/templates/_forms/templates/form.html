@@ -1,7 +1,6 @@
 <form class="form-inline comment-form" role="form" method="post">
     <input type="hidden" name="action" value="comments/add">
     <input type="hidden" name="entryId" value="{{ entry.id }}">
-    {% if currentUser %}<input type="hidden" name="userId" value="{{ currentUser.id }}">{% endif %}
     {% if comment is defined %}<input type="hidden" name="parentId" value="{{ comment.id }}">{% endif %}
     {{ getCsrfInput() }}
 

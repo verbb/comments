@@ -39,11 +39,12 @@ class CommentsController extends BaseController
         $this->requirePostRequest();
         $this->requireAjaxRequest();
         $plugin = craft()->plugins->getPlugin('comments');
+        $user = craft()->userSession->getUser();
 
         $commentModel = new Comments_CommentModel();
 
         $commentModel->entryId = craft()->request->getPost('entryId');
-        $commentModel->userId = craft()->request->getPost('userId');
+        $commentModel->userId = ($user) ? $user->id : null;
         $commentModel->parentId = craft()->request->getPost('parentId');
         $commentModel->structureId = craft()->comments->getStructureId();
         
@@ -79,7 +80,7 @@ class CommentsController extends BaseController
             $result = craft()->comments->saveComment($commentModel);
 
             if (!array_key_exists('error', $result)) {
-                $this->returnJson(array('success' => true));
+                $this->returnJson($result);
             } else {
                 $this->returnJson($result);
             }

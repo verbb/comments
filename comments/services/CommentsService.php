@@ -49,12 +49,6 @@ class CommentsService extends BaseApplicationComponent
 
         return $entries;
     }
-/*
-    public function getCommentById($commentId)
-    {
-        $record = Comments_CommentRecord::model()->findById($commentId);
-        return Comments_CommentModel::populateModel($record);
-    }*/
 
     public function getStructureId()
     {
