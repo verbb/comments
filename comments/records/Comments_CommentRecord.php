@@ -40,34 +40,6 @@ class Comments_CommentRecord extends BaseRecord
 			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
 			'entry'  => array(static::BELONGS_TO, 'EntryRecord', 'onDelete' => static::CASCADE),
 			'user' => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
-			//'parent' => array(static::BELONGS_TO, 'Comments_CommentRecord'),
 		);
 	}
 }
-
-
-
-
-
-/*
-
-
-	public function defineIndexes()
-	{
-		return array(
-			array('columns' => array('sectionId')),
-			array('columns' => array('typeId')),
-			array('columns' => array('postDate')),
-			array('columns' => array('expiryDate')),
-		);
-	}
-
-	protected function defineAttributes()
-	{
-		return array(
-			'postDate'   => AttributeType::DateTime,
-			'expiryDate' => AttributeType::DateTime,
-		);
-	}
-}*/
-

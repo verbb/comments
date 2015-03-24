@@ -88,4 +88,72 @@ class CommentsController extends BaseController
         }
     }
 
+    public function actionFlagComment()
+    {
+        $flagModel = new Comments_FlagModel();
+
+        $flagModel->commentId = craft()->request->getQuery('id');
+
+        // Only logged in users can flag
+        if (craft()->userSession->getUser()) {
+            $flagModel->userId = craft()->userSession->getUser()->id;
+
+            $result = craft()->comments_flag->saveFlag($flagModel);
+
+            if ($result === true) {
+                if (craft()->request->isAjaxRequest()) {
+                    $this->returnJson($result);
+                } else {
+                    craft()->comments->redirect($result['object']);
+                }
+            }
+        }
+    }
+
+    public function actionUpvoteComment()
+    {
+        $model = new Comments_VoteModel();
+
+        $model->commentId = craft()->request->getQuery('id');
+        $model->upvote = '1';
+
+        if (craft()->userSession->getUser()) {
+            $model->userId = craft()->userSession->getUser()->id;
+
+            $result = craft()->comments_vote->saveVote($model);
+
+            if ($result === true) {
+                if (craft()->request->isAjaxRequest()) {
+                    $this->returnJson($result);
+                } else {
+                    craft()->comments->redirect($result['object']);
+                }
+            }
+        }
+
+    }
+
+    public function actionDownvoteComment()
+    {
+        $model = new Comments_VoteModel();
+
+        $model->commentId = craft()->request->getQuery('id');
+        $model->downvote = '1';
+
+        if (craft()->userSession->getUser()) {
+            $model->userId = craft()->userSession->getUser()->id;
+
+            $result = craft()->comments_vote->saveVote($model);
+
+            if ($result === true) {
+                if (craft()->request->isAjaxRequest()) {
+                    $this->returnJson($result);
+                } else {
+                    craft()->comments->redirect($result['object']);
+                }
+            }
+        }
+    }
+
+
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 class CommentsService extends BaseApplicationComponent
@@ -129,6 +128,29 @@ class CommentsService extends BaseApplicationComponent
             $comment->addErrors($commentRecord->getErrors());
             return array('error' => $comment->getErrors());
         }
+    }
+
+    public function redirect($object = null)
+    {
+        $url = craft()->request->getPost('redirect');
+
+        if ($url === null) {
+            $url = craft()->request->getParam('return');
+
+            if ($url === null) {
+                $url = craft()->request->getUrlReferrer();
+
+                if ($url === null) {
+                    $url = '/';
+                }
+            }
+        }
+
+        if ($object) {
+            $url = craft()->templates->renderObjectTemplate($url, $object);
+        }
+
+        craft()->request->redirect($url);
     }
 
 

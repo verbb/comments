@@ -17,7 +17,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1';
+        return '0.1.1';
     }
 
     public function getDeveloper()
@@ -51,6 +51,7 @@ class CommentsPlugin extends BasePlugin
             'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
             'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
             'templateFolderOverride'    => AttributeType::String,
+            'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
         );
     }
 

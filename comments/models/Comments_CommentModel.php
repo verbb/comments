@@ -68,5 +68,38 @@ class Comments_CommentModel extends BaseElementModel
 		return $excerpt;
 	}
 
+    public function flagActionUrl($options = array())
+    {
+        return CommentsHelper::flagAction($this, $options);
+    }
+
+    public function isFlagged($options = array())
+    {
+        return craft()->comments_flag->isOverFlagThreshold($this);
+    }
+
+    public function flagCount($options = array())
+    {
+        return count(craft()->comments_flag->getFlagsByCommentId($this->id));
+    }
+
+    public function upvoteActionUrl($options = array())
+    {
+        return CommentsHelper::upvoteAction($this, $options);
+    }
+
+    public function downvoteActionUrl($options = array())
+    {
+        return CommentsHelper::downvoteAction($this, $options);
+    }
+
+    public function voteCount($options = array())
+    {
+        $downvotes = craft()->comments_vote->getDownvotesByCommentId($this->id);
+        $upvotes = craft()->comments_vote->getUpvotesByCommentId($this->id);
+
+        return count($upvotes) - count($downvotes);
+    }
+
 
 }

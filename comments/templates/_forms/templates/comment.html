@@ -33,19 +33,35 @@
 			            </span>
 
 			            <div class="comment-content">
-				            <p>{{ comment.comment }}</p>
+			            	{% if comment.isFlagged %}
+			            		<p>[Comment marked as innapropriate]</p>
+			            	{% else %}
+					            <p>{{ comment.comment }}</p>
+			            	{% endif %}
 				        </div>
 
 			            <div class="meta-buttons">
-	                        <a href="#" class="comment-vote-up">
-	                            <span class="glyphicon glyphicon-chevron-up"></span>
-	                            <span class="count">0</span>
-	                        </a>
+			            	<div class="comment-votes">
+	                            <span class="count">{{ comment.voteCount }} votes</span>
 
-	                        <a href="#" class="comment-vote-down">
-	                            <span class="glyphicon glyphicon-chevron-down"></span>
-	                            <span class="count">0</span>
-	                        </a>
+		                        {% if comment.upvoteActionUrl %}
+			                        <a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
+			                            <span class="glyphicon glyphicon-chevron-up"></span>
+			                        </a>
+
+			                        <a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
+			                            <span class="glyphicon glyphicon-chevron-down"></span>
+			                        </a>
+		                        {% else %}
+			                        <span class="static-label comment-vote-up">
+			                            <span class="glyphicon glyphicon-chevron-up"></span>
+			                        </span>
+
+			                        <span class="static-label comment-vote-down">
+			                            <span class="glyphicon glyphicon-chevron-down"></span>
+			                        </span>
+		                        {% endif %}
+			            	</div>
 
 							<a href="#" class="comment-reply">
 								<span class="glyphicon glyphicon-share-alt"></span>
@@ -57,10 +73,17 @@
 								{{ comment.descendants | length }} comments
 							</a>
 							
-							<a href="#" class="comment-flag">
-								<span class="glyphicon glyphicon-flag"></span>
-								Flag as innapropriate
-							</a>
+							{% if comment.flagActionUrl %}
+								<a href="{{ comment.flagActionUrl }}" class="comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>
+									Flag as inappropriate
+								</a>
+							{% else %}
+								<span class="static-label comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>
+									Flagged as inappropriate
+								</span>
+							{% endif %}
 						</div>
 			        </div>
 		        </div>
