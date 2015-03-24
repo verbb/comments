@@ -23,6 +23,7 @@ class CommentsVariable
 	public function form($entry, $criteria = array())
 	{	
 		$settings = craft()->plugins->getPlugin('comments')->getSettings();
+		$oldPath = craft()->path->getTemplatesPath();
 
 		$criteria = array_merge($criteria, array(
 			'entryId' => $entry->id,
@@ -58,7 +59,7 @@ class CommentsVariable
 		
 		$html = craft()->templates->render($templateFile, $variables);
 		
-		craft()->path->setTemplatesPath(craft()->path->getTemplatesPath());
+		craft()->path->setTemplatesPath($oldPath);
 
         return new \Twig_Markup($html, craft()->templates->getTwig()->getCharset());
 	}
