@@ -44,7 +44,7 @@ class CommentsController extends BaseController
         $commentModel = new Comments_CommentModel();
 
         $commentModel->elementId = craft()->request->getPost('elementId');
-        $commentModel->elementType = craft()->elements->getElementById($commentModel->elementId);
+        $commentModel->elementType = craft()->elements->getElementTypeById($commentModel->elementId);
         $commentModel->userId = ($user) ? $user->id : null;
         $commentModel->parentId = craft()->request->getPost('parentId');
         $commentModel->structureId = craft()->comments->getStructureId();
@@ -65,6 +65,11 @@ class CommentsController extends BaseController
             $commentModel->status = Comments_CommentModel::PENDING;
         }
 
+
+        // Let's check for spam!
+        if (!craft()->comments_protect->verifyFields()) {
+            $this->returnJson(array('error' => 'Form validation failed. Marked as spam.'));
+        }
 
         // Protect against Anonymous submissions, if turned off
         if (!$plugin->getSettings()->allowAnonymous && !$commentModel->userId) {

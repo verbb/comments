@@ -65,4 +65,10 @@ class CommentsVariable
         return new \Twig_Markup($html, craft()->templates->getTwig()->getCharset());
 	}
 
+	public function protect()
+	{
+		$fields = craft()->comments_protect->getFields();
+        return new \Twig_Markup($fields, craft()->templates->getTwig()->getCharset());
+	}
+
 }

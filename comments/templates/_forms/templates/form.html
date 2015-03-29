@@ -2,6 +2,9 @@
     <input type="hidden" name="action" value="comments/add">
     <input type="hidden" name="elementId" value="{{ element.id }}">
     {% if comment is defined %}<input type="hidden" name="parentId" value="{{ comment.id }}">{% endif %}
+    
+    {# Anti-spam and security measures #}
+    {{ craft.comments.protect() }}
     {{ getCsrfInput() }}
 
     {% if not currentUser %}
