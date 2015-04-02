@@ -7,7 +7,9 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 
 ## Currently in Beta
 
-Please be aware that Comments is being released at this stage very much in beta. Please **do not** use this plugin in a production environment until v1.0 is released. We would greatly value your feedback through the beta process, so feel free to [make a suggestion](https://github.com/engram-design/Comments/issues)
+Please be aware that Comments is being released at this stage very much in beta. As such, there will be lots of rapid, breaking changes being made to the plugin. It's for this reason that it's not suitable for use in a production environment just yet. It's certainly safe to do so - you just may be updating it a lot!
+
+We would greatly value your feedback through the beta process, so feel free to [make a suggestion](https://github.com/engram-design/Comments/issues)
 
 
 ## Features
@@ -36,7 +38,9 @@ Please be aware that Comments is being released at this stage very much in beta.
 
 ## Documentation
 
-Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, including template tags, and an overview of how Comments functions. **Note:** This is being constantly added to and improved over the beta process.
+Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, including template tags, and an overview of how Comments functions.
+
+**Note:** This is being constantly added to and being improved during the beta process.
 
 
 ## Roadmap
@@ -62,8 +66,10 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Provide simple WYSIWYG editor for front-end forms. Optional.
 - Social media login integration.
 - Gravatar support.
-- Support email notifications.
+- Support email notifications. Likely through [Postmaster](https://github.com/objectivehtml/Postmaster-for-Craft-CMS)
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
+- Create Pusher-integrated real-time example comments form.
+- Create non-Ajax example comments form.
 
 
 ### Changelog
