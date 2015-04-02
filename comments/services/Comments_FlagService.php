@@ -11,7 +11,7 @@ class Comments_FlagService extends BaseApplicationComponent
 
     public function getFlagsByCommentId($commentId)
     {
-		$records = Comments_FlagRecord::model()->findByAttributes(array('commentId' => $commentId));
+		$records = Comments_FlagRecord::model()->findAllByAttributes(array('commentId' => $commentId));
         return Comments_FlagModel::populateModels($records, 'id');
     }
 

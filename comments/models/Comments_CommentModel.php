@@ -79,9 +79,9 @@ class Comments_CommentModel extends BaseElementModel
         return craft()->comments_flag->isOverFlagThreshold($this);
     }
 
-    public function flagCount($options = array())
+    public function flags($options = array())
     {
-        return count(craft()->comments_flag->getFlagsByCommentId($this->id));
+        return craft()->comments_flag->getFlagsByCommentId($this->id);
     }
 
     public function upvoteActionUrl($options = array())
