@@ -9,6 +9,12 @@ class Comments_VoteService extends BaseApplicationComponent
         return Comments_VoteModel::populateModels($records, 'id');
     }
 
+    public function getCotesByCommentId($commentId)
+    {
+        $records = Comments_VoteRecord::model()->findAllByAttributes(array('commentId' => $commentId));
+        return Comments_VoteModel::populateModels($records, 'id');
+    }
+
     public function getDownvotesByCommentId($commentId)
     {
         $records = Comments_VoteRecord::model()->findAllByAttributes(array('commentId' => $commentId, 'downvote' => '1'));

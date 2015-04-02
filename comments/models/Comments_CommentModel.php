@@ -94,12 +94,9 @@ class Comments_CommentModel extends BaseElementModel
         return CommentsHelper::downvoteAction($this, $options);
     }
 
-    public function voteCount($options = array())
+    public function votes($options = array())
     {
-        $downvotes = craft()->comments_vote->getDownvotesByCommentId($this->id);
-        $upvotes = craft()->comments_vote->getUpvotesByCommentId($this->id);
-
-        return count($upvotes) - count($downvotes);
+        return craft()->comments_flag->getFlagsByCommentId($this->id);
     }
 
 

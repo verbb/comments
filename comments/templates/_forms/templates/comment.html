@@ -42,7 +42,7 @@
 
 			            <div class="meta-buttons">
 			            	<div class="comment-votes">
-	                            <span class="count">{{ comment.voteCount }} votes</span>
+	                            <span class="count">{{ comment.votes | length }} votes</span>
 
 		                        {% if comment.upvoteActionUrl %}
 			                        <a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
