@@ -41,14 +41,9 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ## Roadmap
 
-**0.2.0**
-
-- Preserve comment formatting. Change to textarea in templates.
-- Support returning user collection that have flagged, or voted, on a comment - for use in templates.
-- Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
-
 **0.3.0**
 
+- Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
 - Provide fieldtype to disable comments per-element. Also provide global settings to opt-in to comments, rather than opt-out.
 - Implement anti-spam solution. Server-side validation for comments. Look at better third-party solutions to integrate.
 
@@ -73,6 +68,11 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ### Changelog
 
+#### 0.2.0
+
+- Preserve comment formatting. Change to textarea in templates.
+- Support returning user collection that have flagged, or voted, on a comment - for use in templates. Removed flagCount and votesCount in favour of using `length` Twig filter.
+
 #### 0.1.2
 
 - Added support for comments to be made on any element type (entries, users, assets, etc).
@@ -83,6 +83,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Added support for flagging inappropriate comments.
 - After set amount of flags made against a comment, the 'isFlagged' property on the comment is true. Configurable through settings.
 
-#### 0.1
+#### 0.1.0
 
 - Initial beta release.
