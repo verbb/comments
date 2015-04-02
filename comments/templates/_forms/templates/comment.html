@@ -36,7 +36,7 @@
 			            	{% if comment.isFlagged %}
 			            		<p>[Comment marked as innapropriate]</p>
 			            	{% else %}
-					            <p>{{ comment.comment }}</p>
+					            <p>{{ comment.comment | nl2br }}</p>
 			            	{% endif %}
 				        </div>
 
