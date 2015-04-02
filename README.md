@@ -70,8 +70,8 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 #### 0.2.0
 
-- Preserve comment formatting. Change to textarea in templates.
-- Support returning user collection that have flagged, or voted, on a comment - for use in templates. Removed flagCount and votesCount in favour of using `length` Twig filter.
+- Preserve comment formatting. Changed comment field to textarea in templates.
+- Comments have access to objects for [flags](https://github.com/engram-design/Comments/wiki/Comment-ElementType#flags) and [votes](https://github.com/engram-design/Comments/wiki/Comment-ElementType#votes). Removed flagCount and votesCount in favour of using `length` Twig filter.
 
 #### 0.1.2
 
