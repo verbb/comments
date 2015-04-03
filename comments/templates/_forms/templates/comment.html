@@ -1,100 +1,21 @@
 {% macro printComments(element, comments) %}
-	{% import _self as self %}
-
     <ul class="comments-list">
 		{% for comment in comments %}
 		    <li class="comment-single" data-id="{{ comment.id }}">
-		        <div class="comment-container">
-			        <div class="comment-image">
-			            {% if comment.userId %}
-			            	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
+				
+				{# Get the comment template depending on status #}		        
+				{% include '_forms/templates/comment-' ~ comment.status %}
 
-			            	{% if photo %}
-				                <img src="{{ photo }}" />
-				            {% else %}
-					        	<img src="{{ resourceUrl('/images/user.gif') }}" />
-				            {% endif %}
-			            {% else %}
-				        	<img src="{{ resourceUrl('/images/user.gif') }}" />
-			            {% endif %}
-			        </div>
-
-			        <div class="comment-text">
-			            <span class="comment-heading">
-			            	<span class="title">
-					            {% if comment.userId %}
-					                {{ craft.users.id(comment.userId).first().fullName }}
-					            {% else %}
-					                {{ comment.name }}
-					            {% endif %}
-			            	</span>
-
-			            	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
-			            </span>
-
-			            <div class="comment-content">
-			            	{% if comment.isFlagged %}
-			            		<p>[Comment marked as innapropriate]</p>
-			            	{% else %}
-					            <p>{{ comment.comment | nl2br }}</p>
-			            	{% endif %}
-				        </div>
-
-			            <div class="meta-buttons">
-			            	<div class="comment-votes">
-	                            <span class="count">{{ comment.votes | length }} votes</span>
-
-		                        {% if comment.upvoteActionUrl %}
-			                        <a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
-			                            <span class="glyphicon glyphicon-chevron-up"></span>
-			                        </a>
-
-			                        <a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
-			                            <span class="glyphicon glyphicon-chevron-down"></span>
-			                        </a>
-		                        {% else %}
-			                        <span class="static-label comment-vote-up">
-			                            <span class="glyphicon glyphicon-chevron-up"></span>
-			                        </span>
-
-			                        <span class="static-label comment-vote-down">
-			                            <span class="glyphicon glyphicon-chevron-down"></span>
-			                        </span>
-		                        {% endif %}
-			            	</div>
-
-							<a href="#" class="comment-reply">
-								<span class="glyphicon glyphicon-share-alt"></span>
-								Reply
-							</a>
-							
-							<a href="#" class="comment-toggle">
-								<span class="glyphicon glyphicon-comment"></span>
-								{{ comment.descendants | length }} comments
-							</a>
-							
-							{% if comment.flagActionUrl %}
-								<a href="{{ comment.flagActionUrl }}" class="comment-flag">
-									<span class="glyphicon glyphicon-flag"></span>
-									Flag as inappropriate
-								</a>
-							{% else %}
-								<span class="static-label comment-flag">
-									<span class="glyphicon glyphicon-flag"></span>
-									Flagged as inappropriate
-								</span>
-							{% endif %}
-						</div>
-			        </div>
-		        </div>
-
+				{# An inline form for easy reply #}
 				{% include '_forms/templates/form' %}
 
 				{% if comment.hasDescendants %}
-					{{ self.printComments(element, comment.children) }}
+					{{ _self.printComments(element, comment.children) }}
 				{% endif %}
 		    </li>
 
 		{% endfor %}
 	</ul>
 {% endmacro %}
+
+{{ _self.printComments(element, comments) }}

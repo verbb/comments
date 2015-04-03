@@ -69,6 +69,15 @@ class Comments_CommentModel extends BaseElementModel
 		return $excerpt;
 	}
 
+    public function deleteActionUrl($options = array())
+    {
+        return CommentsHelper::deleteAction($this, $options);
+    }
+
+    //
+    // Flags
+    //
+
     public function flagActionUrl($options = array())
     {
         return CommentsHelper::flagAction($this, $options);
@@ -84,6 +93,10 @@ class Comments_CommentModel extends BaseElementModel
         return craft()->comments_flag->getFlagsByCommentId($this->id);
     }
 
+    //
+    // Votes
+    //
+
     public function upvoteActionUrl($options = array())
     {
         return CommentsHelper::upvoteAction($this, $options);
@@ -96,8 +109,63 @@ class Comments_CommentModel extends BaseElementModel
 
     public function votes($options = array())
     {
-        return craft()->comments_flag->getFlagsByCommentId($this->id);
+        return craft()->comments_vote->getVotesByCommentId($this->id);
     }
+
+    public function voteCount($options = array())
+    {
+        $downvotes = craft()->comments_vote->getDownvotesByCommentId($this->id);
+        $upvotes = craft()->comments_vote->getUpvotesByCommentId($this->id);
+
+        return count($upvotes) - count($downvotes);
+    }
+
+    public function canVote($options = array())
+    {
+        $user = craft()->userSession->getUser();
+
+        // Only registered users can vote
+        if (!$user) {
+            return false;
+        }
+
+        // User cannot vote on their own comment
+        if ($user->id == $this->userId) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canUpVote($options = array())
+    {
+        $user = craft()->userSession->getUser();
+
+        // User can only upvote once
+        if ($user) {
+            if (craft()->comments_vote->hasUpVoted($this, $user)) {
+                return false;
+            }
+        }
+
+        return $this->canVote();
+    }
+
+    public function canDownVote($options = array())
+    {
+        $user = craft()->userSession->getUser();
+
+        // User can only upvote once
+        if ($user) {
+            if (craft()->comments_vote->hasDownVoted($this, $user)) {
+                return false;
+            }
+        }
+
+        return $this->canVote();
+    }
+
+
 
 
 }

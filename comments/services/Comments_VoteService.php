@@ -9,7 +9,7 @@ class Comments_VoteService extends BaseApplicationComponent
         return Comments_VoteModel::populateModels($records, 'id');
     }
 
-    public function getCotesByCommentId($commentId)
+    public function getVotesByCommentId($commentId)
     {
         $records = Comments_VoteRecord::model()->findAllByAttributes(array('commentId' => $commentId));
         return Comments_VoteModel::populateModels($records, 'id');
@@ -34,6 +34,20 @@ class Comments_VoteService extends BaseApplicationComponent
         return ($record) ? true : false;
     }
 
+    public function hasDownVoted($comment, $user)
+    {
+        $record = Comments_VoteRecord::model()->findByAttributes(array('commentId' => $comment->id, 'userId' => $user->id, 'downvote' => '1'));
+
+        return ($record) ? true : false;
+    }
+
+    public function hasUpVoted($comment, $user)
+    {
+        $record = Comments_VoteRecord::model()->findByAttributes(array('commentId' => $comment->id, 'userId' => $user->id, 'upvote' => '1'));
+
+        return ($record) ? true : false;
+    }
+
     public function saveVote(Comments_VoteModel $model)
     {
         $record = new Comments_VoteRecord();
@@ -43,10 +57,12 @@ class Comments_VoteService extends BaseApplicationComponent
         if ($record->save()) {
             $model->setAttribute('id', $record->getAttribute('id'));
 
-            return true;
+            $comment = craft()->comments->getCommentById($model->commentId);
+
+            return array('success' => true, 'votes' => $comment->voteCount());
         } else {
             $model->addErrors($record->getErrors());
-            return false;
+            return array('error' => $model->getErrors());
         }
     }
 

@@ -1,0 +1,59 @@
+<div class="comment-container">
+	<div class="comment-image">
+	    {% if comment.userId %}
+	    	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
+
+	    	{% if photo %}
+	            <img src="{{ photo }}" />
+	        {% else %}
+	        	<img src="{{ resourceUrl('/images/user.gif') }}" />
+	        {% endif %}
+	    {% else %}
+	    	<img src="{{ resourceUrl('/images/user.gif') }}" />
+	    {% endif %}
+	</div>
+
+	<div class="comment-text">
+	    <span class="comment-heading">
+	    	<span class="title">
+	            {% if comment.userId %}
+	                {{ craft.users.id(comment.userId).first().fullName }}
+	            {% else %}
+	                {{ comment.name }}
+	            {% endif %}
+	    	</span>
+
+	    	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
+	    </span>
+
+	    <div class="comment-content">
+    		<p>[Comment marked as spam]</p>
+	    </div>
+
+	    <div class="meta-buttons">
+	    	<div class="comment-votes">
+	            <span class="count">{{ comment.voteCount }} votes</span>
+
+	            {% if comment.canUpVote %}
+	                <a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
+	                    <span class="glyphicon glyphicon-chevron-up"></span>
+	                </a>
+	            {% endif %}
+
+	            {% if comment.canDownVote %}
+	                <a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
+	                    <span class="glyphicon glyphicon-chevron-down"></span>
+	                </a>
+	            {% endif %}
+	    	</div>
+
+			<a href="#" class="comment-toggle">
+				<span class="glyphicon glyphicon-comment"></span>
+				{{ comment.descendants | length }} comments
+			</a>
+		</div>
+	</div>
+</div>
+
+
+	

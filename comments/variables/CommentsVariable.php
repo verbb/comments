@@ -34,7 +34,7 @@ class CommentsVariable
 		$criteria = array_merge($criteria, array(
 			'elementId' => $element->id,
 			'level' => '1',
-			'status' => Comments_CommentModel::APPROVED,
+			//'status' => Comments_CommentModel::APPROVED,
 		));
 
 		$comments = craft()->comments->getCriteria($criteria);

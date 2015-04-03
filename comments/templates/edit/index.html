@@ -104,7 +104,7 @@
                 <h5>{{ "Element"|t }}</h5>
                 {% set element = craft.entries.id(comment.elementId).first() %}
                 {% if element %}
-                <p><a class="go" href="{{ element.url }}">{{ element.title }}</a></p>
+                    <p><a class="go" href="{{ element.url }}">{{ element.title }}</a></p>
                 {% endif %}
 
                 <hr/>

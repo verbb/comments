@@ -3,6 +3,16 @@ namespace Craft;
 
 class CommentsHelper
 {
+    public function deleteAction($comment, $options = array())
+    {
+        $params = array(
+            'id' => $comment->id,
+            'return' => craft()->request->getUrl(),
+        );
+
+        return UrlHelper::getActionUrl('comments/delete', $params);
+    }
+
     public function flagAction($comment, $options = array())
     {
         $user = craft()->userSession->getUser();
@@ -37,7 +47,7 @@ class CommentsHelper
         if ($user) {
 
             // Ensure the user hasn't voted yet
-            $hasVoted = craft()->comments_vote->hasVoted($comment, $user);
+            $hasVoted = craft()->comments_vote->hasUpVoted($comment, $user);
 
             if (!$hasVoted) {
                 return UrlHelper::getActionUrl('comments/upvoteComment', $params);
@@ -58,7 +68,7 @@ class CommentsHelper
         if ($user) {
 
             // Ensure the user hasn't voted yet
-            $hasVoted = craft()->comments_vote->hasVoted($comment, $user);
+            $hasVoted = craft()->comments_vote->hasDownVoted($comment, $user);
 
             if (!$hasVoted) {
                 return UrlHelper::getActionUrl('comments/downvoteComment', $params);

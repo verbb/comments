@@ -46,15 +46,12 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ## Roadmap
 
-**0.3.0**
-
-- Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
-
 **0.4.0**
 
 - Support sharing comment. Post to social media, permalink.
 - Fully Ajax-support all endpoints.
-- Support closing comments. No new comments can be made.
+- Fully support non-Ajax, redirection for all endpoints.
+- Support closing comments. No new comments can be made, but still visisible.
 
 **0.5.0**
 
@@ -73,6 +70,18 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 
 ### Changelog
+
+#### 0.3.0
+
+- Added edit/delete (trashing) for users. Anonymous users can't do either.
+- Added new set of templates for different comment statuses, allowing different templates for pending, approved, trashed and spam comments.
+- Cleaned up comments UI to include dropdown options. Better user-handling.
+- Alter Ajax example, ajax for voting, flagging, editing, deleting.
+- Fixed, users could vote on their own comments.
+- Fixed, remove voting arrows when unable to vote.
+- Added `canVote`, `canUpVote`, `canDownVote` variables for better handling in templates. Checks are also done server-side.
+- Some serious spelling mistakes for voting functions :)
+- Added back `voteCount`.
 
 #### 0.2.1
 

@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.2.1';
+        return '0.3.0';
     }
 
     public function getDeveloper()
@@ -54,7 +54,7 @@ class CommentsPlugin extends BasePlugin
     public function registerCpRoutes()
     {
         return array(
-            'comments/edit/(?P<commentId>\d+)' => array('action' => 'comments/edit'),
+            'comments/edit/(?P<commentId>\d+)' => array('action' => 'comments/editTemplate'),
             'comments/permissions' => array('action' => 'comments/permissions'),
         );
     }

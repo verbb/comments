@@ -14,7 +14,7 @@ class CommentsController extends BaseController
         ));
     }
 
-    public function actionEdit(array $variables = array())
+    public function actionEditTemplate(array $variables = array())
     {
         $commentId = $variables['commentId'];
         $comment = craft()->comments->getCommentById($commentId);
@@ -22,6 +22,47 @@ class CommentsController extends BaseController
         $variables['comment'] = $comment;
 
         $this->renderTemplate('comments/edit', $variables);
+    }
+
+    public function actionEdit()
+    {
+        $this->requirePostRequest();
+
+        $commentId = craft()->request->getRequiredPost('commentId');
+        $comment = craft()->comments->getCommentById($commentId);
+
+        $fields = craft()->request->getPost('fields');
+        $comment->comment = array_key_exists('comment', $fields) ? $fields['comment'] : null;
+
+        $result = craft()->comments->saveComment($comment);
+
+        if (craft()->request->isAjaxRequest()) {
+            $this->returnJson($result);
+        }
+    }
+
+    public function actionDelete()
+    {
+        $user = craft()->userSession->getUser();
+        
+        $commentId = craft()->request->getQuery('id');
+        $comment = craft()->comments->getCommentById($commentId);
+        $comment->status = Comments_CommentModel::TRASHED;
+
+        // Only logged in users can delete
+        if ($user) {
+
+            // We're actually only changing this status to 'trashed'
+            $result = craft()->comments->deleteComment($comment);
+
+            if ($result === true) {
+                if (craft()->request->isAjaxRequest()) {
+                    $this->returnJson($result);
+                }
+            } else {
+                craft()->comments->redirect($result['object']);
+            }
+        }
     }
 
     public function actionSave()
@@ -114,13 +155,14 @@ class CommentsController extends BaseController
 
     public function actionFlagComment()
     {
+        $user = craft()->userSession->getUser();
         $flagModel = new Comments_FlagModel();
 
         $flagModel->commentId = craft()->request->getQuery('id');
 
         // Only logged in users can flag
-        if (craft()->userSession->getUser()) {
-            $flagModel->userId = craft()->userSession->getUser()->id;
+        if ($user) {
+            $flagModel->userId = $user->id;
 
             $result = craft()->comments_flag->saveFlag($flagModel);
 
@@ -136,22 +178,28 @@ class CommentsController extends BaseController
 
     public function actionUpvoteComment()
     {
+        $user = craft()->userSession->getUser();
         $model = new Comments_VoteModel();
 
         $model->commentId = craft()->request->getQuery('id');
         $model->upvote = '1';
 
-        if (craft()->userSession->getUser()) {
-            $model->userId = craft()->userSession->getUser()->id;
+        // Check if the user in question can vote
+        $comment = craft()->comments->getCommentById($model->commentId);
+
+        if (!$comment->canUpVote()) {
+            $this->returnJson(array('error' => 'Cannot make vote.'));
+        }
+
+        if ($user) {
+            $model->userId = $user->id;
 
             $result = craft()->comments_vote->saveVote($model);
 
-            if ($result === true) {
-                if (craft()->request->isAjaxRequest()) {
-                    $this->returnJson($result);
-                } else {
-                    craft()->comments->redirect($result['object']);
-                }
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson($result);
+            } else {
+                craft()->comments->redirect($result['object']);
             }
         }
 
@@ -159,22 +207,28 @@ class CommentsController extends BaseController
 
     public function actionDownvoteComment()
     {
+        $user = craft()->userSession->getUser();
         $model = new Comments_VoteModel();
 
         $model->commentId = craft()->request->getQuery('id');
         $model->downvote = '1';
 
-        if (craft()->userSession->getUser()) {
-            $model->userId = craft()->userSession->getUser()->id;
+        // Check if the user in question can vote
+        $comment = craft()->comments->getCommentById($model->commentId);
+
+        if (!$comment->canDownVote()) {
+            $this->returnJson(array('error' => 'Cannot make vote.'));
+        }
+
+        if ($user) {
+            $model->userId = $user->id;
 
             $result = craft()->comments_vote->saveVote($model);
 
-            if ($result === true) {
-                if (craft()->request->isAjaxRequest()) {
-                    $this->returnJson($result);
-                } else {
-                    craft()->comments->redirect($result['object']);
-                }
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson($result);
+            } else {
+                craft()->comments->redirect($result['object']);
             }
         }
     }

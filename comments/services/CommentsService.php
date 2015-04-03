@@ -153,7 +153,18 @@ class CommentsService extends BaseApplicationComponent
         craft()->request->redirect($url);
     }
 
+    // Doesn't actually delete a comment - instead sets its status to 'trashed'
+    public function deleteComment(Comments_CommentModel $comment)
+    {
+        $commentRecord = Comments_CommentRecord::model()->findById($comment->id);
 
+        // Load in all the attributes from the Comment model into this record
+        $commentRecord->status = $comment->status;
+
+        $commentRecord->save(false);
+
+        return true;
+    }
 
 
 

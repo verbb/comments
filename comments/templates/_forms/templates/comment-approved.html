@@ -1,0 +1,100 @@
+<div class="comment-container">
+	<div class="comment-image">
+	    {% if comment.userId %}
+	    	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
+
+	    	{% if photo %}
+	            <img src="{{ photo }}" />
+	        {% else %}
+	        	<img src="{{ resourceUrl('/images/user.gif') }}" />
+	        {% endif %}
+	    {% else %}
+	    	<img src="{{ resourceUrl('/images/user.gif') }}" />
+	    {% endif %}
+	</div>
+
+	<div class="comment-text">
+	    <span class="comment-heading">
+	    	<span class="title">
+	            {% if comment.userId %}
+	                {{ craft.users.id(comment.userId).first().fullName }}
+	            {% else %}
+	                {{ comment.name }}
+	            {% endif %}
+	    	</span>
+
+	    	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
+
+	    	{% if currentUser %}
+	        	<div class="dropdown">
+	        		<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Options <span class="caret"></span></a>
+
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+						{% if comment.userId %}
+			            	<li role="presentation">
+								<a href="#" class="comment-edit">
+									<span class="glyphicon glyphicon-edit"></span>Edit
+								</a>
+							</li>
+
+							<li role="presentation">
+								<a href="{{ comment.deleteActionUrl }}" class="comment-delete">
+									<span class="glyphicon glyphicon-remove"></span>Delete
+								</a>
+							</li>
+						{% endif %}
+
+						<li role="presentation">
+							{% if comment.flagActionUrl %}
+								<a href="{{ comment.flagActionUrl }}" class="comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>Flag as inappropriate
+								</a>
+							{% else %}
+								<span class="static-label comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>Flagged as inappropriate
+								</span>
+							{% endif %}
+						</li>
+					</ul>
+	        	</div>
+	        {% endif %}
+	    </span>
+
+	    <div class="comment-content">
+	    	{% if comment.isFlagged %}
+	    		<p>[Comment marked as innapropriate]</p>
+	    	{% else %}
+	            <p>{{ comment.comment | nl2br }}</p>
+	    	{% endif %}
+	    </div>
+
+	    <div class="meta-buttons">
+	    	<div class="comment-votes">
+	            <span class="count">{{ comment.voteCount }} votes</span>
+
+	            {% if comment.canUpVote %}
+	                <a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
+	                    <span class="glyphicon glyphicon-chevron-up"></span>
+	                </a>
+	            {% endif %}
+
+	            {% if comment.canDownVote %}
+	                <a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
+	                    <span class="glyphicon glyphicon-chevron-down"></span>
+	                </a>
+	            {% endif %}
+	    	</div>
+
+			<a href="#" class="comment-reply">
+				<span class="glyphicon glyphicon-share-alt"></span>
+				Reply
+			</a>
+			
+			<a href="#" class="comment-toggle">
+				<span class="glyphicon glyphicon-comment"></span>
+				{{ comment.descendants | length }} comments
+			</a>
+		</div>
+	</div>
+</div>
+
