@@ -64,7 +64,21 @@
 
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 					<li role="presentation">
-						<a href="{{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">Permalink</a>
+						<a href="http://twitter.com/share?url={{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
+							<span class="fa fa-twitter"></span>Twitter
+						</a>
+					</li>
+
+					<li role="presentation">
+						<a href="https://www.facebook.com/dialog/share?app_id=145634995501895&display=popup&href={{ craft.request.url }}#comment-single-{{ comment.id }}&redirect_uri={{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
+							<span class="fa fa-facebook"></span>Facebook
+						</a>
+					</li>
+
+					<li role="presentation">
+						<a href="{{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
+							<span class="glyphicon glyphicon-link"></span>Permalink
+						</a>
 					</li>
 				</ul>
 			</div>

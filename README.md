@@ -48,7 +48,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 **0.4.0**
 
-- Support sharing comment. Post to social media, permalink.
 - Support closing comments. No new comments can be made, but still visisible.
 
 **0.5.0**
@@ -68,6 +67,10 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 
 ### Changelog
+
+#### 0.3.2
+
+- Added basic sharing comment options. Provides permalink, Twitter and Facebook sharing.
 
 #### 0.3.1
 

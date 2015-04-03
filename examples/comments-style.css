@@ -1,4 +1,5 @@
 @import url("//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css");
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
 
 body {
 	background: 0 0;
@@ -169,8 +170,11 @@ body {
 }
 
 .comment-heading .dropdown-menu > li > span.comment-flag .glyphicon,
+.comment-heading .dropdown-menu > li > a .fa,
 .comment-heading .dropdown-menu > li > a .glyphicon {
     padding-right: 5px;
+    width: 15px;
+    text-align: center;
 }
 
 .comment-heading .dropdown-menu > li > span.comment-flag {
