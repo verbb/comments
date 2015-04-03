@@ -9,15 +9,12 @@ class CommentsPlugin extends BasePlugin
 
     public function getName()
     {
-        $pluginName = Craft::t('Comments');
-        $pluginNameOverride = $this->getSettings()->pluginNameOverride;
-
-        return ($pluginNameOverride) ? $pluginNameOverride : $pluginName;
+        return Craft::t('Comments');
     }
 
     public function getVersion()
     {
-        return '0.1.2';
+        return '0.2.1';
     }
 
     public function getDeveloper()
@@ -37,7 +34,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getSettingsHtml()
     {
-        return craft()->templates->render( 'comments/settings', array(
+        return craft()->templates->render('comments/settings/index', array(
             'settings' => $this->getSettings(),
         ));
     }
@@ -46,12 +43,11 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'structureId'               => AttributeType::Number,
-            'pluginNameOverride'        => AttributeType::String,
-            'cpSectionDisabled'         => array( AttributeType::Bool, 'default' => false ),
             'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
             'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
             'templateFolderOverride'    => AttributeType::String,
             'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
+            'permissions'               => AttributeType::Mixed,
         );
     }
 
@@ -59,6 +55,7 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'comments/edit/(?P<commentId>\d+)' => array('action' => 'comments/edit'),
+            'comments/permissions' => array('action' => 'comments/permissions'),
         );
     }
 

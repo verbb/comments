@@ -68,3 +68,37 @@
 .elementindex .comment-block a:hover span {
 	text-decoration: underline;
 }
+
+
+
+
+
+
+
+
+
+
+
+#comments_permissions .group {
+	color: #333f4d;
+}
+
+#comments_permissions .thin {
+	text-align: right;
+}
+
+#comments_permissions .field td,
+#comments_permissions .field th {
+	padding-top: 5px !important;
+	padding-bottom: 4px !important;
+	font-size: 90%;
+}
+
+#comments_permissions .field .name {
+	padding-left: 20px !important
+}
+
+#comments_permissions .delete-row {
+	padding-left: 25px !important;
+	padding-right: 10px !important;
+}

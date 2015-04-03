@@ -12,4 +12,20 @@ $(function() {
 		$('input[name="status"]').val($(this).data('status'));
 	});
 
+	// For Permissions panel, handle checkboxes
+	$(document).on('change', '.allElementCheckbox', function(e) {
+		var $group = $(this).parent().parent();
+
+		if ($(this).is(':checked')) {
+			$group.find('input[type="checkbox"]').prop('checked', true);
+		} else {
+			$group.find('input[type="checkbox"]').prop('checked', false);
+		}
+	});
+
+
+
+
+
+
 });

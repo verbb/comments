@@ -21,6 +21,7 @@ We would greatly value your feedback through the beta process, so feel free to [
 - Template override folder, so you can completely customise your own comment forms.
 - [Full-featured examples](https://github.com/engram-design/Comments/tree/master/examples) including CSS and JS to get started quickly.
 - Comments can be made on any element type (entries, users, assets, etc).
+- Set permissions for each element (and element type) to allow or disable comments.
 
 
 ## Install
@@ -48,8 +49,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 **0.3.0**
 
 - Edit/Delete comments from front-end. Handle anonymous users somehow through sessions/cookies.
-- Provide fieldtype to disable comments per-element. Also provide global settings to opt-in to comments, rather than opt-out.
-- Implement anti-spam solution. Server-side validation for comments. Look at better third-party solutions to integrate.
 
 **0.4.0**
 
@@ -70,9 +69,15 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Create Pusher-integrated real-time example comments form.
 - Create non-Ajax example comments form.
+- Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
 
 
 ### Changelog
+
+#### 0.2.1
+
+- Seperated plugin settings to its own 'real' tab. Bad UX being directed off to plugin settings, then being redirected to plugins screen.
+- Added Permissions to control elements (and element types) comments are allowed to be made on. More convenient/centralised that custom field for each element.
 
 #### 0.2.0
 

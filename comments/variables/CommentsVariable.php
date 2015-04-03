@@ -9,6 +9,11 @@ class CommentsVariable
         return $plugin->getName();
     }
 
+	public function elements($elementType, $criteria = array())
+	{
+		return craft()->elements->getCriteria($elementType, $criteria);
+	}
+
     // TODO - remove this
 	public function replies($comment)
 	{
@@ -25,7 +30,7 @@ class CommentsVariable
 		$settings = craft()->plugins->getPlugin('comments')->getSettings();
 		$oldPath = craft()->path->getTemplatesPath();
 		$element = craft()->elements->getElementById($elementId);
-
+        
 		$criteria = array_merge($criteria, array(
 			'elementId' => $element->id,
 			'level' => '1',
@@ -61,6 +66,11 @@ class CommentsVariable
 		$html = craft()->templates->render($templateFile, $variables);
 		
 		craft()->path->setTemplatesPath($oldPath);
+
+		// Finally - none of this matters if the permission to comment on this element is denied
+		if (!craft()->comments->checkPermissions($element)) {
+			return false;
+		}
 
         return new \Twig_Markup($html, craft()->templates->getTwig()->getCharset());
 	}

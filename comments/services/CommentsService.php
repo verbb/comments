@@ -210,5 +210,37 @@ class CommentsService extends BaseApplicationComponent
         $this->raiseEvent('onBeforeSave', $event);
     }
 
+    // Checks is there are sufficient permissions for commenting on this element
+    public function checkPermissions($element)
+    {
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $elementType = craft()->elements->getElementTypeById($element->id);
+        
+        // Do we even have any settings setup? By default - anything can be commented on
+        if ($settings->permissions) {
+
+            // Check for elementype-wide permissions - if turned off for entry, we don't show any new ones
+            // But we still need to show comments for entries that have specifically been enabled on a per-element basis
+            if (!array_key_exists($element->id, $settings->permissions[$elementType])) {
+                if (!$settings->permissions[$elementType]['*']) {
+                    return false;
+                }
+            } else {
+                // Check for individual element permissions
+                if (!$settings->permissions[$elementType][$element->id]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+
+
+
+
+
 
 }

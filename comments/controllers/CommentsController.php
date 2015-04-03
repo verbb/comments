@@ -5,6 +5,15 @@ class CommentsController extends BaseController
 {
     protected $allowAnonymous = array('actionAdd');
 
+    public function actionPermissions()
+    {
+        $plugin = craft()->plugins->getPlugin('comments');
+
+        $this->renderTemplate('comments/permissions', array(
+            'settings' => $plugin->getSettings(),
+        ));
+    }
+
     public function actionEdit(array $variables = array())
     {
         $commentId = $variables['commentId'];
@@ -75,12 +84,18 @@ class CommentsController extends BaseController
 
         // Protect against Anonymous submissions, if turned off
         if (!$plugin->getSettings()->allowAnonymous && !$commentModel->userId) {
-            $this->returnJson(array('error' => 'Must be logged in to comment'));
+            $this->returnJson(array('error' => 'Must be logged in to comment.'));
+        }
+
+        // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
+        $element = craft()->elements->getElementById($commentModel->elementId);
+        if (!craft()->comments->checkPermissions($element)) {
+            $this->returnJson(array('error' => 'Comments are disabled for this element.'));
         }
 
         // Must have an actual comment
         if (!$commentModel->comment) {
-            $this->returnJson(array('error' => 'Comment must not be blank'));
+            $this->returnJson(array('error' => 'Comment must not be blank.'));
         }
 
         // Is this user logged in? Or they've provided user/email?
@@ -93,7 +108,7 @@ class CommentsController extends BaseController
                 $this->returnJson($result);
             }
         } else {
-            $this->returnJson(array('error' => 'Must be logged in, or supply Name/Email to comment'));
+            $this->returnJson(array('error' => 'Must be logged in, or supply Name/Email to comment.'));
         }
     }
 
