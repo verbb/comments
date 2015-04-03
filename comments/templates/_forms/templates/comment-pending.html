@@ -1,36 +1,35 @@
 <div class="comment-container">
 	<div class="comment-image">
-	    {% if comment.userId %}
-	    	{% set photo = craft.users.id(comment.userId).first().photoUrl %}
+		{% if comment.userId %}
+			{% set photo = craft.users.id(comment.userId).first().photoUrl %}
 
-	    	{% if photo %}
-	            <img src="{{ photo }}" />
-	        {% else %}
-	        	<img src="{{ resourceUrl('/images/user.gif') }}" />
-	        {% endif %}
-	    {% else %}
-	    	<img src="{{ resourceUrl('/images/user.gif') }}" />
-	    {% endif %}
+			{% if photo %}
+				<img src="{{ photo }}" />
+			{% else %}
+				<img src="{{ resourceUrl('/images/user.gif') }}" />
+			{% endif %}
+		{% else %}
+			<img src="{{ resourceUrl('/images/user.gif') }}" />
+		{% endif %}
 	</div>
 
 	<div class="comment-text">
-	    <span class="comment-heading">
-	    	<span class="title">
-	            {% if comment.userId %}
-	                {{ craft.users.id(comment.userId).first().fullName }}
-	            {% else %}
-	                {{ comment.name }}
-	            {% endif %}
-	    	</span>
+		<span class="comment-heading">
+			<span class="title">
+				{% if comment.userId %}
+					{{ craft.users.id(comment.userId).first().fullName }}
+				{% else %}
+					{{ comment.name }}
+				{% endif %}
+			</span>
 
-	    	<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
-	    </span>
+			<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
+		</span>
 
-	    <div class="comment-content">
-    		<p>[Comment awaiting moderation]</p>
-	    </div>
+		<div class="comment-content">
+			<p>[Comment awaiting moderation]</p>
+		</div>
 	</div>
 </div>
 
 
-	

@@ -1,0 +1,12 @@
+<form class="form-inline comment-form" role="form" method="post">
+    <input type="hidden" name="action" value="comments/edit">
+    <input type="hidden" name="elementId" value="{{ element.id }}">
+    
+    {# Anti-spam and security measures #}
+    {{ craft.comments.protect() }}
+    {{ getCsrfInput() }}
+
+    <textarea class="form-control" name="fields[comment]" placeholder="Your comments"></textarea>
+
+    <button class="btn btn-default">Save</button>
+</form>

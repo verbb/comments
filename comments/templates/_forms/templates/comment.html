@@ -1,18 +1,18 @@
 {% macro printComments(element, comments) %}
-    <ul class="comments-list">
+	<ul class="comments-list">
 		{% for comment in comments %}
-		    <li class="comment-single" data-id="{{ comment.id }}">
-				
-				{# Get the comment template depending on status #}		        
-				{% include '_forms/templates/comment-' ~ comment.status %}
+		<li class="comment-single" data-id="{{ comment.id }}">
+			
+			{# Get the comment template depending on status #}		        
+			{% include '_forms/templates/comment-' ~ comment.status %}
 
-				{# An inline form for easy reply #}
-				{% include '_forms/templates/form' %}
+			{# An inline form for easy reply #}
+			{% include '_forms/templates/form' %}
 
-				{% if comment.hasDescendants %}
-					{{ _self.printComments(element, comment.children) }}
-				{% endif %}
-		    </li>
+			{% if comment.hasDescendants %}
+			{{ _self.printComments(element, comment.children) }}
+			{% endif %}
+		</li>
 
 		{% endfor %}
 	</ul>
