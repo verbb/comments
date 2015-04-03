@@ -1,0 +1,34 @@
+<link rel="stylesheet" href="../comments-style.css">
+
+{% block content %}
+
+    {% set params = {
+    	order: 'dateCreated asc',
+    } %}
+
+    {{ craft.comments.form(entry.id, params) }}
+
+{% endblock %}
+
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script>
+$( document ).ready(function() {
+
+	// toggle to show/hide comments
+	$(document).on('click', 'a.comment-toggle', function(e) {
+		e.preventDefault();
+
+		$(this).parents('.comment-single:first').find('.comments-list:first').slideToggle();
+	});
+
+	// toggle to show/hide reply form
+	$(document).on('click', 'a.comment-reply', function(e) {
+		e.preventDefault();
+
+		$element = $(this).parents('.comment-single:first');
+		$element.find('form:first').slideToggle();
+	});
+
+});
+</script>

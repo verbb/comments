@@ -130,6 +130,16 @@ class CommentsService extends BaseApplicationComponent
         }
     }
 
+    public function response($response = null)
+    {
+        // Handle Ajax response
+        if (craft()->request->isAjaxRequest()) {
+            $this->returnJson($response);
+        } else {
+            $this->redirect();
+        }
+    }
+
     public function redirect($object = null)
     {
         $url = craft()->request->getPost('redirect');

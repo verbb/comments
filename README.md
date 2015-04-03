@@ -49,13 +49,12 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 **0.4.0**
 
 - Support sharing comment. Post to social media, permalink.
-- Fully Ajax-support all endpoints.
-- Fully support non-Ajax, redirection for all endpoints.
 - Support closing comments. No new comments can be made, but still visisible.
 
 **0.5.0**
 
 - Provide a set of hooks for third-party plugins.
+- Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
 
 **1.0+**
 
@@ -65,11 +64,17 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Support email notifications. Likely through [Postmaster](https://github.com/objectivehtml/Postmaster-for-Craft-CMS)
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Create Pusher-integrated real-time example comments form.
-- Create non-Ajax example comments form.
-- Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
+- Utalise sessions to show user's unread comments from others (see [#5](https://github.com/engram-design/Comments/issues/5)).
 
 
 ### Changelog
+
+#### 0.3.1
+
+- Organise examples seperately. Better testing locally (symlinks).
+- Added standard, non-Ajax example.
+- Cleanup Ajax example - refactor.
+- Checked all routes perform either via Ajax, or standard POST.
 
 #### 0.3.0
 
