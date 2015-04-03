@@ -9,6 +9,12 @@ class CommentsVariable
         return $plugin->getName();
     }
 
+    public function getSettings()
+    {
+        $plugin = craft()->plugins->getPlugin('comments');
+        return $plugin->getSettings();
+    }
+
 	public function elements($elementType, $criteria = array())
 	{
 		return craft()->elements->getCriteria($elementType, $criteria);

@@ -1,0 +1,9 @@
+{# Without this, will redirect on the /settings/plugins page #}
+{% if craft.request.lastSegment == 'comments' %}
+
+	{% redirect 'comments/settings' %}
+
+{% endif %}
+
+{# Without this, Craft won't think there are any plugin settings #}
+<p>&nbsp;</p>

@@ -102,3 +102,54 @@
 	padding-left: 25px !important;
 	padding-right: 10px !important;
 }
+
+
+
+/* Settings sub-navigation */
+
+.settings-tabs {
+	background: none;
+	margin: 0 0 25px 0;
+	padding: 0;
+	border-bottom: 1px #eee solid;
+
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+.settings-tabs > .tabs {
+	margin: 0;
+	padding: 0;
+	background: none;
+
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+
+.settings-tabs > .tabs li .tab.sel {
+    color: #288ce4;
+
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+
+.settings-tabs > .tabs li a {
+	font-weight: bold;
+    font-size: 11px;
+    padding: 0 10px 10px 10px;
+}
+
+.settings-tabs > .tabs li.label {
+	font-weight: bold;
+	text-transform: uppercase;
+	color: #bbb;
+	font-size: 11px;
+	margin-right: 10px;
+}
+
+

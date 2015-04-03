@@ -34,7 +34,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getSettingsHtml()
     {
-        return craft()->templates->render('comments/settings/index', array(
+        return craft()->templates->render('comments/settings/plugin', array(
             'settings' => $this->getSettings(),
         ));
     }
