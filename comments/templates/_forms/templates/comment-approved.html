@@ -26,38 +26,49 @@
 			<span class="meta">{{ comment.dateCreated | date('M jS, Y') }}</span>
 
 			{% if currentUser %}
-			<div class="dropdown">
-				<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Options <span class="caret"></span></a>
+				<div class="dropdown options-dropdown">
+					<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Options <span class="caret"></span></a>
+
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+						{% if comment.userId %}
+							<li role="presentation">
+								<a href="#" class="comment-edit">
+									<span class="glyphicon glyphicon-edit"></span>Edit
+								</a>
+							</li>
+
+							<li role="presentation">
+								<a href="{{ comment.deleteActionUrl }}" class="comment-delete">
+									<span class="glyphicon glyphicon-remove"></span>Delete
+								</a>
+							</li>
+						{% endif %}
+
+						<li role="presentation">
+							{% if comment.flagActionUrl %}
+								<a href="{{ comment.flagActionUrl }}" class="comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>Flag as inappropriate
+								</a>
+							{% else %}
+								<span class="static-label comment-flag">
+									<span class="glyphicon glyphicon-flag"></span>Flagged as inappropriate
+								</span>
+							{% endif %}
+						</li>
+					</ul>
+				</div>
+			{% endif %}
+
+			<div class="dropdown share-dropdown">
+				<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Share <span class="caret"></span></a>
 
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-					{% if comment.userId %}
-						<li role="presentation">
-							<a href="#" class="comment-edit">
-								<span class="glyphicon glyphicon-edit"></span>Edit
-							</a>
-						</li>
-
-						<li role="presentation">
-							<a href="{{ comment.deleteActionUrl }}" class="comment-delete">
-								<span class="glyphicon glyphicon-remove"></span>Delete
-							</a>
-						</li>
-					{% endif %}
-
 					<li role="presentation">
-						{% if comment.flagActionUrl %}
-							<a href="{{ comment.flagActionUrl }}" class="comment-flag">
-								<span class="glyphicon glyphicon-flag"></span>Flag as inappropriate
-							</a>
-						{% else %}
-							<span class="static-label comment-flag">
-								<span class="glyphicon glyphicon-flag"></span>Flagged as inappropriate
-							</span>
-						{% endif %}
+						<a href="{{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">Permalink</a>
 					</li>
 				</ul>
 			</div>
-			{% endif %}
+
 		</span>
 
 		<div class="comment-content">
