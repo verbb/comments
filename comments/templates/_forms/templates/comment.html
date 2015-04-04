@@ -1,7 +1,7 @@
 {% macro printComments(element, comments) %}
 	<ul class="comments-list">
 		{% for comment in comments %}
-		<li class="comment-single" id="comment-single-{{ comment.id }}" data-id="{{ comment.id }}">
+		<li class="comment-single" id="comment-single-{{ comment.id }}" data-id="{{ comment.id }}" itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
 			
 			{# Get the comment template depending on status #}		        
 			{% include '_forms/templates/comment-' ~ comment.status %}

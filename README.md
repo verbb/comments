@@ -52,6 +52,20 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 - Provide a set of hooks for third-party plugins.
 - Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
+- Support Facebook/Twitter for sharing with App ID and other credentials
+- Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
+- Support sorting comments via votes.
+
+**0.6.0**
+
+- Provide security policies through:
+	- Ban unwanted users from current topic
+	- Ban users from all comment forms
+	- Blacklist IP, IP Range
+	- Word filters
+	- Email ban
+	- Flood control. Specify the interval time for each comment to appear.
+
 
 **1.0+**
 
@@ -62,9 +76,14 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Create Pusher-integrated real-time example comments form.
 - Utalise sessions to show user's unread comments from others (see [#5](https://github.com/engram-design/Comments/issues/5)).
+- Dashboard widget (see [#15](https://github.com/engram-design/Comments/issues/15)).
 
 
 ### Changelog
+
+#### 0.3.5
+
+- Added Schema Tags to templates (see [#19](https://github.com/engram-design/Comments/issues/19)).
 
 #### 0.3.4
 
