@@ -264,10 +264,23 @@ class CommentsService extends BaseApplicationComponent
         if ($settings->closed) {
             if (array_key_exists($comment->elementType, $settings->closed)) {
                 if (array_key_exists($comment->elementId, $settings->closed[$comment->elementType])) {
+                    
+                    // Has this comment been manually closed (through Permissions screen)?
                     if ($settings->closed[$comment->elementType][$comment->elementId]) {
                         return true;
                     }
                 }
+            }
+        }
+
+        // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
+        if ($settings->autoCloseDays) {
+            $element = craft()->elements->getElementById($comment->elementId);
+            $now = new DateTime('now');
+            $interval = $now->diff($element->dateCreated);
+
+            if ($interval->d > $settings->autoCloseDays) {
+                return true;
             }
         }
 

@@ -35,6 +35,8 @@ We would greatly value your feedback through the beta process, so feel free to [
 - Comments require moderation
 - Template Folder Override
 - Flagged comments threshold
+- Downvote comments threshold
+- Auto-close comments
 
 
 ## Documentation
@@ -48,7 +50,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 **0.4.0**
 
-- Add threshold for downvotes - if too many, hide due to poor rating.
 - Set comments to auto-close after determined time.
 
 **0.5.0**
@@ -69,12 +70,15 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ### Changelog
 
+#### 0.3.4
+
+- Added threshold for downvotes - if over specified limit, `isPoorlyRated` will be true.
+
 #### 0.3.3
 
 - Altered settings pane - now with multiple tabs.
 - Updated permissions UI.
 - Comments can be closed, disabling editing, deleting and replies. Accessible through `isClosed`.
-
 
 #### 0.3.2
 

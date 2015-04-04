@@ -87,7 +87,9 @@
 
 		<div class="comment-content">
 			{% if comment.isFlagged %}
-				<p>[Comment marked as innapropriate]</p>
+				<p>[Comment marked as inappropriate]</p>
+			{% elseif comment.isPoorlyRated %}
+				<p>[Comment hidden due to low rating]</p>
 			{% else %}
 				<p>{{ comment.comment | nl2br }}</p>
 			{% endif %}

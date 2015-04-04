@@ -25,4 +25,21 @@
 	value: settings.flaggedCommentLimit,
 }) }}
 
+{{ forms.textField({
+	label: "Downvote comments threshold"|t,
+	id: 'downvoteCommentLimit',
+	name: 'downvoteCommentLimit',
+	instructions: "Users can downvote a comment, which reflects if they agree or disagree with it. After the provided amount of downvotes are received for a comment, the 'isPoorlyRated' property for the comment will be true. You can then decide how to handle a comment with a poor rating."|t,
+	value: settings.downvoteCommentLimit,
+}) }}
+
 <hr>
+
+{{ forms.textField({
+	label: "Auto-close comments"|t,
+	id: 'autoCloseDays',
+	name: 'autoCloseDays',
+	instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable."|t,
+	value: settings.autoCloseDays,
+}) }}
+

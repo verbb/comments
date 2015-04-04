@@ -170,7 +170,10 @@ class Comments_CommentModel extends BaseElementModel
         return $this->canVote();
     }
 
-
+    public function isPoorlyRated($options = array())
+    {
+        return craft()->comments_vote->isOverDownvoteThreshold($this);
+    }
 
 
 }

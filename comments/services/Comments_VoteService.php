@@ -66,5 +66,17 @@ class Comments_VoteService extends BaseApplicationComponent
         }
     }
 
+    public function isOverDownvoteThreshold($comment)
+    {
+        $threshold = craft()->plugins->getPlugin('comments')->getSettings()->downvoteCommentLimit;
+        $downvotes = $this->getDownvotesByCommentId($comment->id);
+
+        if (count($downvotes) >= $threshold) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
 }
