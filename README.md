@@ -48,10 +48,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ## Roadmap
 
-**0.4.0**
-
-- Set comments to auto-close after determined time.
-
 **0.5.0**
 
 - Provide a set of hooks for third-party plugins.
