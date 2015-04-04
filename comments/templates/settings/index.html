@@ -29,6 +29,7 @@
 				<li><a id="settings-tab-templates" class="tab" href="#settings-templates" tabindex="1">Templates</a></li>
 				<li><a id="settings-tab-social" class="tab" href="#settings-social" tabindex="2">Social Media</a></li>
 				<li><a id="settings-tab-security" class="tab" href="#settings-security" tabindex="3">Security</a></li>
+				<li><a id="settings-tab-users" class="tab" href="#settings-users" tabindex="4">Users</a></li>
 			</ul>
 		</nav>
 	</div>
@@ -53,6 +54,10 @@
 
 			<div id="security" class="hidden">
 				{% include 'comments/settings/security' %}
+			</div>
+
+			<div id="users" class="hidden">
+				{% include 'comments/settings/users' %}
 			</div>
 
 		{% endnamespace %}

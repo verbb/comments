@@ -18,10 +18,7 @@
 
 {% set plugin = craft.plugins.getPlugin('comments') %}
 
-{% set groups = craft.fields.getAllGroups('id') %}
-
 {% set elementType = craft.elements.getElementType('Comments_Comment') %}
-
 
 {% set content %}
 	<form method="post" accept-charset="UTF-8" data-saveshortcut="1">
@@ -35,6 +32,7 @@
 		        <thead>
 		            <th>{{ "Enable comments for"|t }}</th>
 		            <th>{{ "Comments are closed"|t }}</th>
+		            <th>{{ "User permissions"|t }}</th>
 		        </thead>
 		        <tbody>
 				    {% for element in craft.elements.getAllElementTypes() %}
@@ -58,6 +56,9 @@
 										on: (closedValue['*'] is defined) ? closedValue['*'] : false,
 									}) }}
 								</td>
+					    		<td>
+					    			<a href="#">Users</a>
+								</td>
 			                </tr>
 
 				            {% for el in elements %}
@@ -76,6 +77,9 @@
 												name: 'closed['~element.classHandle~']['~el.id~']',
 												on: (closedValue[el.id] is defined) ? closedValue[el.id] : false,
 											}) }}
+										</td>
+							    		<td>
+							    			<a href="#">Users</a>
 										</td>
 					            	{% endif %}
 					            </tr>

@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.3.5';
+        return '0.3.6';
     }
 
     public function getDeveloper()
@@ -61,6 +61,9 @@ class CommentsPlugin extends BasePlugin
             'securityBlacklist'         => AttributeType::Mixed,
             'securityBanned'            => AttributeType::Mixed,
             'securityFlooding'          => AttributeType::Number,
+
+            // Users
+            'users'                     => AttributeType::Mixed,
         );
     }
 

@@ -79,7 +79,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 #### 0.3.6
 
-- Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [security](https://github.com/engram-design/Comments/wiki/Security)
+- Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [Security](https://github.com/engram-design/Comments/wiki/Security)
 - Support sorting comments by votes.
 - Added optional flood-control settings. Enforces minimum time to wait between posts. Works for anonymous and logged-in users.
 
