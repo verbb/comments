@@ -73,6 +73,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 #### 0.3.4
 
 - Added threshold for downvotes - if over specified limit, `isPoorlyRated` will be true.
+- Comments can be set to auto-close after a defined amount of days since the elements creation.
 
 #### 0.3.3
 
