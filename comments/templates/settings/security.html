@@ -1,7 +1,16 @@
 {% import "_includes/forms" as forms %}
 
-{{ forms.textareaField({
+{{ forms.textField({
 	first: true,
+	label: 'Minimum time between comments',
+	instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.'|t,
+	name: 'securityFlooding',
+	value: settings.securityFlooding,
+}) }}
+
+<hr>
+
+{{ forms.textareaField({
 	label: "Comment Moderation"|t,
 	name: 'securityModeration',
 	instructions: 'If a comment contains any of these words in its content, name, e-mail, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\').'|t,

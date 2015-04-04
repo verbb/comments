@@ -62,7 +62,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Provide security policies through:
 	- Ban unwanted users from current topic
 	- Ban users from all comment forms
-	- Flood control. Specify the interval time for each comment to appear.
 
 **1.0+**
 
@@ -82,6 +81,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 - Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [security](https://github.com/engram-design/Comments/wiki/Security)
 - Support sorting comments by votes.
+- Added optional flood-control settings. Enforces minimum time to wait between posts. Works for anonymous and logged-in users.
 
 
 #### 0.3.5

@@ -60,6 +60,7 @@ class CommentsPlugin extends BasePlugin
             'securityModeration'        => AttributeType::Mixed,
             'securityBlacklist'         => AttributeType::Mixed,
             'securityBanned'            => AttributeType::Mixed,
+            'securityFlooding'          => AttributeType::Number,
         );
     }
 

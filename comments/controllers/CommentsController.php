@@ -124,7 +124,7 @@ class CommentsController extends BaseController
         }
 
         // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
-        if (!craft()->comments->checkSecurityPolicy($commentModel)) {
+        if (!craft()->comments_security->checkSecurityPolicy($commentModel)) {
             craft()->comments->response($this, array('error' => 'Comment blocked due to security policy.'));
         }
 
