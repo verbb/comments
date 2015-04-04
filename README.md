@@ -17,6 +17,8 @@ We would greatly value your feedback through the beta process, so feel free to [
 - Threaded comments - users can comment on other comments.
 - Anonymous users can comment (configurable).
 - Comment moderation by admins - prevent comments from appearing on your site until approved.
+- Supports upvoting and downvoting, along with flagging inappropriate comments.
+- Front-end editing and deleting of comment for logged in users.
 - Ready-to-go, single template tag for full comments list and reply forms.
 - Template override folder, so you can completely customise your own comment forms.
 - [Full-featured examples](https://github.com/engram-design/Comments/tree/master/examples) including CSS and JS to get started quickly.
@@ -54,7 +56,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
 - Support Facebook/Twitter for sharing with App ID and other credentials
 - Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
-- Support sorting comments via votes.
 
 **0.6.0**
 

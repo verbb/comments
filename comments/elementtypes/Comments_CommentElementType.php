@@ -148,6 +148,7 @@ class Comments_CommentElementType extends BaseElementType
         $query
 		->addSelect('comments.elementId, comments.userId, comments.elementType, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
 		->join('comments comments', 'comments.id = elements.id')
+		->leftJoin('comments_votes comments_votes', 'comments_votes.commentId = comments.id')
 		->leftJoin('structures structures', 'structures.id = comments.structureId')
 		->leftJoin('structureelements structureelements', array('and', 'structureelements.structureId = structures.id', 'structureelements.elementId = comments.id'));
 
