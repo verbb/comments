@@ -74,6 +74,11 @@ class Comments_CommentModel extends BaseElementModel
         return CommentsHelper::deleteAction($this, $options);
     }
 
+    public function isClosed($options = array())
+    {
+        return craft()->comments->checkClosed($this);
+    }
+
     //
     // Flags
     //

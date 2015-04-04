@@ -48,7 +48,8 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 **0.4.0**
 
-- Support closing comments. No new comments can be made, but still visisible.
+- Add threshold for downvotes - if too many, hide due to poor rating.
+- Set comments to auto-close after determined time.
 
 **0.5.0**
 
@@ -67,6 +68,13 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 
 ### Changelog
+
+#### 0.3.3
+
+- Altered settings pane - now with multiple tabs.
+- Updated permissions UI.
+- Comments can be closed, disabling editing, deleting and replies. Accessible through `isClosed`.
+
 
 #### 0.3.2
 

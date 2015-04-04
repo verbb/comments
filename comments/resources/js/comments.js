@@ -13,13 +13,21 @@ $(function() {
 	});
 
 	// For Permissions panel, handle checkboxes
-	$(document).on('change', '.allElementCheckbox', function(e) {
-		var $group = $(this).parent().parent();
+	$(document).on('click', '.elementTypeCheckbox a.check-all', function(e) {
+		e.preventDefault();
 
-		if ($(this).is(':checked')) {
-			$group.find('input[type="checkbox"]').prop('checked', true);
+		var $checkboxes = $('#' + $(this).parents('tr.elementTypeCheckbox').attr('id') + '-nested input[type="checkbox"]');
+
+		if (!$(this).hasClass('checked')) {
+			$(this).addClass('checked');
+			$(this).html('Uncheck all');
+			
+			$checkboxes.prop('checked', true);
 		} else {
-			$group.find('input[type="checkbox"]').prop('checked', false);
+			$(this).removeClass('checked');
+			$(this).html('Check all');
+
+			$checkboxes.prop('checked', false);
 		}
 	});
 

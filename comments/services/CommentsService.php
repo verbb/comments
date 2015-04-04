@@ -257,7 +257,22 @@ class CommentsService extends BaseApplicationComponent
         return true;
     }
 
+    public function checkClosed($comment)
+    {
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
 
+        if ($settings->closed) {
+            if (array_key_exists($comment->elementType, $settings->closed)) {
+                if (array_key_exists($comment->elementId, $settings->closed[$comment->elementType])) {
+                    if ($settings->closed[$comment->elementType][$comment->elementId]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 
 
 

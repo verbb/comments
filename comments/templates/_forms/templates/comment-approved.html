@@ -30,7 +30,7 @@
 					<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Options <span class="caret"></span></a>
 
 					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-						{% if comment.userId %}
+						{% if comment.userId and not comment.isClosed %}
 							<li role="presentation">
 								<a href="#" class="comment-edit">
 									<span class="glyphicon glyphicon-edit"></span>Edit
@@ -110,10 +110,12 @@
 				{% endif %}
 			</div>
 
-			<a href="#" class="comment-reply">
-				<span class="glyphicon glyphicon-share-alt"></span>
-				Reply
-			</a>
+			{% if not comment.isClosed %}
+				<a href="#" class="comment-reply">
+					<span class="glyphicon glyphicon-share-alt"></span>
+					Reply
+				</a>
+			{% endif %}
 			
 			<a href="#" class="comment-toggle">
 				<span class="glyphicon glyphicon-comment"></span>

@@ -41,19 +41,21 @@
 				    	{% set elements = craft.comments.elements(element.classHandle) %}
 
 				    	{% if elements | length > 0 and element.classHandle != 'Comments_Comment' and element.classHandle != 'GlobalSet' %}
-					    	{% set settingsValue = (settings.permissions) ? settings.permissions[element.classHandle] : {} %}
+					    	{% set permissionValue = (settings.permissions) ? settings.permissions[element.classHandle] : {} %}
+					    	{% set closedValue = (settings.closed) ? settings.closed[element.classHandle] : {} %}
 
-			                <tr class="elementTypeCheckbox">
+			                <tr id="{{ element.classHandle }}" class="elementTypeCheckbox">
 					    		<td>
 					    			{{ forms.checkbox({
 										label: element.name ~ '<a class="check-all">Check all</a>',
 										name: 'permissions['~element.classHandle~'][*]',
-										checked: (settingsValue['*'] is defined) ? settingsValue['*'] : true,
+										checked: (permissionValue['*'] is defined) ? permissionValue['*'] : true,
 									}) }}
 								</td>
 					    		<td>
 					    			{{ forms.lightswitchField({
-										on: false,
+					    				name: 'closed['~element.classHandle~'][*]',
+										on: (closedValue['*'] is defined) ? closedValue['*'] : false,
 									}) }}
 								</td>
 			                </tr>
@@ -66,12 +68,13 @@
 							    				class: 'elementCheckbox',
 												label: el.title,
 												name: 'permissions['~element.classHandle~']['~el.id~']',
-												checked: (settingsValue[el.id] is defined) ? settingsValue[el.id] : (settingsValue['*'] is defined and settingsValue['*'] == '') ? false : true,
+												checked: (permissionValue[el.id] is defined) ? permissionValue[el.id] : (permissionValue['*'] is defined and permissionValue['*'] == '') ? false : true,
 											}) }}
 					                	</td>
 							    		<td>
 							    			{{ forms.lightswitchField({
-												on: false,
+												name: 'closed['~element.classHandle~']['~el.id~']',
+												on: (closedValue[el.id] is defined) ? closedValue[el.id] : false,
 											}) }}
 										</td>
 					            	{% endif %}

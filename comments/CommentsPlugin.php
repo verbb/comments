@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.3.2';
+        return '0.3.3';
     }
 
     public function getDeveloper()
@@ -48,6 +48,7 @@ class CommentsPlugin extends BasePlugin
             'templateFolderOverride'    => AttributeType::String,
             'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
             'permissions'               => AttributeType::Mixed,
+            'closed'                    => AttributeType::Mixed,
         );
     }
 
