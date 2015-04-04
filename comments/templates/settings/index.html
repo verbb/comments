@@ -26,6 +26,8 @@
 			<ul>
 				<li class="label">Settings</li>
 				<li><a id="settings-tab-general" class="tab sel" href="#settings-general" tabindex="0">General</a></li>
+				<li><a id="settings-tab-templates" class="tab" href="#settings-templates" tabindex="1">Templates</a></li>
+				<li><a id="settings-tab-social" class="tab" href="#settings-social" tabindex="2">Social Media</a></li>
 			</ul>
 		</nav>
 	</div>
@@ -36,8 +38,16 @@
 		{{ getCsrfInput() }}
 
 		{% namespace 'settings' %}
-			<div id="settings-general">
+			<div id="general">
 				{% include 'comments/settings/general' %}
+			</div>
+
+			<div id="templates" class="hidden">
+				{% include 'comments/settings/templates' %}
+			</div>
+
+			<div id="social" class="hidden">
+				{% include 'comments/settings/social' %}
 			</div>
 
 		{% endnamespace %}
