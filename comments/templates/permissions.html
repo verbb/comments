@@ -24,67 +24,73 @@
 
 
 {% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut="1">
-	<input type="hidden" name="action" value="plugins/savePluginSettings">
-	<input type="hidden" name="pluginClass" value="{{ plugin.classHandle }}">
-	{{ getCsrfInput() }}
+	<form method="post" accept-charset="UTF-8" data-saveshortcut="1">
+		<input type="hidden" name="action" value="plugins/savePluginSettings">
+		<input type="hidden" name="pluginClass" value="{{ plugin.classHandle }}">
+		{{ getCsrfInput() }}
 
-	{% namespace 'settings' %}
-		
-		<div id="permissions" class="field">
-			<h2>Commenting permissions</h2>
-			<p>Select which elements you'd like to enable commenting on. Uncheck an element to disable comments.</p>
-			<p>Unchecking a top-level element type (Assets, Entries) will disable comments on any new elements created for this element type. </p>
+		{% namespace 'settings' %}
 
-		    {% for element in craft.elements.getAllElementTypes() %}
-		    	{% set elements = craft.comments.elements(element.classHandle) %}
+		    <table id="permissions" class="data fullwidth collapsible">
+		        <thead>
+		            <th>{{ "Enable comments for"|t }}</th>
+		            <th>{{ "Comments are closed"|t }}</th>
+		        </thead>
+		        <tbody>
+				    {% for element in craft.elements.getAllElementTypes() %}
+				    	{% set elements = craft.comments.elements(element.classHandle) %}
 
-		    	{% if elements | length > 0 and element.classHandle != 'Comments_Comment' and element.classHandle != 'GlobalSet' %}
-			    	{% set settingsValue = (settings.permissions) ? settings.permissions[element.classHandle] : {} %}
+				    	{% if elements | length > 0 and element.classHandle != 'Comments_Comment' and element.classHandle != 'GlobalSet' %}
+					    	{% set settingsValue = (settings.permissions) ? settings.permissions[element.classHandle] : {} %}
 
-		    		<h3>
-		    			{{ forms.checkbox({
-		    				class: 'elementTypeCheckbox',
-							label: element.name,
-							name: 'permissions['~element.classHandle~'][*]',
-							checked: (settingsValue['*'] is defined) ? settingsValue['*'] : true,
-						}) }}
-					</h3>
-
-		            <ul id="{{ element.classHandle }}-nested" class="indent">
-			            <li>
-			        		{{ forms.checkbox({
-			    				class: 'allElementCheckbox',
-								label: 'All ' ~ element.name,
-								checked: true,
-							}) }}
-			        	</li>
-
-			            {% for el in elements %}
-			            	{% if el.title is defined and el.title != '' %}
-				                <li>
-			                		{{ forms.checkbox({
-					    				class: 'elementCheckbox',
-										label: el.title,
-										name: 'permissions['~element.classHandle~']['~el.id~']',
-										checked: (settingsValue[el.id] is defined) ? settingsValue[el.id] : (settingsValue['*'] is defined and settingsValue['*'] == '') ? false : true,
+			                <tr class="elementTypeCheckbox">
+					    		<td>
+					    			{{ forms.checkbox({
+										label: element.name ~ '<a class="check-all">Check all</a>',
+										name: 'permissions['~element.classHandle~'][*]',
+										checked: (settingsValue['*'] is defined) ? settingsValue['*'] : true,
 									}) }}
-			                	</li>
-			            	{% endif %}
-			            {% endfor %}
-		            </ul>
-		        {% endif %}
-		    {% endfor %}
+								</td>
+					    		<td>
+					    			{{ forms.lightswitchField({
+										on: false,
+									}) }}
+								</td>
+			                </tr>
+
+				            {% for el in elements %}
+					            <tr id="{{ element.classHandle }}-nested" class="indent">
+					            	{% if el.title is defined and el.title != '' %}
+						                <td>
+					                		{{ forms.checkbox({
+							    				class: 'elementCheckbox',
+												label: el.title,
+												name: 'permissions['~element.classHandle~']['~el.id~']',
+												checked: (settingsValue[el.id] is defined) ? settingsValue[el.id] : (settingsValue['*'] is defined and settingsValue['*'] == '') ? false : true,
+											}) }}
+					                	</td>
+							    		<td>
+							    			{{ forms.lightswitchField({
+												on: false,
+											}) }}
+										</td>
+					            	{% endif %}
+					            </tr>
+				            {% endfor %}
+
+		            	{% endif %}
+				    {% endfor %}
+		        </tbody>
+		    </table>
+
+		{% endnamespace %}
+
+		<hr>
+
+		<div class="buttons">
+			<input type="submit" class="btn submit" value="{{ 'Save'|t }}">
 		</div>
-
-	{% endnamespace %}
-
-	<hr>
-
-	<div class="buttons">
-		<input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-	</div>
-</form>
+	</form>
 {% endset %}
 
 

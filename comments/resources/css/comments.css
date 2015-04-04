@@ -77,31 +77,23 @@
 
 
 
+/* Permissions table */
 
-
-#comments_permissions .group {
-	color: #333f4d;
+#settings-permissions .check-all {
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: bold;
+	margin-left: 10px;
 }
 
-#comments_permissions .thin {
-	text-align: right;
+#settings-permissions .indent td:first-child {
+	padding-left: 20px;
 }
 
-#comments_permissions .field td,
-#comments_permissions .field th {
-	padding-top: 5px !important;
-	padding-bottom: 4px !important;
-	font-size: 90%;
+#settings-permissions .elementTypeCheckbox td:first-child label {
+	font-weight: bold;
 }
 
-#comments_permissions .field .name {
-	padding-left: 20px !important
-}
-
-#comments_permissions .delete-row {
-	padding-left: 25px !important;
-	padding-right: 10px !important;
-}
 
 
 
