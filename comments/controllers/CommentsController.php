@@ -120,32 +120,37 @@ class CommentsController extends BaseController
 
         // Let's check for spam!
         if (!craft()->comments_protect->verifyFields()) {
-            craft()->comments->response(array('error' => 'Form validation failed. Marked as spam.'));
+            craft()->comments->response($this, array('error' => 'Form validation failed. Marked as spam.'));
+        }
+
+        // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
+        if (!craft()->comments->checkSecurityPolicy($commentModel)) {
+            craft()->comments->response($this, array('error' => 'Comment blocked due to security policy.'));
         }
 
         // Protect against Anonymous submissions, if turned off
         if (!$plugin->getSettings()->allowAnonymous && !$commentModel->userId) {
-            craft()->comments->response(array('error' => 'Must be logged in to comment.'));
+            craft()->comments->response($this, array('error' => 'Must be logged in to comment.'));
         }
 
         // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
         $element = craft()->elements->getElementById($commentModel->elementId);
         if (!craft()->comments->checkPermissions($element)) {
-            craft()->comments->response(array('error' => 'Comments are disabled for this element.'));
+            craft()->comments->response($this, array('error' => 'Comments are disabled for this element.'));
         }
 
         // Must have an actual comment
         if (!$commentModel->comment) {
-            craft()->comments->response(array('error' => 'Comment must not be blank.'));
+            craft()->comments->response($this, array('error' => 'Comment must not be blank.'));
         }
 
         // Is this user logged in? Or they've provided user/email?
         if ($commentModel->userId || ($commentModel->name && $commentModel->email)) {
             $result = craft()->comments->saveComment($commentModel);
 
-            craft()->comments->response($result);
+            craft()->comments->response($this, $result);
         } else {
-            craft()->comments->response(array('error' => 'Must be logged in, or supply Name/Email to comment.'));
+            craft()->comments->response($this, array('error' => 'Must be logged in, or supply Name/Email to comment.'));
         }
     }
 
@@ -162,7 +167,7 @@ class CommentsController extends BaseController
 
             $result = craft()->comments_flag->saveFlag($flagModel);
 
-            craft()->comments->response($result);
+            craft()->comments->response($this, $result);
         }
     }
 
@@ -178,7 +183,7 @@ class CommentsController extends BaseController
         $comment = craft()->comments->getCommentById($model->commentId);
 
         if (!$comment->canUpVote()) {
-            craft()->comments->response(array('error' => 'Cannot make vote.'));
+            craft()->comments->response($this, array('error' => 'Cannot make vote.'));
         }
 
         if ($user) {
@@ -186,7 +191,7 @@ class CommentsController extends BaseController
 
             $result = craft()->comments_vote->saveVote($model);
 
-            craft()->comments->response($result);
+            craft()->comments->response($this, $result);
         }
 
     }
@@ -203,7 +208,7 @@ class CommentsController extends BaseController
         $comment = craft()->comments->getCommentById($model->commentId);
 
         if (!$comment->canDownVote()) {
-            craft()->comments->response(array('error' => 'Cannot make vote.'));
+            craft()->comments->response($this, array('error' => 'Cannot make vote.'));
         }
 
         if ($user) {
@@ -211,7 +216,7 @@ class CommentsController extends BaseController
 
             $result = craft()->comments_vote->saveVote($model);
 
-            craft()->comments->response($result);
+            craft()->comments->response($this, $result);
         }
     }
 

@@ -55,6 +55,11 @@ class CommentsPlugin extends BasePlugin
 
             // Templates
             'templateFolderOverride'    => AttributeType::String,
+
+            // Security
+            'securityModeration'        => AttributeType::Mixed,
+            'securityBlacklist'         => AttributeType::Mixed,
+            'securityBanned'            => AttributeType::Mixed,
         );
     }
 

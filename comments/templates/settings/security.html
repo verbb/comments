@@ -1,0 +1,28 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textareaField({
+	first: true,
+	label: "Comment Moderation"|t,
+	name: 'securityModeration',
+	instructions: 'If a comment contains any of these words in its content, name, e-mail, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\').'|t,
+	rows: 10,
+	value: settings.securityModeration,
+}) }}
+
+{{ forms.textareaField({
+	label: "Comment Blacklist"|t,
+	name: 'securityBlacklist',
+	instructions: 'If a comment contains any of these words in its content, name, e-mail, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\').'|t,
+	rows: 10,
+	value: settings.securityBlacklist,
+}) }}
+
+{{ forms.textareaField({
+	label: "Comment Banned"|t,
+	name: 'securityBanned',
+	instructions: 'If a comment contains any of these words in its content, name, e-mail, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\').'|t,
+	rows: 10,
+	value: settings.securityBanned,
+}) }}
+
+<hr>

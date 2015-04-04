@@ -130,11 +130,11 @@ class CommentsService extends BaseApplicationComponent
         }
     }
 
-    public function response($response = null)
+    public function response($controller, $response = null)
     {
         // Handle Ajax response
         if (craft()->request->isAjaxRequest()) {
-            $this->returnJson($response);
+            $controller->returnJson($response);
         } else {
             $this->redirect();
         }
@@ -287,7 +287,59 @@ class CommentsService extends BaseApplicationComponent
         return false;
     }
 
+    public function checkSecurityPolicy(Comments_CommentModel $comment)
+    {
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        
+        // Check for content where a comment should be marked as pending.
+        if ($settings->securityModeration) {
+            $values = explode("\n", $settings->securityModeration);
 
+            foreach ($comment->getAttributes() as $attr) {
+                foreach ($values as $value) {
+                    if (stristr(trim($attr), trim($value))) {
+                        $comment->status = Comments_CommentModel::PENDING;
+                        
+                        // Found a match - that's all folks!
+                        break 2;
+                    }
+                }
+            }
+        }
+        
+        // Check for content where a comment should be marked as spam.
+        if ($settings->securityBlacklist) {
+            $values = explode("\n", $settings->securityBlacklist);
+
+            foreach ($comment->getAttributes() as $attr) {
+                foreach ($values as $value) {
+                    if (stristr(trim($attr), trim($value))) {
+                        $comment->status = Comments_CommentModel::SPAM;
+
+                        // Found a match - that's all folks!
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // Check for content where a comment should be blocked.
+        if ($settings->securityBanned) {
+            $values = explode("\n", $settings->securityBanned);
+
+            foreach ($comment->getAttributes() as $attr) {
+                foreach ($values as $value) {
+                    if (stristr(trim($attr), trim($value))) {
+
+                        // Found a match - that's all folks!
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
 
 
 
