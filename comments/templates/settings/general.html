@@ -1,6 +1,6 @@
 {% import "_includes/forms" as forms %}
 
-{{ forms.lightswitchField({
+{#{{ forms.lightswitchField({
 	first: true,
 	label: 'Allow anonymous comments',
 	instructions: 'Anonymous users can post a comment. Their name and email will be required.'|t,
@@ -15,7 +15,7 @@
 	on: settings.requireModeration,
 }) }}
 
-<hr>
+<hr>#}
 
 {{ forms.textField({
 	label: "Flagged comments threshold"|t,

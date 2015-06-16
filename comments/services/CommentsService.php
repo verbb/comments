@@ -5,6 +5,7 @@ class CommentsService extends BaseApplicationComponent
 {
     private $_commentsById;
     private $_fetchedAllComments = false;
+    private $_fieldSettings;
 
     public function getCriteria(array $attributes = array())
     {
@@ -177,13 +178,6 @@ class CommentsService extends BaseApplicationComponent
     }
 
 
-
-
-
-
-
-
-
     private function _checkForNewParent(Comments_CommentModel $comment)
     {
         // Is it a brand new comment?
@@ -224,70 +218,10 @@ class CommentsService extends BaseApplicationComponent
         return false;
     }
 
-
-
     public function onBeforeSave(CommentsEvent $event)
     {
         $this->raiseEvent('onBeforeSave', $event);
     }
-
-    // Checks is there are sufficient permissions for commenting on this element
-    public function checkPermissions($element)
-    {
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
-        $elementType = craft()->elements->getElementTypeById($element->id);
-        
-        // Do we even have any settings setup? By default - anything can be commented on
-        if ($settings->permissions) {
-
-            // Check for elementype-wide permissions - if turned off for entry, we don't show any new ones
-            // But we still need to show comments for entries that have specifically been enabled on a per-element basis
-            if (!array_key_exists($element->id, $settings->permissions[$elementType])) {
-                if (!$settings->permissions[$elementType]['*']) {
-                    return false;
-                }
-            } else {
-                // Check for individual element permissions
-                if (!$settings->permissions[$elementType][$element->id]) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public function checkClosed($comment)
-    {
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
-
-        if ($settings->closed) {
-            if (array_key_exists($comment->elementType, $settings->closed)) {
-                if (array_key_exists($comment->elementId, $settings->closed[$comment->elementType])) {
-                    
-                    // Has this comment been manually closed (through Permissions screen)?
-                    if ($settings->closed[$comment->elementType][$comment->elementId]) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
-        if ($settings->autoCloseDays) {
-            $element = craft()->elements->getElementById($comment->elementId);
-            $now = new DateTime('now');
-            $interval = $now->diff($element->dateCreated);
-
-            if ($interval->d > $settings->autoCloseDays) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
 
 
 }

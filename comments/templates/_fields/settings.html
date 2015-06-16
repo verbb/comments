@@ -1,0 +1,53 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+	first: true,
+	label: 'Allow anonymous comments',
+	instructions: 'Anonymous users can post a comment. Their name and email will be required.'|t,
+	name: 'allowAnonymousGlobal',
+	on: settings.allowAnonymousGlobal,
+}) }}
+
+{{ forms.lightswitchField({
+	label: 'Comments require moderation',
+	instructions: 'All comments require manual approval before being publicly visible.'|t,
+	name: 'requireModerationGlobal',
+	on: settings.requireModerationGlobal,
+}) }}
+
+{{ forms.lightswitchField({
+	label: 'Commenting closed',
+	instructions: 'No new comments or replies can be made on comments.'|t,
+	name: 'commentsClosedGlobal',
+	on: settings.commentsClosedGlobal,
+}) }}
+
+<div class="field">
+	<div class="heading">
+		<label>User permissions</label>
+		<div class="instructions"><p>Select which users are able to make comments.</p></div>
+	</div>
+
+	<div class="input">
+	    <ul class="">
+        	<li>
+        		{{ forms.checkbox({
+					label: 'All Users'|t,
+					name: 'userPermissionsGlobal[*]',
+					checked: true,
+				}) }}
+        	</li>
+
+	        {% for user in craft.users %}
+	        	<li>
+	        		{{ forms.checkbox({
+						label: user.name,
+						name: 'userPermissionsGlobal['~user.id~']',
+						checked: (settings.userPermissionsGlobal[user.id] is defined) ? settings.userPermissionsGlobal[user.id] : true
+					}) }}
+	        	</li>
+	        {% endfor %}
+	    </ul>
+	</div>
+</div>
+

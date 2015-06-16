@@ -73,7 +73,7 @@ class CommentsVariable
 		craft()->path->setTemplatesPath($oldPath);
 
 		// Finally - none of this matters if the permission to comment on this element is denied
-		if (!craft()->comments->checkPermissions($element)) {
+		if (!craft()->comments_settings->checkPermissions($element)) {
 			return false;
 		}
 
@@ -85,5 +85,11 @@ class CommentsVariable
 		$fields = craft()->comments_protect->getFields();
         return new \Twig_Markup($fields, craft()->templates->getTwig()->getCharset());
 	}
+
+	public function isClosed($elementId)
+    {
+        return craft()->comments_settings->checkClosed($elementId);
+    }
+
 
 }

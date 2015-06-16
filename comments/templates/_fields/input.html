@@ -1,0 +1,57 @@
+{% import "_includes/forms" as forms %}
+
+{% namespace name %}
+
+	{{ forms.lightswitchField({
+		first: true,
+		label: 'Allow anonymous comments',
+		instructions: 'Anonymous users can post a comment. Their name and email will be required.'|t,
+		name: 'allowAnonymous',
+		on: (value) ? value.allowAnonymous : false,
+	}) }}
+
+	{{ forms.lightswitchField({
+		label: 'Comments require moderation',
+		instructions: 'All comments require manual approval before being publicly visible.'|t,
+		name: 'requireModeration',
+		on: (value) ? value.requireModeration : false,
+	}) }}
+
+	{{ forms.lightswitchField({
+		label: 'Commenting closed',
+		instructions: 'No new comments or replies can be made on comments.'|t,
+		name: 'commentsClosed',
+		on: (value) ? value.commentsClosed : false,
+	}) }}
+
+
+	<div class="field">
+		<div class="heading">
+			<label>User permissions</label>
+			<div class="instructions"><p>Select which users are able to make comments.</p></div>
+		</div>
+
+		<div class="input">
+		    <ul class="">
+	        	<li>
+	        		{{ forms.checkbox({
+						label: 'All Users'|t,
+						name: 'users[*]',
+						checked: true,
+					}) }}
+	        	</li>
+
+		        {% for user in craft.users %}
+		        	<li>
+		        		{{ forms.checkbox({
+							label: user.name,
+							name: 'users['~user.id~']',
+							checked: true,
+						}) }}
+		        	</li>
+		        {% endfor %}
+		    </ul>
+		</div>
+	</div>
+
+{% endnamespace %}

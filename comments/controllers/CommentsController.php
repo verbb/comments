@@ -11,10 +11,10 @@ class CommentsController extends BaseController
 
     public function actionPermissions()
     {
-        $plugin = craft()->plugins->getPlugin('comments');
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
 
         $this->renderTemplate('comments/permissions', array(
-            'settings' => $plugin->getSettings(),
+            'settings' => $settings,
         ));
     }
 
@@ -88,7 +88,8 @@ class CommentsController extends BaseController
     {
         $this->requirePostRequest();
 
-        $plugin = craft()->plugins->getPlugin('comments');
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $fieldSettings = craft()->comments->getFieldSettings(craft()->request->getPost('elementId'));
         $user = craft()->userSession->getUser();
 
         $commentModel = new Comments_CommentModel();
@@ -111,7 +112,7 @@ class CommentsController extends BaseController
         $commentModel->comment = array_key_exists('comment', $fields) ? $fields['comment'] : null;
 
         // Set any new comment to be pending if requireModeration is true
-        if ($plugin->getSettings()->requireModeration) {
+        if ($fieldSettings->requireModeration) {
             $commentModel->status = Comments_CommentModel::PENDING;
         } else {
             $commentModel->status = Comments_CommentModel::APPROVED;
@@ -129,13 +130,13 @@ class CommentsController extends BaseController
         }
 
         // Protect against Anonymous submissions, if turned off
-        if (!$plugin->getSettings()->allowAnonymous && !$commentModel->userId) {
+        if (!$fieldSettings->allowAnonymous && !$commentModel->userId) {
             craft()->comments->response($this, array('error' => 'Must be logged in to comment.'));
         }
 
         // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
         $element = craft()->elements->getElementById($commentModel->elementId);
-        if (!craft()->comments->checkPermissions($element)) {
+        if (!craft()->comments_settings->checkPermissions($element)) {
             craft()->comments->response($this, array('error' => 'Comments are disabled for this element.'));
         }
 

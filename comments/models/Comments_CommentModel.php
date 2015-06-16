@@ -76,7 +76,7 @@ class Comments_CommentModel extends BaseElementModel
 
     public function isClosed($options = array())
     {
-        return craft()->comments->checkClosed($this);
+        return craft()->comments_settings->checkClosed($this);
     }
 
     //

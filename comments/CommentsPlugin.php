@@ -43,12 +43,12 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'structureId'               => AttributeType::Number,
-            'permissions'               => AttributeType::Mixed,
-            'closed'                    => AttributeType::Mixed,
+            //'permissions'               => AttributeType::Mixed,
+            //'closed'                    => AttributeType::Mixed,
 
             // General
-            'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
-            'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
+            //'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
+            //'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
             'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
             'downvoteCommentLimit'      => array( AttributeType::Number, 'default' => '5' ),
             'autoCloseDays'             => array( AttributeType::Number, 'default' => '' ),
@@ -63,7 +63,7 @@ class CommentsPlugin extends BasePlugin
             'securityFlooding'          => AttributeType::Number,
 
             // Users
-            'users'                     => AttributeType::Mixed,
+            //'users'                     => AttributeType::Mixed,
         );
     }
 
