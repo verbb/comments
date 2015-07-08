@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.3.6';
+        return '0.3.7';
     }
 
     public function getDeveloper()
@@ -93,6 +93,5 @@ class CommentsPlugin extends BasePlugin
     /* --------------------------------------------------------------
     * HOOKS
     * ------------------------------------------------------------ */
- 
-}
 
+}
