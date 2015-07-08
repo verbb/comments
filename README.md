@@ -77,6 +77,10 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ### Changelog
 
+#### 0.3.7
+
+- Added the ability to get total comments per element id using `{{ craft.comments.total(elementId) }}`.
+
 #### 0.3.6
 
 - Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [Security](https://github.com/engram-design/Comments/wiki/Security)
