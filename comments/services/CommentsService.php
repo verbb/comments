@@ -35,6 +35,21 @@ class CommentsService extends BaseApplicationComponent
         return array_values($this->_commentsById);
     }
 
+    /**
+	 * Return the total count of likes base on the element id.
+	 *
+	 * @param $elementId
+	 * @return \CDbDataReader|mixed|string
+	 */
+	public function getTotalComments($elementId)
+	{
+		$total = Comments_CommentRecord::model()->countByAttributes(array(
+			'elementId' => $elementId
+		));
+
+		return $total;
+	}
+
     public function getElementsWithComments()
     {
         $criteria = new \CDbCriteria();
