@@ -1,11 +1,15 @@
 {
-    "name": "engram-design/Comments",
+    "name": "engram-design/comments",
     "description": "A Craft CMS plugin for managing comments directly within the CMS.",
+    "homepage": "https://github.com/engram-design/Comments",
+    "type": "craft-plugin",
+    "keywords": ["craft","plugin"],
+    "license": "MIT",
     "authors": [{
         "name": "S. Group",
-        "email": "joshua@sgroup.com.au"
+        "email": "joshua@sgroup.com.au",
+        "homepage": "http://sgroup.com.au/"
 	}],
-    "type": "craft-plugin",
     "require": {
         "composer/installers": "~1.0"
     }

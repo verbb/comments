@@ -31,12 +31,23 @@ class CommentsVariable
 		return craft()->comments->getCriteria($criteria);
 	}
 
+    /**
+	 * Return the total count of comments based on the element id.
+	 *
+	 * @param $elementId
+	 * @return \CDbDataReader|mixed|string
+	 */
+	public function total($elementId)
+	{
+		return craft()->comments->getTotalComments($elementId);
+	}
+
 	public function form($elementId, $criteria = array())
-	{	
+	{
 		$settings = craft()->plugins->getPlugin('comments')->getSettings();
 		$oldPath = craft()->path->getTemplatesPath();
 		$element = craft()->elements->getElementById($elementId);
-        
+
 		$criteria = array_merge($criteria, array(
 			'elementId' => $element->id,
 			'level' => '1',
@@ -46,7 +57,7 @@ class CommentsVariable
 
 		// Is the user providing their own templates?
 		if ($settings->templateFolderOverride) {
-			
+
 			// Check if this file even exists
 			$commentTemplate = craft()->path->getSiteTemplatesPath() . $settings->templateFolderOverride . '/comments';
 			foreach (craft()->config->get('defaultTemplateExtensions') as $extension) {
@@ -59,7 +70,7 @@ class CommentsVariable
 		// If no user templates, use our default
 		if (!isset($templateFile)) {
 			$templateFile = '_forms/templates/comments';
-		
+
 			craft()->path->setTemplatesPath(craft()->path->getPluginsPath() . 'comments/templates');
 		}
 
@@ -67,9 +78,9 @@ class CommentsVariable
 			'element' => $element,
 			'comments' => $comments,
 		);
-		
+
 		$html = craft()->templates->render($templateFile, $variables);
-		
+
 		craft()->path->setTemplatesPath($oldPath);
 
 		// Finally - none of this matters if the permission to comment on this element is denied
