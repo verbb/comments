@@ -43,8 +43,8 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'structureId'               => AttributeType::Number,
-            //'permissions'               => AttributeType::Mixed,
-            //'closed'                    => AttributeType::Mixed,
+            'permissions'               => AttributeType::Mixed,
+            'closed'                    => AttributeType::Mixed,
 
             // General
             //'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),

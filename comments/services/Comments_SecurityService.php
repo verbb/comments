@@ -13,11 +13,13 @@ class Comments_SecurityService extends BaseApplicationComponent
 
             foreach ($comment->getAttributes() as $attr) {
                 foreach ($values as $value) {
-                    if (stristr(trim($attr), trim($value))) {
-                        $comment->status = Comments_CommentModel::PENDING;
-                        
-                        // Found a match - that's all folks!
-                        break 2;
+                    if (trim($value)) {
+                        if (stristr(trim($attr), trim($value))) {
+                            $comment->status = Comments_CommentModel::PENDING;
+                            
+                            // Found a match - that's all folks!
+                            break 2;
+                        }
                     }
                 }
             }
@@ -29,11 +31,13 @@ class Comments_SecurityService extends BaseApplicationComponent
 
             foreach ($comment->getAttributes() as $attr) {
                 foreach ($values as $value) {
-                    if (stristr(trim($attr), trim($value))) {
-                        $comment->status = Comments_CommentModel::SPAM;
+                    if (trim($value)) {
+                        if (stristr(trim($attr), trim($value))) {
+                            $comment->status = Comments_CommentModel::SPAM;
 
-                        // Found a match - that's all folks!
-                        break 2;
+                            // Found a match - that's all folks!
+                            break 2;
+                        }
                     }
                 }
             }
@@ -45,10 +49,12 @@ class Comments_SecurityService extends BaseApplicationComponent
 
             foreach ($comment->getAttributes() as $attr) {
                 foreach ($values as $value) {
-                    if (stristr(trim($attr), trim($value))) {
+                    if (trim($value)) {
+                        if (stristr(trim($attr), trim($value))) {
 
-                        // Found a match - that's all folks!
-                        return false;
+                            // Found a match - that's all folks!
+                            return false;
+                        }
                     }
                 }
             }
