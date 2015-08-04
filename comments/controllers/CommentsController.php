@@ -89,7 +89,7 @@ class CommentsController extends BaseController
         $this->requirePostRequest();
 
         $settings = craft()->plugins->getPlugin('comments')->getSettings();
-        $fieldSettings = craft()->comments->getFieldSettings(craft()->request->getPost('elementId'));
+        $fieldSettings = craft()->comments_settings->getFieldSettings(craft()->request->getPost('elementId'));
         $user = craft()->userSession->getUser();
 
         $commentModel = new Comments_CommentModel();
