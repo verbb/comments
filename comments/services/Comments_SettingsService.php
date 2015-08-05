@@ -28,6 +28,8 @@ class Comments_SettingsService extends BaseApplicationComponent
             // Get the field settings for this field instance (ie, for the section, group or folder)
             $fieldSettings = $commentField->attributes['settings'];
 
+            // Loop through the fieldsettings and remove the 'Global' bit at the end so we can merge the 
+            // settings
             foreach($fieldSettings as $key => $setting)
             {
                 $fieldSettings[preg_replace('(Global)', '', $key)] = $setting;
