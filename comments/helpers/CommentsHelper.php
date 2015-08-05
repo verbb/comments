@@ -3,7 +3,7 @@ namespace Craft;
 
 class CommentsHelper
 {
-    public function deleteAction($comment, $options = array())
+    public static function deleteAction($comment, $options = array())
     {
         $params = array(
             'id' => $comment->id,
@@ -13,7 +13,7 @@ class CommentsHelper
         return UrlHelper::getActionUrl('comments/delete', $params);
     }
 
-    public function flagAction($comment, $options = array())
+    public static function flagAction($comment, $options = array())
     {
         $user = craft()->userSession->getUser();
 
@@ -34,7 +34,7 @@ class CommentsHelper
         }
     }
 
-    public function upvoteAction($comment, $options = array())
+    public static function upvoteAction($comment, $options = array())
     {
         $user = craft()->userSession->getUser();
 
@@ -55,7 +55,7 @@ class CommentsHelper
         }
     }
 
-    public function downvoteAction($comment, $options = array())
+    public static function downvoteAction($comment, $options = array())
     {
         $user = craft()->userSession->getUser();
 
