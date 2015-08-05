@@ -15,6 +15,7 @@ class Comments_SettingsService extends BaseApplicationComponent
             }
         }
 
+
         // Does this element have a comment field (ie, comments enabled on it)
         if ($commentField) {
             $elementSettings = array();
@@ -26,6 +27,12 @@ class Comments_SettingsService extends BaseApplicationComponent
 
             // Get the field settings for this field instance (ie, for the section, group or folder)
             $fieldSettings = $commentField->attributes['settings'];
+
+            foreach($fieldSettings as $key => $setting)
+            {
+                $fieldSettings[preg_replace('(Global)', '', $key)] = $setting;
+                unset($fieldSettings[$key]);
+            }
 
             return (object) array_merge((array)$fieldSettings, $elementSettings);
         }
