@@ -52,9 +52,9 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 **0.5.0**
 
+- Add permissions to control commenting settings per section.
 - Provide a set of hooks for third-party plugins.
 - Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
-- Support Facebook/Twitter for sharing with App ID and other credentials
 - Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
 
 **0.6.0**
@@ -63,12 +63,17 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 	- Ban unwanted users from current topic
 	- Ban users from all comment forms
 
+**0.7.0**
+
+- Support email notifications for subscribing to topics.
+- Provide front-end comment editing.
+
 **1.0+**
 
+- Support Facebook/Twitter for sharing with App ID and other credentials
 - Provide simple WYSIWYG editor for front-end forms. Optional.
 - Social media login integration.
 - Gravatar support.
-- Support email notifications. Likely through [Postmaster](https://github.com/objectivehtml/Postmaster-for-Craft-CMS)
 - Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
 - Create Pusher-integrated real-time example comments form.
 - Utalise sessions to show user's unread comments from others (see [#5](https://github.com/engram-design/Comments/issues/5)).
@@ -76,6 +81,12 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 
 ### Changelog
+
+#### 0.3.8
+
+- Fixes for field settings messing things up. **Notice** The Comments fieldtype will soon be removed in favour of centralized permissions.
+- Other bugfixes and improvements.
+- Ensure works well on Craft Client/Craft Personal.
 
 #### 0.3.7
 

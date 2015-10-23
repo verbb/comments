@@ -92,7 +92,7 @@
                 <hr/>
 
                 <h5 class="first">{{ "User"|t }}</h5>
-                {% if comment.userId %}
+                {% if comment.userId and craft.users %}
                     {% set user = craft.users.id(comment.userId).first() %}
                     <p><a class="go" href="{{ url('users/'~user.id ) }}">{{ user.getFriendlyName() }}</a></p>
                 {% else %}

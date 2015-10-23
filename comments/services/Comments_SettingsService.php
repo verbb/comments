@@ -5,6 +5,7 @@ class Comments_SettingsService extends BaseApplicationComponent
 {
     public function getFieldSettings($elementId)
     {
+        $settings = craft()->plugins->getPlugin('comments')->getSettings();
         $element = craft()->elements->getElementById($elementId);
         $commentField = null;
 
@@ -14,7 +15,6 @@ class Comments_SettingsService extends BaseApplicationComponent
                 $commentField = $layoutField->field;
             }
         }
-
 
         // Does this element have a comment field (ie, comments enabled on it)
         if ($commentField) {
@@ -28,15 +28,10 @@ class Comments_SettingsService extends BaseApplicationComponent
             // Get the field settings for this field instance (ie, for the section, group or folder)
             $fieldSettings = $commentField->attributes['settings'];
 
-            // Loop through the fieldsettings and remove the 'Global' bit at the end so we can merge the 
-            // settings
-            foreach($fieldSettings as $key => $setting)
-            {
-                $fieldSettings[preg_replace('(Global)', '', $key)] = $setting;
-                unset($fieldSettings[$key]);
-            }
-
             return (object) array_merge((array)$fieldSettings, $elementSettings);
+        } else {
+            // Otherwise, return the global Comments settings
+            return $settings;
         }
     }
 
@@ -78,13 +73,6 @@ class Comments_SettingsService extends BaseApplicationComponent
             if (property_exists($fieldSettings, 'commentsClosed')) {
                 if ($fieldSettings->commentsClosed) {
                     return true;
-                }
-            } else {
-                // If no field settings at all (will be either 0 or 1), likely a new element. Check field settings.
-                if (property_exists($fieldSettings, 'commentsClosedGlobal')) {
-                    if ($fieldSettings->commentsClosedGlobal) {
-                        return true;
-                    }
                 }
             }
         }

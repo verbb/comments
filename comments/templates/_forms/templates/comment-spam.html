@@ -1,7 +1,7 @@
 <div class="comment-container">
 	<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 		<div class="comment-image" itemprop="image">
-			{% if comment.userId %}
+			{% if comment.userId and craft.users %}
 				{% set photo = craft.users.id(comment.userId).first().photoUrl %}
 
 				{% if photo %}
@@ -19,7 +19,7 @@
 		<span class="comment-heading">
 			<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 				<span class="title" itemprop="name">
-					{% if comment.userId %}
+					{% if comment.userId and craft.users %}
 						{{ craft.users.id(comment.userId).first().fullName }}
 					{% else %}
 						{{ comment.name }}

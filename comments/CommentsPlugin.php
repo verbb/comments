@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.3.7';
+        return '0.3.8';
     }
 
     public function getDeveloper()
@@ -47,8 +47,8 @@ class CommentsPlugin extends BasePlugin
             'closed'                    => AttributeType::Mixed,
 
             // General
-            //'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
-            //'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
+            'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
+            'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
             'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
             'downvoteCommentLimit'      => array( AttributeType::Number, 'default' => '5' ),
             'autoCloseDays'             => array( AttributeType::Number, 'default' => '' ),

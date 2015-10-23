@@ -4,22 +4,22 @@
 	first: true,
 	label: 'Allow anonymous comments',
 	instructions: 'Anonymous users can post a comment. Their name and email will be required.'|t,
-	name: 'allowAnonymousGlobal',
-	on: settings.allowAnonymousGlobal,
+	name: 'allowAnonymous',
+	on: settings.allowAnonymous,
 }) }}
 
 {{ forms.lightswitchField({
 	label: 'Comments require moderation',
 	instructions: 'All comments require manual approval before being publicly visible.'|t,
-	name: 'requireModerationGlobal',
-	on: settings.requireModerationGlobal,
+	name: 'requireModeration',
+	on: settings.requireModeration,
 }) }}
 
 {{ forms.lightswitchField({
 	label: 'Commenting closed',
 	instructions: 'No new comments or replies can be made on comments.'|t,
-	name: 'commentsClosedGlobal',
-	on: settings.commentsClosedGlobal,
+	name: 'commentsClosed',
+	on: settings.commentsClosed,
 }) }}
 
 <div class="field">
@@ -33,7 +33,7 @@
         	<li>
         		{{ forms.checkbox({
 					label: 'All Users'|t,
-					name: 'userPermissionsGlobal[*]',
+					name: 'userPermissions[*]',
 					checked: true,
 				}) }}
         	</li>
@@ -42,8 +42,8 @@
 	        	<li>
 	        		{{ forms.checkbox({
 						label: user.name,
-						name: 'userPermissionsGlobal['~user.id~']',
-						checked: (settings.userPermissionsGlobal[user.id] is defined) ? settings.userPermissionsGlobal[user.id] : true
+						name: 'userPermissions['~user.id~']',
+						checked: (settings.userPermissions[user.id] is defined) ? settings.userPermissions[user.id] : true
 					}) }}
 	        	</li>
 	        {% endfor %}

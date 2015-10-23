@@ -49,10 +49,10 @@ class CommentsFieldType extends BaseFieldType
     protected function defineSettings()
     {
         return array(
-            'allowAnonymousGlobal'            => array( AttributeType::Bool, 'default' => false ),
-            'requireModerationGlobal'         => array( AttributeType::Bool, 'default' => false ),
-            'commentsClosedGlobal'            => array( AttributeType::Bool, 'default' => false ),
-            'userPermissionsGlobal'           => array( AttributeType::Mixed ),
+            'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
+            'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
+            'commentsClosed'            => array( AttributeType::Bool, 'default' => false ),
+            'userPermissions'           => array( AttributeType::Mixed ),
         );
     }
 
