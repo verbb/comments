@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_CommentElementType extends BaseElementType
 {
+    // Public Methods
+    // =========================================================================
+
 	public function getName()
 	{
 		return Craft::t('Comment');

@@ -3,6 +3,9 @@ namespace Craft;
 
 class CommentsFieldType extends BaseFieldType
 {
+    // Public Methods
+    // =========================================================================
+
     public function getName()
     {
         return Craft::t('Comments');
@@ -26,7 +29,6 @@ class CommentsFieldType extends BaseFieldType
 
     public function prepValue($value)
     {
-        //var_dump($value);
         return $value;
     }
 
@@ -37,7 +39,6 @@ class CommentsFieldType extends BaseFieldType
 
     public function prepSettings($settings)
     {
-        //var_dump($settings);
         return $settings;
     }
 
@@ -45,6 +46,10 @@ class CommentsFieldType extends BaseFieldType
     {
         return AttributeType::Mixed;
     }
+
+
+    // Protected Methods
+    // =========================================================================
 
     protected function defineSettings()
     {

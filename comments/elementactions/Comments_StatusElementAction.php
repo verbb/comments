@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_StatusElementAction extends BaseElementAction
 {
+    // Public Methods
+    // =========================================================================
+
 	public function getTriggerHtml()
 	{
 		return craft()->templates->render('comments/_elementactions/status');
@@ -41,6 +44,10 @@ class Comments_StatusElementAction extends BaseElementAction
 	{
 		$this->raiseEvent('onSetStatus', $event);
 	}
+
+
+    // Protected Methods
+    // =========================================================================
 
 	protected function defineParams()
 	{

@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_VoteModel extends BaseModel
 {
+    // Protected Methods
+    // =========================================================================
+
 	protected function defineAttributes()
 	{
         return array(

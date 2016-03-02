@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_ProtectService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
 	public function getFields()
 	{
 		$fields = $this->getOriginField() . $this->getHoneypotField() . $this->getJSField();
@@ -153,6 +156,8 @@ class Comments_ProtectService extends BaseApplicationComponent
 
 
 
+    // Protected Methods
+    // =========================================================================
 
 	protected function getDomainHash()
 	{

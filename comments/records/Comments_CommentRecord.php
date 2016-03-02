@@ -3,10 +3,32 @@ namespace Craft;
 
 class Comments_CommentRecord extends BaseRecord
 {
+    // Public Methods
+    // =========================================================================
+
 	public function getTableName()
 	{
 		return 'comments';
 	}
+
+	public function scopes()
+	{
+		return array(
+			'ordered' => array('order' => 'dateCreated'),
+		);
+	}
+
+	public function defineRelations()
+	{
+		return array(
+			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'required' => true, 'onDelete' => static::CASCADE),
+			'user' => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
+		);
+	}
+	
+
+    // Protected Methods
+    // =========================================================================
 
 	protected function defineAttributes()
 	{
@@ -25,21 +47,6 @@ class Comments_CommentRecord extends BaseRecord
 			'ipAddress'		=> array(AttributeType::String),
 			'userAgent'		=> array(AttributeType::String),
 			'comment'		=> array(AttributeType::Mixed),
-		);
-	}
-
-	public function scopes()
-	{
-		return array(
-			'ordered' => array('order' => 'dateCreated'),
-		);
-	}
-
-	public function defineRelations()
-	{
-		return array(
-			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'required' => true, 'onDelete' => static::CASCADE),
-			'user' => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
 		);
 	}
 }

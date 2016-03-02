@@ -3,9 +3,26 @@ namespace Craft;
 
 class CommentsService extends BaseApplicationComponent
 {
+    // Properties
+    // =========================================================================
+
     private $_commentsById;
     private $_fetchedAllComments = false;
     private $_fieldSettings;
+
+
+    // Public Methods
+    // =========================================================================
+
+    public function getPlugin()
+    {
+        return craft()->plugins->getPlugin('comments');
+    }
+
+    public function getSettings()
+    {
+        return $this->getPlugin()->getSettings();
+    }
 
     public function getCriteria(array $attributes = array())
     {
@@ -35,12 +52,6 @@ class CommentsService extends BaseApplicationComponent
         return array_values($this->_commentsById);
     }
 
-    /**
-	 * Return the total count of likes base on the element id.
-	 *
-	 * @param $elementId
-	 * @return \CDbDataReader|mixed|string
-	 */
 	public function getTotalComments($elementId)
 	{
 		$total = Comments_CommentRecord::model()->countByAttributes(array(
@@ -68,7 +79,7 @@ class CommentsService extends BaseApplicationComponent
 
     public function getStructureId()
     {
-        return craft()->plugins->getPlugin('comments')->getSettings()->structureId;
+        return $this->getSettings()->structureId;
     }
 
     public function saveComment(Comments_CommentModel $comment)
@@ -192,6 +203,14 @@ class CommentsService extends BaseApplicationComponent
         return true;
     }
 
+    public function onBeforeSave(CommentsEvent $event)
+    {
+        $this->raiseEvent('onBeforeSave', $event);
+    }
+
+
+    // Private Methods
+    // =========================================================================
 
     private function _checkForNewParent(Comments_CommentModel $comment)
     {
@@ -231,11 +250,6 @@ class CommentsService extends BaseApplicationComponent
 
         // Must be set to the same one then
         return false;
-    }
-
-    public function onBeforeSave(CommentsEvent $event)
-    {
-        $this->raiseEvent('onBeforeSave', $event);
     }
 
 

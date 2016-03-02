@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_FlagService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
     public function getAllFlags()
     {
         $records = Comments_FlagRecord::model()->findAll();
@@ -24,7 +27,7 @@ class Comments_FlagService extends BaseApplicationComponent
 
     public function isOverFlagThreshold($comment)
     {
-    	$threshold = craft()->plugins->getPlugin('comments')->getSettings()->flaggedCommentLimit;
+    	$threshold = craft()->comments->getSettings()->flaggedCommentLimit;
 		$flags = $this->getFlagsByCommentId($comment->id);
 
     	if (count($flags) >= $threshold) {

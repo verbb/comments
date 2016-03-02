@@ -3,9 +3,12 @@ namespace Craft;
 
 class Comments_SecurityService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
     public function checkSecurityPolicy(Comments_CommentModel $comment)
     {
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $settings = craft()->comments->getSettings();
         
         // Check for content where a comment should be marked as pending.
         if ($settings->securityModeration) {

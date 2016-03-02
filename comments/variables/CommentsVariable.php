@@ -31,12 +31,6 @@ class CommentsVariable
 		return craft()->comments->getCriteria($criteria);
 	}
 
-    /**
-	 * Return the total count of comments based on the element id.
-	 *
-	 * @param $elementId
-	 * @return \CDbDataReader|mixed|string
-	 */
 	public function total($elementId)
 	{
 		return craft()->comments->getTotalComments($elementId);

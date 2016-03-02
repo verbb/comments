@@ -3,9 +3,12 @@ namespace Craft;
 
 class Comments_SettingsService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
     public function getFieldSettings($elementId)
     {
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $settings = craft()->comments->getSettings();
         $element = craft()->elements->getElementById($elementId);
         $commentField = null;
 
@@ -39,7 +42,7 @@ class Comments_SettingsService extends BaseApplicationComponent
     public function checkPermissions($element)
     {
         //$fieldSettings = $this->getFieldSettings($element->id);
-        /*$settings = craft()->plugins->getPlugin('comments')->getSettings();
+        /*$settings = craft()->comments->getSettings();
         $elementType = craft()->elements->getElementTypeById($element->id);
         
         // Do we even have any settings setup? By default - anything can be commented on
@@ -65,7 +68,7 @@ class Comments_SettingsService extends BaseApplicationComponent
     public function checkClosed($comment)
     {
         $fieldSettings = $this->getFieldSettings($comment->elementId);
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $settings = craft()->comments->getSettings();
 
         if ($fieldSettings) {
 

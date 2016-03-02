@@ -3,7 +3,14 @@ namespace Craft;
 
 class CommentsController extends BaseController
 {
+    // Properties
+    // =========================================================================
+
     protected $allowAnonymous = array('actionAdd');
+
+    
+    // Public Methods
+    // =========================================================================
 
     //
     // Control Panel

@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_CommentModel extends BaseElementModel
 {
+    // Properties
+    // =========================================================================
+
     protected $elementType = 'Comments_Comment';
 
 	const APPROVED	= 'approved';
@@ -10,31 +13,9 @@ class Comments_CommentModel extends BaseElementModel
 	const SPAM		= 'spam';
 	const TRASHED	= 'trashed';
 
-	protected function defineAttributes()
-	{
-        return array_merge(parent::defineAttributes(), array(
-			'id'			=> array(AttributeType::Number),
-			'elementId'		=> array(AttributeType::Number),
-            'elementType'   => array(AttributeType::String),
-            'userId'		=> array(AttributeType::Number),
-            'structureId'   => array(AttributeType::Number),
-			'status'		=> array(AttributeType::Enum, 'values' => array(
-			    Comments_CommentModel::APPROVED,
-			    Comments_CommentModel::PENDING,
-			    Comments_CommentModel::SPAM,
-			    Comments_CommentModel::TRASHED,
-			)),
-			'name'			=> array(AttributeType::String),
-			'email'			=> array(AttributeType::Email),
-			'url'			=> array(AttributeType::Url),
-			'ipAddress'		=> array(AttributeType::String),
-			'userAgent'		=> array(AttributeType::String),
-			'comment'		=> array(AttributeType::String),
 
-			// Just used for saving
-			'parentId'      => AttributeType::Number,
-        ));
-	}
+    // Public Methods
+    // =========================================================================
 
     public function isEditable()
     {
@@ -56,18 +37,18 @@ class Comments_CommentModel extends BaseElementModel
         return UrlHelper::getCpUrl('comments/edit/' . $this->id);
     }
 
-	public function getExcerpt($startPos=0, $maxLength=100) {
-		if (strlen($this->comment) > $maxLength) {
-			$excerpt   = substr($this->comment, $startPos, $maxLength-3);
-			$lastSpace = strrpos($excerpt, ' ');
-			$excerpt   = substr($excerpt, 0, $lastSpace);
-			$excerpt  .= '...';
-		} else {
-			$excerpt = $this->comment;
-		}
-		
-		return $excerpt;
-	}
+    public function getExcerpt($startPos=0, $maxLength=100) {
+        if (strlen($this->comment) > $maxLength) {
+            $excerpt   = substr($this->comment, $startPos, $maxLength-3);
+            $lastSpace = strrpos($excerpt, ' ');
+            $excerpt   = substr($excerpt, 0, $lastSpace);
+            $excerpt  .= '...';
+        } else {
+            $excerpt = $this->comment;
+        }
+        
+        return $excerpt;
+    }
 
     public function deleteActionUrl($options = array())
     {
@@ -174,6 +155,35 @@ class Comments_CommentModel extends BaseElementModel
     {
         return craft()->comments_vote->isOverDownvoteThreshold($this);
     }
+    
 
 
+    // Protected Methods
+    // =========================================================================
+
+	protected function defineAttributes()
+	{
+        return array_merge(parent::defineAttributes(), array(
+			'id'			=> array(AttributeType::Number),
+			'elementId'		=> array(AttributeType::Number),
+            'elementType'   => array(AttributeType::String),
+            'userId'		=> array(AttributeType::Number),
+            'structureId'   => array(AttributeType::Number),
+			'status'		=> array(AttributeType::Enum, 'values' => array(
+			    Comments_CommentModel::APPROVED,
+			    Comments_CommentModel::PENDING,
+			    Comments_CommentModel::SPAM,
+			    Comments_CommentModel::TRASHED,
+			)),
+			'name'			=> array(AttributeType::String),
+			'email'			=> array(AttributeType::Email),
+			'url'			=> array(AttributeType::Url),
+			'ipAddress'		=> array(AttributeType::String),
+			'userAgent'		=> array(AttributeType::String),
+			'comment'		=> array(AttributeType::String),
+
+			// Just used for saving
+			'parentId'      => AttributeType::Number,
+        ));
+	}
 }

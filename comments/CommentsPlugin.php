@@ -3,9 +3,9 @@ namespace Craft;
 
 class CommentsPlugin extends BasePlugin
 {
-    /* --------------------------------------------------------------
-    * PLUGIN INFO
-    * ------------------------------------------------------------ */
+    // =========================================================================
+    // PLUGIN INFO
+    // =========================================================================
 
     public function getName()
     {
@@ -17,6 +17,11 @@ class CommentsPlugin extends BasePlugin
         return '0.3.8';
     }
 
+    public function getSchemaVersion()
+    {
+        return '1.0.0';
+    }
+
     public function getDeveloper()
     {
         return 'S. Group';
@@ -25,6 +30,21 @@ class CommentsPlugin extends BasePlugin
     public function getDeveloperUrl()
     {
         return 'http://sgroup.com.au';
+    }
+
+    public function getPluginUrl()
+    {
+        return 'https://github.com/engram-design/Comments';
+    }
+
+    public function getDocumentationUrl()
+    {
+        return $this->getPluginUrl() . '/blob/master/README.md';
+    }
+
+    public function getReleaseFeedUrl()
+    {
+        return 'https://raw.githubusercontent.com/engram-design/Comments/master/changelog.json';
     }
 
     public function hasCpSection()
@@ -88,10 +108,4 @@ class CommentsPlugin extends BasePlugin
             craft()->plugins->savePluginSettings($this, array('structureId' => $structure->id));
         }
     }
-
-
-    /* --------------------------------------------------------------
-    * HOOKS
-    * ------------------------------------------------------------ */
-
 }

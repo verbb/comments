@@ -3,6 +3,9 @@ namespace Craft;
 
 class Comments_VoteService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
     public function getAllVotes()
     {
         $records = Comments_VoteRecord::model()->findAll();
@@ -68,7 +71,7 @@ class Comments_VoteService extends BaseApplicationComponent
 
     public function isOverDownvoteThreshold($comment)
     {
-        $threshold = craft()->plugins->getPlugin('comments')->getSettings()->downvoteCommentLimit;
+        $threshold = craft()->comments->getSettings()->downvoteCommentLimit;
         $downvotes = $this->getDownvotesByCommentId($comment->id);
 
         if (count($downvotes) >= $threshold) {
