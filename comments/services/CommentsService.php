@@ -150,6 +150,9 @@ class CommentsService extends BaseApplicationComponent
                 }
             }
 
+            // hook for a comment being saved
+            craft()->plugins->call('onSaveComment', array('comment' => $comment));
+
             return $comment;
         } else {
             $comment->addErrors($commentRecord->getErrors());
