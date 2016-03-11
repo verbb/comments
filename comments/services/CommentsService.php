@@ -203,6 +203,9 @@ class CommentsService extends BaseApplicationComponent
 
         $commentRecord->save(false);
 
+        // hook for a comment being 'deleted'
+        craft()->plugins->call('onDeleteComment', array('comment' => $comment));
+
         return true;
     }
 
