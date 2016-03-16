@@ -28,7 +28,7 @@ class CommentsHelper
         // Only logged in users can flag a comment
         if ($user) {
 
-            // Ensure the user has no already flagged comment
+            // Ensure the user has not already flagged comment
             $hasFlagged = craft()->comments_flag->hasFlagged($comment, $user);
 
             if (!$hasFlagged) {

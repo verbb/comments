@@ -6,9 +6,7 @@ class CommentsService extends BaseApplicationComponent
     // Properties
     // =========================================================================
 
-    private $_commentsById;
-    private $_fetchedAllComments = false;
-    private $_fieldSettings;
+    public $activeComment;
 
 
     // Public Methods
@@ -43,13 +41,8 @@ class CommentsService extends BaseApplicationComponent
 
     public function getCommentModels($criteria = null)
     {
-        if (!$this->_fetchedAllComments) {
-            $records = Comments_CommentRecord::model()->ordered()->findAll();
-            $this->_commentsById = Comments_CommentModel::populateModels($records, 'id');
-            $this->_fetchedAllComments = true;
-        }
-
-        return array_values($this->_commentsById);
+        $records = Comments_CommentRecord::model()->ordered()->findAll();
+        return Comments_CommentModel::populateModels($records, 'id');
     }
 
 	public function getTotalComments($elementId)
@@ -70,8 +63,7 @@ class CommentsService extends BaseApplicationComponent
 
         $entries = array();
         foreach ($comments as $comment) {
-            $element = craft()->elements->getElementById($comment->elementId);
-            $entries[] = $element;
+            $entries[] = craft()->elements->getElementById($comment->elementId);
         }
 
         return $entries;
@@ -82,7 +74,7 @@ class CommentsService extends BaseApplicationComponent
         return $this->getSettings()->structureId;
     }
 
-    public function saveComment(Comments_CommentModel $comment)
+    public function saveComment(Comments_CommentModel $comment, $validate = true)
     {
         $isNewComment = !$comment->id;
 
@@ -114,83 +106,50 @@ class CommentsService extends BaseApplicationComponent
             $commentRecord = new Comments_CommentRecord();
         }
 
-
         // Load in all the attributes from the Comment model into this record
         $commentRecord->setAttributes($comment->getAttributes(), false);
 
+        // Fire an 'onBeforeSaveComment' event
+        $event = new Event($this, array('comment' => $comment));
+        $this->onBeforeSaveComment($event);
 
-        // Fire an 'onBeforeSave' event
-        Craft::import('plugins.comments.events.CommentsEvent');
-        $event = new CommentsEvent($this, array('comment' => $comment));
-        craft()->comments->onBeforeSave($event);
+        // Allow event to cancel comment saving
+        if (!$event->performAction) {
+            return false;
+        }
 
-
-        // Now, lets try to save all this
-        if ($comment->validate()) {
-            $success = craft()->elements->saveElement($comment);
-
-            if (!$success) {
+        // Validate - unless specifically opting out (for CP mostly)
+        if ($validate) {
+            if (!$comment->validate()) {
                 return array('error' => $comment->getErrors());
             }
+        }
 
-            // Now that we have an element ID, save it on the other stuff
-            if ($isNewComment) {
-                $commentRecord->id = $comment->id;
-            }
-
-            // Save the actual comment
-            $commentRecord->save(false);
-
-            // Has the parent changed?
-            if ($hasNewParent) {
-                if (!$comment->parentId) {
-                    craft()->structures->appendToRoot($this->getStructureId(), $comment);
-                } else {
-                    craft()->structures->append($this->getStructureId(), $comment, $parentComment);
-                }
-            }
-
-            // hook for a comment being saved
-            craft()->plugins->call('onSaveComment', array('comment' => $comment));
-
-            return $comment;
-        } else {
-            $comment->addErrors($commentRecord->getErrors());
+        if (!craft()->elements->saveElement($comment)) {
             return array('error' => $comment->getErrors());
         }
-    }
 
-    public function response($controller, $response = null)
-    {
-        // Handle Ajax response
-        if (craft()->request->isAjaxRequest()) {
-            $controller->returnJson($response);
-        } else {
-            $this->redirect();
+        // Now that we have an element ID, save it on the other stuff
+        if ($isNewComment) {
+            $commentRecord->id = $comment->id;
         }
-    }
 
-    public function redirect($object = null)
-    {
-        $url = craft()->request->getPost('redirect');
+        // Save the actual comment
+        $commentRecord->save(false);
 
-        if ($url === null) {
-            $url = craft()->request->getParam('return');
-
-            if ($url === null) {
-                $url = craft()->request->getUrlReferrer();
-
-                if ($url === null) {
-                    $url = '/';
-                }
+        // Has the parent changed?
+        if ($hasNewParent) {
+            if (!$comment->parentId) {
+                craft()->structures->appendToRoot($this->getStructureId(), $comment);
+            } else {
+                craft()->structures->append($this->getStructureId(), $comment, $parentComment);
             }
         }
 
-        if ($object) {
-            $url = craft()->templates->renderObjectTemplate($url, $object);
-        }
+        // Fire an 'onSaveComment' event
+        $this->onSaveComment(new Event($this, array('comment' => $comment)));
 
-        craft()->request->redirect($url);
+        return $comment;
     }
 
     // Doesn't actually delete a comment - instead sets its status to 'trashed'
@@ -201,18 +160,80 @@ class CommentsService extends BaseApplicationComponent
         // Load in all the attributes from the Comment model into this record
         $commentRecord->status = $comment->status;
 
+        // Fire an 'onBeforeDeleteComment' event
+        $event = new Event($this, array('comment' => $comment));
+        $this->onBeforeDeleteComment($event);
+
+        // Allow event to cancel comment saving
+        if (!$event->performAction) {
+            return false;
+        }
+
         $commentRecord->save(false);
 
-        // hook for a comment being 'deleted'
-        craft()->plugins->call('onDeleteComment', array('comment' => $comment));
+        // Fire an 'onDeleteComment' event
+        $this->onDeleteComment(new Event($this, array('comment' => $comment)));
 
         return true;
     }
 
-    public function onBeforeSave(CommentsEvent $event)
+    public function getActiveComment()
     {
-        $this->raiseEvent('onBeforeSave', $event);
+        if (isset($this->activeComment)) {
+            return $this->activeComment;
+        } else {
+            return new Comments_CommentModel();
+        }
     }
+
+
+    // Event Handlers
+    // =========================================================================
+
+    public function onBeforeSaveComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
+            throw new Exception('onBeforeSaveComment event requires "comment" param with CommentModel instance');
+        }
+
+        $this->raiseEvent('onBeforeSaveComment', $event);
+    }
+
+    public function onSaveComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
+            throw new Exception('onSaveComment event requires "comment" param with CommentModel instance');
+        }
+
+        $this->raiseEvent('onSaveComment', $event);
+    }
+
+    public function onBeforeDeleteComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
+            throw new Exception('onBeforeDeleteComment event requires "comment" param with CommentModel instance');
+        }
+
+        $this->raiseEvent('onBeforeDeleteComment', $event);
+    }
+
+    public function onDeleteComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
+            throw new Exception('onDeleteComment event requires "comment" param with CommentModel instance');
+        }
+
+        $this->raiseEvent('onDeleteComment', $event);
+    }
+
 
 
     // Private Methods

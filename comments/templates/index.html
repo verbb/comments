@@ -2,15 +2,15 @@
 
 {% includeCssResource 'comments/css/comments.css' %}
 
-{% set title = "Comments"|t %}
+{% set title = "Comments" | t %}
 
 {% set elementType = "Comments_Comment" %}
 
 {% set showStatusMenu = true %}
 
 {% set tabs = {
-    comments: { label: "Comments"|t, url: url('comments') },
-    settings: { label: "Settings"|t, url: url('comments/settings') },
+    comments: { label: "Comments" | t, url: url('comments') },
+    settings: { label: "Settings" | t, url: url('comments/settings') },
 } %}
 
 {% block sidebar %}

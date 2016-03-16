@@ -8,29 +8,30 @@
 {% set title = 'Edit Comment' %}
 
 {% set crumbs = [
-    { label: "Comments"|t, url: url('comments') },
-    { label: "Edit"|t, url: url('comments/edit/'~ comment.id ) }
+    { label: "Comments" | t, url: url('comments') },
+    { label: "Edit" | t, url: url('comments/edit/'~ comment.id ) }
 ] %}
 
-{% set replies = craft.comments.replies(comment) %}
+{% set replies = craft.comments.all({ 'descendantOf': comment.id, limit: null }) %}
 {% set elementType = craft.elements.getElementType('Comments_Comment') %}
 
 {% set repliesElementAttr = {
     elementType: elementType,
     disabledElementIds: null,
     attributes: {
-        id: 'Item',
-        comment: 'Comment',
-        dateCreated: 'Date Commented'
+        id: ['id', { label: 'ID' }],
+        comment: ['comment', { label: 'Comment' }],
+        dateCreated: ['dateCreated', { label: 'Date' }],
     },
     elements: replies,
-    showCheckboxes: false
+    showCheckboxes: false,
+    structureEditable: false,
 } %}
 
 {% block main %}
 
 <form id="userform" method="post" accept-charset="UTF-8" data-saveshortcut data-confirm-unload>
-    <input type="hidden" name="action" value="comments/save">
+    <input type="hidden" name="action" value="comments/saveComment">
     <input type="hidden" name="redirect" value="comments/edit/{{ comment.id }}">
     <input type="hidden" name="commentId" value="{{ comment.id }}">
     {{ getCsrfInput() }}
@@ -41,7 +42,7 @@
                 <div id="comment">
                     {{ forms.textAreaField({
                         first: true,
-                        label: "Comment"|t,
+                        label: "Comment" | t,
                         id: 'comment',
                         name: 'comment',
                         rows: '10',
@@ -70,7 +71,7 @@
         <div class="item" data-position="right" data-colspan="1">
             <div class="pane">
 
-                <h5>{{ "Status"|t }}</h5>
+                <h5>{{ "Status" | t }}</h5>
                 <input type="hidden" name="status" value="{{ comment.status }}" />
 
                 <div class="btn menubtn statusmenubtn">
@@ -91,7 +92,7 @@
 
                 <hr/>
 
-                <h5 class="first">{{ "User"|t }}</h5>
+                <h5 class="first">{{ "User" | t }}</h5>
                 {% if comment.userId and craft.users %}
                     {% set user = craft.users.id(comment.userId).first() %}
                     <p><a class="go" href="{{ url('users/'~user.id ) }}">{{ user.getFriendlyName() }}</a></p>
@@ -101,7 +102,7 @@
 
                 <hr/>
 
-                <h5>{{ "Element"|t }}</h5>
+                <h5>{{ "Element" | t }}</h5>
                 {% set element = craft.entries.id(comment.elementId).first() %}
                 {% if element %}
                     <p><a class="go" href="{{ element.url }}">{{ element.title }}</a></p>
@@ -109,26 +110,26 @@
 
                 <hr/>
 
-                <h5>{{ "URL"|t }}</h5>
+                <h5>{{ "URL" | t }}</h5>
                 <p>{{ comment.url }}</p>
 
-                <h5>{{ "IP Address"|t }}</h5>
+                <h5>{{ "IP Address" | t }}</h5>
                 <p>{{ comment.ipAddress }}</p>
 
-                <h5>{{ "User Agent"|t }}</h5>
+                <h5>{{ "User Agent" | t }}</h5>
                 <p>{{ comment.userAgent }}</p>
 
                 <hr/>
 
-                <h5>{{ "Created Date"|t }}</h5>
+                <h5>{{ "Created Date" | t }}</h5>
                 <p>{{ comment.dateCreated.localeDate() }} {{ comment.dateCreated.localeTime() }}</p>
 
-                <h5>{{ "Updated Date"|t }}</h5>
+                <h5>{{ "Updated Date" | t }}</h5>
                 <p>{{ comment.dateUpdated.localeDate() }} {{ comment.dateUpdated.localeTime() }}</p>
             </div>
 
             <div class="buttons first">
-                <input type="submit" class="btn submit" value="{{ 'Save comment'|t }}">
+                <input type="submit" class="btn submit" value="{{ 'Save comment' | t }}">
             </div>
         </div>
     </div>

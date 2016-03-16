@@ -57,8 +57,20 @@ class Comments_VoteService extends BaseApplicationComponent
 
         $record->setAttributes($model->getAttributes(), false);
 
+        // Fire an 'onBeforeVoteComment' event
+        $event = new Event($this, array('vote' => $model));
+        $this->onBeforeVoteComment($event);
+
+        // Allow event to cancel comment saving
+        if (!$event->performAction) {
+            return false;
+        }
+
         if ($record->save()) {
-            $model->setAttribute('id', $record->getAttribute('id'));
+            $model->id = $record->id;
+
+            // Fire an 'onVoteComment' event
+            $this->onVoteComment(new Event($this, array('vote' => $model)));
 
             $comment = craft()->comments->getCommentById($model->commentId);
 
@@ -79,6 +91,33 @@ class Comments_VoteService extends BaseApplicationComponent
         } else {
             return false;
         }
+    }
+
+
+
+    // Event Handlers
+    // =========================================================================
+
+    public function onBeforeVoteComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['vote']) || !($params['vote'] instanceof Comments_VoteModel)) {
+            throw new Exception('onBeforeVoteComment event requires "vote" param with VoteModel instance');
+        }
+
+        $this->raiseEvent('onBeforeVoteComment', $event);
+    }
+
+    public function onVoteComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['vote']) || !($params['vote'] instanceof Comments_VoteModel)) {
+            throw new Exception('onVoteComment event requires "vote" param with VoteModel instance');
+        }
+
+        $this->raiseEvent('onVoteComment', $event);
     }
 
 

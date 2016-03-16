@@ -1,16 +1,14 @@
+{% if comment.userId and craft.users %}
+	{% set commentUser = craft.users.id(comment.userId).first() %}
+{% endif %}
+
 <div class="comment-container">
 	<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 		<div class="comment-image" itemprop="image">
-			{% if comment.userId and craft.users %}
-				{% set photo = craft.users.id(comment.userId).first().photoUrl %}
-
-				{% if photo %}
-					<img src="{{ photo }}" />
-				{% else %}
-					<img src="{{ resourceUrl('/images/user.gif') }}" />
-				{% endif %}
+			{% if commentUser is defined %}
+				<img src="{{ commentUser.photoUrl ? commentUser.photoUrl : resourceUrl('/images/user.svg') }}" />
 			{% else %}
-				<img src="{{ resourceUrl('/images/user.gif') }}" />
+				<img src="{{ resourceUrl('/images/user.svg') }}" />
 			{% endif %}
 		</div>
 	</span>
@@ -19,8 +17,8 @@
 		<span class="comment-heading">
 			<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 				<span class="title" itemprop="name">
-					{% if comment.userId and craft.users %}
-						{{ craft.users.id(comment.userId).first().fullName }}
+					{% if commentUser is defined %}
+						{{ commentUser.fullName ? commentUser.fullName : commentUser }}
 					{% else %}
 						{{ comment.name }}
 					{% endif %}
@@ -35,9 +33,9 @@
 
 			{% if currentUser %}
 				<div class="dropdown options-dropdown">
-					<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Options <span class="caret"></span></a>
+					<a href="#" class="dropdown-toggle">Options <span class="caret"></span></a>
 
-					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+					<ul class="dropdown-menu" role="menu">
 						{% if comment.userId and not comment.isClosed %}
 							<li role="presentation">
 								<a href="#" class="comment-edit">
@@ -52,45 +50,22 @@
 							</li>
 						{% endif %}
 
-						<li role="presentation">
-							{% if comment.flagActionUrl %}
-								<a href="{{ comment.flagActionUrl }}" class="comment-flag">
-									<span class="glyphicon glyphicon-flag"></span>Flag as inappropriate
-								</a>
-							{% else %}
-								<span class="static-label comment-flag">
-									<span class="glyphicon glyphicon-flag"></span>Flagged as inappropriate
-								</span>
-							{% endif %}
-						</li>
+						{% if settings.allowFlagging %}
+							<li role="presentation">
+								{% if comment.flagActionUrl %}
+									<a href="{{ comment.flagActionUrl }}" class="comment-flag">
+										<span class="glyphicon glyphicon-flag"></span>Flag as inappropriate
+									</a>
+								{% else %}
+									<span class="static-label comment-flag">
+										<span class="glyphicon glyphicon-flag"></span>Flagged as inappropriate
+									</span>
+								{% endif %}
+							</li>
+						{% endif %}
 					</ul>
 				</div>
 			{% endif %}
-
-			<div class="dropdown share-dropdown">
-				<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Share <span class="caret"></span></a>
-
-				<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-					<li role="presentation">
-						<a href="http://twitter.com/share?url={{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
-							<span class="fa fa-twitter"></span>Twitter
-						</a>
-					</li>
-
-					<li role="presentation">
-						<a href="https://www.facebook.com/dialog/share?app_id=145634995501895&display=popup&href={{ craft.request.url }}#comment-single-{{ comment.id }}&redirect_uri={{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
-							<span class="fa fa-facebook"></span>Facebook
-						</a>
-					</li>
-
-					<li role="presentation">
-						<a href="{{ craft.request.url }}#comment-single-{{ comment.id }}" target="_blank">
-							<span class="glyphicon glyphicon-link"></span>Permalink
-						</a>
-					</li>
-				</ul>
-			</div>
-
 		</span>
 
 		<div class="comment-content" itemprop="commentText">
@@ -103,22 +78,29 @@
 			{% endif %}
 		</div>
 
+		{# Inline edit form (initially hidden) - only available on approved comment #}
+		{% if not comment.isFlagged and not comment.isPoorlyRated %}
+			{% include '_forms/templates/form-edit' %}
+		{% endif %}
+
 		<div class="meta-buttons">
-			<div class="comment-votes">
-				<span class="count">{{ comment.voteCount }} votes</span>
+			{% if settings.allowVoting %}
+				<div class="comment-votes">
+					<span class="count">{{ comment.voteCount }} votes</span>
 
-				{% if comment.canUpVote %}
-					<a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
-						<span class="glyphicon glyphicon-chevron-up"></span>
-					</a>
-				{% endif %}
+					{% if comment.canUpVote %}
+						<a href="{{ comment.upvoteActionUrl }}" class="comment-vote-up">
+							<span class="glyphicon glyphicon-chevron-up"></span>
+						</a>
+					{% endif %}
 
-				{% if comment.canDownVote %}
-					<a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
-						<span class="glyphicon glyphicon-chevron-down"></span>
-					</a>
-				{% endif %}
-			</div>
+					{% if comment.canDownVote %}
+						<a href="{{ comment.downvoteActionUrl }}" class="comment-vote-down">
+							<span class="glyphicon glyphicon-chevron-down"></span>
+						</a>
+					{% endif %}
+				</div>
+			{% endif %}
 
 			{% if not comment.isClosed %}
 				<a href="#" class="comment-reply" itemprop="replyToUrl">
@@ -134,4 +116,3 @@
 		</div>
 	</div>
 </div>
-

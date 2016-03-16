@@ -2,15 +2,15 @@
 
 {{ forms.lightswitchField({
 	first: true,
-	label: 'Allow anonymous comments',
-	instructions: 'Anonymous users can post a comment. Their name and email will be required.'|t,
+	label: 'Allow anonymous comments' | t,
+	instructions: 'Anonymous users can post a comment. Their name and email will be required.' | t,
 	name: 'allowAnonymous',
 	on: settings.allowAnonymous,
 }) }}
 
 {{ forms.lightswitchField({
-	label: 'Comments require moderation',
-	instructions: 'All comments require manual approval before being publicly visible.'|t,
+	label: 'Comments require moderation' | t,
+	instructions: 'All comments require manual approval before being publicly visible.' | t,
 	name: 'requireModeration',
 	on: settings.requireModeration,
 }) }}
@@ -18,28 +18,10 @@
 <hr>
 
 {{ forms.textField({
-	label: "Flagged comments threshold"|t,
-	id: 'flaggedCommentLimit',
-	name: 'flaggedCommentLimit',
-	instructions: "Users can flag a comment as inappropriate. After the provided amount of flags are received for a comment, the 'isFlagged' property for the comment will be true. You can then decide how to handle a flagged comment."|t,
-	value: settings.flaggedCommentLimit,
-}) }}
-
-{{ forms.textField({
-	label: "Downvote comments threshold"|t,
-	id: 'downvoteCommentLimit',
-	name: 'downvoteCommentLimit',
-	instructions: "Users can downvote a comment, which reflects if they agree or disagree with it. After the provided amount of downvotes are received for a comment, the 'isPoorlyRated' property for the comment will be true. You can then decide how to handle a comment with a poor rating."|t,
-	value: settings.downvoteCommentLimit,
-}) }}
-
-<hr>
-
-{{ forms.textField({
-	label: "Auto-close comments"|t,
+	label: "Auto-close comments" | t,
 	id: 'autoCloseDays',
 	name: 'autoCloseDays',
-	instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable."|t,
+	instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable." | t,
 	value: settings.autoCloseDays,
 }) }}
 

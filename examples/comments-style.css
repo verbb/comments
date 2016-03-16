@@ -1,51 +1,45 @@
+/* Not required of course, but good for an example */
+
 @import url("//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css");
 @import url("//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
 
-body {
-	background: 0 0;
-	color: #3f4549;
-	font-family: "Helvetica Neue",arial,sans-serif;
-	font-size: 15px;
-	-webkit-font-smoothing: antialiased;
+/* Comments Form */
+
+.comment-form-container {
+    padding: 20px;
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
 }
 
-.comments-box {
-    border: 1px solid #bbb;
-    margin: 20px;
-}
-
-.comments-box .comment-input {
-    width: 80%;
-}
-
-.comments-box .comment-input-btn {
-    width: 18%;
-}
-
-.comments-box .form-group * {
+.comments-box .comment-input,
+.comments-box .form-group *,
+.comments-box .email-input,
+.comments-box .name-input {
     width: 100%;
 }
 
-.comments-box .email-input,
-.comments-box .name-input {
-    width: 40%;
+.comments-box .form-control {
     margin-bottom: 10px;
 }
 
+
+/* Comments List */
+
 .comments-list {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
     list-style: none;
-    overflow: auto;
 }
 
+/* Comment Item */
+
 .comment-single .comment-single {
-	padding-left: 40px;
+    padding-left: 40px;
 }
 
 .comment-single .comment-container {
-	padding: 15px 10px;
-	border-bottom: 1px solid #ddd;
+    padding: 15px 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 .comments-list li .comment-text,
@@ -54,23 +48,22 @@ body {
 }
 
 .comments-list li .comment-text {
-    padding-left: 50px;
+    padding-left: 40px;
 }
 
 .comments-list .comment-form {
-	display: none;
+    display: none;
 }
 
 .comment-image {
-    width: 40px;
+    width: 30px;
     margin-right: 10px;
-    height: 40px;
+    height: 30px;
     float: left;
 }
 
 .comment-image img {
     width: 100%;
-    border-radius: 50%;
 }
 
 .comment-text p {
@@ -80,74 +73,79 @@ body {
 .comment-heading {
     color: #aaa;
     font-size: 12px;
-	margin-bottom: 5px;
-	display: block;
+    margin-bottom: 5px;
+    display: block;
 }
 
 .comment-heading .title {
-	font-weight: 700;
-	text-decoration: none;
-	color: #288ce4;
-	font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #288ce4;
+    font-size: 13px;
 }
 
 .comment-heading .meta {
-	margin-left: 5px;
-	font-weight: 500;
-	font-size: 12px;
-	color: #a5b2b9;
+    margin-left: 5px;
+    font-weight: 500;
+    font-size: 12px;
+    color: #a5b2b9;
 }
+
+/* Comment Item - Reply Form */
 
 .comment-single .comment-form {
-	margin: 20px 0 0 0;
-	padding-bottom: 0;
-	border-bottom: 1px solid #ddd;
-	padding: 10px;
-	margin: 0;
+    margin: 20px 0 0 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    margin: 0;
 }
 
-.comment-form-container {
-	margin: 20px;
-}
+/* Comment Item - Meta Buttons */
 
 .meta-buttons {
-	margin-top: 10px;
+    margin-top: 10px;
 }
 
 .meta-buttons a {
     font-weight: bold;
     font-size: 11px;
-	padding: 0 15px 0 0;
-	color: #288ce4;
+    padding: 0 15px 0 0;
+    color: #288ce4;
 }
 
 .meta-buttons .comment-votes {
-	display: inline-block;
-	margin-right: 15px;
+    display: inline-block;
+    margin-right: 15px;
 }
 
 .meta-buttons .comment-votes a {
-	padding: 0 0 0 2px;
+    padding: 0 0 0 2px;
 }
 
 .meta-buttons .comment-votes .count {
-	color: #a5b2b9;
-	font-weight: 500;
-	font-size: 13px;
-	margin-right: 2px;
+    color: #a5b2b9;
+    font-weight: 500;
+    font-size: 13px;
+    margin-right: 2px;
 }
 
 .meta-buttons .static-label {
-	font-weight: bold;
-	font-size: 11px;
-	color: #a5b2b9;
+    font-weight: bold;
+    font-size: 11px;
+    color: #a5b2b9;
 }
 
 
+/* Comment Item - Share/Options Dropdown */
 
 .comment-heading .dropdown {
     float: right;
     margin-left: 20px;
+}
+
+.comment-heading .dropdown:hover .dropdown-menu {
+    display: block;
 }
 
 .comment-heading .dropdown-toggle {
@@ -185,6 +183,3 @@ body {
     font-size: 11px;
     padding: 5px 10px;
 }
-
-
-

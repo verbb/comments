@@ -3,27 +3,9 @@ namespace Craft;
 
 class CommentsVariable
 {
-    public function getName()
-    {
-        $plugin = craft()->plugins->getPlugin('comments');
-        return $plugin->getName();
-    }
-
-    public function getSettings()
-    {
-        $plugin = craft()->plugins->getPlugin('comments');
-        return $plugin->getSettings();
-    }
-
-	public function elements($elementType, $criteria = array())
+    public function elements($elementType, $criteria = array())
 	{
 		return craft()->elements->getCriteria($elementType, $criteria);
-	}
-
-    // TODO - remove this
-	public function replies($comment)
-	{
-		return craft()->comments->getCriteria(array('descendantOf' => $comment->id))->find();
 	}
 
 	public function all($criteria = array())
@@ -38,7 +20,7 @@ class CommentsVariable
 
 	public function form($elementId, $criteria = array())
 	{
-		$settings = craft()->plugins->getPlugin('comments')->getSettings();
+		$settings = craft()->comments->getSettings();
 		$oldPath = craft()->path->getTemplatesPath();
 		$element = craft()->elements->getElementById($elementId);
 
@@ -71,6 +53,7 @@ class CommentsVariable
 		$variables = array(
 			'element' => $element,
 			'comments' => $comments,
+			'settings' => $settings,
 		);
 
 		$html = craft()->templates->render($templateFile, $variables);
@@ -95,6 +78,11 @@ class CommentsVariable
     {
         return craft()->comments_settings->checkClosed($elementId);
     }
+
+    public function getActiveComment()
+	{
+		return craft()->comments->getActiveComment();
+	}
 
 
 }

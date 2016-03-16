@@ -1,0 +1,168 @@
+[
+    {
+        "version": "0.4.0",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.0.zip",
+        "date": "2016-03-17 02:00:00",
+        "notes": [
+            "[Added] Craft 2.5+ support, including release feed and icons.",
+            "[Added] Comments can now be edited through the front-end.",
+            "[Added] Added support for querying comments via votes",
+            "[Improved] Reorganise settings pages - separate flag/voting.",
+            "[Improved] Flagging comments and voting can be enabled/disabled altogether.",
+            "[Improved] Comments now require moderation by default.",
+            "[Improved] Lots of refactoring and reorganising.",
+            "[Improved] Removed Comments fieldtype.",
+            "[Improved] Comments are shown in hierarchical structure when in control panel.",
+            "[Improved] Full ajax and non ajax support for endpoints.",
+            "[Improved] Renamed `comments/add` to `comments/save`.",
+            "[Fixed] Fixed `comments/edit` endpoint to include validation/security.",
+            "# Templates",
+            "[Improved] Simplified and improved templates for single template tag.",
+            "[Improved] Simplified example code for ajax and non ajax handling.",
+            "[Improved] Comment forms handle validation properly, actual error messages and remembers text on validation.",
+            "# Hooks",
+            "[Added] Added `onBeforeSaveComment` hook.",
+            "[Added] Added `onSaveComment` hook.",
+            "[Added] Added `onBeforeDeleteComment` hook.",
+            "[Added] Added `onDeleteComment` hook.",
+            "[Added] Added `onBeforeFlagComment` hook.",
+            "[Added] Added `onFlagComment` hook.",
+            "[Added] Added `onBeforeVoteComment` hook.",
+            "[Added] Added `onVoteComment` hook.",
+        ]
+    },
+    {
+        "version": "0.3.8",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.8.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Fixes for field settings messing things up. **Notice** The Comments fieldtype will soon be removed in favour of centralized permissions.",
+            "Other bugfixes and improvements.",
+            "Ensure works well on Craft Client/Craft Personal."
+        ]
+    },
+    {
+        "version": "0.3.7",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.7.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added the ability to get total comments per element id using `{{ craft.comments.total(elementId) }}`."
+        ]
+    },
+    {
+        "version": "0.3.6",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.6.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [Security](https://github.com/engram-design/Comments/wiki/Security)",
+            "Support sorting comments by votes.",
+            "Added optional flood-control settings. Enforces minimum time to wait between posts. Works for anonymous and logged-in users."
+        ]
+    },
+    {
+        "version": "0.3.5",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.5.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added Schema Tags to templates (see [#19](https://github.com/engram-design/Comments/issues/19))."
+        ]
+    },
+    {
+        "version": "0.3.4",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.4.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added threshold for downvotes - if over specified limit, `isPoorlyRated` will be true.",
+            "Comments can be set to auto-close after a defined amount of days since the elements creation."
+        ]
+    },
+    {
+        "version": "0.3.3",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.3.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Altered settings pane - now with multiple tabs.",
+            "Updated permissions UI.",
+            "Comments can be closed, disabling editing, deleting and replies. Accessible through `isClosed`."
+        ]
+    },
+    {
+        "version": "0.3.2",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.2.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added basic sharing comment options. Provides permalink, Twitter and Facebook sharing."
+        ]
+    },
+    {
+        "version": "0.3.1",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.1.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Organise examples seperately. Better testing locally (symlinks).",
+            "Added standard, non-Ajax example.",
+            "Cleanup Ajax example - refactor.",
+            "Checked all routes perform either via Ajax, or standard POST."
+        ]
+    },
+    {
+        "version": "0.3.0",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.0.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added edit/delete (trashing) for users. Anonymous users can't do either.",
+            "Added new set of templates for different comment statuses, allowing different templates for pending, approved, trashed and spam comments.",
+            "Cleaned up comments UI to include dropdown options. Better user-handling.",
+            "Alter Ajax example, ajax for voting, flagging, editing, deleting.",
+            "Fixed, users could vote on their own comments.",
+            "Fixed, remove voting arrows when unable to vote.",
+            "Added `canVote`, `canUpVote`, `canDownVote` variables for better handling in templates. Checks are also done server-side.",
+            "Some serious spelling mistakes for voting functions :)",
+            "Added back `voteCount`."
+        ]
+    },
+    {
+        "version": "0.2.1",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.2.1.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Seperated plugin settings to its own 'real' tab. Bad UX being directed off to plugin settings, then being redirected to plugins screen.",
+            "Added Permissions to control elements (and element types) comments are allowed to be made on. More convenient/centralised that custom field for each element."
+        ]
+    },
+    {
+        "version": "0.2.0",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.2.0.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Preserve comment formatting. Changed comment field to textarea in templates.",
+            "Comments have access to objects for [flags](https://github.com/engram-design/Comments/wiki/Comment-ElementType#flags) and [votes](https://github.com/engram-design/Comments/wiki/Comment-ElementType#votes). Removed flagCount and votesCount in favour of using `length` Twig filter."
+        ]
+    },
+    {
+        "version": "0.1.2",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.2.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added support for comments to be made on any element type (entries, users, assets, etc)."
+        ]
+    },
+    {
+        "version": "0.1.1",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.1.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Added support for voting on comments.",
+            "Added support for flagging inappropriate comments.",
+            "After set amount of flags made against a comment, the 'isFlagged' property on the comment is true. Configurable through settings."
+        ]
+    },
+    {
+        "version": "0.1.0",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.0.zip",
+        "date": "2016-01-01 00:00:00",
+        "notes": [
+            "Initial beta release."
+        ]
+    }
+]

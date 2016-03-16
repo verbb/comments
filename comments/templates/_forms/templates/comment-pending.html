@@ -1,16 +1,14 @@
+{% if comment.userId and craft.users %}
+	{% set commentUser = craft.users.id(comment.userId).first() %}
+{% endif %}
+
 <div class="comment-container">
 	<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 		<div class="comment-image" itemprop="image">
-			{% if comment.userId and craft.users %}
-				{% set photo = craft.users.id(comment.userId).first().photoUrl %}
-
-				{% if photo %}
-					<img src="{{ photo }}" />
-				{% else %}
-					<img src="{{ resourceUrl('/images/user.gif') }}" />
-				{% endif %}
+			{% if commentUser is defined %}
+				<img src="{{ commentUser.photoUrl ? commentUser.photoUrl : resourceUrl('/images/user.svg') }}" />
 			{% else %}
-				<img src="{{ resourceUrl('/images/user.gif') }}" />
+				<img src="{{ resourceUrl('/images/user.svg') }}" />
 			{% endif %}
 		</div>
 	</span>
@@ -19,8 +17,8 @@
 		<span class="comment-heading">
 			<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 				<span class="title" itemprop="name">
-					{% if comment.userId and craft.users %}
-						{{ craft.users.id(comment.userId).first().fullName }}
+					{% if commentUser is defined %}
+						{{ commentUser.fullName ? commentUser.fullName : commentUser }}
 					{% else %}
 						{{ comment.name }}
 					{% endif %}

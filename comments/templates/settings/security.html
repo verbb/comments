@@ -2,8 +2,8 @@
 
 {{ forms.textField({
 	first: true,
-	label: 'Minimum time between comments',
-	instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.'|t,
+	label: 'Minimum time between comments' | t,
+	instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t,
 	name: 'securityFlooding',
 	value: settings.securityFlooding,
 }) }}
@@ -11,25 +11,25 @@
 <hr>
 
 {{ forms.textareaField({
-	label: "Comment Moderation"|t,
+	label: "Comment Moderation" | t,
 	name: 'securityModeration',
-	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.'|t,
+	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t,
 	rows: 10,
 	value: settings.securityModeration,
 }) }}
 
 {{ forms.textareaField({
-	label: "Comment Blacklist"|t,
+	label: "Comment Blacklist" | t,
 	name: 'securityBlacklist',
-	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.'|t,
+	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t,
 	rows: 10,
 	value: settings.securityBlacklist,
 }) }}
 
 {{ forms.textareaField({
-	label: "Comment Banned"|t,
+	label: "Comment Banned" | t,
 	name: 'securityBanned',
-	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.'|t,
+	instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t,
 	rows: 10,
 	value: settings.securityBanned,
 }) }}

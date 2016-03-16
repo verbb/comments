@@ -1,30 +1,47 @@
-.status {
-	display: inline-block;
-	width: 10px;
-	height: 10px;
-	background: url(../img/status.png?d=1415077322) no-repeat 0 -50px;
-}
-
 .status.approved {
-	background-position: 0 0;
+	background-color: #27AE60;
+	border-color: transparent !important;
 }
 
 .status.pending {
-	background-position: 0 -10px;
+	background-color: #F2842D;
+	border-color: transparent !important;
 }
 
 .status.spam {
-	background-position: 0 -40px;
+	background-color: #0F7CCC;
+	border-color: transparent !important;
 }
 
 .status.trashed {
-	background-position: 0 -20px;
+	background-color: #D0021B;
+	border-color: transparent !important;
 }
 
 
 .elementindex th[data-attribute="id"],
 .elementindex td[data-titlecell] {
 	display: none;
+}
+
+.elementindex tr[data-level="2"] td[data-title="Comment"] {
+	padding-left: 34px !important;
+}
+
+.elementindex tr[data-level="3"] td[data-title="Comment"] {
+	padding-left: 54px !important;
+}
+
+.elementindex tr[data-level="4"] td[data-title="Comment"] {
+	padding-left: 74px !important;
+}
+
+.elementindex tr[data-level="5"] td[data-title="Comment"] {
+	padding-left: 94px !important;
+}
+
+.elementindex tr[data-level="6"] td[data-title="Comment"] {
+	padding-left: 114px !important;
 }
 
 .elementindex td[data-title="Status"] {

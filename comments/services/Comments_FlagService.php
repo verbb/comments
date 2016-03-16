@@ -43,8 +43,20 @@ class Comments_FlagService extends BaseApplicationComponent
 
 		$record->setAttributes($model->getAttributes(), false);
 
+        // Fire an 'onBeforeFlagComment' event
+        $event = new Event($this, array('flag' => $model));
+        $this->onBeforeFlagComment($event);
+
+        // Allow event to cancel comment saving
+        if (!$event->performAction) {
+            return false;
+        }
+
 		if ($record->save()) {
-			$model->setAttribute('id', $record->getAttribute('id'));
+			$model->id = $record->id;
+
+            // Fire an 'onFlagComment' event
+            $this->onFlagComment(new Event($this, array('flag' => $model)));
 
 			return true;
 		} else {
@@ -53,4 +65,30 @@ class Comments_FlagService extends BaseApplicationComponent
 		}
     }
 
+
+
+    // Event Handlers
+    // =========================================================================
+
+    public function onBeforeFlagComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['flag']) || !($params['flag'] instanceof Comments_FlagModel)) {
+            throw new Exception('onBeforeFlagComment event requires "flag" param with FlagModel instance');
+        }
+
+        $this->raiseEvent('onBeforeFlagComment', $event);
+    }
+
+    public function onFlagComment(\CEvent $event)
+    {
+        $params = $event->params;
+        
+        if (empty($params['flag']) || !($params['flag'] instanceof Comments_FlagModel)) {
+            throw new Exception('onFlagComment event requires "flag" param with FlagModel instance');
+        }
+
+        $this->raiseEvent('onFlagComment', $event);
+    }
 }

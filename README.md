@@ -36,6 +36,8 @@ We would greatly value your feedback through the beta process, so feel free to [
 - Allow anonymous comments
 - Comments require moderation
 - Template Folder Override
+- Enable flagging of comments
+- Enable voting on comments
 - Flagged comments threshold
 - Downvote comments threshold
 - Auto-close comments
@@ -43,9 +45,7 @@ We would greatly value your feedback through the beta process, so feel free to [
 
 ## Documentation
 
-Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, including template tags, and an overview of how Comments functions.
-
-**Note:** This is being constantly added to and being improved during the beta process.
+Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, a getting started guide, template tags, and developer resources.
 
 
 ## Roadmap
@@ -53,7 +53,7 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 **0.5.0**
 
 - Add permissions to control commenting settings per section.
-- Provide a set of hooks for third-party plugins.
+- Support email notifications for subscribing to topics.
 - Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
 - Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
 
@@ -62,11 +62,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Provide security policies through:
 	- Ban unwanted users from current topic
 	- Ban users from all comment forms
-
-**0.7.0**
-
-- Support email notifications for subscribing to topics.
-- Provide front-end comment editing.
 
 **1.0+**
 
@@ -78,85 +73,9 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 - Create Pusher-integrated real-time example comments form.
 - Utalise sessions to show user's unread comments from others (see [#5](https://github.com/engram-design/Comments/issues/5)).
 - Dashboard widget (see [#15](https://github.com/engram-design/Comments/issues/15)).
+- Migrate guest comments to user account upon user registration - made with the same email.
 
 
 ### Changelog
 
-#### 0.3.8
-
-- Fixes for field settings messing things up. **Notice** The Comments fieldtype will soon be removed in favour of centralized permissions.
-- Other bugfixes and improvements.
-- Ensure works well on Craft Client/Craft Personal.
-
-#### 0.3.7
-
-- Added the ability to get total comments per element id using `{{ craft.comments.total(elementId) }}`.
-
-#### 0.3.6
-
-- Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [Security](https://github.com/engram-design/Comments/wiki/Security)
-- Support sorting comments by votes.
-- Added optional flood-control settings. Enforces minimum time to wait between posts. Works for anonymous and logged-in users.
-
-
-#### 0.3.5
-
-- Added Schema Tags to templates (see [#19](https://github.com/engram-design/Comments/issues/19)).
-
-#### 0.3.4
-
-- Added threshold for downvotes - if over specified limit, `isPoorlyRated` will be true.
-- Comments can be set to auto-close after a defined amount of days since the elements creation.
-
-#### 0.3.3
-
-- Altered settings pane - now with multiple tabs.
-- Updated permissions UI.
-- Comments can be closed, disabling editing, deleting and replies. Accessible through `isClosed`.
-
-#### 0.3.2
-
-- Added basic sharing comment options. Provides permalink, Twitter and Facebook sharing.
-
-#### 0.3.1
-
-- Organise examples seperately. Better testing locally (symlinks).
-- Added standard, non-Ajax example.
-- Cleanup Ajax example - refactor.
-- Checked all routes perform either via Ajax, or standard POST.
-
-#### 0.3.0
-
-- Added edit/delete (trashing) for users. Anonymous users can't do either.
-- Added new set of templates for different comment statuses, allowing different templates for pending, approved, trashed and spam comments.
-- Cleaned up comments UI to include dropdown options. Better user-handling.
-- Alter Ajax example, ajax for voting, flagging, editing, deleting.
-- Fixed, users could vote on their own comments.
-- Fixed, remove voting arrows when unable to vote.
-- Added `canVote`, `canUpVote`, `canDownVote` variables for better handling in templates. Checks are also done server-side.
-- Some serious spelling mistakes for voting functions :)
-- Added back `voteCount`.
-
-#### 0.2.1
-
-- Seperated plugin settings to its own 'real' tab. Bad UX being directed off to plugin settings, then being redirected to plugins screen.
-- Added Permissions to control elements (and element types) comments are allowed to be made on. More convenient/centralised that custom field for each element.
-
-#### 0.2.0
-
-- Preserve comment formatting. Changed comment field to textarea in templates.
-- Comments have access to objects for [flags](https://github.com/engram-design/Comments/wiki/Comment-ElementType#flags) and [votes](https://github.com/engram-design/Comments/wiki/Comment-ElementType#votes). Removed flagCount and votesCount in favour of using `length` Twig filter.
-
-#### 0.1.2
-
-- Added support for comments to be made on any element type (entries, users, assets, etc).
-
-#### 0.1.1
-
-- Added support for voting on comments.
-- Added support for flagging inappropriate comments.
-- After set amount of flags made against a comment, the 'isFlagged' property on the comment is true. Configurable through settings.
-
-#### 0.1.0
-
-- Initial beta release.
+[View JSON Changelog](https://github.com/engram-design/Comments/blob/master/changelog.json)

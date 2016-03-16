@@ -38,8 +38,14 @@ class Comments_CommentElementType extends BaseElementType
 
     public function getSources($context = null)
     {
+        $settings = craft()->comments->getSettings();
+
         $sources = array(
-        	'*' => array('label' => Craft::t('All Comments')),
+        	'*' => array(
+                'label' => Craft::t('All Comments'),
+                'structureId' => $settings->structureId,
+                'structureEditable' => false,
+            ),
         );
 
 		foreach (craft()->comments->getElementsWithComments() as $element) {
@@ -51,6 +57,8 @@ class Comments_CommentElementType extends BaseElementType
 			$sources[$key.':all'] = array(
 				'label' => Craft::t('All ' . $elementType->name),
 				'criteria' => array('elementType' => $element->elementType),
+                'structureId' => $settings->structureId,
+                'structureEditable' => false,
 			);
 		}
 
@@ -68,7 +76,7 @@ class Comments_CommentElementType extends BaseElementType
             'id'			=> Craft::t(''),
             'comment'		=> Craft::t('Comment'),
             'dateCreated' 	=> Craft::t('Date'),
-            'element' 		=> Craft::t('Element'),
+            'elementId'     => Craft::t('Element'),
         );
     }
 
@@ -77,7 +85,7 @@ class Comments_CommentElementType extends BaseElementType
         return array(
             'dateCreated' 	=> Craft::t('Date'),
             'comment'		=> Craft::t('Comment'),
-            'element' 		=> Craft::t('Element'),
+            'elementId'     => Craft::t('Element'),
         );
     }
 
@@ -94,7 +102,7 @@ class Comments_CommentElementType extends BaseElementType
                     return "<a href='" . $url . "'>" . $user->getFriendlyName() . "</a>";
                 }
             }
-            case 'element': {
+            case 'elementId': {
                 $element = craft()->elements->getElementById($element->elementId);
 
                 if ($element == null) {

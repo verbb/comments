@@ -6,7 +6,7 @@ class CommentsController extends BaseController
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = array('actionAdd');
+    protected $allowAnonymous = array('actionSave');
 
     
     // Public Methods
@@ -16,11 +16,20 @@ class CommentsController extends BaseController
     // Control Panel
     //
 
-    public function actionPermissions()
+    /*public function actionPermissions()
     {
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
+        $settings = craft()->comments->getSettings();
 
         $this->renderTemplate('comments/permissions', array(
+            'settings' => $settings,
+        ));
+    }*/
+
+    public function actionSettings()
+    {
+        $settings = craft()->comments->getSettings();
+
+        $this->renderTemplate('comments/settings', array(
             'settings' => $settings,
         ));
     }
@@ -35,19 +44,17 @@ class CommentsController extends BaseController
         $this->renderTemplate('comments/edit', $variables);
     }
 
-    public function actionSave()
+    public function actionSaveComment()
     {
         $this->requirePostRequest();
 
         $commentId = craft()->request->getRequiredPost('commentId');
-        $comment = craft()->request->getRequiredPost('comment');
-        $status = craft()->request->getRequiredPost('status');
 
-        $commentModel = craft()->comments->getCommentById($commentId);
-        $commentModel->status = $status;
-        $commentModel->comment = $comment;
+        $model = craft()->comments->getCommentById($commentId);
+        $model->status = craft()->request->getPost('status');
+        $model->comment = craft()->request->getPost('comment');
 
-        if ($result = craft()->comments->saveComment($commentModel)) {
+        if ($result = craft()->comments->saveComment($model, false)) {
             craft()->userSession->setNotice(Craft::t('Comment saved successfully.'));
         } else {
             craft()->userSession->setError($result);
@@ -63,14 +70,16 @@ class CommentsController extends BaseController
         $this->requirePostRequest();
 
         $commentId = craft()->request->getRequiredPost('commentId');
-        $comment = craft()->comments->getCommentById($commentId);
+        $model = craft()->comments->getCommentById($commentId);
 
-        $fields = craft()->request->getPost('fields');
-        $comment->comment = array_key_exists('comment', $fields) ? $fields['comment'] : null;
+        $model->comment = craft()->request->getPost('fields.comment');
 
-        $result = craft()->comments->saveComment($comment);
-
-        craft()->comments->response($result);
+        // Validate the comment - includes all security/validation checks
+        if ($model->validate()) {
+            if (craft()->comments->saveComment($model)) {
+                $this->_response(array('success' => true));
+            }
+        }
     }
 
     public function actionDelete()
@@ -87,79 +96,52 @@ class CommentsController extends BaseController
             // We're actually only changing this status to 'trashed'
             $result = craft()->comments->deleteComment($comment);
 
-            craft()->comments->response($result);
+            $this->_response($result);
         }
     }
 
-    public function actionAdd()
+    public function actionSave()
     {
         $this->requirePostRequest();
 
-        $settings = craft()->plugins->getPlugin('comments')->getSettings();
-        $fieldSettings = craft()->comments_settings->getFieldSettings(craft()->request->getPost('elementId'));
+        $settings = craft()->comments->getSettings();
         $user = craft()->userSession->getUser();
 
-        $commentModel = new Comments_CommentModel();
+        $model = new Comments_CommentModel();
 
-        $commentModel->elementId = craft()->request->getPost('elementId');
-        $commentModel->elementType = craft()->elements->getElementTypeById($commentModel->elementId);
-        $commentModel->userId = ($user) ? $user->id : null;
-        $commentModel->parentId = craft()->request->getPost('parentId');
-        $commentModel->structureId = craft()->comments->getStructureId();
+        $model->elementId = craft()->request->getPost('elementId');
+        $model->elementType = craft()->elements->getElementTypeById($model->elementId);
+        $model->userId = ($user) ? $user->id : null;
+        $model->parentId = craft()->request->getPost('parentId');
+        $model->structureId = craft()->comments->getStructureId();
         
         // Other handy stuff
-        $commentModel->url = craft()->request->urlReferrer;
-        $commentModel->ipAddress = craft()->request->getUserHostAddress();
-        $commentModel->userAgent = craft()->request->getUserAgent();
+        $model->url = craft()->request->urlReferrer;
+        $model->ipAddress = craft()->request->getUserHostAddress();
+        $model->userAgent = craft()->request->getUserAgent();
             
         // Handle the fields
-        $fields = craft()->request->getPost('fields');
-        $commentModel->name = array_key_exists('name', $fields) ? $fields['name'] : null;
-        $commentModel->email = array_key_exists('email', $fields) ? $fields['email'] : null;
-        $commentModel->comment = array_key_exists('comment', $fields) ? $fields['comment'] : null;
-
+        $model->name = craft()->request->getPost('fields.name');
+        $model->email = craft()->request->getPost('fields.email');
+        $model->comment = craft()->request->getPost('fields.comment');
+        
         // Set any new comment to be pending if requireModeration is true
-        if ($fieldSettings->requireModeration) {
-            $commentModel->status = Comments_CommentModel::PENDING;
+        if ($settings->requireModeration) {
+            $model->status = Comments_CommentModel::PENDING;
         } else {
-            $commentModel->status = Comments_CommentModel::APPROVED;
+            $model->status = Comments_CommentModel::APPROVED;
         }
 
-
-        // Let's check for spam!
-        if (!craft()->comments_protect->verifyFields()) {
-            craft()->comments->response($this, array('error' => 'Form validation failed. Marked as spam.'));
+        // Validate the comment - includes all security/validation checks
+        if ($model->validate()) {
+            if (craft()->comments->saveComment($model)) {
+                $this->_response(array('success' => true));
+            }
         }
 
-        // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
-        if (!craft()->comments_security->checkSecurityPolicy($commentModel)) {
-            craft()->comments->response($this, array('error' => 'Comment blocked due to security policy.'));
-        }
-
-        // Protect against Anonymous submissions, if turned off
-        if (!$fieldSettings->allowAnonymous && !$commentModel->userId) {
-            craft()->comments->response($this, array('error' => 'Must be logged in to comment.'));
-        }
-
-        // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-        $element = craft()->elements->getElementById($commentModel->elementId);
-        if (!craft()->comments_settings->checkPermissions($element)) {
-            craft()->comments->response($this, array('error' => 'Comments are disabled for this element.'));
-        }
-
-        // Must have an actual comment
-        if (!$commentModel->comment) {
-            craft()->comments->response($this, array('error' => 'Comment must not be blank.'));
-        }
-
-        // Is this user logged in? Or they've provided user/email?
-        if ($commentModel->userId || ($commentModel->name && $commentModel->email)) {
-            $result = craft()->comments->saveComment($commentModel);
-
-            craft()->comments->response($this, $result);
-        } else {
-            craft()->comments->response($this, array('error' => 'Must be logged in, or supply Name/Email to comment.'));
-        }
+        // Set our own variable to this comment - useful in allowing model errors
+        // to be available in our templates
+        craft()->comments->activeComment = $model;
     }
 
     public function actionFlagComment()
@@ -173,9 +155,7 @@ class CommentsController extends BaseController
         if ($user) {
             $flagModel->userId = $user->id;
 
-            $result = craft()->comments_flag->saveFlag($flagModel);
-
-            craft()->comments->response($this, $result);
+            $this->_response(craft()->comments_flag->saveFlag($flagModel));
         }
     }
 
@@ -191,15 +171,13 @@ class CommentsController extends BaseController
         $comment = craft()->comments->getCommentById($model->commentId);
 
         if (!$comment->canUpVote()) {
-            craft()->comments->response($this, array('error' => 'Cannot make vote.'));
+            $this->_response(array('error' => 'Cannot make vote.'));
         }
 
         if ($user) {
             $model->userId = $user->id;
 
-            $result = craft()->comments_vote->saveVote($model);
-
-            craft()->comments->response($this, $result);
+            $this->_response(craft()->comments_vote->saveVote($model));
         }
 
     }
@@ -216,17 +194,51 @@ class CommentsController extends BaseController
         $comment = craft()->comments->getCommentById($model->commentId);
 
         if (!$comment->canDownVote()) {
-            craft()->comments->response($this, array('error' => 'Cannot make vote.'));
+            $this->_response(array('error' => 'Cannot make vote.'));
         }
 
         if ($user) {
             $model->userId = $user->id;
 
-            $result = craft()->comments_vote->saveVote($model);
-
-            craft()->comments->response($this, $result);
+            $this->_response(craft()->comments_vote->saveVote($model));
         }
     }
 
 
+
+
+
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _response($model = null)
+    {
+        // Handle Ajax response
+        if (craft()->request->isAjaxRequest()) {
+            $this->returnJson($model);
+        } else {
+            $this->_redirect($model);
+        }
+    }
+
+    private function _redirect($model)
+    {
+        $url = craft()->request->getPost('redirect');
+
+        if ($url === null) {
+            $url = craft()->request->getParam('return');
+
+            if ($url === null) {
+                $url = craft()->request->getUrlReferrer();
+
+                if ($url === null) {
+                    $url = '/';
+                }
+            }
+        }
+
+        craft()->request->redirect($url);
+    }
 }

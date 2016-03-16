@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.3.8';
+        return '0.4.0';
     }
 
     public function getSchemaVersion()
@@ -52,11 +52,9 @@ class CommentsPlugin extends BasePlugin
         return true;
     }
 
-    public function getSettingsHtml()
+    public function getSettingsUrl()
     {
-        return craft()->templates->render('comments/settings/plugin', array(
-            'settings' => $this->getSettings(),
-        ));
+        return 'comments/settings';
     }
 
     protected function defineSettings()
@@ -68,10 +66,16 @@ class CommentsPlugin extends BasePlugin
 
             // General
             'allowAnonymous'            => array( AttributeType::Bool, 'default' => false ),
-            'requireModeration'         => array( AttributeType::Bool, 'default' => false ),
-            'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
-            'downvoteCommentLimit'      => array( AttributeType::Number, 'default' => '5' ),
+            'requireModeration'         => array( AttributeType::Bool, 'default' => true ),
             'autoCloseDays'             => array( AttributeType::Number, 'default' => '' ),
+
+            // Voting
+            'allowVoting'               => array( AttributeType::Bool, 'default' => true ),
+            'flaggedCommentLimit'       => array( AttributeType::Number, 'default' => '5' ),
+
+            // Flagging
+            'allowFlagging'             => array( AttributeType::Bool, 'default' => true ),
+            'downvoteCommentLimit'      => array( AttributeType::Number, 'default' => '5' ),
 
             // Templates
             'templateFolderOverride'    => AttributeType::String,
@@ -91,11 +95,11 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'comments/edit/(?P<commentId>\d+)' => array('action' => 'comments/editTemplate'),
-            'comments/permissions' => array('action' => 'comments/permissions'),
+            'comments/settings' => array('action' => 'comments/settings'),
         );
     }
 
-    public function init()
+    public function onAfterInstall()
     {
         // Comments are a Structure, which helps with hierarchy-goodness.
         // We only use a single structure for all our comments so store this at the plugin settings level
