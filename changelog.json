@@ -28,7 +28,7 @@
             "[Added] Added `onBeforeFlagComment` hook.",
             "[Added] Added `onFlagComment` hook.",
             "[Added] Added `onBeforeVoteComment` hook.",
-            "[Added] Added `onVoteComment` hook.",
+            "[Added] Added `onVoteComment` hook."
         ]
     },
     {
