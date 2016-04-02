@@ -10,10 +10,10 @@ class Comments_CommentModel extends BaseElementModel
 
     protected $elementType = 'Comments_Comment';
 
-	const APPROVED	= 'approved';
-	const PENDING	= 'pending';
-	const SPAM		= 'spam';
-	const TRASHED	= 'trashed';
+    const APPROVED  = 'approved';
+    const PENDING   = 'pending';
+    const SPAM      = 'spam';
+    const TRASHED   = 'trashed';
 
 
     // Public Methods
@@ -68,8 +68,7 @@ class Comments_CommentModel extends BaseElementModel
         }
 
         // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-        $element = craft()->elements->getElementById($this->elementId);
-        if (!craft()->comments_settings->checkPermissions($element)) {
+        if (!craft()->comments_settings->checkPermissions($this->element)) {
             $this->addError('comment', Craft::t('Comments are disabled for this element.'));
         }
 
@@ -130,6 +129,16 @@ class Comments_CommentModel extends BaseElementModel
         } else {
             return craft()->users->getUserById($this->userId);
         }
+    }
+
+    public function getElement()
+    {
+        return craft()->elements->getElementById($this->elementId);
+    }
+
+    public function getParent()
+    {
+        return craft()->comments->getCommentById($this->parentId);
     }
 
     //
@@ -233,29 +242,29 @@ class Comments_CommentModel extends BaseElementModel
     // Protected Methods
     // =========================================================================
 
-	protected function defineAttributes()
-	{
+    protected function defineAttributes()
+    {
         return array_merge(parent::defineAttributes(), array(
-			'id'			=> array(AttributeType::Number),
-			'elementId'		=> array(AttributeType::Number),
+            'id'            => array(AttributeType::Number),
+            'elementId'     => array(AttributeType::Number),
             'elementType'   => array(AttributeType::String),
-            'userId'		=> array(AttributeType::Number),
+            'userId'        => array(AttributeType::Number),
             'structureId'   => array(AttributeType::Number),
-			'status'		=> array(AttributeType::Enum, 'values' => array(
-			    Comments_CommentModel::APPROVED,
-			    Comments_CommentModel::PENDING,
-			    Comments_CommentModel::SPAM,
-			    Comments_CommentModel::TRASHED,
-			)),
-			'name'			=> array(AttributeType::String),
-			'email'			=> array(AttributeType::Email),
-			'url'			=> array(AttributeType::Url),
-			'ipAddress'		=> array(AttributeType::String),
-			'userAgent'		=> array(AttributeType::String),
-			'comment'		=> array(AttributeType::String),
+            'status'        => array(AttributeType::Enum, 'values' => array(
+                Comments_CommentModel::APPROVED,
+                Comments_CommentModel::PENDING,
+                Comments_CommentModel::SPAM,
+                Comments_CommentModel::TRASHED,
+            )),
+            'name'          => array(AttributeType::String),
+            'email'         => array(AttributeType::Email),
+            'url'           => array(AttributeType::Url),
+            'ipAddress'     => array(AttributeType::String),
+            'userAgent'     => array(AttributeType::String),
+            'comment'       => array(AttributeType::String),
 
-			// Just used for saving
+            // Just used for saving
             'parentId'      => AttributeType::Number,
         ));
-	}
+    }
 }

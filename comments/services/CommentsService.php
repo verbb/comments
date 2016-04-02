@@ -45,14 +45,14 @@ class CommentsService extends BaseApplicationComponent
         return Comments_CommentModel::populateModels($records, 'id');
     }
 
-	public function getTotalComments($elementId)
-	{
-		$total = Comments_CommentRecord::model()->countByAttributes(array(
-			'elementId' => $elementId
-		));
+    public function getTotalComments($elementId)
+    {
+        $total = Comments_CommentRecord::model()->countByAttributes(array(
+            'elementId' => $elementId
+        ));
 
-		return $total;
-	}
+        return $total;
+    }
 
     public function getElementsWithComments()
     {
@@ -63,7 +63,7 @@ class CommentsService extends BaseApplicationComponent
 
         $entries = array();
         foreach ($comments as $comment) {
-            $entries[] = craft()->elements->getElementById($comment->elementId);
+            $entries[] = $comment->element;
         }
 
         return $entries;
@@ -322,7 +322,7 @@ class CommentsService extends BaseApplicationComponent
     private function _sendAuthorNotificationEmail(Comments_CommentModel $comment)
     {
         // Get our commented-on element
-        $element = craft()->elements->getElementById($comment->elementId);
+        $element = $comment->element;
 
         // Get our recipient
         $recipient = $element->author;
@@ -347,7 +347,7 @@ class CommentsService extends BaseApplicationComponent
         $recipient = $parentComment->author;
 
         // Get our commented-on element
-        $element = craft()->elements->getElementById($comment->elementId);
+        $element = $comment->element;
 
         if (count($recipient)) {
             // If the author and commenter are the same user - don't send

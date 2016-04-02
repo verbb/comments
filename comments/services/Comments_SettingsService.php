@@ -82,9 +82,8 @@ class Comments_SettingsService extends BaseApplicationComponent
 
         // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
         if ($settings->autoCloseDays) {
-            $element = craft()->elements->getElementById($comment->elementId);
             $now = new DateTime('now');
-            $interval = $now->diff($element->dateCreated);
+            $interval = $now->diff($comment->element->dateCreated);
 
             if ($interval->d > $settings->autoCloseDays) {
                 return true;
