@@ -10,7 +10,7 @@
             "[Added] Added `user` attribute to FlagModel.",
             "[Added] Added `comment` attribute to VoteModel.",
             "[Added] Added `user` attribute to VoteModel.",
-            "[Improved] Code formatting.",
+            "[Improved] Code formatting."
         ]
     },
     {
