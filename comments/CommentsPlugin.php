@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.0';
+        return '0.4.1';
     }
 
     public function getSchemaVersion()
@@ -86,6 +86,10 @@ class CommentsPlugin extends BasePlugin
             'securityBanned'            => AttributeType::Mixed,
             'securityFlooding'          => AttributeType::Number,
 
+            // Notifications
+            'notificationAuthorEnabled' => array( AttributeType::Bool, 'default' => true ),
+            'notificationReplyEnabled'  => array( AttributeType::Bool, 'default' => true ),
+
             // Users
             //'users'                     => AttributeType::Mixed,
         );
@@ -112,4 +116,28 @@ class CommentsPlugin extends BasePlugin
             craft()->plugins->savePluginSettings($this, array('structureId' => $structure->id));
         }
     }
+
+    public function init()
+    {
+        // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
+        // modify the Title column for the element index table - we want something special.
+        if (craft()->request->isCpRequest()) {
+            craft()->templates->hook('cp.elements.element', array(craft()->comments, 'getCommentElementHtml'));
+        }
+    }
+
+
+
+    // =========================================================================
+    // HOOKS
+    // =========================================================================
+
+    public function registerEmailMessages()
+    {
+        return array(
+            'comments_author_notification',
+            'comments_reply_notification',
+        );
+    }
+
 }

@@ -1,5 +1,17 @@
 [
     {
+        "version": "0.4.1",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.1.zip",
+        "date": "2016-04-03 00:15:00",
+        "notes": [
+            "[Added] Added `author` attribute to CommentModel.",
+            "[Added] Added `isGuest()` method to CommentModel.",
+            "[Added] Added email notifications for element authors and for other commenters when replying.",
+            "[Improved] Comments are now a little tidier in the element index table.",
+            "[Improved] Filter via Status in control panel."
+        ]
+    },
+    {
         "version": "0.4.0",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.0.zip",
         "date": "2016-03-17 02:00:00",

@@ -73,7 +73,6 @@ class Comments_CommentElementType extends BaseElementType
     public function defineTableAttributes($source = null)
     {
         return array(
-            'id'			=> Craft::t(''),
             'comment'		=> Craft::t('Comment'),
             'dateCreated' 	=> Craft::t('Date'),
             'elementId'     => Craft::t('Element'),
@@ -83,8 +82,9 @@ class Comments_CommentElementType extends BaseElementType
     public function defineSortableAttributes()
     {
         return array(
+            'status'        => Craft::t('Status'),
+            'comment'       => Craft::t('Comment'),
             'dateCreated' 	=> Craft::t('Date'),
-            'comment'		=> Craft::t('Comment'),
             'elementId'     => Craft::t('Element'),
         );
     }
@@ -92,16 +92,6 @@ class Comments_CommentElementType extends BaseElementType
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
         switch ($attribute) {
-            case 'user': {
-                $user = craft()->users->getUserById($element->userId);
-
-                if ($user == null) {
-                    return $element->name;
-                } else {
-                    $url = UrlHelper::getCpUrl('users/' . $user->id);
-                    return "<a href='" . $url . "'>" . $user->getFriendlyName() . "</a>";
-                }
-            }
             case 'elementId': {
                 $element = craft()->elements->getElementById($element->elementId);
 
@@ -110,24 +100,6 @@ class Comments_CommentElementType extends BaseElementType
                 } else {
                     return "<a href='" . $element->cpEditUrl . "'>" . $element->title . "</a>";
                 }
-            }
-            case 'comment': {
-                $user = craft()->users->getUserById($element->userId);
-
-                if ($user == null) {
-                    $userName = $element->name;
-                } else {
-                    $url = UrlHelper::getCpUrl('users/' . $user->id);
-                    $userName = $user->getFriendlyName();
-                }
-
-                $html = '<div class="comment-block">';
-                $html .= '<span class="status '.$element->status.'"></span>';
-            	$html .= '<a href="' . $element->getCpEditUrl() . '">';
-            	$html .= '<span class="username">' . $userName . '</span>';
-            	$html .= '<small>' . $element->getExcerpt(0, 100) . '</small></a>';
-            	$html .= '</div>';
-            	return $html;
             }
             default: {
 				return parent::getTableAttributeHtml($element, $attribute);
@@ -141,7 +113,6 @@ class Comments_CommentElementType extends BaseElementType
 			'elementId'		=> array(AttributeType::Number),
 			'elementType'	=> array(AttributeType::String),
 			'userId'		=> array(AttributeType::Number),
-			//'sectionId'		=> array(AttributeType::Number),
 			'structureId'	=> array(AttributeType::Number),
 			'status'		=> array(AttributeType::String),
 			'name'			=> array(AttributeType::String),

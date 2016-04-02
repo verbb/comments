@@ -24,6 +24,7 @@
 				<li><a id="settings-tab-flagging" class="tab" href="#settings-flagging" tabindex="2">{{ 'Flagging' | t }}</a></li>
 				<li><a id="settings-tab-templates" class="tab" href="#settings-templates" tabindex="3">{{ 'Templates' | t }}</a></li>
 				<li><a id="settings-tab-security" class="tab" href="#settings-security" tabindex="4">{{ 'Security' | t }}</a></li>
+				<li><a id="settings-tab-notifications" class="tab" href="#settings-notifications" tabindex="5">{{ 'Notifications' | t }}</a></li>
 			</ul>
 		</nav>
 	</div>
@@ -52,6 +53,10 @@
 
 			<div id="security" class="hidden">
 				{% include 'comments/settings/security' %}
+			</div>
+
+			<div id="notifications" class="hidden">
+				{% include 'comments/settings/notifications' %}
 			</div>
 
 		{% endnamespace %}

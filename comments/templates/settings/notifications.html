@@ -1,0 +1,23 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: "Enable Author Notifications" | t,
+    instructions: "Authors receive an email for every new comment. Edit the content of this email through <a href='" ~ url('settings/email/messages') ~ "'>Email Messages</a>." | t,
+    id: 'notificationAuthorEnabled',
+    name: 'notificationAuthorEnabled',
+    on: settings.notificationAuthorEnabled,
+    onLabel: "Enable" | t,
+    offLabel: "Disable" | t
+}) }}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: "Enable Reply Notifications" | t,
+    instructions: "Users receive an email when someone replies to their comment. Edit the content of this email through <a href='" ~ url('settings/email/messages') ~ "'>Email Messages</a>." | t,
+    id: 'notificationReplyEnabled',
+    name: 'notificationReplyEnabled',
+    on: settings.notificationReplyEnabled,
+    onLabel: "Enable" | t,
+    offLabel: "Disable" | t
+}) }}

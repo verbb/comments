@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+require_once(CRAFT_PLUGINS_PATH . 'comments/vendor/php-name-parser/parser.php');
+
 class Comments_CommentModel extends BaseElementModel
 {
     // Properties
@@ -100,6 +102,34 @@ class Comments_CommentModel extends BaseElementModel
     public function isClosed($options = array())
     {
         return craft()->comments_settings->checkClosed($this);
+    }
+
+    public function isGuest()
+    {
+        return is_null($this->userId);
+    }
+
+    public function getAuthor()
+    {
+        // If this user is a guest, we make a temprary UserModel, which is particularly
+        // used for email notifications (which require a UserModel instance)
+        if ($this->isGuest()) {
+            // If this wasn't a registered user...
+            $author = new UserModel();
+            $author->email = $this->email;
+
+            // We only store guest users full name, so we need to split it for Craft.
+            // Best results using a librarry - particularly when we're dealing with worldwide names.
+            $parser = new \FullNameParser();
+            $nameInfo = $parser->parse_name($this->name);
+
+            $author->firstName = $nameInfo['fname'];
+            $author->lastName = $nameInfo['lname'];
+
+            return $author;
+        } else {
+            return craft()->users->getUserById($this->userId);
+        }
     }
 
     //
@@ -225,7 +255,7 @@ class Comments_CommentModel extends BaseElementModel
 			'comment'		=> array(AttributeType::String),
 
 			// Just used for saving
-			'parentId'      => AttributeType::Number,
+            'parentId'      => AttributeType::Number,
         ));
 	}
 }

@@ -18,44 +18,13 @@
 	border-color: transparent !important;
 }
 
-
-.elementindex th[data-attribute="id"],
-.elementindex td[data-titlecell] {
+.elementindex td[data-titlecell] .element {
 	display: none;
 }
 
-.elementindex tr[data-level="2"] td[data-title="Comment"] {
-	padding-left: 34px !important;
+.elementindex .comment-block {
+	margin-left: 5px;
 }
-
-.elementindex tr[data-level="3"] td[data-title="Comment"] {
-	padding-left: 54px !important;
-}
-
-.elementindex tr[data-level="4"] td[data-title="Comment"] {
-	padding-left: 74px !important;
-}
-
-.elementindex tr[data-level="5"] td[data-title="Comment"] {
-	padding-left: 94px !important;
-}
-
-.elementindex tr[data-level="6"] td[data-title="Comment"] {
-	padding-left: 114px !important;
-}
-
-.elementindex td[data-title="Status"] {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	
-	/* .thin */
-	width: 0.01% !important;
-	vertical-align: middle;
-}
-
-
-
-
 
 .elementindex .comment-block .status {
 	display: block;
@@ -64,7 +33,8 @@
 }
 
 .elementindex .comment-block a {
-	float: left;
+	margin-left: 20px;
+	display: block;
 }
 
 .elementindex .comment-block a small {

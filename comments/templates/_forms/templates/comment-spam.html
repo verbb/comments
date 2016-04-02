@@ -1,14 +1,10 @@
-{% if comment.userId and craft.users %}
-	{% set commentUser = craft.users.id(comment.userId).first() %}
-{% endif %}
-
 <div class="comment-container">
 	<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 		<div class="comment-image" itemprop="image">
-			{% if commentUser is defined %}
-				<img src="{{ commentUser.photoUrl ? commentUser.photoUrl : resourceUrl('/images/user.svg') }}" />
-			{% else %}
+			{% if comment.isGuest() %}
 				<img src="{{ resourceUrl('/images/user.svg') }}" />
+			{% else %}
+				<img src="{{ comment.author.photoUrl ? comment.author.photoUrl : resourceUrl('/images/user.svg') }}" />
 			{% endif %}
 		</div>
 	</span>
@@ -17,11 +13,7 @@
 		<span class="comment-heading">
 			<span itemprop="creator" itemscope itemtype="http://schema.org/Person">
 				<span class="title" itemprop="name">
-					{% if commentUser is defined %}
-						{{ commentUser.fullName ? commentUser.fullName : commentUser }}
-					{% else %}
-						{{ comment.name }}
-					{% endif %}
+					{{ comment.author.fullName ? comment.author.fullName : comment.author }}
 				</span>
 			</span>
 

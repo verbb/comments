@@ -53,7 +53,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 **0.5.0**
 
 - Add permissions to control commenting settings per section.
-- Support email notifications for subscribing to topics.
 - Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
 - Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
 

@@ -76,6 +76,7 @@ class CommentsService extends BaseApplicationComponent
 
     public function saveComment(Comments_CommentModel $comment, $validate = true)
     {
+        $settings = $this->getSettings();
         $isNewComment = !$comment->id;
 
         // Check for parent Comments
@@ -132,6 +133,17 @@ class CommentsService extends BaseApplicationComponent
         // Now that we have an element ID, save it on the other stuff
         if ($isNewComment) {
             $commentRecord->id = $comment->id;
+
+            // Should we send a Notification email to the author of this comment?
+            if ($settings->notificationAuthorEnabled) {
+                $this->_sendAuthorNotificationEmail($comment);
+            }
+
+            // If a reply to another comment, should we send a Notification email 
+            // to the author of the original comment?
+            if ($settings->notificationReplyEnabled && $comment->parentId) {
+                $this->_sendReplyNotificationEmail($comment);
+            }
         }
 
         // Save the actual comment
@@ -183,6 +195,34 @@ class CommentsService extends BaseApplicationComponent
             return $this->activeComment;
         } else {
             return new Comments_CommentModel();
+        }
+    }
+
+    public function getCommentElementHtml(&$context)
+    {
+        if (!isset($context['element'])) {
+            return;
+        }
+
+        // Only do this for a Comment ElementType
+        if ($context['element']->getElementType() == 'Comments_Comment') {
+            $user = craft()->users->getUserById($context['element']->userId);
+
+            if ($user == null) {
+                $userName = $context['element']->name;
+            } else {
+                $url = UrlHelper::getCpUrl('users/' . $user->id);
+                $userName = $user->getFriendlyName();
+            }
+
+            $html = '<div class="comment-block">';
+            $html .= '<span class="status ' . $context['element']->status . '"></span>';
+            $html .= '<a href="' . $context['element']->getCpEditUrl() . '">';
+            $html .= '<span class="username">' . $userName . '</span>';
+            $html .= '<small>' . $context['element']->getExcerpt(0, 100) . '</small></a>';
+            $html .= '</div>';
+
+            return $html;
         }
     }
 
@@ -277,6 +317,47 @@ class CommentsService extends BaseApplicationComponent
 
         // Must be set to the same one then
         return false;
+    }
+
+    private function _sendAuthorNotificationEmail(Comments_CommentModel $comment)
+    {
+        // Get our commented-on element
+        $element = craft()->elements->getElementById($comment->elementId);
+
+        // Get our recipient
+        $recipient = $element->author;
+
+        if (count($recipient)) {
+            // If the author and commenter are the same user - don't send
+            if ($comment->userId != $recipient->id) {
+                craft()->email->sendEmailByKey($recipient, 'comments_author_notification', array(
+                    'element' => $element,
+                    'comment' => $comment,
+                ));
+            }
+        }
+    }
+
+    private function _sendReplyNotificationEmail(Comments_CommentModel $comment)
+    {
+        // Get the comment we're replying to
+        $parentComment = craft()->comments->getCommentById($comment->parentId);
+
+        // Get our recipient
+        $recipient = $parentComment->author;
+
+        // Get our commented-on element
+        $element = craft()->elements->getElementById($comment->elementId);
+
+        if (count($recipient)) {
+            // If the author and commenter are the same user - don't send
+            if ($comment->userId != $recipient->id) {
+                craft()->email->sendEmailByKey($recipient, 'comments_reply_notification', array(
+                    'element' => $element,
+                    'comment' => $comment,
+                ));
+            }
+        }
     }
 
 
