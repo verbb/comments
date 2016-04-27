@@ -61,12 +61,12 @@ class CommentsService extends BaseApplicationComponent
 
         $comments = Comments_CommentRecord::model()->findAll($criteria);
 
-        $entries = array();
+        $elements = array();
         foreach ($comments as $comment) {
-            $entries[] = $comment->element;
+            $elements[] = craft()->elements->getElementById($comment->elementId);
         }
 
-        return $entries;
+        return $elements;
     }
 
     public function getStructureId()
