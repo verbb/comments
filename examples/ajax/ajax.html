@@ -66,7 +66,7 @@ $(document).ready(function() {
     $(document).on('click', 'a.comment-reply', function(e) {
         e.preventDefault();
 
-        $(this).parents('.comment-single:first').find('.comment-form').toggle();
+        $(this).parents('.comment-single:first').find('.comment-form:first').toggle();
     });
 
     // Handle voting
