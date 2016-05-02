@@ -12,9 +12,10 @@
 $(document).ready(function() {
 
     $(document).on('submit', '.comment-form', function(e) {
-      e.preventDefault();
+        e.preventDefault();
 
-      var data = $(this).serialize();
+        var $form = $(this);
+        var data = $form.serialize();
 
         $.ajax({
             method: 'POST',
@@ -24,11 +25,35 @@ $(document).ready(function() {
         })
         .success(function(data) {
             console.log('success', data);
+
+            // Clear out the text box
+            $form.find('textarea[name="fields[comment]"]').val('');
+
+            // Add the new comment html
+            var $comment_html = $(data.html).find('.comment-single');
+
+            // Are we replying to a comment, or on the top-level? Determines where to append
+            if (data.comment.parentId) {
+                var $replies_container = $('#comment-' + data.comment.parentId + ' .comments-list');
+
+                // Hide the reply form
+                $form.hide();
+
+                // Check for existing container for other replies
+                if ($replies_container.length == 0) {
+                    $('#comment-' + data.comment.parentId).append('<ul class="comments-list"/>');
+                }
+
+                $('#comment-' + data.comment.parentId + ' .comments-list').append($comment_html);
+            } else {
+                $('.comments-list:first').append($comment_html);
+            }
         })
         .error(function(data) {
             console.log('error', data);
         });
     });
+
 
     // Toggle to show/hide replies
     $(document).on('click', 'a.comment-toggle', function(e) {
