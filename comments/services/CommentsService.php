@@ -226,6 +226,49 @@ class CommentsService extends BaseApplicationComponent
         }
     }
 
+    public function getCommentHtml($comment)
+    {
+        $settings = craft()->comments->getSettings();
+        $oldPath = craft()->path->getTemplatesPath();
+        $element = $comment->element;
+
+        // Is the user providing their own templates?
+        if ($settings->templateFolderOverride) {
+
+            // Check if this file even exists
+            $commentTemplate = craft()->path->getSiteTemplatesPath() . $settings->templateFolderOverride . '/comment';
+            foreach (craft()->config->get('defaultTemplateExtensions') as $extension) {
+                if (IOHelper::fileExists($commentTemplate . "." . $extension)) {
+                    $templateFile =  $settings->templateFolderOverride . '/comment';
+                }
+            }
+        }
+
+        // If no user templates, use our default
+        if (!isset($templateFile)) {
+            $templateFile = '_forms/templates/comment';
+
+            craft()->path->setTemplatesPath(craft()->path->getPluginsPath() . 'comments/templates');
+        }
+
+        $variables = array(
+            'element' => $element,
+            'comments' => array($comment),
+            'settings' => $settings,
+        );
+
+        $html = craft()->templates->render($templateFile, $variables);
+
+        craft()->path->setTemplatesPath($oldPath);
+
+        // Finally - none of this matters if the permission to comment on this element is denied
+        if (!craft()->comments_settings->checkPermissions($element)) {
+            return false;
+        }
+
+        return $html;
+    }
+
 
     // Event Handlers
     // =========================================================================
