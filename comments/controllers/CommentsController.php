@@ -135,7 +135,9 @@ class CommentsController extends BaseController
         // Validate the comment - includes all security/validation checks
         if ($model->validate()) {
             if (craft()->comments->saveComment($model)) {
-                $this->_response(array('success' => true));
+                $html = craft()->comments->getCommentHtml($model);
+                
+                $this->_response(array('success' => true, 'comment' => $model, 'html' => $html));
             }
         }
 
