@@ -2,7 +2,7 @@
     {
         "version": "0.4.2",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.2.zip",
-        "date": "2016-04-03 10:00:00",
+        "date": "2016-04-03T10:00:00+10:00",
         "notes": [
             "[Added] Added `element` attribute to CommentModel.",
             "[Added] Added `parent` attribute to CommentModel.",
@@ -16,7 +16,7 @@
     {
         "version": "0.4.1",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.1.zip",
-        "date": "2016-04-03 00:15:00",
+        "date": "2016-04-03T00:15:00+10:00",
         "notes": [
             "[Added] Added `author` attribute to CommentModel.",
             "[Added] Added `isGuest()` method to CommentModel.",
@@ -28,7 +28,7 @@
     {
         "version": "0.4.0",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.0.zip",
-        "date": "2016-03-17 02:00:00",
+        "date": "2016-03-17T02:00:00+10:00",
         "notes": [
             "[Added] Craft 2.5+ support, including release feed and icons.",
             "[Added] Comments can now be edited through the front-end.",
@@ -60,7 +60,7 @@
     {
         "version": "0.3.8",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.8.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Fixes for field settings messing things up. **Notice** The Comments fieldtype will soon be removed in favour of centralized permissions.",
             "Other bugfixes and improvements.",
@@ -70,7 +70,7 @@
     {
         "version": "0.3.7",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.7.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added the ability to get total comments per element id using `{{ craft.comments.total(elementId) }}`."
         ]
@@ -78,7 +78,7 @@
     {
         "version": "0.3.6",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.6.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added security measures. You can now provide values to check against _all_ attributes of a comment and action accordingly. Comments can be marked as pending, spam, or simply not allowed to be submitted. See [Security](https://github.com/engram-design/Comments/wiki/Security)",
             "Support sorting comments by votes.",
@@ -88,7 +88,7 @@
     {
         "version": "0.3.5",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.5.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added Schema Tags to templates (see [#19](https://github.com/engram-design/Comments/issues/19))."
         ]
@@ -96,7 +96,7 @@
     {
         "version": "0.3.4",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.4.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added threshold for downvotes - if over specified limit, `isPoorlyRated` will be true.",
             "Comments can be set to auto-close after a defined amount of days since the elements creation."
@@ -105,7 +105,7 @@
     {
         "version": "0.3.3",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.3.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Altered settings pane - now with multiple tabs.",
             "Updated permissions UI.",
@@ -115,7 +115,7 @@
     {
         "version": "0.3.2",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.2.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added basic sharing comment options. Provides permalink, Twitter and Facebook sharing."
         ]
@@ -123,7 +123,7 @@
     {
         "version": "0.3.1",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.1.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Organise examples seperately. Better testing locally (symlinks).",
             "Added standard, non-Ajax example.",
@@ -134,7 +134,7 @@
     {
         "version": "0.3.0",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.3.0.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added edit/delete (trashing) for users. Anonymous users can't do either.",
             "Added new set of templates for different comment statuses, allowing different templates for pending, approved, trashed and spam comments.",
@@ -150,7 +150,7 @@
     {
         "version": "0.2.1",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.2.1.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Seperated plugin settings to its own 'real' tab. Bad UX being directed off to plugin settings, then being redirected to plugins screen.",
             "Added Permissions to control elements (and element types) comments are allowed to be made on. More convenient/centralised that custom field for each element."
@@ -159,7 +159,7 @@
     {
         "version": "0.2.0",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.2.0.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Preserve comment formatting. Changed comment field to textarea in templates.",
             "Comments have access to objects for [flags](https://github.com/engram-design/Comments/wiki/Comment-ElementType#flags) and [votes](https://github.com/engram-design/Comments/wiki/Comment-ElementType#votes). Removed flagCount and votesCount in favour of using `length` Twig filter."
@@ -168,7 +168,7 @@
     {
         "version": "0.1.2",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.2.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added support for comments to be made on any element type (entries, users, assets, etc)."
         ]
@@ -176,7 +176,7 @@
     {
         "version": "0.1.1",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.1.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Added support for voting on comments.",
             "Added support for flagging inappropriate comments.",
@@ -186,7 +186,7 @@
     {
         "version": "0.1.0",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.1.0.zip",
-        "date": "2016-01-01 00:00:00",
+        "date": "2016-01-01T00:00:00+10:00",
         "notes": [
             "Initial beta release."
         ]
