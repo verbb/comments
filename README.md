@@ -19,23 +19,6 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Set permissions for each element (and element type) to allow or disable comments.
 
 
-## Install
-
-- Add the `comments` directory into your `craft/plugins` directory.
-- Navigate to Settings -> Plugins and click the "Install" button.
-
-**Plugin Settings**
-
-- Allow anonymous comments
-- Comments require moderation
-- Template Folder Override
-- Enable flagging of comments
-- Enable voting on comments
-- Flagged comments threshold
-- Downvote comments threshold
-- Auto-close comments
-
-
 ## Documentation
 
 Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, a getting started guide, template tags, and developer resources.
