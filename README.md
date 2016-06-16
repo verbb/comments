@@ -5,13 +5,6 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 <img src="https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/main.png" />
 
 
-## Currently in Beta
-
-Please be aware that Comments is being released at this stage very much in beta. As such, there will be lots of rapid, breaking changes being made to the plugin. It's for this reason that it's not suitable for use in a production environment just yet. It's certainly safe to do so - you just may be updating it a lot!
-
-We would greatly value your feedback through the beta process, so feel free to [make a suggestion](https://github.com/engram-design/Comments/issues)
-
-
 ## Features
 
 - Threaded comments - users can comment on other comments.
