@@ -1,0 +1,10 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+    label: 'Enable comments' | t,
+    instructions: 'Toggle whether comments should be allowed for this ' ~ element.classHandle | lower ~ ' or not.' | t,
+    id: name ~ '-commentEnabled',
+    name: name ~ '[commentEnabled]',
+    on: value.commentEnabled,
+}) }}
+

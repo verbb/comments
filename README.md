@@ -26,12 +26,6 @@ Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all 
 
 ## Roadmap
 
-**0.5.0**
-
-- Add permissions to control commenting settings per section.
-- Support [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).
-- Support querying comments via votes (up and down), and flags (see [#20](https://github.com/engram-design/Comments/issues/20)).
-
 **0.6.0**
 
 - Provide security policies through:

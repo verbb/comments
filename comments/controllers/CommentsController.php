@@ -16,14 +16,20 @@ class CommentsController extends BaseController
     // Control Panel
     //
 
-    /*public function actionPermissions()
+    public function actionPermissions()
     {
         $settings = craft()->comments->getSettings();
 
+        $sourceOptions = array();
+        foreach (craft()->assetSources->getAllSources() as $source) {
+            $sourceOptions[] = array('label' => $source->name, 'value' => $source->id);
+        }
+
         $this->renderTemplate('comments/permissions', array(
             'settings' => $settings,
+            'sourceOptions' => $sourceOptions,
         ));
-    }*/
+    }
 
     public function actionSettings()
     {

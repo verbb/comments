@@ -31,6 +31,9 @@ $(function() {
 		}
 	});
 
+	// Handle checkboxes initial state
+	$('.elementTypeCheckbox a.check-all').trigger('click');
+
 
 
 

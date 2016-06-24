@@ -1,5 +1,16 @@
 [
     {
+        "version": "0.4.3",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.3.zip",
+        "date": "2016-06-24T16:00:00+10:00",
+        "notes": [
+            "[Added] Permissions to control when elements are comment-able.",
+            "[Added] New fieldtype to provide element-specific control on commenting.",
+            "[Added] Added support for [craft.spamguard](https://github.com/selvinortiz/craft.spamguard).",
+            "[Fixed] Fixed error in comments element index - introduced in 0.4.2."
+        ]
+    },
+    {
         "version": "0.4.2",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.2.zip",
         "date": "2016-04-03T10:00:00+10:00",

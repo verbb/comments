@@ -29,9 +29,7 @@ class CommentsService extends BaseApplicationComponent
 
     public function getAllComments()
     {
-        $attributes = array('order' => 'dateCreated');
-
-        return $this->getCriteria($attributes)->find();
+        return $this->getCriteria(array('order' => 'dateCreated'))->find();
     }
 
     public function getCommentById($commentId)
@@ -218,7 +216,7 @@ class CommentsService extends BaseApplicationComponent
             $html = '<div class="comment-block">';
             $html .= '<span class="status ' . $context['element']->status . '"></span>';
             $html .= '<a href="' . $context['element']->getCpEditUrl() . '">';
-            $html .= '<span class="username">' . $userName . '</span>';
+            $html .= '<span class="username">' . $context['element']->id . '</span>';
             $html .= '<small>' . $context['element']->getExcerpt(0, 100) . '</small></a>';
             $html .= '</div>';
 

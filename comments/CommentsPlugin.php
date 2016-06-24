@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.2';
+        return '0.4.3';
     }
 
     public function getSchemaVersion()
@@ -90,6 +90,9 @@ class CommentsPlugin extends BasePlugin
             'notificationAuthorEnabled' => array( AttributeType::Bool, 'default' => true ),
             'notificationReplyEnabled'  => array( AttributeType::Bool, 'default' => true ),
 
+            // Permissions
+            'permissions'               => AttributeType::Mixed,
+
             // Users
             //'users'                     => AttributeType::Mixed,
         );
@@ -99,6 +102,7 @@ class CommentsPlugin extends BasePlugin
     {
         return array(
             'comments/edit/(?P<commentId>\d+)' => array('action' => 'comments/editTemplate'),
+            'comments/permissions' => array('action' => 'comments/permissions'),
             'comments/settings' => array('action' => 'comments/settings'),
         );
     }

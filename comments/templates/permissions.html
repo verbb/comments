@@ -16,79 +16,53 @@
 
 {% set selectedTab = 'permissions' %}
 
-{% set plugin = craft.plugins.getPlugin('comments') %}
-
-{% set elementType = craft.elements.getElementType('Comments_Comment') %}
-
 {% set content %}
     <form method="post" accept-charset="UTF-8" data-saveshortcut="1">
         <input type="hidden" name="action" value="plugins/savePluginSettings">
-        <input type="hidden" name="pluginClass" value="{{ plugin.classHandle }}">
+        <input type="hidden" name="pluginClass" value="comments">
         {{ getCsrfInput() }}
+
+        <h2>Commenting permissions</h2>
+        <p>Select which element collections should have commenting enabled on by default.</p>
+        <p>For more fine-grained control over specific elements, create a Comment Options fieldtype, and add to your elements custom fields.</p>
 
         {% namespace 'settings' %}
 
-            <table id="permissions" class="data fullwidth collapsible">
-                <thead>
-                    <th>{{ "Enable comments for" | t }}</th>
-                    <th>{{ "Comments are closed" | t }}</th>
-                    <th>{{ "User permissions" | t }}</th>
-                </thead>
-                <tbody>
-                    {% for element in craft.elements.getAllElementTypes() %}
-                        {% set elements = craft.comments.elements(element.classHandle) %}
+        {% for element in craft.elements.getAllElementTypes() %}
+            {% set elements = craft.comments.elements(element.classHandle) %}
 
-                        {% if elements | length > 0 and element.classHandle != 'Comments_Comment' and element.classHandle != 'GlobalSet' %}
-                            {% set permissionValue = (settings.permissions) ? settings.permissions[element.classHandle] : {} %}
-                            {% set closedValue = (settings.closed) ? settings.closed[element.classHandle] : {} %}
+            {% if elements and (element.classHandle != 'Comments_Comment') and element.getSources %}
+                {% set elementOptions = [] %}
 
-                            <tr id="{{ element.classHandle }}" class="elementTypeCheckbox">
-                                <td>
-                                    {{ forms.checkbox({
-                                        label: element.name ~ '<a class="check-all">Check all</a>',
-                                        name: 'permissions['~element.classHandle~'][*]',
-                                        checked: (permissionValue['*'] is defined) ? permissionValue['*'] : true,
-                                    }) }}
-                                </td>
-                                <td>
-                                    {{ forms.lightswitchField({
-                                        name: 'closed['~element.classHandle~'][*]',
-                                        on: (closedValue['*'] is defined) ? closedValue['*'] : false,
-                                    }) }}
-                                </td>
-                                <td>
-                                    <a href="#">Users</a>
-                                </td>
-                            </tr>
-
-                            {% for el in elements %}
-                                <tr id="{{ element.classHandle }}-nested" class="indent">
-                                    {% if el.title is defined and el.title != '' %}
-                                        <td>
-                                            {{ forms.checkbox({
-                                                class: 'elementCheckbox',
-                                                label: el.title,
-                                                name: 'permissions['~element.classHandle~']['~el.id~']',
-                                                checked: (permissionValue[el.id] is defined) ? permissionValue[el.id] : (permissionValue['*'] is defined and permissionValue['*'] == '') ? false : true,
-                                            }) }}
-                                        </td>
-                                        <td>
-                                            {{ forms.lightswitchField({
-                                                name: 'closed['~element.classHandle~']['~el.id~']',
-                                                on: (closedValue[el.id] is defined) ? closedValue[el.id] : false,
-                                            }) }}
-                                        </td>
-                                        <td>
-                                            <a href="#">Users</a>
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-
-                        {% endif %}
+                {% if element.classHandle == 'Entry' %}
+                    {% for section in craft.sections.getAllSections() %}
+                        {% set elementOptions = [{ value: section.id, label: section.name }] | merge(elementOptions) %}
                     {% endfor %}
-                </tbody>
-            </table>
+                {% elseif element.classHandle == 'Category' %}
+                    {% for group in craft.categoryGroups.getAllGroups() %}
+                        {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+                    {% endfor %}
+                {% elseif element.classHandle == 'Asset' %}
+                    {% for group in sourceOptions %}
+                        {% set elementOptions = [{ value: group.value, label: group.label }] | merge(elementOptions) %}
+                    {% endfor %}
+                {% elseif element.classHandle == 'User' %}
+                    {% for group in craft.userGroups.getAllGroups() %}
+                        {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+                    {% endfor %}
+                {% endif %}
+
+                {{ forms.checkboxSelectField({
+                    label: element.classHandle ~ " Elements" | t,
+                    instructions: "Select which elements to enable commenting on by default" | t,
+                    id: 'permissions-' ~ element.classHandle,
+                    name: 'permissions[' ~ element.classHandle ~ ']',
+                    options: elementOptions,
+                    values: settings.permissions[element.classHandle],
+                }) }}
+
+            {% endif %}
+        {% endfor %}
 
         {% endnamespace %}
 
