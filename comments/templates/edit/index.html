@@ -6,6 +6,7 @@
 {% import "_includes/forms" as forms %}
 
 {% set title = 'Edit Comment' %}
+{% set fullPageForm = true %}
 
 {% set crumbs = [
     { label: "Comments" | t, url: url('comments') },
@@ -27,13 +28,16 @@
     structureEditable: false,
 } %}
 
-{% block main %}
+{% set extraPageHeaderHtml %}
+    <div class="buttons right">
+        <input type="submit" class="btn submit" value="{{ 'Save comment' | t }}">
+    </div>
+{% endset %}
 
-<form id="userform" method="post" accept-charset="UTF-8" data-saveshortcut data-confirm-unload>
+{% block main %}
     <input type="hidden" name="action" value="comments/saveComment">
     <input type="hidden" name="redirect" value="comments/edit/{{ comment.id }}">
     <input type="hidden" name="commentId" value="{{ comment.id }}">
-    {{ getCsrfInput() }}
 
     <div class="grid first">
         <div class="item" data-position="left" data-colspan="2">
@@ -126,12 +130,6 @@
                 <h5>{{ "Updated Date" | t }}</h5>
                 <p>{{ comment.dateUpdated.localeDate() }} {{ comment.dateUpdated.localeTime() }}</p>
             </div>
-
-            <div class="buttons first">
-                <input type="submit" class="btn submit" value="{{ 'Save comment' | t }}">
-            </div>
         </div>
     </div>
-</form>
-
 {% endblock %}

@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.4.4",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.4.zip",
+        "date": "2016-06-24T17:00:00+10:00",
+        "notes": [
+            "[Fixed] Fixed issue with comments index showing comment id, not user name.",
+            "[Fixed] Move Save Comment button above content on edit comment page (for consistent Craft behaviour)."
+        ]
+    },
+    {
         "version": "0.4.3",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.3.zip",
         "date": "2016-06-24T16:00:00+10:00",
