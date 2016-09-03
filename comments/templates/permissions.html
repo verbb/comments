@@ -28,10 +28,17 @@
 
         {% namespace 'settings' %}
 
+        {% set allowedElements = [
+            'Entry',
+            'Category',
+            'Asset',
+            'User',
+        ] %}
+
         {% for element in craft.elements.getAllElementTypes() %}
             {% set elements = craft.comments.elements(element.classHandle) %}
 
-            {% if elements and (element.classHandle != 'Comments_Comment') and element.getSources %}
+            {% if elements and (element.classHandle in allowedElements) %}
                 {% set elementOptions = [] %}
 
                 {% if element.classHandle == 'Entry' %}
@@ -58,7 +65,7 @@
                     id: 'permissions-' ~ element.classHandle,
                     name: 'permissions[' ~ element.classHandle ~ ']',
                     options: elementOptions,
-                    values: settings.permissions[element.classHandle],
+                    values: settings.permissions[element.classHandle] | default(''),
                 }) }}
 
             {% endif %}

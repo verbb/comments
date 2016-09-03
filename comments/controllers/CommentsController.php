@@ -67,6 +67,21 @@ class CommentsController extends BaseController
         }
     }
 
+    public function actionDeleteComment()
+    {
+        $this->requirePostRequest();
+
+        $commentId = craft()->request->getRequiredPost('commentId');
+        $model = craft()->comments->getCommentById($commentId);
+
+        if ($result = craft()->comments->deleteComment($model)) {
+            craft()->userSession->setNotice(Craft::t('Comment deleted.'));
+            $this->redirectToPostedUrl($model);
+        } else {
+            craft()->userSession->setError($result);
+        }
+    }
+
     //
     // Comments Front-End
     //
@@ -82,28 +97,32 @@ class CommentsController extends BaseController
 
         // Validate the comment - includes all security/validation checks
         if ($model->validate()) {
-            if (craft()->comments->saveComment($model)) {
-                $this->_response(array('success' => true));
+            // And some extra checks specifically for editing
+            if ($comment->canEdit()) {
+                if (craft()->comments->saveComment($model)) {
+                    $this->_response(array('success' => true));
+                }
             }
         }
+
+        $this->_response(array('error' => 'Cannot edit comment.'));
     }
 
-    public function actionDelete()
+    public function actionTrash()
     {
-        $user = craft()->userSession->getUser();
-        
         $commentId = craft()->request->getQuery('id');
-        $comment = craft()->comments->getCommentById($commentId);
-        $comment->status = Comments_CommentModel::TRASHED;
+        $model = craft()->comments->getCommentById($commentId);
+        $model->status = Comments_CommentModel::TRASHED;
 
-        // Only logged in users can delete
-        if ($user) {
-
-            // We're actually only changing this status to 'trashed'
-            $result = craft()->comments->deleteComment($comment);
+        // Make sure we have permission to trash this comment
+        if ($model->canTrash()) {
+            // Change the status to 'trashed'
+            $result = craft()->comments->trashComment($model);
 
             $this->_response($result);
         }
+
+        $this->_response(array('error' => 'Cannot trash comment.'));
     }
 
     public function actionSave()
@@ -249,4 +268,16 @@ class CommentsController extends BaseController
 
         craft()->request->redirect($url);
     }
+
+
+
+
+    // Deprecated Methods
+    // =========================================================================
+
+    public function actionDelete()
+    {
+        craft()->deprecator->log('CommentsController::actionDelete():renamed', 'The "comments/delete" controller action has been deprecated. Please use "comments/trash" instead.');
+    }
+
 }

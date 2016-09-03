@@ -49,17 +49,19 @@ class Comments_CommentElementType extends BaseElementType
         );
 
         foreach (craft()->comments->getElementsWithComments() as $element) {
-            $elementType = craft()->elements->getElementType($element->elementType);
-            $key = 'elements:'.$elementType->classHandle;
+            if (isset($element->elementType)) {
+                $elementType = craft()->elements->getElementType($element->elementType);
+                $key = 'elements:'.$elementType->classHandle;
 
-            $sources[$key] = array('heading' => $elementType->name);
+                $sources[$key] = array('heading' => $elementType->name);
 
-            $sources[$key.':all'] = array(
-                'label' => Craft::t('All ' . $elementType->name),
-                'criteria' => array('elementType' => $element->elementType),
-                'structureId' => $settings->structureId,
-                'structureEditable' => false,
-            );
+                $sources[$key.':all'] = array(
+                    'label' => Craft::t('All ' . $elementType->name),
+                    'criteria' => array('elementType' => $element->elementType),
+                    'structureId' => $settings->structureId,
+                    'structureEditable' => false,
+                );
+            }
         }
 
         return $sources;
@@ -186,7 +188,23 @@ class Comments_CommentElementType extends BaseElementType
     
     public function getAvailableActions($source = null)
     {
-        return array('Comments_Status');
+        $user = craft()->userSession->getUser();
+
+        $actions[] = 'Comments_Status';
+
+        if ($user->can('commentsDelete')) {
+            $deleteAction = craft()->elements->getAction('Delete');
+            $deleteAction->setParams(array(
+                'confirmationMessage' => Craft::t('Are you sure you want to delete the selected comments?'),
+                'successMessage'      => Craft::t('Comments deleted.'),
+            ));
+
+            $actions[] = $deleteAction;
+        }
+
+        return $actions;
+
+        //return array('Comments_Status');
     }
 
 }

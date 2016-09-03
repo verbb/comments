@@ -28,15 +28,17 @@
                     <a href="#" class="dropdown-toggle">Options <span class="caret"></span></a>
 
                     <ul class="dropdown-menu" role="menu">
-                        {% if not comment.isGuest() and not comment.isClosed %}
+                        {% if comment.canEdit() %}
                             <li role="presentation">
                                 <a href="#" class="comment-edit">
                                     <span class="glyphicon glyphicon-edit"></span>Edit
                                 </a>
                             </li>
+                        {% endif %}
 
+                        {% if comment.canTrash() %}
                             <li role="presentation">
-                                <a href="{{ comment.deleteActionUrl }}" class="comment-delete">
+                                <a href="{{ comment.trashActionUrl }}" class="comment-delete">
                                     <span class="glyphicon glyphicon-remove"></span>Delete
                                 </a>
                             </li>

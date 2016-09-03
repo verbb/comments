@@ -6,14 +6,14 @@ class CommentsHelper
     // Public Methods
     // =========================================================================
 
-    public static function deleteAction($comment, $options = array())
+    public static function trashAction($comment, $options = array())
     {
         $params = array(
             'id' => $comment->id,
             'return' => craft()->request->getUrl(),
         );
 
-        return UrlHelper::getActionUrl('comments/delete', $params);
+        return UrlHelper::getActionUrl('comments/trash', $params);
     }
 
     public static function flagAction($comment, $options = array())

@@ -162,17 +162,16 @@ class CommentsService extends BaseApplicationComponent
         return $comment;
     }
 
-    // Doesn't actually delete a comment - instead sets its status to 'trashed'
-    public function deleteComment(Comments_CommentModel $comment)
+    public function trashComment(Comments_CommentModel $comment)
     {
         $commentRecord = Comments_CommentRecord::model()->findById($comment->id);
 
         // Load in all the attributes from the Comment model into this record
         $commentRecord->status = $comment->status;
 
-        // Fire an 'onBeforeDeleteComment' event
+        // Fire an 'onBeforeTrashComment' event
         $event = new Event($this, array('comment' => $comment));
-        $this->onBeforeDeleteComment($event);
+        $this->onBeforeTrashComment($event);
 
         // Allow event to cancel comment saving
         if (!$event->performAction) {
@@ -181,8 +180,8 @@ class CommentsService extends BaseApplicationComponent
 
         $commentRecord->save(false);
 
-        // Fire an 'onDeleteComment' event
-        $this->onDeleteComment(new Event($this, array('comment' => $comment)));
+        // Fire an 'onTrashComment' event
+        $this->onTrashComment(new Event($this, array('comment' => $comment)));
 
         return true;
     }
@@ -267,6 +266,45 @@ class CommentsService extends BaseApplicationComponent
         return $html;
     }
 
+    public function deleteComment($comments)
+    {
+        if (!$comments) {
+            return false;
+        }
+
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+
+        try {
+            if (!is_array($comments)) {
+                $comments = array($comments);
+            }
+
+            $commentIds = array();
+            foreach ($comments as $comment) {
+                $commentIds[] = $comment->id;
+            }
+
+            if ($commentIds) {
+                $success = craft()->elements->deleteElementById($commentIds);
+            } else {
+                $success = false;
+            }
+
+            if ($transaction !== null) {
+                $transaction->commit();
+            }
+        } catch (\Exception $e) {
+            if ($transaction !== null) {
+                $transaction->rollback();
+            }
+
+            throw $e;
+        }
+
+        return $success;
+    }
+
+
 
     // Event Handlers
     // =========================================================================
@@ -293,26 +331,26 @@ class CommentsService extends BaseApplicationComponent
         $this->raiseEvent('onSaveComment', $event);
     }
 
-    public function onBeforeDeleteComment(\CEvent $event)
+    public function onBeforeTrashComment(\CEvent $event)
     {
         $params = $event->params;
         
         if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
-            throw new Exception('onBeforeDeleteComment event requires "comment" param with CommentModel instance');
+            throw new Exception('onBeforeTrashComment event requires "comment" param with CommentModel instance');
         }
 
-        $this->raiseEvent('onBeforeDeleteComment', $event);
+        $this->raiseEvent('onBeforeTrashComment', $event);
     }
 
-    public function onDeleteComment(\CEvent $event)
+    public function onTrashComment(\CEvent $event)
     {
         $params = $event->params;
         
         if (empty($params['comment']) || !($params['comment'] instanceof Comments_CommentModel)) {
-            throw new Exception('onDeleteComment event requires "comment" param with CommentModel instance');
+            throw new Exception('onTrashComment event requires "comment" param with CommentModel instance');
         }
 
-        $this->raiseEvent('onDeleteComment', $event);
+        $this->raiseEvent('onTrashComment', $event);
     }
 
 

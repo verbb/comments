@@ -2,6 +2,10 @@
 
 {% block content %}
 
+    {% set params = {
+        order: 'dateCreated asc',
+    } %}
+
     {{ craft.comments.form(entry.id, params) }}
 
 {% endblock %}

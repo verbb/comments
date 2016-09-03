@@ -72,6 +72,9 @@ class Comments_CommentModel extends BaseElementModel
             $this->addError('comment', Craft::t('Comments are disabled for this element.'));
         }
 
+        // Is this user trying to edit/save/delete a comment thats not their own?
+
+
         // Must have an actual comment
         if (!$this->comment) {
             $this->addError('comment', Craft::t('Comment must not be blank.'));
@@ -93,9 +96,9 @@ class Comments_CommentModel extends BaseElementModel
         return $excerpt;
     }
 
-    public function deleteActionUrl($options = array())
+    public function trashActionUrl($options = array())
     {
-        return CommentsHelper::deleteAction($this, $options);
+        return CommentsHelper::trashAction($this, $options);
     }
 
     public function isClosed($options = array())
@@ -139,6 +142,50 @@ class Comments_CommentModel extends BaseElementModel
     public function getParent()
     {
         return craft()->comments->getCommentById($this->parentId);
+    }
+
+    public function canEdit()
+    {
+        $user = craft()->userSession->getUser();
+
+        // Only logged in users can edit a comment
+        if (!$user) {
+            return false;
+        }
+
+        // Check that user is trying to edit their own comment
+        if ($user->id == $this->author->id) {
+            return true;
+        } else {
+            // If they're editing someone else - check to see if we've got user permissions
+            if ($user->can('commentsEdit')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function canTrash()
+    {
+        $user = craft()->userSession->getUser();
+
+        // Only logged in users can trash a comment
+        if (!$user) {
+            return false;
+        }
+
+        // Check that user is trying to trash their own comment
+        if ($user->id == $this->author->id) {
+            return true;
+        } else {
+            // If they're trashing someone else - check to see if we've got user permissions
+            if ($user->can('commentsTrash')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //

@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.4';
+        return '0.4.5';
     }
 
     public function getSchemaVersion()
@@ -141,6 +141,15 @@ class CommentsPlugin extends BasePlugin
         return array(
             'comments_author_notification',
             'comments_reply_notification',
+        );
+    }
+
+    public function registerUserPermissions()
+    {
+        return array(
+            'commentsEdit' => array('label' => Craft::t('Edit other users\' comments')),
+            'commentsTrash' => array('label' => Craft::t('Trash other users\' comments')),
+            'commentsDelete' => array('label' => Craft::t('Delete comments')),
         );
     }
 
