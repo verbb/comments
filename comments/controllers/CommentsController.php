@@ -98,7 +98,7 @@ class CommentsController extends BaseController
         // Validate the comment - includes all security/validation checks
         if ($model->validate()) {
             // And some extra checks specifically for editing
-            if ($comment->canEdit()) {
+            if ($model->canEdit()) {
                 if (craft()->comments->saveComment($model)) {
                     $this->_response(array('success' => true));
                 }
