@@ -403,8 +403,17 @@ class CommentsService extends BaseApplicationComponent
         // Get our commented-on element
         $element = $comment->element;
 
+        $recipient = array();
+
         // Get our recipient
-        $recipient = $element->author;
+        if (isset($element->author)) {
+            $recipient = $element->author;
+        }
+
+        // Check for Matrix and other elements which have an owner
+        if (isset($element->owner->author)) {
+            $recipient = $element->owner->author;
+        }
 
         if (count($recipient)) {
             // If the author and commenter are the same user - don't send

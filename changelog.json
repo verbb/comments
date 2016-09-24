@@ -1,5 +1,15 @@
 [
     {
+        "version": "0.4.6",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.6.zip",
+        "date": "2016-09-24T00:00:00+10:00",
+        "notes": [
+            "[Added] Added ability to disable spam checks.",
+            "[Fixed] Fixed support for adding comments to non-entry elements.",
+            "[Fixed] Fixed typo in edit comment controller action."
+        ]
+    },
+    {
         "version": "0.4.5",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.5.zip",
         "date": "2016-09-03T16:30:00+10:00",

@@ -44,7 +44,7 @@ class Comments_CommentModel extends BaseElementModel
         $settings = craft()->comments->getSettings();
 
         // Let's check for spam!
-        if (!craft()->comments_protect->verifyFields()) {
+        if (!craft()->comments_protect->verifyFields() && $settings->enableSpamChecks) {
             $this->addError('comment', Craft::t('Form validation failed. Marked as spam.'));
         }
 

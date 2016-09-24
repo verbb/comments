@@ -1,5 +1,14 @@
 {% import "_includes/forms" as forms %}
 
+{{ forms.lightswitchField({
+    label: 'Enable spam checks' | t,
+    instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t,
+    name: 'enableSpamChecks',
+    on: settings.enableSpamChecks,
+}) }}
+
+<hr>
+
 {{ forms.textField({
     first: true,
     label: 'Minimum time between comments' | t,

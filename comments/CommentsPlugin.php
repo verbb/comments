@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.5';
+        return '0.4.6';
     }
 
     public function getSchemaVersion()
@@ -81,6 +81,7 @@ class CommentsPlugin extends BasePlugin
             'templateFolderOverride'    => AttributeType::String,
 
             // Security
+            'enableSpamChecks'          => array( AttributeType::Bool, 'default' => true ),
             'securityModeration'        => AttributeType::Mixed,
             'securityBlacklist'         => AttributeType::Mixed,
             'securityBanned'            => AttributeType::Mixed,
