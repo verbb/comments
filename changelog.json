@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.4.7",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.7.zip",
+        "date": "2016-10-10T00:00:00+10:00",
+        "notes": [
+            "[Fixed] Fixed template error for permissions settings for Craft Personal/Client versions.",
+            "[Fixed] Fixed `EntryModel.owner` issue where checking for non-entry elements being commented on."
+        ]
+    },
+    {
         "version": "0.4.6",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.6.zip",
         "date": "2016-09-24T00:00:00+10:00",

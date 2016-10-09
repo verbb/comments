@@ -411,8 +411,10 @@ class CommentsService extends BaseApplicationComponent
         }
 
         // Check for Matrix and other elements which have an owner
-        if (isset($element->owner->author)) {
-            $recipient = $element->owner->author;
+        if (isset($element->owner)) {
+            if (isset($element->owner->author)) {
+                $recipient = $element->owner->author;
+            }
         }
 
         if (count($recipient)) {
