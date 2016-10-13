@@ -159,6 +159,12 @@ class CommentsService extends BaseApplicationComponent
         // Fire an 'onSaveComment' event
         $this->onSaveComment(new Event($this, array('comment' => $comment)));
 
+        // If this comment has been trashed, via the element status in the CP, make sure we trigger events
+        if ($comment->status == Comments_CommentModel::TRASHED) {
+            // Fire an 'onTrashComment' event
+            $this->onTrashComment(new Event($this, array('comment' => $comment)));
+        }
+
         return $comment;
     }
 

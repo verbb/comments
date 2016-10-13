@@ -35,6 +35,14 @@ class Comments_StatusElementAction extends BaseElementAction
             'status'     => $status,
         )));
 
+        // Make sure to raise the `onTrashComment` event if thats whats happening
+        if ($status == Comments_CommentModel::TRASHED) {
+            // Trigger a `onTrashComment` for each element
+            foreach ($criteria->find() as $comment) {
+                craft()->comments->onTrashComment(new Event($this, array('comment' => $comment)));
+            }
+        }
+
         $this->setMessage(Craft::t('Statuses updated.'));
 
         return true;
