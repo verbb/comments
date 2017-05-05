@@ -53,17 +53,19 @@ class Comments_CommentModel extends BaseElementModel
             $this->addError('comment', Craft::t('Comment blocked due to security policy.'));
         }
 
-        // Protect against Anonymous submissions, if turned off
-        if (!$settings->allowAnonymous && !$this->userId) {
-            $this->addError('comment', Craft::t('Must be logged in to comment.'));
-
-            // Additionally, check for user email/name, which is compulsary for guests
+        if ($settings->allowAnonymous) {
+            // Check for user email/name, which is compulsary for guests
             if (!$this->name) {
                 $this->addError('name', Craft::t('Name is required.'));
             }
 
             if (!$this->email) {
                 $this->addError('email', Craft::t('Email is required.'));
+            }
+        } else {
+            // Protect against Anonymous submissions, if turned off
+            if (!$this->userId) {
+                $this->addError('comment', Craft::t('Must be logged in to comment.'));
             }
         }
 
