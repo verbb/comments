@@ -84,5 +84,10 @@ class CommentsVariable
         return craft()->comments->getActiveComment();
     }
 
+    public function getSettings()
+    {
+        return craft()->plugins->getPlugin('comments')->settings;
+    }
+
 
 }
