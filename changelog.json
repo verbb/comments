@@ -1,5 +1,16 @@
 [
     {
+        "version": "0.4.8",
+        "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.8.zip",
+        "date": "2017-10-18T00:00:00+10:00",
+        "notes": [
+            "[Added] Verbb marketing (new plugin icon, readme, etc)."
+            "[Added] Add plugin settings variable.",
+            "[Improved] Improved `onTrashComment` and `onBeforeTrashComment` events.",
+            "[Improved] Swap comment output macro for native `{% nav %}` tag - better supports element queries such as level."
+        ]
+    },
+    {
         "version": "0.4.7",
         "downloadUrl": "https://github.com/engram-design/Comments/archive/0.4.7.zip",
         "date": "2016-10-10T00:00:00+10:00",

@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.7';
+        return '0.4.8';
     }
 
     public function getSchemaVersion()
@@ -24,17 +24,17 @@ class CommentsPlugin extends BasePlugin
 
     public function getDeveloper()
     {
-        return 'S. Group';
+        return 'Verbb';
     }
 
     public function getDeveloperUrl()
     {
-        return 'http://sgroup.com.au';
+        return 'https://verbb.io';
     }
 
     public function getPluginUrl()
     {
-        return 'https://github.com/engram-design/Comments';
+        return 'https://github.com/verbb/comments';
     }
 
     public function getDocumentationUrl()
@@ -44,7 +44,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/engram-design/Comments/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/comments/master/changelog.json';
     }
 
     public function hasCpSection()
@@ -81,11 +81,11 @@ class CommentsPlugin extends BasePlugin
             'templateFolderOverride'    => AttributeType::String,
 
             // Security
-            'enableSpamChecks'          => array( AttributeType::Bool, 'default' => true ),
+            'enableSpamChecks'          => AttributeType::Bool,
+            'securityFlooding'          => AttributeType::Number,
             'securityModeration'        => AttributeType::Mixed,
             'securityBlacklist'         => AttributeType::Mixed,
             'securityBanned'            => AttributeType::Mixed,
-            'securityFlooding'          => AttributeType::Number,
 
             // Notifications
             'notificationAuthorEnabled' => array( AttributeType::Bool, 'default' => true ),

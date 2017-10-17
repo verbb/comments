@@ -1,9 +1,12 @@
-# Comments
+> 
+> ### Comments has a new home with the fine folks at Verbb. Read about it in our [blog post](https://verbb.io/blog/welcome-to-verbb).
+>
+
+# Comments Plugin for Craft CMS
+
+<img width="500" src="https://verbb.io/uploads/plugins/comments/_800x455_crop_center-center/comments-social-card.png">
 
 Comments is a Craft CMS plugin that allows your users to comment on elements. Not a fan of using Disqus? All your comments are stored in your Craft install, and hooked up to your existing users.
-
-<img src="https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/main.png" />
-
 
 ## Features
 
@@ -18,33 +21,19 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Comments can be made on any element type (entries, users, assets, etc).
 - Set permissions for each element (and element type) to allow or disable comments.
 
-
 ## Documentation
 
-Please visit the [Wiki](https://github.com/engram-design/Comments/wiki) for all documentation, a getting started guide, template tags, and developer resources.
+Visit the [Comments Plugin page](https://verbb.io/craft-plugins/comments) for all documentation, guides, pricing and developer resources.
+
+## Support
+
+Get in touch with us via the [Comments Support page](https://verbb.io/craft-plugins/comments/support) or by [creating a Github issue](/verbb/comments/issues)
+
+<h2></h2>
+
+<a href="https://verbb.io" target="_blank">
+  <img width="100" src="https://verbb.io/assets/img/verbb-pill.svg">
+</a>
 
 
-## Roadmap
 
-**0.6.0**
-
-- Provide security policies through:
-	- Ban unwanted users from current topic
-	- Ban users from all comment forms
-
-**1.0+**
-
-- Support Facebook/Twitter for sharing with App ID and other credentials
-- Provide simple WYSIWYG editor for front-end forms. Optional.
-- Social media login integration.
-- Gravatar support.
-- Support field layouts to allow full customisation over comment form. Especially useful for capturing more than name/email for anonymous users.
-- Create Pusher-integrated real-time example comments form.
-- Utalise sessions to show user's unread comments from others (see [#5](https://github.com/engram-design/Comments/issues/5)).
-- Dashboard widget (see [#15](https://github.com/engram-design/Comments/issues/15)).
-- Migrate guest comments to user account upon user registration - made with the same email.
-
-
-### Changelog
-
-[View JSON Changelog](https://github.com/engram-design/Comments/blob/master/changelog.json)
