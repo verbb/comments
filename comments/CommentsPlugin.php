@@ -14,7 +14,7 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.8';
+        return '0.4.9';
     }
 
     public function getSchemaVersion()
