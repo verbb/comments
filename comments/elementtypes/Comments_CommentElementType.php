@@ -76,7 +76,7 @@ class Comments_CommentElementType extends BaseElementType
     {
         return array(
             'comment'       => Craft::t('Comment'),
-            'dateCreated'   => Craft::t('Date'),
+            'commentDate'   => Craft::t('Date'),
             'elementId'     => Craft::t('Element'),
         );
     }
@@ -86,7 +86,7 @@ class Comments_CommentElementType extends BaseElementType
         return array(
             'status'        => Craft::t('Status'),
             'comment'       => Craft::t('Comment'),
-            'dateCreated'   => Craft::t('Date'),
+            'commentDate'   => Craft::t('Date'),
             'elementId'     => Craft::t('Element'),
         );
     }
@@ -123,6 +123,7 @@ class Comments_CommentElementType extends BaseElementType
             'ipAddress'     => array(AttributeType::String),
             'userAgent'     => array(AttributeType::String),
             'comment'       => array(AttributeType::Mixed),
+			'commentDate'   => array(AttributeType::DateTime),
             'order'         => array(AttributeType::String, 'default' => 'lft, commentDate desc'),
         );
     }
@@ -130,7 +131,7 @@ class Comments_CommentElementType extends BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-        ->addSelect('comments.elementId, comments.userId, comments.elementType, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.dateCreated AS commentDate')
+        ->addSelect('comments.elementId, comments.userId, comments.elementType, comments.structureId, comments.status, comments.name, comments.email, comments.url, comments.ipAddress, comments.userAgent, comments.comment, comments.commentDate, comments.dateCreated')
         ->join('comments comments', 'comments.id = elements.id')
         ->leftJoin('comments_votes comments_votes', 'comments_votes.commentId = comments.id')
         ->leftJoin('structures structures', 'structures.id = comments.structureId')

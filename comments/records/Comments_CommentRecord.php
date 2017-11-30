@@ -21,10 +21,26 @@ class Comments_CommentRecord extends BaseRecord
     public function defineRelations()
     {
         return array(
-            'element'  => array(static::BELONGS_TO, 'ElementRecord', 'required' => true, 'onDelete' => static::CASCADE),
+			'element'  => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
+			'parentElement'  => array(static::BELONGS_TO, 'ElementRecord', 'elementId', 'required' => true, 'onDelete' => static::CASCADE),
             'user' => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
         );
     }
+
+	/**
+	 * Prepares the model's attribute values to be saved to the database.
+	 *
+	 * @return null
+	 */
+	public function prepAttributesForSave()
+	{
+		parent::prepAttributesForSave();
+		// Populate commentDate if this is a new record
+		if ($this->isNewRecord() && empty($this->commentDate))
+		{
+			$this->commentDate = DateTimeHelper::currentTimeForDb();
+		}
+	}
     
 
     // Protected Methods
@@ -47,6 +63,7 @@ class Comments_CommentRecord extends BaseRecord
             'ipAddress'     => array(AttributeType::String),
             'userAgent'     => array(AttributeType::String),
             'comment'       => array(AttributeType::Mixed),
+            'commentDate'   => array(AttributeType::DateTime),
         );
     }
 }
