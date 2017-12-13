@@ -39,12 +39,12 @@ class CommentsPlugin extends BasePlugin
 
     public function getDocumentationUrl()
     {
-        return $this->getPluginUrl() . '/blob/master/README.md';
+        return 'https://verbb.io/craft-plugins/comments/docs';
     }
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/verbb/comments/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/comments/craft-2/changelog.json';
     }
 
     public function hasCpSection()
