@@ -1,0 +1,104 @@
+// ==========================================================================
+
+// Comments for Craft CMS
+// Author: Verbb - https://verbb.io/
+
+// ==========================================================================
+
+@import "base";
+
+
+
+// ==========================================================================
+// Comments Element Index
+// ==========================================================================
+
+.status.approved {
+    background-color: #27AE60;
+    border-color: transparent !important;
+}
+
+.status.pending {
+    background-color: #F2842D;
+    border-color: transparent !important;
+}
+
+.status.spam {
+    background-color: #0F7CCC;
+    border-color: transparent !important;
+}
+
+.status.trashed {
+    background-color: #D0021B;
+    border-color: transparent !important;
+}
+
+//
+// Custom title
+//
+
+.elementindex td[data-titlecell] .element {
+    display: none;
+}
+
+.elementindex .comment-block {
+    position: relative;
+    margin-left: 5px;
+}
+
+.elementindex .comment-block .status {
+    position: absolute;
+    top: 5px;
+    left: 0;
+}
+
+.elements .tableview .toggle {
+    top: 5px;
+}
+
+.elementindex .comment-block a {
+    margin-left: 20px;
+    display: block;
+
+    small {
+        color: #aaa;
+        font-size: 85%;
+        display: block;
+    }
+
+    &:hover {
+        text-decoration: none;
+    }
+
+    &:hover small {
+        color: #666;
+        text-decoration: none;
+    }
+
+    &:hover span {
+        text-decoration: underline;
+    }
+}
+
+//
+// Edit Comments
+//
+
+#main-container #main #main-content #details .comments-meta hr {
+    margin: 15px 0;
+}
+
+
+
+
+
+// ==========================================================================
+// Comments Settings
+// ==========================================================================
+
+.comments-settings-tabs li {
+    width: 100%;
+    max-width: 100% !important;
+}
+
+

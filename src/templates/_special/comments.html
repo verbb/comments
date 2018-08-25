@@ -1,0 +1,21 @@
+{% spaceless %}
+
+{# ------------------------ #}
+{# Available Variables #}
+{# ------------------------ #}
+{# id, element, commentsQuery, settings #}
+{# ------------------------ #}
+
+<div id="{{ id }}" class="cc-w{% if not settings.showAvatar %} no-avatar{% endif %}">
+    <div class="cc-w-i" data-role="comments">
+        {% for comment in commentsQuery.all() %}
+            {% include 'comment' %}
+        {% endfor %}
+    </div>
+
+    {% if settings.canComment(element) %}
+        {% include 'form' %}
+    {% endif %}
+</div>
+
+{% endspaceless %}

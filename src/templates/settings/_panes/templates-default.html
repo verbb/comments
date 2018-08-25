@@ -1,0 +1,57 @@
+{% import '_includes/forms' as forms %}
+
+<p>{{ 'The default templates are what is used when calling `craft.comments.render()`, and automatically outputs CSS and JS code in your templates. If you want full control over your templates, use [Custom Templates]({link}).' | t('comments', { link: url('comments/settings#tab-templates-custom') }) | md }}</p>
+
+{{ forms.lightswitchField({
+    label: 'Show avatar' | t('comments'),
+    instructions: 'Whether to show an avatar for comments. Craft users who comment will have their user profile image shown, while guests will show a placeholder (be sure to add one below).' | t('comments'),
+    name: 'showAvatar',
+    on: settings.showAvatar,
+}) }}
+
+{{ forms.elementSelectField({
+    label: 'Placeholder avatar' | t('comments'),
+    instructions: 'When "Show avatar" is turned on, and a guest is making a comment, show this as their avatar.' | t('comments'),
+    id: 'placeholderAvatar',
+    name: 'placeholderAvatar',
+    elements: [settings.getPlaceholderAvatar()],
+    elementType: 'craft\\elements\\Asset',
+    selectionLabel: 'Choose placeholder avatar' | t('comments'),
+    sources: '*',
+    criteria: {
+        kind: [],
+        enabledForSite: null,
+        siteId: null,
+    },
+    limit: 1,
+    jsClass: 'Craft.AssetSelectInput',
+    viewMode: 'large',
+    modalStorageKey: 'comments.placeholderAvatar',
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Show time ago' | t('comments'),
+    instructions: 'Whether to show how long ago a comment was made.' | t('comments'),
+    name: 'showTimeAgo',
+    on: settings.showTimeAgo,
+}) }}
+
+<hr>
+
+<h3>CSS/JS Resources</h3>
+
+<p><strong class="warning">{{ 'Warning' | t('app') }}: </strong>{{ 'If disabling any of these options, you\'ll need to supply your own CSS or JS in order for the form and comments functionality to look and work correctly.' | t('comments') }}</p>
+
+{{ forms.lightswitchField({
+    label: 'Output default CSS' | t('comments'),
+    instructions: 'Whether to output the default CSS for the form.' | t('comments'),
+    name: 'outputDefaultCss',
+    on: settings.outputDefaultCss,
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Output default JS' | t('comments'),
+    instructions: 'Whether to output the default JS for the form.' | t('comments'),
+    name: 'outputDefaultJs',
+    on: settings.outputDefaultJs,
+}) }}

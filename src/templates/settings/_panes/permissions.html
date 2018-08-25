@@ -1,0 +1,48 @@
+{% import '_includes/forms' as forms %}
+
+<p>{{ 'Select which element collections should have commenting enabled on by default.' | t('comments') }}</p>
+<p>{{ 'For more fine-grained control over specific elements, create a Comment Options fieldtype, and add to your elements custom fields.' | t('comments') }}</p>
+
+{% set allowedElements = [
+    'craft\\elements\\Entry',
+    'craft\\elements\\Category',
+    'craft\\elements\\Asset',
+    'craft\\elements\\User',
+] %}
+
+{% for element in craft.app.elements.getAllElementTypes() %}
+    {% if element in allowedElements %}
+        {% set elementOptions = [] %}
+
+        {% if element == 'craft\\elements\\Entry' %}
+            {% for section in craft.app.sections.getAllSections() %}
+                {% set elementOptions = [{ value: section.id, label: section.name }] | merge(elementOptions) %}
+            {% endfor %}
+        {% elseif element == 'craft\\elements\\Category' %}
+            {% for group in craft.app.categories.getAllGroups() %}
+                {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+            {% endfor %}
+        {% elseif element == 'craft\\elements\\Asset' %}
+            {% for group in craft.app.volumes.getAllVolumes() %}
+                {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+            {% endfor %}
+        {% elseif element == 'craft\\elements\\User' %}
+            {% if craft.userGroups %}
+                {% for group in craft.app.userGroups.getAllGroups() %}
+                    {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+
+        {{ forms.checkboxSelectField({
+            label: element | replace('craft\\elements\\', '') ~ " Elements" | t('comments'),
+            instructions: "Select which elements to enable commenting on by default" | t('comments'),
+            id: 'permissions-' ~ element,
+            name: 'permissions[' ~ element ~ ']',
+            options: elementOptions,
+            values: settings.permissions[element] ?? '*',
+            showAllOption: true,
+        }) }}
+
+    {% endif %}
+{% endfor %}

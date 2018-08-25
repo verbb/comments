@@ -1,0 +1,44 @@
+// ==========================================================================
+// Bootstrap Reboot 4.0.0
+// ==========================================================================
+
+// Reboot
+//
+// Normalization of HTML elements, manually forked from Normalize.css to remove
+// styles targeting irrelevant browsers while applying new styles.
+//
+// Normalize is licensed MIT. https://github.com/necolas/normalize.css
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Shim for "new" HTML5 structural elements to display correctly (IE10, older browsers)
+article, figure, footer, header {
+  display: block;
+}
+
+figure, p, textarea {
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    height: auto;
+    max-width: 100%;
+}
+
+strong {
+    font-weight: 700;
+}
+
+small {
+    font-size: 0.875em;
+}
+
+a {
+    cursor: pointer;
+    text-decoration: none;
+}

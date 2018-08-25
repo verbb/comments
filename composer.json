@@ -1,0 +1,46 @@
+{
+    "name": "verbb/comments",
+    "description": "A Craft CMS plugin for managing comments directly within the CMS.",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "comments"
+    ],
+    "support": {
+        "email": "support@verbb.io",
+        "issues": "https://github.com/verbb/comments/issues?state=open",
+        "source": "https://github.com/verbb/comments",
+        "docs": "https://github.com/verbb/comments",
+        "rss": "https://github.com/verbb/comments/commits/v2.atom"
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Verbb",
+            "homepage": "https://verbb.io"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0",
+        "nesbot/carbon": "^1.22",
+        "theiconic/name-parser": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "verbb\\comments\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Comments",
+        "handle": "comments",
+        "schemaVersion": "1.0.0",
+        "hasCpSettings": true,
+        "hasCpSection": true,
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/comments/craft-3/CHANGELOG.md",
+        "class": "verbb\\comments\\Comments"
+    }
+}

@@ -1,0 +1,27 @@
+{% import '_includes/forms' as forms %}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: 'Allow anonymous comments' | t('comments'),
+    instructions: 'Anonymous users can post a comment. Their name and email will be required.' | t('comments'),
+    name: 'allowAnonymous',
+    on: settings.allowAnonymous,
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Comments require moderation' | t('comments'),
+    instructions: 'All comments require manual approval before being publicly visible.' | t('comments'),
+    name: 'requireModeration',
+    on: settings.requireModeration,
+}) }}
+
+<hr>
+
+{{ forms.textField({
+    label: "Auto-close comments" | t('comments'),
+    id: 'autoCloseDays',
+    name: 'autoCloseDays',
+    instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable." | t('comments'),
+    value: settings.autoCloseDays,
+}) }}
+

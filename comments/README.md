@@ -15,11 +15,11 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Comment moderation by admins - prevent comments from appearing on your site until approved.
 - Supports upvoting and downvoting, along with flagging inappropriate comments.
 - Front-end editing and deleting of comment for logged in users.
-- Ready-to-go, single template tag for full comments list and reply form. Complete with CSS and Ajax-driven, vanilla Javascript.
-- Template override folder, so you can completely customise your own comment forms and front-end resources.
+- Ready-to-go, single template tag for full comments list and reply forms.
+- Template override folder, so you can completely customise your own comment forms.
+- [Full-featured examples](https://github.com/engram-design/Comments/tree/master/examples) including CSS and JS to get started quickly.
 - Comments can be made on any element type (entries, users, assets, etc).
 - Set permissions for each element (and element type) to allow or disable comments.
-- Plenty of settings to customise just about everything.
 
 ## Documentation
 

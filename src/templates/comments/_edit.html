@@ -1,0 +1,155 @@
+{% extends 'comments/_layouts' %}
+{% import '_includes/forms' as forms %}
+
+{% set crumbs = [
+    { label: 'Comments' | t('comments'), url: url('comments') },
+    { label: 'Edit' | t('comments'), url: url('comments/edit' ~ comment.id) },
+] %}
+
+{% set title = 'Edit Comment' %}
+{% set fullPageForm = true %}
+{% set noTabs = true %}
+{% set continueEditingUrl = 'comments/edit/' ~ comment.id %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+
+{% block actionButton %}
+
+<div class="btngroup">
+    <input type="submit" class="btn submit" value="{{ 'Save' | t('app') }}">
+
+    <div class="btn submit menubtn"></div>
+    <div class="menu">
+        <ul>
+            <li>
+                <a class="formsubmit" data-redirect="{{ continueEditingUrl | hash }}">
+                    {{ forms.optionShortcutLabel('S') }}
+                    {{ "Save and continue editing" | t('app') }}
+                </a>
+            </li>
+        </ul>
+
+        {% if currentUser.can('commentsDelete') %}
+            <hr>
+            <ul>
+                <li><a class="formsubmit error" data-action="comments/comments/delete-comment" data-confirm="{{ 'Are you sure you want to delete this comment?' | t('comments') }}" data-redirect="comments">{{ 'Delete' | t('app') }}</a></li>
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<input type="hidden" name="action" value="comments/comments/save-comment">
+<input type="hidden" name="commentId" value="{{ comment.id }}">
+{{ redirectInput('comments') }}
+
+<div id="comment">
+    {{ forms.textAreaField({
+        first: true,
+        label: 'Comment' | t('comments'),
+        id: 'comment',
+        name: 'fields[comment]',
+        rows: '10',
+        value: comment.comment ?? '',
+        errors: comment.getErrors('comment') ?? '',
+    }) }}
+
+    <hr/>
+
+    <div id="items" class="">
+        <h2>{{ 'Replies' | t('comments') }}</h2>
+
+        {% if comment.hasDescendants %}
+            {% set repliesElementAttr = {
+                elementType: className(comment),
+                disabledElementIds: null,
+                attributes: {
+                    id: ['id', { label: 'Comment' | t('comments') }],
+                    dateCreated: ['dateCreated', { label: 'Date' | t('comments') }],
+                },
+                elements: comment.children.all(),
+                showCheckboxes: false,
+                structureEditable: false,
+            } %}
+
+            <div class="elementindex">
+                {% include '_elements/tableview/container' with repliesElementAttr %}
+            </div>
+        {% else %}
+            <p><em>{{ 'No replies for this comment' | t('comments') }}</em></p>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block details %}
+
+<div class="meta comments-meta">
+    <h5>{{ 'Status' | t('comments') }}</h5>
+    <input type="hidden" name="status" value="{{ comment.status }}" />
+
+    <div class="btn menubtn statusmenubtn">
+        <span class="status {{ comment.status }}"></span>{{ comment.status | capitalize }}
+    </div>
+
+    <div class="menu status-settings">
+        <ul class="padded">
+            {% for status, label in comment.statuses %}
+                <li>
+                    <a data-status="{{ status }}" {{ (status == comment.status) ? 'class="sel"' : '' }}>
+                        <span class="status {{ status }}"></span>{{ label }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <hr/>
+
+    <h5 class="first">{{ "User" | t('comments') }}</h5>
+
+    {% if comment.userId and craft.users %}
+        {% set user = craft.users.id(comment.userId).one() %}
+
+        <p><a class="go" href="{{ user.cpEditUrl }}">{{ user.getFriendlyName() }}</a></p>
+    {% else %}
+        <p>{{ comment.name }} ({{ comment.email }})</p>
+    {% endif %}
+
+    <hr/>
+
+    <h5>{{ 'Element' | t('comments') }}</h5>
+
+    {% if comment.owner %}
+        <p>
+            <a class="go" href="{{ comment.owner.cpEditUrl }}">
+                {{ comment.owner.title }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr/>
+
+    <h5>{{ 'URL' | t('comments') }}</h5>
+    <p>{{ comment.url }}</p>
+
+    <h5>{{ 'IP Address' | t('comments') }}</h5>
+    <p>{{ comment.ipAddress }}</p>
+
+    <h5>{{ 'User Agent' | t('comments') }}</h5>
+    <p>{{ comment.userAgent }}</p>
+
+    <hr/>
+
+    <h5>{{ 'Created Date' | t('comments') }}</h5>
+    <p>{{ comment.dateCreated | date('short') }} {{ comment.dateCreated | time('short') }}</p>
+
+    <h5>{{ 'Updated Date' | t('comments') }}</h5>
+    <p>{{ comment.dateUpdated | date('short') }} {{ comment.dateUpdated | time('short') }}</p>
+</div>
+
+{% endblock %}

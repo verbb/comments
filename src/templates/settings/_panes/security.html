@@ -1,0 +1,45 @@
+{% import '_includes/forms' as forms %}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: 'Enable spam checks' | t('comments'),
+    instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t('comments'),
+    name: 'enableSpamChecks',
+    on: settings.enableSpamChecks,
+}) }}
+
+<hr>
+
+{{ forms.textField({
+    first: true,
+    label: 'Minimum time between comments' | t('comments'),
+    instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t('comments'),
+    name: 'securityFlooding',
+    value: settings.securityFlooding,
+}) }}
+
+<hr>
+
+{{ forms.textareaField({
+    label: "Comment Moderation" | t('comments'),
+    name: 'securityModeration',
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    rows: 10,
+    value: settings.securityModeration,
+}) }}
+
+{{ forms.textareaField({
+    label: "Comment Blacklist" | t('comments'),
+    name: 'securityBlacklist',
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    rows: 10,
+    value: settings.securityBlacklist,
+}) }}
+
+{{ forms.textareaField({
+    label: "Comment Banned" | t('comments'),
+    name: 'securityBanned',
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    rows: 10,
+    value: settings.securityBanned,
+}) }}

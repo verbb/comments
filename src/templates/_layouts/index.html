@@ -1,0 +1,44 @@
+{% extends parentLayout ?? '_layouts/cp' %}
+
+{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+
+{% if noTabs is not defined %}
+    {% set tabs = {
+        comments: { label: 'Comments' | t('comments'), url: url('comments') },
+        settings: { label: 'Settings' | t('comments'), url: url('comments/settings') },
+    } %}
+{% endif %}
+
+{% if title is not defined %}
+    {% set title = 'Comments ' ~ tabs[selectedTab].label %}
+{% endif %}
+
+{% set content %}
+    {% block blockContent %}
+
+    {% endblock %}
+
+    <hr>
+    
+    <div id="plugin-footer">
+        <div class="footer-left">
+            {% block footerButton %}
+
+            {% endblock %}
+        </div>
+
+        <div class="footer-right">
+            <a class="plugin-credit" href="https://verbb.io" target="_blank">
+                <span class="credit-love">Made with <span style="color: #e25555;">&#9829;</span> by</span>
+
+                <div class="credit-pill">
+                    <div class="credit-mask">
+                        <div class="credit-wrap">
+                            {% include 'comments/_svg/verbb-logo.svg' %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endset %}
