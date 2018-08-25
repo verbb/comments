@@ -14,12 +14,12 @@ class CommentsPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.4.9';
+        return '0.5.0';
     }
 
     public function getSchemaVersion()
     {
-        return '1.0.0';
+        return '1.0.5.0';
     }
 
     public function getDeveloper()
@@ -110,6 +110,9 @@ class CommentsPlugin extends BasePlugin
 
     public function onAfterInstall()
     {
+
+    	parent::onAfterInstall();
+
         // Comments are a Structure, which helps with hierarchy-goodness.
         // We only use a single structure for all our comments so store this at the plugin settings level
         if (!$this->getSettings()->structureId) {
@@ -120,9 +123,22 @@ class CommentsPlugin extends BasePlugin
             // Update our plugin settings straight away!
             craft()->plugins->savePluginSettings($this, array('structureId' => $structure->id));
         }
+
     }
 
-    public function init()
+    public function onBeforeUninstall()
+	{
+
+		parent::onBeforeUninstall();
+
+		// Delete the Comments structure
+		if ($this->getSettings()->structureId) {
+			craft()->structures->deleteStructureById($this->getSettings()->structureId);
+		}
+
+	}
+
+	public function init()
     {
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
