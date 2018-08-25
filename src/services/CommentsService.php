@@ -45,7 +45,7 @@ class CommentsService extends Component
 
         $query = $this->fetch($criteria);
         $query->level('1');
-        $query->orderBy('elements.dateCreated desc');
+        $query->orderBy('commentDate desc');
 
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . rand();
@@ -155,7 +155,7 @@ class CommentsService extends Component
         // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
         if ($settings->autoCloseDays) {
             $now = new DateTime('now');
-            $interval = $now->diff($element->dateCreated);
+            $interval = $now->diff($element->commentDate);
 
             if ($interval->d > $settings->autoCloseDays) {
                 return true;

@@ -40,6 +40,7 @@ class Comment extends Element
     public $url;
     public $ipAddress;
     public $userAgent;
+    public $commentDate;
 
     public $newParentId;
     private $_hasNewParent;
@@ -200,7 +201,7 @@ class Comment extends Element
 
     public function getTimeAgo()
     {
-        return (new Carbon($this->dateCreated->format('c')))->diffForHumans();
+        return (new Carbon($this->commentDate->format('c')))->diffForHumans();
     }
 
     public function isGuest()
@@ -513,7 +514,7 @@ class Comment extends Element
     {
         return [
             'comment' => ['label' => Craft::t('comments', 'Comment')],
-            'dateCreated' => ['label' => Craft::t('comments', 'Date')],
+            'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
         ];
     }
@@ -525,8 +526,8 @@ class Comment extends Element
             'comment' => Craft::t('comments', 'Comment'),
             [
                 'label' => Craft::t('comments', 'Date'),
-                'orderBy' => 'elements.dateCreated',
-                'attribute' => 'dateCreated'
+                'orderBy' => 'elements.commentDate',
+                'attribute' => 'commentDate'
             ],
             'ownerId' => Craft::t('comments', 'Element'),
         ];

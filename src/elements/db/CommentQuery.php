@@ -22,6 +22,7 @@ class CommentQuery extends ElementQuery
     public $url;
     public $ipAddress;
     public $userAgent;
+    public $commentDate;
 
     public $parentId;
 
@@ -44,8 +45,7 @@ class CommentQuery extends ElementQuery
             'comments_comments.comment',
             'comments_comments.ipAddress',
             'comments_comments.userAgent',
-            'comments_comments.dateCreated',
-            'comments_comments.dateUpdated',
+            'comments_comments.commentDate',
         ]);
 
         if ($this->ownerId) {
@@ -84,8 +84,8 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('comments_comments.userAgent', $this->userAgent));
         }
 
-        if ($this->dateCreated) {
-            $this->subQuery->andWhere(Db::parseDateParam('comments_comments.dateCreated', $this->dateCreated));
+        if ($this->commentDate) {
+            $this->subQuery->andWhere(Db::parseDateParam('comments_comments.commentDate', $this->commentDate));
         }
 
         return parent::beforePrepare();

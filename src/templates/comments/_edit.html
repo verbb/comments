@@ -67,7 +67,7 @@
                 disabledElementIds: null,
                 attributes: {
                     id: ['id', { label: 'Comment' | t('comments') }],
-                    dateCreated: ['dateCreated', { label: 'Date' | t('comments') }],
+                    commentDate: ['commentDate', { label: 'Date' | t('comments') }],
                 },
                 elements: comment.children.all(),
                 showCheckboxes: false,
@@ -146,7 +146,7 @@
     <hr/>
 
     <h5>{{ 'Created Date' | t('comments') }}</h5>
-    <p>{{ comment.dateCreated | date('short') }} {{ comment.dateCreated | time('short') }}</p>
+    <p>{{ comment.commentDate | date('short') }} {{ comment.commentDate | time('short') }}</p>
 
     <h5>{{ 'Updated Date' | t('comments') }}</h5>
     <p>{{ comment.dateUpdated | date('short') }} {{ comment.dateUpdated | time('short') }}</p>

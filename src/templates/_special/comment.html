@@ -25,7 +25,7 @@
                 {% if comment.can('showTimeAgo') %}
                     <div class="cc-ll">
                         <span class="cc-ll-i">
-                            <a class="cc-i-share cc-dot" href="{{ craft.app.request.url }}#comment-{{ comment.id }}"><time itemprop="commentTime" title="{{ comment.dateCreated | date('D M j Y H:i:s \\G\\M\\TO (T)') }}" datetime="{{ comment.dateCreated | date('c') }}"><small>{{ comment.timeAgo | trim }}</small></time></a>
+                            <a class="cc-i-share cc-dot" href="{{ craft.app.request.url }}#comment-{{ comment.id }}"><time itemprop="commentTime" title="{{ comment.commentDate | date('D M j Y H:i:s \\G\\M\\TO (T)') }}" datetime="{{ comment.commentDate | date('c') }}"><small>{{ comment.timeAgo | trim }}</small></time></a>
                         </span>
                     </div>
                 {% endif %}

@@ -38,14 +38,14 @@ class SecurityService extends Component
 
             // Lookup last comment from this user (real or anon)
             if ($comment->userId) {
-                $lastComment = Comment::findOne(['orderBy' => 'elements.dateCreated desc', 'userId' => $comment->userId]);
+                $lastComment = Comment::findOne(['orderBy' => 'commentDate desc', 'userId' => $comment->userId]);
             } else {
-                $lastComment = Comment::findOne(['orderBy' => 'elements.dateCreated desc', 'email' => $comment->email]);
+                $lastComment = Comment::findOne(['orderBy' => 'commentDate desc', 'email' => $comment->email]);
             }
 
             // Maybe this is a new user, never commented before?
             if ($lastComment) {
-                $lastCommentTime = $lastComment->dateCreated;
+                $lastCommentTime = $lastComment->commentDate;
                 $newCommentTime = new DateTime('now');
                 $seconds = abs($newCommentTime->getTimestamp() - $lastCommentTime->getTimestamp());
 
