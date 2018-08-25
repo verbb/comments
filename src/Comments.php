@@ -86,6 +86,16 @@ class Comments extends Plugin
         }
     }
 
+    public function beforeUninstall(): bool
+    {
+        // Clean up structure
+        if ($this->getSettings()->structureId) {
+            Craft::$app->getStructures()->deleteStructureById($this->getSettings()->structureId);
+        }
+
+        return true;
+    }
+
     public function registerCpUrlRules(RegisterUrlRulesEvent $event)
     {
         $rules = [
