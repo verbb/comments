@@ -154,6 +154,13 @@ class Comment extends Element
     // Public Methods
     // =========================================================================
 
+    public function datetimeAttributes(): array
+    {
+        $attributes = parent::datetimeAttributes();
+        $attributes[] = 'commentDate';
+        return $attributes;
+    }
+
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl('comments/edit/' . $this->id);
@@ -447,6 +454,7 @@ class Comment extends Element
         } else {
             $record = new CommentRecord();
             $record->id = $this->id;
+            $record->commentDate = new \DateTime();
         }
 
         $record->ownerId = $this->ownerId;
