@@ -1,15 +1,10 @@
 <?php
 namespace verbb\comments\migrations;
 
-use craft\commerce\elements\Order;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
-use craft\commerce\fields\Customer;
-use craft\commerce\fields\Products;
-use craft\commerce\widgets\Orders;
-use craft\commerce\widgets\Revenue;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
+use craft\db\Query;
+
+use yii\db\Expression;
 
 class m180826_000000_add_comment_date_column extends Migration
 {
@@ -19,9 +14,7 @@ class m180826_000000_add_comment_date_column extends Migration
         $this->addColumn('{{%comments_comments}}', 'commentDate', $this->dateTime()->after('userAgent')->notNull());
 
         // For existing records, backfill the new column with the existing values from dateCreated
-        Craft::$app->getDb()->createCommand()
-            ->update('{{%comments_comments}}', ['commentDate' => 'dateCreated'])
-            ->execute();
+        $this->update('{{%comments_comments}}', ['commentDate' => new Expression('dateCreated')]);
 
         return true;
     }

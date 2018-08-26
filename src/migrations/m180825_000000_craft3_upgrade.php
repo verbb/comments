@@ -1,13 +1,7 @@
 <?php
 namespace verbb\comments\migrations;
 
-use craft\commerce\elements\Order;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
-use craft\commerce\fields\Customer;
-use craft\commerce\fields\Products;
-use craft\commerce\widgets\Orders;
-use craft\commerce\widgets\Revenue;
+use Craft;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
 

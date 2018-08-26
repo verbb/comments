@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "A Craft CMS plugin for managing comments directly within the CMS.",
     "type": "craft-plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": [
         "craft",
         "cms",
@@ -37,7 +37,7 @@
     "extra": {
         "name": "Comments",
         "handle": "comments",
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.0.1",
         "hasCpSettings": true,
         "hasCpSection": true,
         "changelogUrl": "https://raw.githubusercontent.com/verbb/comments/craft-3/CHANGELOG.md",
