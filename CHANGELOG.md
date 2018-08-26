@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.1 - 2018-08-26
+
+### Changed
+- Switch from `dateCreated` to `commentDate`
+- Remove on-delete cascades for owner users and elements. If a user or owner element is deleted, their respective comments won't also be deleted.
+
+### Fixed
+- Ensure structure is cleaned up after uninstall
+- Removed craft 2 plugin that stuck around (wha?)
+
+
 ## 1.0.0 - 2018-08-25
 
 ### Added
