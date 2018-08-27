@@ -3,7 +3,7 @@
         <figure class="cc-i-figure">
             <p class="cc-i-image">
                 {% if currentUser and currentUser.getPhoto() %}
-                    <img src="{{ currentUser.getPhoto().url({ width: 64, height: 64, mode: 'fit' }) }} }}" />
+                    <img src="{{ currentUser.getPhoto().url({ width: 64, height: 64, mode: 'fit' }) }}" />
                 {% elseif settings.placeholderAvatar %}
                     <img src="{{ settings.getPlaceholderAvatar().url({ width: 64, height: 64, mode: 'fit' }) }}" />
                 {% else %}
