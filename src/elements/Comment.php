@@ -13,6 +13,7 @@ use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
+use craft\helpers\DateTimeHelper;
 
 use Carbon\Carbon;
 use TheIconic\NameParser\Parser;
@@ -470,6 +471,7 @@ class Comment extends Element
         $record->save(false);
 
         $this->id = $record->id;
+        $this->commentDate = DateTimeHelper::toDateTime($record->commentDate);
 
         if ($isNew) {
             // Should we send a Notification email to the author of this comment?
