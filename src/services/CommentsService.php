@@ -44,6 +44,7 @@ class CommentsService extends Component
         $view->setTemplatesPath($templatePath);
 
         $query = $this->fetch($criteria);
+        $query->ownerId($elementId);
         $query->level('1');
         $query->orderBy('commentDate desc');
 
