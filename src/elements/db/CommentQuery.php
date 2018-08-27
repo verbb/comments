@@ -30,6 +30,66 @@ class CommentQuery extends ElementQuery
     // Public Methods
     // =========================================================================
 
+    public function ownerId($value)
+    {
+        $this->ownerId = $value;
+        return $this;
+    }
+
+    public function userId($value)
+    {
+        $this->userId = $value;
+        return $this;
+    }
+
+    public function status($value)
+    {
+        $this->status = $value;
+        return $this;
+    }
+
+    public function name($value)
+    {
+        $this->name = $value;
+        return $this;
+    }
+
+    public function email($value)
+    {
+        $this->email = $value;
+        return $this;
+    }
+
+    public function comment($value)
+    {
+        $this->comment = $value;
+        return $this;
+    }
+
+    public function url($value)
+    {
+        $this->url = $value;
+        return $this;
+    }
+
+    public function ipAddress($value)
+    {
+        $this->ipAddress = $value;
+        return $this;
+    }
+
+    public function userAgent($value)
+    {
+        $this->userAgent = $value;
+        return $this;
+    }
+
+    public function commentDate($value)
+    {
+        $this->commentDate = $value;
+        return $this;
+    }
+
     protected function beforePrepare(): bool
     {
         $this->joinElementTable('comments_comments');
