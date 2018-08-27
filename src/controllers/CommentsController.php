@@ -153,8 +153,13 @@ class CommentsController extends Controller
         }
 
         if ($request->getAcceptsJson()) {
+            $comment = Comments::$plugin->getComments()->getCommentById($commentId);
+            $hasFlagged = Comments::$plugin->getFlags()->hasFlagged($comment, $currentUser);
+            $message = $hasFlagged ? 'Comment has been flagged.' : 'Comment has been un-flagged.';
+
             return $this->asJson([
                 'success' => true,
+                'notice' => Craft::t('comments', $message),
             ]);
         }
 
