@@ -180,12 +180,12 @@ class CommentsService extends Component
 
         // Get our recipient
         try {        
-			if ($element->getAuthor()) {
-				$recipient = $element->getAuthor();
-			}
-		} catch(\Throwable $e) {
-			Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
-		}
+            if ($element->getAuthor()) {
+                $recipient = $element->getAuthor();
+            }
+        } catch(\Throwable $e) {
+            Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
+        }
 
         // Check for Matrix and other elements which have an owner
         // if ($element->getOwner()) {
