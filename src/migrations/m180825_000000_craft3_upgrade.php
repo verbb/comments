@@ -9,6 +9,11 @@ class m180825_000000_craft3_upgrade extends Migration
 {
     public function safeUp()
     {
+        // Rename table
+        if ($this->db->tableExists('{{%comments}}')) {
+            MigrationHelper::renameTable('{{%comments}}', '{{%comments_comments}}', $this);
+        }
+
         // Cleanup columns
         $this->dropColumn('{{%comments_comments}}', 'structureId');
         $this->dropColumn('{{%comments_comments}}', 'elementType');

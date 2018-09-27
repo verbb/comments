@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 - 2018-09-17
+
+### Fixed
+- Fix missing element methods
+- Fix missing elementId in query for `render()`
+- Fix `commentDate` not being set after new comment is created (causing an error to be thrown)
+- Add flag user feedback
+- Fix migration for Craft 2 not renaming `comments` table
+
+
 ## 1.0.1 - 2018-08-26
 
 ### Changed

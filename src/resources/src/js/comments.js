@@ -314,6 +314,11 @@ Comments.Comment = Comments.Base.extend({
             data: this.serializeObject({ commentId: this.commentId }),
             success: function(xhr) {
                 this.toggleClass(this.$flagBtn.parentNode, 'has-flag');
+
+                if (xhr.notice) {
+                    console.log(xhr.notice)
+                    this.setNotifications('notice', this.$element, xhr.notice);
+                }
             }.bind(this),
             error: function(errors) {
                 this.setNotifications('error', this.$element, errors);
