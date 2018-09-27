@@ -3,7 +3,7 @@
         <figure class="cc-i-figure" itemprop="creator" itemscope itemtype="http://schema.org/Person">
             <p class="cc-i-image" itemprop="image">
                 {% if comment.author and comment.author.getPhoto() %}
-                    <img src="{{ comment.author.getPhoto().url({ width: 64, height: 64, mode: 'fit' }) }} }}" />
+                    <img src="{{ comment.author.getPhoto().url({ width: 64, height: 64, mode: 'fit' }) }}" />
                 {% elseif settings.placeholderAvatar %}
                     <img src="{{ settings.getPlaceholderAvatar().url({ width: 64, height: 64, mode: 'fit' }) }}" />
                 {% else %}
