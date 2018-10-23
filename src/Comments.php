@@ -44,32 +44,21 @@ class Comments extends Plugin
 
         $this->_setPluginComponents();
         $this->_setLogging();
-
-        // Register elements
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = Comment::class;
-        });
-
-        // Register fields
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = CommentsField::class;
-        });
-
-        // Register our CP routes
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, [$this, 'registerCpUrlRules']);
-
-        // Setup Variables class (for backwards compatibility)
-        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
-            $event->sender->set('comments', CommentsVariable::class);
-        });
-
-        Event::on(SystemMessages::class, SystemMessages::EVENT_REGISTER_MESSAGES, [$this, 'registerEmailMessages']);
-
-        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, [$this, 'registerPermissions']);
+        $this->_registerCpRoutes();
+        $this->_registerPermissions();
+        $this->_registerEmailMessages();
+        $this->_registerVariables();
+        $this->_registerFieldTypes();
+        $this->_registerElementTypes();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
         Craft::$app->view->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
+    }
+
+    public function getSettingsResponse()
+    {
+        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
     }
 
     public function afterInstall()
@@ -96,49 +85,6 @@ class Comments extends Plugin
         return true;
     }
 
-    public function registerCpUrlRules(RegisterUrlRulesEvent $event)
-    {
-        $rules = [
-            'comments/edit/<commentId:\d+>' => 'comments/comments/edit-template',
-            'comments/settings' => 'comments/base/settings',
-        ];
-
-        $event->rules = array_merge($event->rules, $rules);
-    }
-
-    public function registerEmailMessages(RegisterEmailMessagesEvent $event)
-    {
-        $messages = [
-            [
-                'key' => 'comments_author_notification',
-                'heading' => Craft::t('comments', 'comments_author_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_author_notification_subject'),
-                'body' => Craft::t('comments', 'comments_author_notification_body'),
-            ], [
-                'key' => 'comments_reply_notification',
-                'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
-                'body' => Craft::t('comments', 'comments_reply_notification_body'),
-            ]
-        ];
-
-        $event->messages = array_merge($event->messages, $messages);
-    }
-
-    public function registerPermissions(RegisterUserPermissionsEvent $event)
-    {
-        $event->permissions[Craft::t('comments', 'Comments')] = [
-            'commentsEdit' => ['label' => Craft::t('comments', 'Edit other users\' comments')],
-            'commentsTrash' => ['label' => Craft::t('comments', 'Trash other users\' comments')],
-            'commentsDelete' => ['label' => Craft::t('comments', 'Delete comments')],
-        ];
-    }
-
-    public function getSettingsResponse()
-    {
-        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
-    }
-
 
     // Protected Methods
     // =========================================================================
@@ -146,6 +92,71 @@ class Comments extends Plugin
     protected function createSettingsModel(): Settings
     {
         return new Settings();
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _registerCpRoutes()
+    {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules = array_merge($event->rules, [
+                'comments/edit/<commentId:\d+>' => 'comments/comments/edit-template',
+                'comments/settings' => 'comments/base/settings',
+            ]);
+        });
+    }
+
+    private function _registerPermissions()
+    {
+        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
+            $event->permissions[Craft::t('comments', 'Comments')] = [
+                'commentsEdit' => ['label' => Craft::t('comments', 'Edit other users\' comments')],
+                'commentsTrash' => ['label' => Craft::t('comments', 'Trash other users\' comments')],
+                'commentsDelete' => ['label' => Craft::t('comments', 'Delete comments')],
+            ];
+        });
+    }
+
+    private function _registerEmailMessages()
+    {
+        Event::on(SystemMessages::class, SystemMessages::EVENT_REGISTER_MESSAGES, function(RegisterEmailMessagesEvent $event) {
+            $event->messages = array_merge($event->messages, [
+                [
+                    'key' => 'comments_author_notification',
+                    'heading' => Craft::t('comments', 'comments_author_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_author_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_author_notification_body'),
+                ], [
+                    'key' => 'comments_reply_notification',
+                    'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_reply_notification_body'),
+                ]
+            ]);
+        });
+    }
+
+    private function _registerVariables()
+    {
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
+            $event->sender->set('comments', CommentsVariable::class);
+        });
+    }
+
+    private function _registerFieldTypes()
+    {
+        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = CommentsField::class;
+        });
+    }
+
+    private function _registerElementTypes()
+    {
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Comment::class;
+        });
     }
 
 }
