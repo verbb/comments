@@ -116,7 +116,7 @@ class Comment extends Element
             ->select(['elements.id', 'elements.type'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->groupBy(['elements.type'])
+            ->groupBy(['elements.type', 'elements.id'])
             ->all();
 
         foreach ($commentedElements as $element) {
