@@ -116,19 +116,39 @@ class Comment extends Element
             ->select(['elements.id', 'elements.type'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->groupBy(['elements.type', 'elements.id'])
             ->all();
 
         foreach ($commentedElements as $element) {
-            $key = 'elements:' . $element['id'];
+            switch ($element['type']::displayName()) {
+                case 'Entry':
+                    $displayName = 'Entries';
+                    break;
+                case 'Category':
+                    $displayName = 'Categories';
+                    break;
+                case 'Asset':
+                    $displayName = 'Assets';
+                    break;
+                case 'User':
+                    $displayName = 'Users';
+                    break;
+                default:
+                    $displayName = $element['type']::displayName();
+                    break;
+            }
 
-            $sources[$key] = ['heading' => $element['type']::displayName()];
+            $key = 'type:' . $element['type']::displayName();
+
+            $sources[$key] = ['heading' => $displayName];
 
             $sources[$key . ':all'] = [
                 'key' => $key . ':all',
-                'label' => Craft::t('comments', 'All ' . $element['type']::displayName()),
+                'label' => Craft::t('comments', 'All ' . $displayName),
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
+                'criteria' => [
+                    'ownerType' => $element['type'],
+                ],
                 'defaultSort' => ['structure', 'asc'],
             ];
         }

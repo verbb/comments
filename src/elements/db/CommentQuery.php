@@ -25,10 +25,17 @@ class CommentQuery extends ElementQuery
     public $commentDate;
 
     public $parentId;
+    public $ownerType;
 
 
     // Public Methods
     // =========================================================================
+
+    public function ownerType($value)
+    {
+        $this->ownerType = $value;
+        return $this;
+    }
 
     public function ownerId($value)
     {
@@ -146,6 +153,11 @@ class CommentQuery extends ElementQuery
 
         if ($this->commentDate) {
             $this->subQuery->andWhere(Db::parseDateParam('comments_comments.commentDate', $this->commentDate));
+        }
+
+        if ($this->ownerType) {
+            $this->subQuery->innerJoin('{{%elements}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
+            $this->subQuery->andWhere(Db::parseParam('ownerElements.type', $this->ownerType));
         }
 
         return parent::beforePrepare();
