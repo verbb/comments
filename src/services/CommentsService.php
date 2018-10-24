@@ -51,10 +51,17 @@ class CommentsService extends Component
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . rand();
 
-        $sessionVariables = [
+        $variables = [
             'baseUrl' => UrlHelper::actionUrl(),
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
+            'translations' => [
+                'reply' => Craft::t('comments', 'Reply'),
+                'close' => Craft::t('comments', 'Close'),
+                'edit' => Craft::t('comments', 'Edit'),
+                'save' => Craft::t('comments', 'Save'),
+                'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
+            ]
         ];
 
         // Build our complete form
@@ -70,7 +77,7 @@ class CommentsService extends Component
         if ($settings->outputDefaultJs) {
             $view->registerJs('new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
-                Json::encode($sessionVariables, JSON_UNESCAPED_UNICODE) .
+                Json::encode($variables, JSON_UNESCAPED_UNICODE) .
             ');', $view::POS_END);
         }
 

@@ -9,6 +9,8 @@
 
 Comments = {};
 
+Comments.translations = {};
+
 Comments.Base = Base.extend({
     addClass: function(el, className) {
         if (el.classList) {
@@ -165,6 +167,9 @@ Comments.Base = Base.extend({
             }.bind(this)
         });
     },
+    t: function(key) {
+        return (Comments.translations.hasOwnProperty(key)) ? Comments.translations[key] : '';
+    },
 });
 
 Comments.Instance = Comments.Base.extend({
@@ -178,6 +183,7 @@ Comments.Instance = Comments.Base.extend({
         Comments.baseUrl = settings.baseUrl + '/comments/comments/';
         Comments.csrfTokenName = settings.csrfTokenName;
         Comments.csrfToken = settings.csrfToken;
+        Comments.translations = settings.translations;
 
         this.$commentsContainer = $container.querySelector('[data-role="comments"]');
         this.$baseForm = $container.querySelector('[data-role="form"]');
@@ -234,19 +240,6 @@ Comments.Comment = Comments.Base.extend({
         this.$upvoteBtn = $element.querySelector('[data-action="upvote"]');
         this.$downvoteBtn = $element.querySelector('[data-action="downvote"]');
 
-        // Store translations for labels
-        if (this.$replyBtn) {
-            this.replyBtnLabels = this.$replyBtn.getAttribute('data-labels').split('|');
-        }
-
-        if (this.$editBtn) {
-            this.editBtnLabels = this.$editBtn.getAttribute('data-labels').split('|');
-        }
-
-        if (this.$deleteBtn) {
-            this.deleteConfirmLabel = this.$deleteBtn.getAttribute('data-labels');
-        }
-
         // Additional classes
         this.replyForm = new Comments.ReplyForm(this);
         this.editForm = new Comments.EditForm(this);
@@ -266,10 +259,10 @@ Comments.Comment = Comments.Base.extend({
         e.preventDefault();
 
         if (this.replyForm.isOpen) {
-            this.$replyBtn.innerHTML = this.replyBtnLabels[0] || '';
+            this.$replyBtn.innerHTML = this.t('reply');
             this.replyForm.closeForm();
         } else {
-            this.$replyBtn.innerHTML = this.replyBtnLabels[1] || '';
+            this.$replyBtn.innerHTML = this.t('close');
             this.replyForm.openForm();
         }
     },
@@ -278,10 +271,10 @@ Comments.Comment = Comments.Base.extend({
         e.preventDefault();
 
         if (this.editForm.isOpen) {
-            this.$editBtn.innerHTML = this.editBtnLabels[0] || '';
+            this.$editBtn.innerHTML = this.t('edit');
             this.editForm.closeForm();
         } else {
-            this.$editBtn.innerHTML = this.editBtnLabels[1] || '';
+            this.$editBtn.innerHTML = this.t('close');
             this.editForm.openForm();
         }
     },
@@ -291,7 +284,7 @@ Comments.Comment = Comments.Base.extend({
 
         this.clearNotifications(this.$element);
 
-        if (confirm(this.deleteConfirmLabel) == true) {
+        if (confirm(this.t('delete-confirm')) == true) {
             this.ajax(Comments.baseUrl + 'trash', {
                 method: 'POST',
                 data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId }),
@@ -437,7 +430,7 @@ Comments.ReplyForm = Comments.Base.extend({
 
                 this.instance.comments[xhr.id] = new Comments.Comment(this.instance, $newComment);
 
-                this.comment.$replyBtn.innerHTML = this.comment.replyBtnLabels[0] || '';
+                this.comment.$replyBtn.innerHTML = this.t('reply')
 
                 this.isOpen = false;
             }
@@ -472,7 +465,7 @@ Comments.EditForm = Comments.Base.extend({
 
         // Clear and update
         form.querySelector('[name="fields[comment]"]').innerHTML = this.commentText;
-        form.querySelector('.cc-f-btn').innerHTML = 'Save';
+        form.querySelector('.cc-f-btn').innerHTML = this.t('save');
 
         // Set the value to be the id of comment we're replying to
         (form.querySelector('input[name="commentId"]') || {}).value = this.comment.commentId;
@@ -507,7 +500,7 @@ Comments.EditForm = Comments.Base.extend({
 
             this.comment.editForm = new Comments.EditForm(this.comment);
 
-            this.comment.$editBtn.innerHTML = this.comment.editBtnLabels[0] || '';
+            this.comment.$editBtn.innerHTML = this.t('edit');
 
             this.isOpen = false;
         }.bind(this));
