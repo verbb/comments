@@ -219,6 +219,7 @@ Comments.Comment = Comments.Base.extend({
         this.instance = instance;
         this.$element = $element;
         this.commentId = $element.getAttribute('data-id');
+        this.siteId = $element.getAttribute('data-site-id');
 
         this.$replyContainer = $element.querySelector('[data-role="reply"]');
         this.$repliesContainer = $element.querySelector('[data-role="replies"]');
@@ -293,7 +294,7 @@ Comments.Comment = Comments.Base.extend({
         if (confirm(this.deleteConfirmLabel) == true) {
             this.ajax(Comments.baseUrl + 'trash', {
                 method: 'POST',
-                data: this.serializeObject({ commentId: this.commentId }),
+                data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId }),
                 success: function(xhr) {
                     this.$element.parentNode.removeChild(this.$element);
                 }.bind(this),
@@ -311,7 +312,7 @@ Comments.Comment = Comments.Base.extend({
 
         this.ajax(Comments.baseUrl + 'flag', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId }),
+            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId }),
             success: function(xhr) {
                 this.toggleClass(this.$flagBtn.parentNode, 'has-flag');
 
@@ -331,7 +332,7 @@ Comments.Comment = Comments.Base.extend({
 
         this.ajax(Comments.baseUrl + 'vote', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId, upvote: true }),
+            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId, upvote: true }),
             success: function(xhr) {
                 this.vote(true);
             }.bind(this),
@@ -346,7 +347,7 @@ Comments.Comment = Comments.Base.extend({
 
         this.ajax(Comments.baseUrl + 'vote', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId, downvote: true }),
+            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId, downvote: true }),
             success: function(xhr) {
                 this.vote(false);
             }.bind(this),

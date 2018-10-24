@@ -1,4 +1,4 @@
-<article class="cc-i" id="comment-{{ comment.id }}" data-id="{{ comment.id }}" data-role="comment" itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
+<article class="cc-i" id="comment-{{ comment.id }}" data-id="{{ comment.id }}" data-site-id="{{ comment.siteId }}" data-role="comment" itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
     {% if comment.can('showAvatar') %}
         <figure class="cc-i-figure" itemprop="creator" itemscope itemtype="http://schema.org/Person">
             <p class="cc-i-image" itemprop="image">
