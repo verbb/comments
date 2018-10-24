@@ -113,8 +113,9 @@ class Comment extends Element
         ];
 
         $commentedElements = (new Query())
-            ->select(['elements.id', 'elements.type'])
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title'])
             ->from(['{{%elements}} elements'])
+            ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
             ->all();
 
@@ -148,6 +149,17 @@ class Comment extends Element
                 'structureEditable' => false,
                 'criteria' => [
                     'ownerType' => $element['type'],
+                ],
+                'defaultSort' => ['structure', 'asc'],
+            ];
+
+            $sources['elements:' . $element['ownerId']] = [
+                'key' => 'elements:' . $element['ownerId'],
+                'label' => $element['title'],
+                'structureId' => self::getStructureId(),
+                'structureEditable' => false,
+                'criteria' => [
+                    'ownerId' => $element['ownerId'],
                 ],
                 'defaultSort' => ['structure', 'asc'],
             ];
