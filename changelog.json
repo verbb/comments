@@ -4,8 +4,8 @@
         "downloadUrl": "https://github.com/verbb/comments/archive/0.5.0.zip",
         "date": "2018-10-26T00:00:00+10:00",
         "notes": [
-            "[Improved] Separate `commentDate` into its own field rather than deriving it from `dateCreated` (#81) (thanks @michaelrog)."
-            "[Improved] Add event listener to clean up structure on uninstall (#82) (thanks @michaelrog)."
+            "[Improved] Separate `commentDate` into its own field rather than deriving it from `dateCreated` (#81) (thanks @michaelrog).",
+            "[Improved] Add event listener to clean up structure on uninstall (#82) (thanks @michaelrog).",
             "[Fixed] Add foreign key so CommentRecords will track their associated ElementRecords (#83) (thanks @michaelrog)."
         ]
     },
