@@ -10,6 +10,7 @@ use Craft;
 use craft\web\Controller;
 
 use yii\web\Response;
+use yii\base\Exception;
 
 class CommentsController extends Controller
 {
@@ -270,7 +271,7 @@ class CommentsController extends Controller
 
         $commentId = $request->getParam('commentId');
         $newParentId = $request->getParam('newParentId');
-        $siteId = $request->getParam('siteId');
+        $siteId = $request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
 
         if ($commentId) {
             $comment = Comments::$plugin->comments->getCommentById($commentId, $siteId);

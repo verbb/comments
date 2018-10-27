@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.3 - 2018-10-25
+
+### Fixed
+- Improve comments index to show each commented-on element.
+- Fix SQL bug in comments index.
+- Fix error on settings for Craft Solo.
+- Properly minify in-built JS.
+- Refactor and improve translations in front-end JS.
+- Fix not passing in siteId for front-end requests, meaning multisite wasn't working.
+- Fix author photo not working (thanks @stevenvandemoortele).
+- Added try/catch block to prevent server error (thanks @skoften).
+- Fix template bug (thanks @stevenvandemoortele).
+
 ## 1.0.2 - 2018-09-17
 
 ### Fixed

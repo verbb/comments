@@ -113,22 +113,54 @@ class Comment extends Element
         ];
 
         $commentedElements = (new Query())
-            ->select(['elements.id', 'elements.type'])
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title'])
             ->from(['{{%elements}} elements'])
+            ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->groupBy(['elements.type'])
             ->all();
 
         foreach ($commentedElements as $element) {
-            $key = 'elements:' . $element['id'];
+            switch ($element['type']::displayName()) {
+                case 'Entry':
+                    $displayName = 'Entries';
+                    break;
+                case 'Category':
+                    $displayName = 'Categories';
+                    break;
+                case 'Asset':
+                    $displayName = 'Assets';
+                    break;
+                case 'User':
+                    $displayName = 'Users';
+                    break;
+                default:
+                    $displayName = $element['type']::displayName();
+                    break;
+            }
 
-            $sources[$key] = ['heading' => $element['type']::displayName()];
+            $key = 'type:' . $element['type']::displayName();
+
+            $sources[$key] = ['heading' => $displayName];
 
             $sources[$key . ':all'] = [
                 'key' => $key . ':all',
-                'label' => Craft::t('comments', 'All ' . $element['type']::displayName()),
+                'label' => Craft::t('comments', 'All ' . $displayName),
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
+                'criteria' => [
+                    'ownerType' => $element['type'],
+                ],
+                'defaultSort' => ['structure', 'asc'],
+            ];
+
+            $sources['elements:' . $element['ownerId']] = [
+                'key' => 'elements:' . $element['ownerId'],
+                'label' => $element['title'],
+                'structureId' => self::getStructureId(),
+                'structureEditable' => false,
+                'criteria' => [
+                    'ownerId' => $element['ownerId'],
+                ],
                 'defaultSort' => ['structure', 'asc'],
             ];
         }

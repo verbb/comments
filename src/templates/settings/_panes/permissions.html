@@ -27,10 +27,12 @@
                 {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
             {% endfor %}
         {% elseif element == 'craft\\elements\\User' %}
-            {% if craft.userGroups %}
-                {% for group in craft.app.userGroups.getAllGroups() %}
-                    {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
-                {% endfor %}
+            {% if CraftEdition != CraftSolo %}
+                {% if craft.userGroups %}
+                    {% for group in craft.app.userGroups.getAllGroups() %}
+                        {% set elementOptions = [{ value: group.id, label: group.name }] | merge(elementOptions) %}
+                    {% endfor %}
+                {% endif %}
             {% endif %}
         {% endif %}
 
