@@ -1,0 +1,38 @@
+[
+    {
+        "title": "Get Started",
+        "collapsable": false,
+        "children": [
+            "get-started/installation-setup",
+            "get-started/requirements"
+        ]
+    },
+    {
+        "title": "Feature Tour",
+        "collapsable": false,
+        "children": [
+            "feature-tour/example-css-js"
+        ]
+    },
+    {
+        "title": "Developers",
+        "collapsable": false,
+        "children": [
+            "developers/comment-element",
+            "developers/comment-model",
+            "developers/events-reference",
+            "developers/flag-model",
+            "developers/template-overrides",
+            "developers/template-reference",
+            "developers/vote-model"
+        ]
+    },
+    {
+        "title": "Support",
+        "collapsable": false,
+        "children": [
+            "support/get-support",
+            "support/roadmap"
+        ]
+    }
+]
