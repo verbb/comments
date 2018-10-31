@@ -68,9 +68,9 @@ class Comments_SecurityService extends BaseApplicationComponent
 
             // Lookup last comment from this user (real or anon)
             if ($comment->userId) {
-                $lastComment = craft()->comments->getCriteria(array('limit' => 1, 'order' => 'dateCreated desc', 'userId' => $comment->userId))->first();
+                $lastComment = craft()->comments->getCriteria(array('limit' => 1, 'order' => 'elements.dateCreated desc', 'userId' => $comment->userId))->first();
             } else {
-                $lastComment = craft()->comments->getCriteria(array('limit' => 1, 'order' => 'dateCreated desc', 'email' => $comment->email))->first();
+                $lastComment = craft()->comments->getCriteria(array('limit' => 1, 'order' => 'elements.dateCreated desc', 'email' => $comment->email))->first();
             }
 
             // Maybe this is a new user, never commented before?
