@@ -568,7 +568,7 @@ class Comment extends Element
             'comment' => Craft::t('comments', 'Comment'),
             [
                 'label' => Craft::t('comments', 'Date'),
-                'orderBy' => 'elements.commentDate',
+                'orderBy' => 'commentDate',
                 'attribute' => 'commentDate'
             ],
             'ownerId' => Craft::t('comments', 'Element'),
