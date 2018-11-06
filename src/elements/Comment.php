@@ -164,7 +164,7 @@ class Comment extends Element
                 'defaultSort' => ['structure', 'asc'],
             ];
         }
-        
+
         return $sources;
     }
 
@@ -196,7 +196,8 @@ class Comment extends Element
 
     public function getCpEditUrl()
     {
-        return UrlHelper::cpUrl('comments/edit/' . $this->id);
+        $site = Craft::$app->getSites()->getSiteById($this->siteId);
+        return UrlHelper::cpUrl('comments/edit/' . $this->id . '/' . $site->handle);
     }
 
     public function can($property)
@@ -235,7 +236,7 @@ class Comment extends Element
         } else {
             $excerpt = $this->comment;
         }
-        
+
         return $excerpt;
     }
 
@@ -511,7 +512,7 @@ class Comment extends Element
                 Comments::$plugin->comments->sendAuthorNotificationEmail($this);
             }
 
-            // If a reply to another comment, should we send a Notification email 
+            // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
                 Comments::$plugin->comments->sendReplyNotificationEmail($this);

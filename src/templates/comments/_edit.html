@@ -43,6 +43,7 @@
 
 <input type="hidden" name="action" value="comments/comments/save-comment">
 <input type="hidden" name="commentId" value="{{ comment.id }}">
+<input type="hidden" name="siteId" value="{{ comment.siteId }}">
 {{ redirectInput('comments') }}
 
 <div id="comment">
