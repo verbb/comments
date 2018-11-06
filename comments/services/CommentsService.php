@@ -425,7 +425,7 @@ class CommentsService extends BaseApplicationComponent
 
         if (count($recipient)) {
             // If the author and commenter are the same user - don't send
-            if ($comment->userId != $recipient->id) {
+            if ($comment->email != $recipient->email) {
                 craft()->email->sendEmailByKey($recipient, 'comments_author_notification', array(
                     'element' => $element,
                     'comment' => $comment,
@@ -447,7 +447,7 @@ class CommentsService extends BaseApplicationComponent
 
         if (count($recipient)) {
             // If the author and commenter are the same user - don't send
-            if ($comment->userId != $recipient->id) {
+            if ($comment->email != $recipient->email) {
                 craft()->email->sendEmailByKey($recipient, 'comments_reply_notification', array(
                     'element' => $element,
                     'comment' => $comment,
