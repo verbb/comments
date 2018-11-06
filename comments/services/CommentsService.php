@@ -128,6 +128,18 @@ class CommentsService extends BaseApplicationComponent
             return array('error' => $comment->getErrors());
         }
 
+        // Save the actual comment
+        $commentRecord->save(false);
+
+        // Has the parent changed?
+        if ($hasNewParent) {
+            if (!$comment->parentId) {
+                craft()->structures->appendToRoot($this->getStructureId(), $comment);
+            } else {
+                craft()->structures->append($this->getStructureId(), $comment, $parentComment);
+            }
+        }
+
         // Now that we have an element ID, save it on the other stuff
         if ($isNewComment) {
             $commentRecord->id = $comment->id;
@@ -141,18 +153,6 @@ class CommentsService extends BaseApplicationComponent
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled && $comment->parentId) {
                 $this->_sendReplyNotificationEmail($comment);
-            }
-        }
-
-        // Save the actual comment
-        $commentRecord->save(false);
-
-        // Has the parent changed?
-        if ($hasNewParent) {
-            if (!$comment->parentId) {
-                craft()->structures->appendToRoot($this->getStructureId(), $comment);
-            } else {
-                craft()->structures->append($this->getStructureId(), $comment, $parentComment);
             }
         }
 
