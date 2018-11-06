@@ -1,5 +1,15 @@
 [
     {
+        "version": "0.5.1",
+        "downloadUrl": "https://github.com/verbb/comments/archive/0.5.1.zip",
+        "date": "2018-11-06T00:00:00+10:00",
+        "notes": [
+            "[Fixed] Fix reply notifications not sending to guests.",
+            "[Fixed] Shift email notifications after comment record is saved.",
+            "[Fixed] Fix SQL error when flood control is set."
+        ]
+    },
+    {
         "version": "0.5.0",
         "downloadUrl": "https://github.com/verbb/comments/archive/0.5.0.zip",
         "date": "2018-10-26T00:00:00+10:00",
