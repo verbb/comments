@@ -19,7 +19,7 @@ class CommentsController extends Controller
 
     protected $allowAnonymous = ['actionSave'];
 
-    
+
     // Public Methods
     // =========================================================================
 
@@ -27,9 +27,10 @@ class CommentsController extends Controller
     // Control Panel
     //
 
-    public function actionEditTemplate($commentId)
+    public function actionEditTemplate($commentId, $siteHandle)
     {
-        $comment = Comments::$plugin->getComments()->getCommentById($commentId);
+        $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
 
         return $this->renderTemplate('comments/comments/_edit', [
             'comment' => $comment,
@@ -290,12 +291,12 @@ class CommentsController extends Controller
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
         $comment->siteId = $request->getParam('siteId', $comment->siteId);
         $comment->userId = ($currentUser) ? $currentUser->id : null;
-        
+
         // Other handy stuff
         $comment->url = $request->referrer;
         $comment->ipAddress = $request->getUserIP();
         $comment->userAgent = $request->getUserAgent();
-            
+
         // Handle the fields
         $comment->name = $request->getParam('fields.name', $comment->name);
         $comment->email = $request->getParam('fields.email', $comment->email);
