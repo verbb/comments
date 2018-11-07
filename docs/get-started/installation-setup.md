@@ -1,21 +1,23 @@
 # Installation & Setup
+You can install Comments via the plugin store, or through Composer.
 
-Installing Comments is as simple as any other Craft plugin - just drop the `comments` folder in your `craft/plugins` directory and install.
+### Craft Plugin Store
+To install **Comments**, navigate to the _Plugin Store_ section of your Craft control panel, search for `Comments`, and click the _Try_ button.
 
-## Installation
+### Composer
+You can also add the package to your project using Composer.
 
-1. [Download the latest version](/craft-plugins/comments/pricing) of Comments and unzip.
-2. Copy the `comments/` directory into your `craft/plugins/` directory.
-3. Inside the Craft control panel, navigate to _Settings → Plugins_.
-4. Locate the row showing the Comments plugin and click _Install_.
+1. Open your terminal and go to your Craft project:
+```
+cd /path/to/project
+```
+2. Then tell Composer to load the plugin:
+```
+composer require verbb/comments
+```
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Comments.
 
-## Settings
+## Licensing
+You can try Comments in a development environment for as long as you like. Once your site goes live, you are required to purchase a license for the plugin.
 
-- Allow anonymous comments
-- Comments require moderation
-- Template Folder Override
-- Enable flagging of comments
-- Enable voting on comments
-- Flagged comments threshold
-- Downvote comments threshold
-- Auto-close comments
+For more information, see [Craft's Commercial Plugin Licensing](https://docs.craftcms.com/v3/plugins.html#commercial-plugin-licensing).
