@@ -74,7 +74,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/developers/events-reference.md": {
+	"/docs/developers/events.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -83,7 +83,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/events-reference.html",
+		"oAP": "/docs/developers/events.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -200,6 +200,24 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"/docs/get-started/configuration.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 1,
+		"oAP": "/docs/get-started/configuration.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
 	"/docs/get-started/installation-setup.md": {
 		"cB": 0,
 		"cS": 0,
@@ -228,6 +246,24 @@
 		"ft": 4096,
 		"oA": 1,
 		"oAP": "/docs/get-started/requirements.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"/docs/getting-elements/comment-queries.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 1,
+		"oAP": "/docs/getting-elements/comment-queries.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -272,7 +308,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/templating/template-overrides.md": {
+	"/docs/template-guides/available-variables.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -281,7 +317,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/templating/template-overrides.html",
+		"oAP": "/docs/template-guides/available-variables.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -290,7 +326,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/templating/template-reference.md": {
+	"/docs/template-guides/template-overrides.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -299,7 +335,25 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/templating/template-reference.html",
+		"oAP": "/docs/template-guides/template-overrides.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"/docs/template-guides/template-reference.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 1,
+		"oAP": "/docs/template-guides/template-reference.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,

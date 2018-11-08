@@ -1,52 +1,17 @@
 # Comment
 
-You can access comments from your templates via `craft.comments.all` which returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/elementcriteriamodel) object.
-
-```twig
-{% set comments = craft.comments.all({
-    userId: currentUser.id,
-    limit: 10,
-    status: 'pending'
-}) %}
-
-{% for comment in comments %}
-    {{ comment.comment }}
-{% endfor %}
-```
-
-### Parameters
-
-`craft.comments.all` supports the following parameters:
-
-Parameter | Description
---- | ---
-`elementId` |
-`elementType` |
-`userId` |
-`status` |
-`name` |
-`email` |
-`url` |
-`ipAddress` |
-`userAgent` |
-`comment` |
-`order` |
-
-
-
-
-# Comment Model
-
-CommentModel’s have the following attributes and methods:
+Whenever you're dealing with a comment in your template, you're actually working with a `Comment` object.
 
 ### Attributes
 
 Attribute | Description
 --- | ---
 `id` | ID of the comment.
-`element` | The element this comment was made on (Entry, Asset, etc).
-`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For anonymous, this will still return a new UserModel, with their email, first/last name attributes populated.
-`parent` | CommentModel of comment responding to. Only applicable when replying to another comment. For new comments, this will be null.
+`ownerId` | The element this comment was made on (Entry, Asset, etc).
+`owner` | The element this comment was made on (Entry, Asset, etc).
+`userId` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) ID for the author of a comment.
+`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For anonymous, this will still return a new User, with their email, first/last name attributes populated.
+`parent` | Comment object of any parent. Only applicable when replying to another comment. For new comments, this will be null.
 `status` | The status of this comment. Available values are `approved`, `pending`, `spam`, `trashed`.
 `name` | Name of the commenter. Anonymous users only.
 `email` | Email address of the commenter. Anonymous users only.
@@ -54,30 +19,49 @@ Attribute | Description
 `ipAddress` | Commenters IP Address.
 `userAgent` | Commenters User Agent.
 `comment` | The comment text.
-`flags` | A collection of [Flag](/craft-plugins/comments/docs/developers/flag) for this comment.
-`votes` | A collection of [Vote](/craft-plugins/comments/docs/developers/vote) for this comment.
-`voteCount` | The total number of votes for this comment. Takes into account downvotes and upvotes.
+`flags` | A collection of [Flag](/craft-plugins/comments/docs/developers/flag) objects for this comment.
+`votes` | A collection of [Vote](/craft-plugins/comments/docs/developers/vote) objects for this comment.
 
 ### Methods
 
 Method | Description
 --- | ---
-`canEdit()` | Returns true/false if the current user can edit this comment.
-`canTrash()` | Returns true/false if the current user can trash this comment.
 `isGuest()` | Returns true/false if a comment was made by an anonymous user.
-`isClosed()` | Comments can be closed for an element, allowing existing comments to be visible, but no new comments to be made. Editing, deleting and replying are disabled. This may also return true if you’ve set a value for ‘Auto-close comments’ in the plugin settings.
+`getTimeAgo()` | Returns a human-friendly string of how long ago a comment was made, ie: `2 min ago`.
+`getExcerpt($startPos = 0, $maxLength = 100)` | Returns an excerpt of the comment. You can also supply parameters to control length.
+`hasFlagged()` | Whether the user has already flagged a comment.
 `isFlagged()` | If a comment receives more than a certain amount of flags, `isFlagged` will be true. This limit is configurable through the plugin settings.
-`canVote()` | Returns true if the user can vote on this comment. Must be a registered user and cannot be their own comment.
-`canUpVote()` | Checks `canVote` first, then checks to see if this user has already upvoted.
-`canDownVote()` | Checks `canVote` first, then checks to see if this user has already downvoted.
 `isPoorlyRated()` | If a comment receives more than a certain amount of downvotes, `isPoorlyRated` will be true. This limit is configurable through the plugin settings.
 
-### Actions
+### Permission Methods
 
-Action | Description
+There are a number of methods for checking if the commenter can do certain tasks. Additionally, you can pass in any [Configuration](/craft-plugins/comments/docs/get-started/configuration) settings to test against.
+
+Method | Description
 --- | ---
-`trashActionUrl` | The url action end-point to trash a comment. This can be called directly, or via Ajax.
-`flagActionUrl` | The url action end-point to record a flag on a comment. This can be called directly, or via Ajax.
-`upvoteActionUrl` | The url action end-point to upvote a comment. This can be called directly, or via Ajax.
-`downvoteActionUrl` | The url action end-point to downvote a comment. This can be called directly, or via Ajax.
+`canReply()` | Returns true/false if the current user can reply to other comments.
+`canEdit()` | Returns true/false if the current user can edit this comment.
+`canTrash()` | Returns true/false if the current user can trash this comment.
+`canVote()` | Returns true if the user can vote on a comment. Must be a registered user and cannot be their own comment.
+`canFlag()` | Returns true if the user can flag a comment. Must be a registered user and cannot be their own comment.
 
+You can also use a shorthand method if you prefer:
+
+```twig
+{{ can('reply') }}
+{{ can('edit') }}
+{{ can('trash') }}
+{{ can('vote') }}
+{{ can('flag') }}
+```
+
+### Action URLs
+
+There are a number of controller endpoints for various tasks related to commenting.
+
+URL | Description
+--- | ---
+`trashUrl` | The url action end-point to trash a comment. This can be called directly, or via Ajax.
+`flagUrl` | The url action end-point to record a flag on a comment. This can be called directly, or via Ajax.
+`upvoteUrl` | The url action end-point to upvote a comment. This can be called directly, or via Ajax.
+`downvoteUrl` | The url action end-point to downvote a comment. This can be called directly, or via Ajax.

@@ -1,4 +1,4 @@
-# Events Reference
+# Events
 
 To learn more about how events work, see the [Craft documentation on events](http://buildwithcraft.com/docs/plugins/hooks-and-events#events).
 

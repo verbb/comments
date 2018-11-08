@@ -19,11 +19,19 @@
         ]
     },
     {
-        "title": "Templating",
+        "title": "Template Guides",
         "collapsable": false,
         "children": [
-            "templating/template-overrides",
-            "templating/template-reference"
+            "template-guides/available-variables",
+            "template-guides/template-overrides",
+            "template-guides/template-reference"
+        ]
+    },
+    {
+        "title": "Getting Elements",
+        "collapsable": false,
+        "children": [
+            "getting-elements/comment-queries"
         ]
     },
     {
@@ -33,7 +41,7 @@
             "developers/comment",
             "developers/flag",
             "developers/vote",
-            "developers/events-reference"
+            "developers/events"
         ]
     },
     {
