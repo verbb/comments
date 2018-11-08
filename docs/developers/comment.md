@@ -1,3 +1,40 @@
+# Comment
+
+You can access comments from your templates via `craft.comments.all` which returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/elementcriteriamodel) object.
+
+```twig
+{% set comments = craft.comments.all({
+    userId: currentUser.id,
+    limit: 10,
+    status: 'pending'
+}) %}
+
+{% for comment in comments %}
+    {{ comment.comment }}
+{% endfor %}
+```
+
+### Parameters
+
+`craft.comments.all` supports the following parameters:
+
+Parameter | Description
+--- | ---
+`elementId` |
+`elementType` |
+`userId` |
+`status` |
+`name` |
+`email` |
+`url` |
+`ipAddress` |
+`userAgent` |
+`comment` |
+`order` |
+
+
+
+
 # Comment Model
 
 CommentModel’s have the following attributes and methods:
@@ -8,7 +45,7 @@ Attribute | Description
 --- | ---
 `id` | ID of the comment.
 `element` | The element this comment was made on (Entry, Asset, etc).
-`author` | [UserModel](https://craftcms.com/docs/templating/usermodel) for the author of a comment. For anonymous, this will still return a new UserModel, with their email, first/last name attributes populated.
+`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For anonymous, this will still return a new UserModel, with their email, first/last name attributes populated.
 `parent` | CommentModel of comment responding to. Only applicable when replying to another comment. For new comments, this will be null.
 `status` | The status of this comment. Available values are `approved`, `pending`, `spam`, `trashed`.
 `name` | Name of the commenter. Anonymous users only.
@@ -17,13 +54,13 @@ Attribute | Description
 `ipAddress` | Commenters IP Address.
 `userAgent` | Commenters User Agent.
 `comment` | The comment text.
-`flags` | A collection of [FlagModel’s](/craft-plugins/comments/docs/developers/flag-model) for this comment.
-`votes` | A collection of [VoteModel’s](/craft-plugins/comments/docs/developers/vote-model) for this comment.
+`flags` | A collection of [Flag](/craft-plugins/comments/docs/developers/flag) for this comment.
+`votes` | A collection of [Vote](/craft-plugins/comments/docs/developers/vote) for this comment.
 `voteCount` | The total number of votes for this comment. Takes into account downvotes and upvotes.
 
 ### Methods
 
-Attribute | Description
+Method | Description
 --- | ---
 `canEdit()` | Returns true/false if the current user can edit this comment.
 `canTrash()` | Returns true/false if the current user can trash this comment.
@@ -43,3 +80,4 @@ Action | Description
 `flagActionUrl` | The url action end-point to record a flag on a comment. This can be called directly, or via Ajax.
 `upvoteActionUrl` | The url action end-point to upvote a comment. This can be called directly, or via Ajax.
 `downvoteActionUrl` | The url action end-point to downvote a comment. This can be called directly, or via Ajax.
+

@@ -1,4 +1,4 @@
-# Vote Model
+# Vote
 
 Users can vote on a comment, which they may agree, or disagree with. Note that only logged in users should be able to vote on a comment.
 
@@ -7,7 +7,7 @@ Users can vote on a comment, which they may agree, or disagree with. Note that o
 Attribute | Description
 --- | ---
 `id` | ID of the vote.
-`comment` | The [CommentModel](/craft-plugins/comments/docs/developers/comment-model) this vote was made on.
-`user` | The [UserModel](https://craftcms.com/docs/templating/usermodel) for the user who made this vote.
+`comment` | The [Comment](/craft-plugins/comments/docs/developers/comment) this vote was made on.
+`user` | The [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the user who made this vote.
 `upvote` | If this vote was recorded as an upvote.
 `downvote` | If this vote was recorded as an downvote.

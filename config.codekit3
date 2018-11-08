@@ -56,7 +56,7 @@
 		"oO": 0,
 		"oS": 1
 		},
-	"/docs/developers/comment-element.md": {
+	"/docs/developers/comment.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -65,25 +65,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/comment-element.html",
-		"oF": 0,
-		"oFM": 0,
-		"oS": 0,
-		"pHT": 0,
-		"pME": 1,
-		"rFN": 0,
-		"uCM": 0
-		},
-	"/docs/developers/comment-model.md": {
-		"cB": 0,
-		"cS": 0,
-		"eF": 1,
-		"eL": 1,
-		"ema": 1,
-		"eSQ": 1,
-		"ft": 4096,
-		"oA": 1,
-		"oAP": "/docs/developers/comment-model.html",
+		"oAP": "/docs/developers/comment.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -110,7 +92,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/developers/flag-model.md": {
+	"/docs/developers/flag.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -119,7 +101,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/flag-model.html",
+		"oAP": "/docs/developers/flag.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -128,7 +110,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/developers/template-overrides.md": {
+	"/docs/developers/vote.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -137,7 +119,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/template-overrides.html",
+		"oAP": "/docs/developers/vote.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -146,7 +128,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/developers/template-reference.md": {
+	"/docs/feature-tour/anti-spam.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -155,7 +137,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/template-reference.html",
+		"oAP": "/docs/feature-tour/anti-spam.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -164,7 +146,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/developers/vote-model.md": {
+	"/docs/feature-tour/control-panel.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -173,7 +155,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/developers/vote-model.html",
+		"oAP": "/docs/feature-tour/control-panel.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -182,7 +164,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/feature-tour/example-css-js.md": {
+	"/docs/feature-tour/permissions.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -191,7 +173,25 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/feature-tour/example-css-js.html",
+		"oAP": "/docs/feature-tour/permissions.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"/docs/feature-tour/security.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 1,
+		"oAP": "/docs/feature-tour/security.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -272,7 +272,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/support/roadmap.md": {
+	"/docs/templating/template-overrides.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -281,7 +281,25 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/support/roadmap.html",
+		"oAP": "/docs/templating/template-overrides.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"/docs/templating/template-reference.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 1,
+		"oAP": "/docs/templating/template-reference.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,

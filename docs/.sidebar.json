@@ -11,28 +11,35 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
-            "feature-tour/example-css-js"
+            "feature-tour/control-panel",
+            "feature-tour/anti-spam",
+            "feature-tour/security",
+            "feature-tour/permissions"
+        ]
+    },
+    {
+        "title": "Templating",
+        "collapsable": false,
+        "children": [
+            "templating/template-overrides",
+            "templating/template-reference"
         ]
     },
     {
         "title": "Developers",
         "collapsable": false,
         "children": [
-            "developers/comment-element",
-            "developers/comment-model",
-            "developers/events-reference",
-            "developers/flag-model",
-            "developers/template-overrides",
-            "developers/template-reference",
-            "developers/vote-model"
+            "developers/comment",
+            "developers/flag",
+            "developers/vote",
+            "developers/events-reference"
         ]
     },
     {
         "title": "Support",
         "collapsable": false,
         "children": [
-            "support/get-support",
-            "support/roadmap"
+            "support/get-support"
         ]
     }
 ]
