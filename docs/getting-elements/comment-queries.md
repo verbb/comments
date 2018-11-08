@@ -14,7 +14,7 @@ $myQuery = \verbb\comments\elements\Comment::find();
 ```
 :::
 
-Once you’ve created a comment query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Comment](/craft-plugins/comments/docs/developers/comment) objects will be returned.
+Once you’ve created a comment query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Comment](docs:developers/comment) objects will be returned.
 
 :::tip
 See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-queries/) in the Craft docs to learn about how element queries work.
@@ -118,7 +118,7 @@ Possible values include:
 | Value | Fetches comments…
 | - | -
 | `1` | above the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | above the comment represented by the object.
+| a [Comment](docs:developers/comment) object | above the comment represented by the object.
 
 ::: code
 ```twig
@@ -166,7 +166,7 @@ $comments = \verbb\comments\elements\Comment::find()
 
 ### `asArray`
 
-Causes the query to return matching comments as arrays of data, rather than [Comment](/craft-plugins/comments/docs/developers/comment) objects.
+Causes the query to return matching comments as arrays of data, rather than [Comment](docs:developers/comment) objects.
 
 ::: code
 ```twig
@@ -358,7 +358,7 @@ Possible values include:
 | Value | Fetches comments…
 | - | -
 | `1` | below the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | below the comment represented by the object.
+| a [Comment](docs:developers/comment) object | below the comment represented by the object.
 
 ::: code
 ```twig
@@ -604,7 +604,7 @@ Possible values include:
 | Value | Fetches the comment…
 | - | -
 | `1` | after the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | after the comment represented by the object.
+| a [Comment](docs:developers/comment) object | after the comment represented by the object.
 
 ::: code
 ```twig
@@ -752,7 +752,7 @@ Possible values include:
 | Value | Fetches comments…
 | - | -
 | `1` | after the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | after the comment represented by the object.
+| a [Comment](docs:developers/comment) object | after the comment represented by the object.
 
 ::: code
 ```twig
@@ -781,7 +781,7 @@ Possible values include:
 | Value | Fetches comments…
 | - | -
 | `1` | before the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | before the comment represented by the object.
+| a [Comment](docs:developers/comment) object | before the comment represented by the object.
 
 ::: code
 ```twig
@@ -810,7 +810,7 @@ Possible values include:
 | Value | Fetches the comment…
 | - | -
 | `1` | before the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | before the comment represented by the object.
+| a [Comment](docs:developers/comment) object | before the comment represented by the object.
 
 ::: code
 ```twig
@@ -869,7 +869,7 @@ Possible values include:
 | Value | Fetches comments…
 | - | -
 | `1` | beside the comment with an ID of 1.
-| a [Comment](/craft-plugins/comments/docs/developers/comment) object | beside the comment represented by the object.
+| a [Comment](docs:developers/comment) object | beside the comment represented by the object.
 
 ::: code
 ```twig

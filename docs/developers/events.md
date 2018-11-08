@@ -6,7 +6,7 @@ To learn more about how events work, see the [Craft documentation on events](htt
 
 Raised before a comment is saved. Event handlers can prevent the comment from getting saved by setting `$event->performAction` to false.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that is about to be saved.
+Params: - comment – The [Comment](docs:developers/comment) that is about to be saved.
 
 ```php
 craft()->on('comments.onBeforeSaveComment', function($event) {
@@ -19,7 +19,7 @@ craft()->on('comments.onBeforeSaveComment', function($event) {
 
 Raised after a comment has been saved.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that has been saved.
+Params: - comment – The [Comment](docs:developers/comment) that has been saved.
 
 ```php
 craft()->on('comments.onSaveComment', function($event) {
@@ -31,7 +31,7 @@ craft()->on('comments.onSaveComment', function($event) {
 
 Raised before a comment is 'trashed'. Event handlers can prevent the comment from getting trashed by setting `$event->performAction` to false.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that is about to be trashed.
+Params: - comment – The [Comment](docs:developers/comment) that is about to be trashed.
 
 ```php
 craft()->on('comments.onBeforeTrashComment', function($event) {
@@ -44,7 +44,7 @@ craft()->on('comments.onBeforeTrashComment', function($event) {
 
 Raised after a comment has been 'trashed'.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that has been trashed.
+Params: - comment – The [Comment](docs:developers/comment) that has been trashed.
 
 ```php
 craft()->on('comments.onTrashComment', function($event) {
@@ -56,7 +56,7 @@ craft()->on('comments.onTrashComment', function($event) {
 
 Raised before a comment is flagged. Event handlers can prevent the comment from getting flagged by setting `$event->performAction` to false.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that is about to be flagged.
+Params: - comment – The [Comment](docs:developers/comment) that is about to be flagged.
 
 ```php
 craft()->on('comments_flag.onBeforeFlagComment', function($event) {
@@ -69,7 +69,7 @@ craft()->on('comments_flag.onBeforeFlagComment', function($event) {
 
 Raised after a comment has been flagged.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that has been flagged.
+Params: - comment – The [Comment](docs:developers/comment) that has been flagged.
 
 ```php
 craft()->on('comments_flag.onFlagComment', function($event) {
@@ -82,7 +82,7 @@ craft()->on('comments_flag.onFlagComment', function($event) {
 
 Raised before a comment is voted on. Event handlers can prevent the comment from getting voted on by setting `$event->performAction` to false.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that is about to be voted on.
+Params: - comment – The [Comment](docs:developers/comment) that is about to be voted on.
 
 ```php
 craft()->on('comments_vote.onBeforeVoteComment', function($event) {
@@ -95,7 +95,7 @@ craft()->on('comments_vote.onBeforeVoteComment', function($event) {
 
 Raised after a comment has been voted on.
 
-Params: - comment – The [Comment](/craft-plugins/comments/docs/developers/comment) that has been voted on.
+Params: - comment – The [Comment](docs:developers/comment) that has been voted on.
 
 ```php
 craft()->on('comments_vote.onVoteComment', function($event) {

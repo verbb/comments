@@ -4,11 +4,11 @@ The following are common methods you will want to call in your front end templat
 
 ### `craft.comments.fetch(params)`
 
-See [Comment Queries](/craft-plugins/comments/docs/getting-elements/comment-queries)
+See [Comment Queries](docs:getting-elements/comment-queries)
 
 ### `craft.comments.render(elementId, params)`
 
-See [Template Reference](/craft-plugins/comments/docs/template-guides/template-reference)
+See [Template Reference](docs:template-guides/template-reference)
 
 ### `craft.comments.protect()`
 

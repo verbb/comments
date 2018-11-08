@@ -19,8 +19,8 @@ Attribute | Description
 `ipAddress` | Commenters IP Address.
 `userAgent` | Commenters User Agent.
 `comment` | The comment text.
-`flags` | A collection of [Flag](/craft-plugins/comments/docs/developers/flag) objects for this comment.
-`votes` | A collection of [Vote](/craft-plugins/comments/docs/developers/vote) objects for this comment.
+`flags` | A collection of [Flag](docs:developers/flag) objects for this comment.
+`votes` | A collection of [Vote](docs:developers/vote) objects for this comment.
 
 ### Methods
 
@@ -35,7 +35,7 @@ Method | Description
 
 ### Permission Methods
 
-There are a number of methods for checking if the commenter can do certain tasks. Additionally, you can pass in any [Configuration](/craft-plugins/comments/docs/get-started/configuration) settings to test against.
+There are a number of methods for checking if the commenter can do certain tasks. Additionally, you can pass in any [Configuration](docs:get-started/configuration) settings to test against.
 
 Method | Description
 --- | ---

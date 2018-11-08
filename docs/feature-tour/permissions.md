@@ -2,7 +2,7 @@
 
 You can easily define what elements are allowed to have comments made on. By default, comments are enabled for all elements.
 
-![](https://raw.githubusercontent.com/engram-design/Comments/craft-2/screenshots/permissions.png)
+![](/docs/screenshots/permissions.png)
 
 As you can see from the above screenshot, you'll have access to all element groups used on your site. These are your entry sections, category groups, asset sources, user groups, and custom elements from other plugins.
 

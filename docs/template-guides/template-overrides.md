@@ -56,4 +56,4 @@ A simple form that handles both logged-in users, and anonymous users. There are 
 
 The crucial parts are the `name` attributes for form elements, along with the `elementId` and `action` hidden fields.
 
-The `craft.comments.protect()` call includes additional fields that are used to prevent spam comments being submitted. Read the [Anti-Spam](/craft-plugins/comments/docs/feature-tour/anti-spam) page for more.
+The `craft.comments.protect()` call includes additional fields that are used to prevent spam comments being submitted. Read the [Anti-Spam](docs:feature-tour/anti-spam) page for more.

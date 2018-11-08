@@ -2,7 +2,7 @@
 
 Comments are managed through a dedicated page in your Control Panel. You'll find it's very similar to editing entries or categories in Craft.
 
-![](https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/main.png)
+![](/docs/screenshots/main.png)
 
 The left-hand sidebar groups all comments by the element they were made on.
 
@@ -14,4 +14,4 @@ Clicking on the first column will take you to the a page where you can edit a co
 
 You are able to change a comment's text and status from this page.
 
-![](https://raw.githubusercontent.com/engram-design/Comments/master/screenshots/edit.png)
+![](/docs/screenshots/edit.png)

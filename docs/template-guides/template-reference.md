@@ -15,7 +15,7 @@ While the CSS and JS are an additional 7.3kb minified (2.3kb gzip), and 10.5kb m
 ### Parameters
 
 - `elementId` _(int)_ - The ID of the element to fetch comments on. Required.
-- `params` _(object)_ - Available options are any attribute of the [Comment](/craft-plugins/comments/docs/developers/comment). Optional
+- `params` _(object)_ - Available options are any attribute of the [Comment](docs:developers/comment). Optional
 
 The above would produce a form similar to the below.
 
@@ -45,8 +45,8 @@ or
 
 ### Parameters
 
--   `params` _(object)_ - Options to filter comments by. Available options are any attribute of the [Comment](/craft-plugins/comments/docs/developers/comment).
+-   `params` _(object)_ - Options to filter comments by. Available options are any attribute of the [Comment](docs:developers/comment).
 
 ## Template Overrides
 
-Of course, you can roll-your-own templates using [Template Overrides](/craft-plugins/comments/docs/templating/template-overrides).
+Of course, you can roll-your-own templates using [Template Overrides](docs:templating/template-overrides).
