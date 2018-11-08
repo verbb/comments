@@ -1,9 +1,7 @@
 # Requirements
 
 ### Craft CMS
-
-Comments requires Craft CMS 2.6 or greater.
+Comments requires Craft CMS 3.0 or greater.
 
 ### PHP
-
-Comments requires PHP 5.4 or greater.
+Comments requires PHP 7.0 or greater.
