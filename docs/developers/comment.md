@@ -28,7 +28,7 @@ Method | Description
 --- | ---
 `isGuest()` | Returns true/false if a comment was made by an anonymous user.
 `getTimeAgo()` | Returns a human-friendly string of how long ago a comment was made, ie: `2 min ago`.
-`getExcerpt($startPos = 0, $maxLength = 100)` | Returns an excerpt of the comment. You can also supply parameters to control length.
+`getExcerpt(start, length)` | Returns an excerpt of the comment. You can also supply parameters to control length.
 `hasFlagged()` | Whether the user has already flagged a comment.
 `isFlagged()` | If a comment receives more than a certain amount of flags, `isFlagged` will be true. This limit is configurable through the plugin settings.
 `isPoorlyRated()` | If a comment receives more than a certain amount of downvotes, `isPoorlyRated` will be true. This limit is configurable through the plugin settings.
