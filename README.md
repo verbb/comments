@@ -4,8 +4,6 @@
 
 Comments is a Craft CMS plugin that allows your users to comment on elements. Not a fan of using Disqus? All your comments are stored in your Craft install, and hooked up to your existing users.
 
-![](https://verbb.io/uploads/plugins/v0/comments-overview.png)
-
 ## Features
 
 - Threaded comments - users can comment on other comments.
@@ -18,6 +16,8 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Comments can be made on any element type (entries, users, assets, etc).
 - Set permissions for each element (and element type) to allow or disable comments.
 - Plenty of settings to customise just about everything.
+
+<img src="https://verbb.io/uploads/plugins/v0/comments-overview.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
 
 ## Documentation
 
