@@ -2,7 +2,7 @@
 
 Whenever you're dealing with a comment in your template, you're actually working with a `Comment` object.
 
-### Attributes
+## Attributes
 
 Attribute | Description
 --- | ---
@@ -22,7 +22,7 @@ Attribute | Description
 `flags` | A collection of [Flag](docs:developers/flag) objects for this comment.
 `votes` | A collection of [Vote](docs:developers/vote) objects for this comment.
 
-### Methods
+## Methods
 
 Method | Description
 --- | ---
@@ -33,7 +33,7 @@ Method | Description
 `isFlagged()` | If a comment receives more than a certain amount of flags, `isFlagged` will be true. This limit is configurable through the plugin settings.
 `isPoorlyRated()` | If a comment receives more than a certain amount of downvotes, `isPoorlyRated` will be true. This limit is configurable through the plugin settings.
 
-### Permission Methods
+## Permission Methods
 
 There are a number of methods for checking if the commenter can do certain tasks. Additionally, you can pass in any [Configuration](docs:get-started/configuration) settings to test against.
 
@@ -55,7 +55,7 @@ You can also use a shorthand method if you prefer:
 {{ can('flag') }}
 ```
 
-### Action URLs
+## Action URLs
 
 There are a number of controller endpoints for various tasks related to commenting.
 
