@@ -1,6 +1,4 @@
-# Template Reference
-
-## Single-line comment form
+# Comments Form
 
 By far the easiest and quickest way to setup commenting on your site. With this template tag, you can output a list of comments on a particular element, along with a form for your users to fill out to comment. It also includes an individual form for each comment, to allow direct response to another users comment.
 
@@ -21,32 +19,4 @@ The above would produce a form similar to the below.
 
 ![Comments Default Templating](/docs/screenshots/comments-default-templating.png)
 
-## Fetching comments
-
-This tag allows you to fetch comments elements according to the criteria you provide. The provides you full control over how comments are shown and organised.
-
-Note that this will return a Element Query, so you'll need to call `.all()` or `.one()` to actually perform the query.
-
-```twig
-{% set params = {
-    userId: currentUser.id,
-    limit: 10,
-    status: 'pending'
-} %}
-
-{{ craft.comments.fetch(params).all() }}
-
-or
-
-{% for entry in craft.entries.section('news').all() %}
-    Number of comments: {{ craft.comments.fetch({ ownerId: entry.id }).count() }}
-{% endfor %}
-```
-
-### Parameters
-
--   `params` _(object)_ - Options to filter comments by. Available options are any attribute of the [Comment](docs:developers/comment).
-
-## Template Overrides
-
-Of course, you can roll-your-own templates using [Template Overrides](docs:templating/template-overrides).
+You can roll-your-own templates using [Template Overrides](docs:template-guides/custom-form).

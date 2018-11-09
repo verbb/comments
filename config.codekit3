@@ -370,7 +370,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/template-guides/template-overrides.md": {
+	"/docs/template-guides/comments-form.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -379,7 +379,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/template-guides/template-overrides.html",
+		"oAP": "/docs/template-guides/comments-form.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -388,7 +388,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/template-guides/template-reference.md": {
+	"/docs/template-guides/custom-form.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -397,7 +397,7 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 1,
-		"oAP": "/docs/template-guides/template-reference.html",
+		"oAP": "/docs/template-guides/custom-form.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,

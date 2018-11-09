@@ -8,7 +8,7 @@ See [Comment Queries](docs:getting-elements/comment-queries)
 
 ### `craft.comments.render(elementId, params)`
 
-See [Template Reference](docs:template-guides/template-reference)
+See [Template Reference](docs:template-guides/comments-form)
 
 ### `craft.comments.protect()`
 
