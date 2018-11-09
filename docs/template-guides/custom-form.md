@@ -1,6 +1,6 @@
-# Template Overrides
+# Custom Form
 
-If you'd prefer to make your own templates for listing comments - go right ahead! You can either use the `craft.comments.fetch()` tag to completely write your own, or override the default templates for the single-line `render()` tag.
+If you'd prefer to make your own templates for listing comments - go right ahead! You can either use the `craft.comments.fetch()` tag to completely write your own, or override the default templates for the single-line `craft.comments.render()` tag.
 
 To override the `craft.comments.render()` tag templates, first create a folder in your Craft templates folder. Go to the Comments plugin settings, and enter this folder name in the field provided, and hit Save.
 
