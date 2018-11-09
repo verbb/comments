@@ -1,104 +1,150 @@
 # Events
 
-To learn more about how events work, see the [Craft documentation on events](http://buildwithcraft.com/docs/plugins/hooks-and-events#events).
+Events can be used to extend the functionality of Comments.
 
-#### onBeforeSaveComment
+## Comment related events
 
-Raised before a comment is saved. Event handlers can prevent the comment from getting saved by setting `$event->performAction` to false.
+### The `beforeSaveComment` event
 
-Params: - comment – The [Comment](docs:developers/comment) that is about to be saved.
+Plugins can get notified before a comment is saved. Event handlers can prevent the comment from getting sent by setting `$event->isValid` to false.
 
 ```php
-craft()->on('comments.onBeforeSaveComment', function($event) {
-    $comment = $event->params['comment'];
-    $event->performAction = false;
+use verbb\workflow\elements\Comment;
+use yii\base\Event;
+
+Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(Event $e) {
+    $comment = $event->sender;
+    $event->isValid = false;
 });
 ```
 
-#### onSaveComment
+### The `afterSaveComment` event
 
-Raised after a comment has been saved.
-
-Params: - comment – The [Comment](docs:developers/comment) that has been saved.
+Plugins can get notified after a comment has been saved
 
 ```php
-craft()->on('comments.onSaveComment', function($event) {
-    $comment = $event->params['comment'];
+use verbb\workflow\elements\Comment;
+use yii\base\Event;
+
+Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(Event $e) {
+    $comment = $event->sender;
 });
 ```
 
-#### onBeforeTrashComment
 
-Raised before a comment is 'trashed'. Event handlers can prevent the comment from getting trashed by setting `$event->performAction` to false.
+## Flag related events
 
-Params: - comment – The [Comment](docs:developers/comment) that is about to be trashed.
+### The `beforeSaveFlag` event
+
+Plugins can get notified before an flag is saved
 
 ```php
-craft()->on('comments.onBeforeTrashComment', function($event) {
-    $comment = $event->params['comment'];
-    $event->performAction = false;
+use verbb\comments\events\FlagEvent;
+use verbb\comments\services\FlagsService as Flags;
+use yii\base\Event;
+
+Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $e) {
+    // Do something
 });
 ```
 
-#### onTrashComment
+### The `afterSaveFlag` event
 
-Raised after a comment has been 'trashed'.
-
-Params: - comment – The [Comment](docs:developers/comment) that has been trashed.
+Plugins can get notified after a flag has been saved
 
 ```php
-craft()->on('comments.onTrashComment', function($event) {
-    $comment = $event->params['comment'];
+use verbb\comments\events\FlagEvent;
+use verbb\comments\services\FlagsService as Flags;
+use yii\base\Event;
+
+Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $e) {
+    // Do something
 });
 ```
 
-#### onBeforeFlagComment
+### The `beforeDeleteFlag` event
 
-Raised before a comment is flagged. Event handlers can prevent the comment from getting flagged by setting `$event->performAction` to false.
-
-Params: - comment – The [Comment](docs:developers/comment) that is about to be flagged.
+Plugins can get notified before an flag is deleted
 
 ```php
-craft()->on('comments_flag.onBeforeFlagComment', function($event) {
-    $comment = $event->params['comment'];
-    $event->performAction = false;
+use verbb\comments\events\FlagEvent;
+use verbb\comments\services\FlagsService as Flags;
+use yii\base\Event;
+
+Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $e) {
+    // Do something
 });
 ```
 
-#### onFlagComment
+### The `afterDeleteFlag` event
 
-Raised after a comment has been flagged.
-
-Params: - comment – The [Comment](docs:developers/comment) that has been flagged.
+Plugins can get notified after a flag has been deleted
 
 ```php
-craft()->on('comments_flag.onFlagComment', function($event) {
-    $comment = $event->
-    params['comment'];
+use verbb\comments\events\FlagEvent;
+use verbb\comments\services\FlagsService as Flags;
+use yii\base\Event;
+
+Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $e) {
+    // Do something
 });
 ```
 
-#### onBeforeVoteComment
 
-Raised before a comment is voted on. Event handlers can prevent the comment from getting voted on by setting `$event->performAction` to false.
+## Vote related events
 
-Params: - comment – The [Comment](docs:developers/comment) that is about to be voted on.
+### The `beforeSaveVote` event
+
+Plugins can get notified before an vote is saved
 
 ```php
-craft()->on('comments_vote.onBeforeVoteComment', function($event) {
-    $comment = $event->params['comment'];
-    $event->performAction = false;
+use verbb\comments\events\VoteEvent;
+use verbb\comments\services\VotesService as Votes;
+use yii\base\Event;
+
+Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $e) {
+    // Do something
 });
 ```
 
-#### onVoteComment
+### The `afterSaveVote` event
 
-Raised after a comment has been voted on.
-
-Params: - comment – The [Comment](docs:developers/comment) that has been voted on.
+Plugins can get notified after a vote has been saved
 
 ```php
-craft()->on('comments_vote.onVoteComment', function($event) {
-    $comment = $event->params['comment'];
+use verbb\comments\events\VoteEvent;
+use verbb\comments\services\VotesService as Votes;
+use yii\base\Event;
+
+Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $e) {
+    // Do something
+});
+```
+
+### The `beforeDeleteVote` event
+
+Plugins can get notified before an vote is deleted
+
+```php
+use verbb\comments\events\VoteEvent;
+use verbb\comments\services\VotesService as Votes;
+use yii\base\Event;
+
+Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $e) {
+    // Do something
+});
+```
+
+### The `afterDeleteVote` event
+
+Plugins can get notified after a vote has been deleted
+
+```php
+use verbb\comments\events\VoteEvent;
+use verbb\comments\services\VotesService as Votes;
+use yii\base\Event;
+
+Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $e) {
+    // Do something
 });
 ```
