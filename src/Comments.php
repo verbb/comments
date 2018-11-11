@@ -28,6 +28,13 @@ use yii\web\User;
 
 class Comments extends Plugin
 {
+    // Public Properties
+    // =========================================================================
+
+    public $schemaVersion = '1.0.1';
+    public $hasCpSettings = true;
+    public $hasCpSection = true;
+
     // Traits
     // =========================================================================
 
@@ -147,7 +154,7 @@ class Comments extends Plugin
 
     private function _registerFieldTypes()
     {
-        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsField::class;
         });
     }

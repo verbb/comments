@@ -37,9 +37,6 @@
     "extra": {
         "name": "Comments",
         "handle": "comments",
-        "schemaVersion": "1.0.1",
-        "hasCpSettings": true,
-        "hasCpSection": true,
         "changelogUrl": "https://raw.githubusercontent.com/verbb/comments/craft-3/CHANGELOG.md",
         "class": "verbb\\comments\\Comments"
     }
