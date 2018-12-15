@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4 - 2018-11-06
+
+### Fixed
+- Fix SQL error when trying to order by `commentDate`.
+- Fix error with multisite saving edit form (thanks @colinmeinke).
+
 ## 1.0.3 - 2018-10-25
 
 ### Fixed

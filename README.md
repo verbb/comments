@@ -1,7 +1,3 @@
-> 
-> ### Comments has a new home with the fine folks at Verbb. Read about it in our [blog post](https://verbb.io/blog/welcome-to-verbb).
->
-
 # Comments Plugin for Craft CMS
 
 <img width="500" src="https://verbb.io/uploads/plugins/comments/_800x455_crop_center-center/comments-social-card.png">
@@ -21,13 +17,15 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Set permissions for each element (and element type) to allow or disable comments.
 - Plenty of settings to customise just about everything.
 
+<img src="https://verbb.io/uploads/plugins/v0/comments-overview.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
+
 ## Documentation
 
 Visit the [Comments Plugin page](https://verbb.io/craft-plugins/comments) for all documentation, guides, pricing and developer resources.
 
 ## Support
 
-Get in touch with us via the [Comments Support page](https://verbb.io/craft-plugins/comments/support) or by [creating a Github issue](/verbb/comments/issues)
+Get in touch with us via the [Comments Support page](https://verbb.io/craft-plugins/comments/support) or by [creating a Github issue](https://github.com/verbb/comments/issues)
 
 <h2></h2>
 
