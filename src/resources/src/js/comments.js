@@ -211,7 +211,7 @@ Comments.Instance = Comments.Base.extend({
                 // Clear all inputs
                 (this.$baseForm.querySelector('[name="fields[name]"]') || {}).value = '';
                 (this.$baseForm.querySelector('[name="fields[email]"]') || {}).value = '';
-                (this.$baseForm.querySelector('[name="fields[comment]"]') || {}).innerHTML = '';
+                (this.$baseForm.querySelector('[name="fields[comment]"]') || {}).value = '';
 
                 // Scroll to the new comment
                 location.hash = '#comment-' + xhr.id;
