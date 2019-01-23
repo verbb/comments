@@ -16,6 +16,7 @@ use craft\helpers\UrlHelper;
 use craft\helpers\DateTimeHelper;
 
 use Carbon\Carbon;
+use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
 class Comment extends Element
@@ -37,7 +38,6 @@ class Comment extends Element
     public $status;
     public $name;
     public $email;
-    public $comment;
     public $url;
     public $ipAddress;
     public $userAgent;
@@ -45,6 +45,7 @@ class Comment extends Element
 
     public $newParentId;
     private $_hasNewParent;
+    private $comment;
 
 
     // Static Methods
@@ -198,6 +199,29 @@ class Comment extends Element
     {
         $site = Craft::$app->getSites()->getSiteById($this->siteId);
         return UrlHelper::cpUrl('comments/edit/' . $this->id . '/' . $site->handle);
+    }
+
+    public function getComment()
+    {
+        $comment = $this->comment;
+
+        // Add Emoji support
+        if ($comment !== null) {
+            $comment = LitEmoji::shortcodeToUnicode($comment);
+            $comment = trim(preg_replace('/\R/u', "\n", $comment));
+        }
+
+        return $comment;
+    }
+
+    public function setComment($comment)
+    {
+        // Add Emoji support
+        if ($comment !== null) {
+            $comment = LitEmoji::unicodeToShortcode($comment);
+        }
+
+        $this->comment = $comment;
     }
 
     public function can($property)
