@@ -604,7 +604,11 @@ class Comment extends Element
     {
         switch ($attribute) {
             case 'ownerId': {
-                $element = Craft::$app->getElements()->getElementById($this->ownerId);
+                $element = null;
+                
+                if ($this->ownerId) {
+                    $element = Craft::$app->getElements()->getElementById($this->ownerId);
+                }
 
                 if ($element == null) {
                     return Craft::t('comments', '[Deleted element]');
