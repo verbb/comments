@@ -217,6 +217,8 @@ class CommentsService extends Component
             ])
             ->setTo($recipient);
 
+        $emailSent = null;
+
         try {
             $emailSent = $message->send();
         } catch (\Throwable $e) {
