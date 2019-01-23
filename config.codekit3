@@ -606,7 +606,7 @@
 	"/src/resources/src/js/_base.js": {
 		"ft": 64,
 		"ma": 1,
-		"mi": 0,
+		"mi": 1,
 		"oA": 1,
 		"oAP": "/src/resources/dist/js/_base.js",
 		"oF": 0,
@@ -616,7 +616,7 @@
 	"/src/resources/src/js/comments-cp.js": {
 		"ft": 64,
 		"ma": 1,
-		"mi": 0,
+		"mi": 1,
 		"oA": 0,
 		"oAP": "/src/resources/dist/js/comments-cp.js",
 		"oF": 0,
@@ -626,7 +626,7 @@
 	"/src/resources/src/js/comments.js": {
 		"ft": 64,
 		"ma": 1,
-		"mi": 0,
+		"mi": 1,
 		"oA": 0,
 		"oAP": "/src/resources/dist/js/comments.js",
 		"oF": 0,
@@ -2491,7 +2491,7 @@
 		"autoOutputPathReplace2": "",
 		"autoOutputPathStyle": 2,
 		"createSourceMap": 1,
-		"minifyOutput": 0,
+		"minifyOutput": 1,
 		"syntaxCheckerStyle": 0,
 		"transpilerStyle": 0
 		},
