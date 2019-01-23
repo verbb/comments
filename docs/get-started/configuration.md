@@ -71,5 +71,5 @@ return [
 
 ## Control Panel
 
-You can also make change and configuration settings through the Control Panel by visiting Settings → Comments.
+You can also manage configuration settings through the Control Panel by visiting Settings → Comments.
 
