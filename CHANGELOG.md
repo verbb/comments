@@ -9,6 +9,7 @@
 - Fix incorrect commentDate column in flags and votes tables.
 - Fix error thrown when author emails couldn’t be sent.
 - Fix comment not being cleared once submitted (thanks @skoften).
+- Fix error in the CP when trying to refer to an element has been deleted.
 
 ## 1.0.4 - 2018-11-06
 
