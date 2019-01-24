@@ -49,8 +49,8 @@ class CommentsService extends Component
         $query->orderBy('commentDate desc');
 
         $element = Craft::$app->getElements()->getElementById($elementId);
-        $id = 'cc-w-' . rand();
-
+        $id = 'cc-w-' . $elementId;
+        
         $variables = [
             'baseUrl' => UrlHelper::actionUrl(),
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
