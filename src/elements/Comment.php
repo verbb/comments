@@ -301,6 +301,28 @@ class Comment extends Element
         }
     }
 
+    public function getAuthorName()
+    {
+        $author = $this->getAuthor();
+
+        if ($author) {
+            return $author->fullName;
+        }
+
+        return null;
+    }
+
+    public function getAuthorEmail()
+    {
+        $author = $this->getAuthor();
+
+        if ($author) {
+            return $author->email;
+        }
+
+        return null;
+    }
+
     public function getOwner()
     {
         if ($this->ownerId) {
@@ -584,6 +606,11 @@ class Comment extends Element
             'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
         ];
+    }
+
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['comment', 'name', 'email', 'authorName', 'authorEmail'];
     }
 
     protected static function defineSortOptions(): array
