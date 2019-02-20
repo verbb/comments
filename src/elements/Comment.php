@@ -620,6 +620,8 @@ class Comment extends Element
                 'attribute' => 'commentDate'
             ],
             'ownerId' => Craft::t('comments', 'Element'),
+            'email' => Craft::t('comments', 'Email'),
+            'name' => Craft::t('comments', 'Name'),
         ];
     }
 
