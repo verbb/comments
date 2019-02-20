@@ -188,7 +188,9 @@ class CommentsController extends Controller
         $downvote = $request->getParam('downvote');
         $commentId = $request->getParam('commentId');
 
-        $vote = Comments::$plugin->getVotes()->getVoteByCommentId($commentId) ?? new Vote();
+        $userId = $currentUser->id ?? null;
+
+        $vote = Comments::$plugin->getVotes()->getVoteByUser($commentId, $userId) ?? new Vote();
         $vote->commentId = $commentId;
 
         if ($upvote) {
@@ -212,7 +214,7 @@ class CommentsController extends Controller
         }
 
         // Okay if no user here, although required, the model validation will pick it up
-        $vote->userId = $currentUser->id ?? null;
+        $vote->userId = $userId;
 
         if (!Comments::$plugin->getVotes()->saveVote($vote)) {
             if ($request->getAcceptsJson()) {

@@ -40,6 +40,15 @@ class VotesService extends Component
         return $result ? new VoteModel($result) : null;
     }
 
+    public function getVoteByUser(int $commentId, $userId)
+    {
+        $result = $this->_createVotesQuery()
+            ->where(['commentId' => $commentId, 'userId' => $userId])
+            ->one();
+
+        return $result ? new VoteModel($result) : null;
+    }
+
     public function getUpvotesByCommentId(int $commentId)
     {
         return $this->_createVotesQuery()
