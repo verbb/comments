@@ -229,6 +229,11 @@ class Comment extends Element
         $this->comment = $comment;
     }
 
+    public function getRawComment()
+    {
+        return $this->comment;
+    }
+
     public function can($property)
     {
         // See if there's a plugin setting for it
@@ -463,6 +468,11 @@ class Comment extends Element
     {
         $settings = Comments::$plugin->getSettings();
 
+        // If saving via a queue (ResaveElements() for instance), skip validation
+        if ($this->scenario === Element::SCENARIO_ESSENTIALS) {
+            return parent::beforeValidate();
+        }
+
         // Let's check for spam!
         if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
             $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
@@ -611,7 +621,7 @@ class Comment extends Element
 
     protected static function defineSearchableAttributes(): array
     {
-        return ['comment', 'authorName', 'authorEmail'];
+        return ['rawComment', 'authorName', 'authorEmail'];
     }
 
     protected static function defineSortOptions(): array
