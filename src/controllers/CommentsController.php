@@ -27,13 +27,22 @@ class CommentsController extends Controller
     // Control Panel
     //
 
-    public function actionEditTemplate($commentId, $siteHandle)
+    public function actionEditComment($commentId, string $siteHandle = null)
     {
+        if (!$siteHandle) {
+            $siteHandle = Craft::$app->getSites()->getCurrentSite()->handle;
+        }
+
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
         $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
 
+        // Set the "Continue Editing" URL
+        $siteSegment = Craft::$app->getIsMultiSite() && Craft::$app->getSites()->getCurrentSite()->id != $site->id ? "/{$site->handle}" : '';
+        $continueEditingUrl = 'comments/{id}' . $siteSegment;
+
         return $this->renderTemplate('comments/comments/_edit', [
             'comment' => $comment,
+            'continueEditingUrl' => $continueEditingUrl,
         ]);
     }
 

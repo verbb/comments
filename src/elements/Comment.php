@@ -197,8 +197,13 @@ class Comment extends Element
 
     public function getCpEditUrl()
     {
-        $site = Craft::$app->getSites()->getSiteById($this->siteId);
-        return UrlHelper::cpUrl('comments/edit/' . $this->id . '/' . $site->handle);
+        $url = UrlHelper::cpUrl('comments/' . $this->id);
+
+        if (Craft::$app->getIsMultiSite()) {
+            $url .= '/' . $this->getSite()->handle;
+        }
+
+        return $url;
     }
 
     public function getComment()
