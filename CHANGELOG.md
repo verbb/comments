@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.6 - 2019-02-20
+
+### Added
+- Add email/name to sort in the CP.
+- Add searching for comment, name and email in the CP.
+
+### Changed
+- Template now produces `#cc-w-{{ elementId }}` as opposed to a random number. (thanks @skoften).
+
+### Fixed
+- Fix only being able to vote on a comment once.
+- Fix only being able to flag a comment once.
+- Fix missing `owner` query function.
+- Refactor CP routes and fix “save and continue route”, fixing an error.
+- Fix error in the CP when trying to refer to an element has been deleted.
+
 ## 1.0.5 - 2019-01-23
 
 ### Added
