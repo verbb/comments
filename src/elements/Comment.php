@@ -303,24 +303,20 @@ class Comment extends Element
 
     public function getAuthorName()
     {
-        $author = $this->getAuthor();
-
-        if ($author) {
+        if ($author = $this->getAuthor()) {
             return $author->fullName;
         }
 
-        return null;
+        return $this->name;
     }
 
     public function getAuthorEmail()
     {
-        $author = $this->getAuthor();
-
-        if ($author) {
+        if ($author = $this->getAuthor()) {
             return $author->email;
         }
 
-        return null;
+        return $this->email;
     }
 
     public function getOwner()
@@ -610,7 +606,7 @@ class Comment extends Element
 
     protected static function defineSearchableAttributes(): array
     {
-        return ['comment', 'name', 'email', 'authorName', 'authorEmail'];
+        return ['comment', 'authorName', 'authorEmail'];
     }
 
     protected static function defineSortOptions(): array
