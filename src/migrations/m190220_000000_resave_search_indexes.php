@@ -3,6 +3,7 @@ namespace verbb\comments\migrations;
 
 use verbb\comments\elements\Comment;
 
+use craft\Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\queue\jobs\ResaveElements;
