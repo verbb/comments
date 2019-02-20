@@ -40,6 +40,15 @@ class FlagsService extends Component
         return $result ? new FlagModel($result) : null;
     }
 
+    public function getFlagByUser(int $commentId, $userId)
+    {
+        $result = $this->_createFlagsQuery()
+            ->where(['commentId' => $commentId, 'userId' => $userId])
+            ->one();
+
+        return $result ? new FlagModel($result) : null;
+    }
+
     public function getFlagsByCommentId(int $commentId)
     {
         return $this->_createFlagsQuery()

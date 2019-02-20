@@ -142,11 +142,13 @@ class CommentsController extends Controller
 
         $commentId = $request->getParam('commentId');
 
-        $flag = Comments::$plugin->getFlags()->getFlagByCommentId($commentId) ?? new Flag();
+        $userId = $currentUser->id ?? null;
+
+        $flag = Comments::$plugin->getFlags()->getFlagByUser($commentId, $userId) ?? new Flag();
         $flag->commentId = $commentId;
 
         // Okay if no user here, although required, the model validation will pick it up
-        $flag->userId = $currentUser->id ?? null;
+        $flag->userId = $userId;
 
         if (!Comments::$plugin->getFlags()->toggleFlag($flag)) {
             if ($request->getAcceptsJson()) {
