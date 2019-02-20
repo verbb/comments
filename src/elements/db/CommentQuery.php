@@ -3,6 +3,7 @@ namespace verbb\comments\elements\db;
 
 use verbb\comments\elements\Comment;
 
+use craft\base\ElementInterface;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
@@ -34,6 +35,13 @@ class CommentQuery extends ElementQuery
     public function ownerType($value)
     {
         $this->ownerType = $value;
+        return $this;
+    }
+
+    public function owner(ElementInterface $owner)
+    {
+        $this->ownerId = $owner->id;
+        $this->siteId = $owner->siteId;
         return $this;
     }
 
