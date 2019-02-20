@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6.3 - 2019-02-21
+
+### Fixed
+- Fix validation being triggered when comments re-saved through queue
+
 ## 1.0.6.2 - 2019-02-20
 
 ### Fixed
