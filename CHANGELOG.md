@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6.1 - 2019-02-20
+
+### Fixed
+- Fix migration from 1.0.6.
+
 ## 1.0.6 - 2019-02-20
 
 ### Added
