@@ -118,6 +118,7 @@ class Comment extends Element
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
+            ->limit(100)
             ->all();
 
         foreach ($commentedElements as $element) {
