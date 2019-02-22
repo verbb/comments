@@ -546,7 +546,6 @@ class Comment extends Element
         } else {
             $record = new CommentRecord();
             $record->id = $this->id;
-            $record->commentDate = new \DateTime();
         }
 
         $record->ownerId = $this->ownerId;
@@ -558,6 +557,10 @@ class Comment extends Element
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
         $record->userAgent = $this->userAgent;
+
+        if (!$this->commentDate) {
+            $record->commentDate = new \DateTime();
+        }
 
         $record->save(false);
 
