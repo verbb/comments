@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.7 - 2019-02-24
+
+### Fixed
+- Add limit to comments index for large amounts of comments.
+- Fix forcing the current time on any new comment’s `commentDate`.
+- Add more checks to migrations.
+
 ## 1.0.6.3 - 2019-02-21
 
 ### Fixed
