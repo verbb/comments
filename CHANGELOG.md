@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7.1 - 2019-02-25
+
+### Fixed
+- Add more checks to migrations.
+
 ## 1.0.7 - 2019-02-24
 
 ### Fixed
