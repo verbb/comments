@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2019-03-02
+
+### Fixed
+- Fixed more migration cases from Craft 2.
+
 ## 1.1.0 - 2019-03-01
 
 ### Added
