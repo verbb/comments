@@ -15,7 +15,7 @@ class m190301_000000_check_craft2_elements extends Migration
 {
     public function safeUp()
     {
-        $this->update(Table::ELEMENTS, ['type' => Comment::class], ['type' => 'Comments_Comment']);
+        $this->update('{{%elements}}', ['type' => Comment::class], ['type' => 'Comments_Comment']);
     }
 
     public function safeDown()
