@@ -4,7 +4,7 @@
 
 ### Added
 - Add Google reCAPTCHA v3 for better spam protection.
-- Add better support for mulit-site and the owner element (the commented-upon element).
+- Add better support for multi-site and the owner element (the commented-upon element).
 
 ### Fixed
 - Fixed some migration cases from Craft 2.
