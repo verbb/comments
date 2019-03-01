@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "A Craft CMS plugin for managing comments directly within the CMS.",
     "type": "craft-plugin",
-    "version": "1.0.7.1",
+    "version": "1.1.0",
     "keywords": [
         "craft",
         "cms",
