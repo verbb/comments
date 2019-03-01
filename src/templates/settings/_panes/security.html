@@ -1,8 +1,34 @@
 {% import '_includes/forms' as forms %}
 
 {{ forms.lightswitchField({
+    label: 'Enable reCAPTCHA?' | t('comments'),
+    instructions: 'Whether to use reCAPTCHA to protect against spam submissions.' | t('comments'),
+    name: 'recaptchaEnabled',
+    on: settings.recaptchaEnabled,
+    toggle: 'recaptcha-fields',
+}) }}
+
+<div id="recaptcha-fields" class="field {{ not settings.recaptchaEnabled ? 'hidden' }}">
+    {{ forms.textField({
+        label: 'reCAPTCHA Site Key' | t('comments'),
+        name: 'recaptchaKey',
+        required: true,
+        value: settings.recaptchaKey,
+    }) }}
+
+    {{ forms.textField({
+        label: 'reCAPTCHA Secret Key' | t('comments'),
+        name: 'recaptchaSecret',
+        required: true,
+        value: settings.recaptchaSecret,
+    }) }}
+</div>
+
+<hr>
+
+{{ forms.lightswitchField({
     first: true,
-    label: 'Enable spam checks' | t('comments'),
+    label: 'Enable additional spam checks' | t('comments'),
     instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t('comments'),
     name: 'enableSpamChecks',
     on: settings.enableSpamChecks,

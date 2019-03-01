@@ -55,6 +55,8 @@ class CommentsService extends Component
             'baseUrl' => UrlHelper::actionUrl(),
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
+            'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
+            'recaptchaKey' => $settings->recaptchaKey,
             'translations' => [
                 'reply' => Craft::t('comments', 'Reply'),
                 'close' => Craft::t('comments', 'Close'),

@@ -137,6 +137,20 @@ Comments.Base = Base.extend({
             }
         }
     },
+    checkCaptcha: function(data, callback) {
+        // Only trigger if reCAPTCHA enabled
+        if (!Comments.recaptchaEnabled) {
+            return callback(data, this);
+        }
+
+        // Check for reCAPTCHA
+        grecaptcha.execute(Comments.recaptchaKey, { action: 'commentForm' }).then(function(token) {
+            // Append value to the form and proceed
+            data += '&g-recaptcha-response=' + token;
+
+            return callback(data, this);
+        });
+    },
     postForm: function(e, url, callback) {
         var $form = e.target;
         var data = this.serialize($form);
@@ -145,27 +159,29 @@ Comments.Base = Base.extend({
         this.clearNotifications($form);
         this.addClass($btn, 'loading');
 
-        this.ajax(Comments.baseUrl + url, {
-            method: 'POST',
-            data: data,
-            success: function(xhr) {
-                this.removeClass($btn, 'loading');
+        this.checkCaptcha(data, function(data) {
+            this.ajax(Comments.baseUrl + url, {
+                method: 'POST',
+                data: data,
+                success: function(xhr) {
+                    this.removeClass($btn, 'loading');
 
-                if (xhr.notice) {
-                    this.setNotifications('notice', $form, xhr.notice);
-                }
+                    if (xhr.notice) {
+                        this.setNotifications('notice', $form, xhr.notice);
+                    }
 
-                if (xhr.success) {
-                    callback(xhr);
-                } else {
+                    if (xhr.success) {
+                        callback(xhr);
+                    } else {
+                        this.setNotifications('validation', $form, xhr.errors);
+                    }
+                }.bind(this),
+                error: function(xhr) {
+                    this.removeClass($btn, 'loading');
                     this.setNotifications('validation', $form, xhr.errors);
-                }
-            }.bind(this),
-            error: function(xhr) {
-                this.removeClass($btn, 'loading');
-                this.setNotifications('validation', $form, xhr.errors);
-            }.bind(this)
-        });
+                }.bind(this)
+            });
+        }.bind(this));
     },
     t: function(key) {
         return (Comments.translations.hasOwnProperty(key)) ? Comments.translations[key] : '';
@@ -184,6 +200,8 @@ Comments.Instance = Comments.Base.extend({
         Comments.csrfTokenName = settings.csrfTokenName;
         Comments.csrfToken = settings.csrfToken;
         Comments.translations = settings.translations;
+        Comments.recaptchaEnabled = settings.recaptchaEnabled;
+        Comments.recaptchaKey = settings.recaptchaKey;
 
         this.$commentsContainer = $container.querySelector('[data-role="comments"]');
         this.$baseForm = $container.querySelector('[data-role="form"]');
