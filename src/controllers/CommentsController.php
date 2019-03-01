@@ -297,11 +297,14 @@ class CommentsController extends Controller
             $comment = new Comment();
         }
 
+        $ownerSiteId = $request->getParam('ownerSiteId', $comment->ownerSiteId);
+
         // Backward compatibility
         $ownerId = $request->getParam('ownerId');
         $elementId = $request->getParam('elementId');
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
+        $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
         $comment->siteId = $request->getParam('siteId', $comment->siteId);
         $comment->userId = ($currentUser) ? $currentUser->id : null;
 

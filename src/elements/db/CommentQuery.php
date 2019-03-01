@@ -15,6 +15,7 @@ class CommentQuery extends ElementQuery
     public $withStructure = true;
 
     public $ownerId;
+    public $ownerSiteId;
     public $userId;
     public $status = Comment::STATUS_APPROVED;
     public $name;
@@ -48,6 +49,36 @@ class CommentQuery extends ElementQuery
     public function ownerId($value)
     {
         $this->ownerId = $value;
+        return $this;
+    }
+
+    public function ownerSiteId($value)
+    {
+        $this->ownerSiteId = $value;
+
+        if ($value && strtolower($value) !== ':empty:') {
+            // A block will never exist in a site that is different than its ownerSiteId,
+            // so let's set the siteId param here too.
+            $this->siteId = (int)$value;
+        }
+
+        return $this;
+    }
+
+    public function ownerSite($value)
+    {
+        if ($value instanceof Site) {
+            $this->ownerSiteId($value->id);
+        } else {
+            $site = Craft::$app->getSites()->getSiteByHandle($value);
+
+            if (!$site) {
+                throw new Exception('Invalid site handle: ' . $value);
+            }
+
+            $this->ownerSiteId($site->id);
+        }
+
         return $this;
     }
 
@@ -112,6 +143,7 @@ class CommentQuery extends ElementQuery
         $this->query->select([
             'comments_comments.id',
             'comments_comments.ownerId',
+            'comments_comments.ownerSiteId',
             'comments_comments.userId',
             'comments_comments.status',
             'comments_comments.name',
@@ -125,6 +157,10 @@ class CommentQuery extends ElementQuery
 
         if ($this->ownerId) {
             $this->subQuery->andWhere(Db::parseParam('comments_comments.ownerId', $this->ownerId));
+        }
+
+        if ($this->ownerSiteId) {
+            $this->subQuery->andWhere(Db::parseParam('comments_comments.ownerSiteId', $this->ownerSiteId));
         }
 
         if ($this->userId) {

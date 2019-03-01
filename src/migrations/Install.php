@@ -28,6 +28,7 @@ class Install extends Migration
         $this->createTable('{{%comments_comments}}', [
             'id' => $this->primaryKey(),
             'ownerId' => $this->integer(),
+            'ownerSiteId' => $this->integer(),
             'userId' => $this->integer(),
             'status' => $this->enum('status', ['approved', 'pending', 'spam', 'trashed']),
             'comment' => $this->text(),
@@ -72,24 +73,26 @@ class Install extends Migration
     
     public function createIndexes()
     {
-        $this->createIndex($this->db->getIndexName('{{%comments_comments}}', 'id', false), '{{%comments_comments}}', 'id', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_comments}}', 'ownerId', false), '{{%comments_comments}}', 'ownerId', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_comments}}', 'userId', false), '{{%comments_comments}}', 'userId', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_flags}}', 'commentId', false), '{{%comments_flags}}', 'commentId', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_flags}}', 'userId', false), '{{%comments_flags}}', 'userId', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_votes}}', 'commentId', false), '{{%comments_votes}}', 'commentId', false);
-        $this->createIndex($this->db->getIndexName('{{%comments_votes}}', 'userId', false), '{{%comments_votes}}', 'userId', false);
+        $this->createIndex(null, '{{%comments_comments}}', 'id', false);
+        $this->createIndex(null, '{{%comments_comments}}', 'ownerId', false);
+        $this->createIndex(null, '{{%comments_comments}}', 'ownerSiteId', false);
+        $this->createIndex(null, '{{%comments_comments}}', 'userId', false);
+        $this->createIndex(null, '{{%comments_flags}}', 'commentId', false);
+        $this->createIndex(null, '{{%comments_flags}}', 'userId', false);
+        $this->createIndex(null, '{{%comments_votes}}', 'commentId', false);
+        $this->createIndex(null, '{{%comments_votes}}', 'userId', false);
     }
 
     public function addForeignKeys()
     {
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_comments}}', 'id'), '{{%comments_comments}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_comments}}', 'ownerId'), '{{%comments_comments}}', 'ownerId', '{{%elements}}', 'id', 'SET NULL', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_comments}}', 'userId'), '{{%comments_comments}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_flags}}', 'commentId'), '{{%comments_flags}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_flags}}', 'userId'), '{{%comments_flags}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_votes}}', 'commentId'), '{{%comments_votes}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%comments_votes}}', 'userId'), '{{%comments_votes}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%comments_comments}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%comments_comments}}', 'ownerId', '{{%elements}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%comments_comments}}', 'ownerSiteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%comments_comments}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%comments_flags}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%comments_flags}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%comments_votes}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%comments_votes}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
     }
     
     public function dropForeignKeys()
