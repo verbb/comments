@@ -1,4 +1,5 @@
 {% import '_includes/forms' as forms %}
+{% import 'comments/_macros' as macros %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -6,6 +7,7 @@
     instructions: 'Allow your users to upvote or downvote other users comments.' | t('comments'),
     name: 'allowVoting',
     on: settings.allowVoting,
+    warning: macros.configWarning('allowVoting', 'comments'),
 }) }}
 
 {{ forms.textField({
@@ -14,4 +16,5 @@
     name: 'downvoteCommentLimit',
     instructions: "Users can downvote a comment, which reflects if they agree or disagree with it. After the provided amount of downvotes are received for a comment, the 'isPoorlyRated' property for the comment will be true. You can then decide how to handle a comment with a poor rating." | t('comments'),
     value: settings.downvoteCommentLimit,
+    warning: macros.configWarning('downvoteCommentLimit', 'comments'),
 }) }}

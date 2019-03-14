@@ -1,4 +1,5 @@
 {% import '_includes/forms' as forms %}
+{% import 'comments/_macros' as macros %}
 
 <p>{{ 'The default templates are what is used when calling `craft.comments.render()`, and automatically outputs CSS and JS code in your templates. If you want full control over your templates, use [Custom Templates]({link}).' | t('comments', { link: url('comments/settings#tab-templates-custom') }) | md }}</p>
 
@@ -7,6 +8,7 @@
     instructions: 'Whether to show an avatar for comments. Craft users who comment will have their user profile image shown, while guests will show a placeholder (be sure to add one below).' | t('comments'),
     name: 'showAvatar',
     on: settings.showAvatar,
+    warning: macros.configWarning('showAvatar', 'comments'),
 }) }}
 
 {{ forms.elementSelectField({
@@ -27,6 +29,7 @@
     jsClass: 'Craft.AssetSelectInput',
     viewMode: 'large',
     modalStorageKey: 'comments.placeholderAvatar',
+    warning: macros.configWarning('placeholderAvatar', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
@@ -34,6 +37,7 @@
     instructions: 'Whether to show how long ago a comment was made.' | t('comments'),
     name: 'showTimeAgo',
     on: settings.showTimeAgo,
+    warning: macros.configWarning('showTimeAgo', 'comments'),
 }) }}
 
 <hr>
@@ -47,6 +51,7 @@
     instructions: 'Whether to output the default CSS for the form.' | t('comments'),
     name: 'outputDefaultCss',
     on: settings.outputDefaultCss,
+    warning: macros.configWarning('outputDefaultCss', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
@@ -54,4 +59,5 @@
     instructions: 'Whether to output the default JS for the form.' | t('comments'),
     name: 'outputDefaultJs',
     on: settings.outputDefaultJs,
+    warning: macros.configWarning('outputDefaultJs', 'comments'),
 }) }}

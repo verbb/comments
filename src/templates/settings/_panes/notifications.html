@@ -1,4 +1,5 @@
 {% import '_includes/forms' as forms %}
+{% import 'comments/_macros' as macros %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -8,7 +9,8 @@
     name: 'notificationAuthorEnabled',
     on: settings.notificationAuthorEnabled,
     onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationAuthorEnabled', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
@@ -19,5 +21,6 @@
     name: 'notificationReplyEnabled',
     on: settings.notificationReplyEnabled,
     onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationReplyEnabled', 'comments'),
 }) }}
