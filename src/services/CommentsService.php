@@ -43,10 +43,14 @@ class CommentsService extends Component
         $templatePath = $this->_getTemplatePath();
         $view->setTemplatesPath($templatePath);
 
-        $query = $this->fetch($criteria);
+        $query = Comment::find();
         $query->ownerId($elementId);
         $query->level('1');
         $query->orderBy('commentDate desc');
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
 
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
