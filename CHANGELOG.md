@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.2 - 2019-03-19
+
+### Added
+- Add override notice for settings fields.
+
+### Changed
+- Allow `render()` to override comments query properly.
+
+### Fixed
+- Fix commentDate not being set in some cases.
+
 ## 1.1.1 - 2019-03-02
 
 ### Fixed
