@@ -614,6 +614,7 @@ class Comment extends Element
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
         $record->userAgent = $this->userAgent;
+        $record->commentDate = $this->commentDate;
 
         if (!$this->commentDate) {
             $record->commentDate = new \DateTime();
