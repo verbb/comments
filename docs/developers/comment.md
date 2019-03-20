@@ -7,7 +7,8 @@ Whenever you're dealing with a comment in your template, you're actually working
 Attribute | Description
 --- | ---
 `id` | ID of the comment.
-`ownerId` | The element this comment was made on (Entry, Asset, etc).
+`ownerId` | The element ID this comment was made on (Entry, Asset, etc).
+`ownerSiteId` | The element site ID this comment was made on (Entry, Asset, etc).
 `owner` | The element this comment was made on (Entry, Asset, etc).
 `userId` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) ID for the author of a comment.
 `author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For anonymous, this will still return a new User, with their email, first/last name attributes populated.

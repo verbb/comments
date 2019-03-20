@@ -27,13 +27,22 @@ class CommentsController extends Controller
     // Control Panel
     //
 
-    public function actionEditTemplate($commentId, $siteHandle)
+    public function actionEditComment($commentId, string $siteHandle = null)
     {
+        if (!$siteHandle) {
+            $siteHandle = Craft::$app->getSites()->getCurrentSite()->handle;
+        }
+
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
         $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
 
+        // Set the "Continue Editing" URL
+        $siteSegment = Craft::$app->getIsMultiSite() && Craft::$app->getSites()->getCurrentSite()->id != $site->id ? "/{$site->handle}" : '';
+        $continueEditingUrl = 'comments/{id}' . $siteSegment;
+
         return $this->renderTemplate('comments/comments/_edit', [
             'comment' => $comment,
+            'continueEditingUrl' => $continueEditingUrl,
         ]);
     }
 
@@ -133,11 +142,13 @@ class CommentsController extends Controller
 
         $commentId = $request->getParam('commentId');
 
-        $flag = Comments::$plugin->getFlags()->getFlagByCommentId($commentId) ?? new Flag();
+        $userId = $currentUser->id ?? null;
+
+        $flag = Comments::$plugin->getFlags()->getFlagByUser($commentId, $userId) ?? new Flag();
         $flag->commentId = $commentId;
 
         // Okay if no user here, although required, the model validation will pick it up
-        $flag->userId = $currentUser->id ?? null;
+        $flag->userId = $userId;
 
         if (!Comments::$plugin->getFlags()->toggleFlag($flag)) {
             if ($request->getAcceptsJson()) {
@@ -177,7 +188,9 @@ class CommentsController extends Controller
         $downvote = $request->getParam('downvote');
         $commentId = $request->getParam('commentId');
 
-        $vote = Comments::$plugin->getVotes()->getVoteByCommentId($commentId) ?? new Vote();
+        $userId = $currentUser->id ?? null;
+
+        $vote = Comments::$plugin->getVotes()->getVoteByUser($commentId, $userId) ?? new Vote();
         $vote->commentId = $commentId;
 
         if ($upvote) {
@@ -201,7 +214,7 @@ class CommentsController extends Controller
         }
 
         // Okay if no user here, although required, the model validation will pick it up
-        $vote->userId = $currentUser->id ?? null;
+        $vote->userId = $userId;
 
         if (!Comments::$plugin->getVotes()->saveVote($vote)) {
             if ($request->getAcceptsJson()) {
@@ -284,11 +297,14 @@ class CommentsController extends Controller
             $comment = new Comment();
         }
 
+        $ownerSiteId = $request->getParam('ownerSiteId', $comment->ownerSiteId);
+
         // Backward compatibility
         $ownerId = $request->getParam('ownerId');
         $elementId = $request->getParam('elementId');
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
+        $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
         $comment->siteId = $request->getParam('siteId', $comment->siteId);
         $comment->userId = ($currentUser) ? $currentUser->id : null;
 

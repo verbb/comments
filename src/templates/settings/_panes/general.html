@@ -1,4 +1,5 @@
 {% import '_includes/forms' as forms %}
+{% import 'comments/_macros' as macros %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -6,6 +7,7 @@
     instructions: 'Anonymous users can post a comment. Their name and email will be required.' | t('comments'),
     name: 'allowAnonymous',
     on: settings.allowAnonymous,
+    warning: macros.configWarning('allowAnonymous', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
@@ -13,6 +15,7 @@
     instructions: 'All comments require manual approval before being publicly visible.' | t('comments'),
     name: 'requireModeration',
     on: settings.requireModeration,
+    warning: macros.configWarning('requireModeration', 'comments'),
 }) }}
 
 <hr>
@@ -23,5 +26,6 @@
     name: 'autoCloseDays',
     instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable." | t('comments'),
     value: settings.autoCloseDays,
+    warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}
 

@@ -39,6 +39,9 @@ class Settings extends Model
 
     // Security
     public $enableSpamChecks = true;
+    public $recaptchaEnabled = false;
+    public $recaptchaKey;
+    public $recaptchaSecret;
     public $securityFlooding;
     public $securityModeration;
     public $securityBlacklist;

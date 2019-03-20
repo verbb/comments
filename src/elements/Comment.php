@@ -8,12 +8,15 @@ use verbb\comments\records\Comment as CommentRecord;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\UrlHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\ElementHelper;
+use craft\helpers\UrlHelper;
+use craft\validators\SiteIdValidator;
 
 use Carbon\Carbon;
 use LitEmoji\LitEmoji;
@@ -34,6 +37,7 @@ class Comment extends Element
     // =========================================================================
 
     public $ownerId;
+    public $ownerSiteId;
     public $userId;
     public $status;
     public $name;
@@ -46,6 +50,7 @@ class Comment extends Element
     public $newParentId;
     private $_hasNewParent;
     private $comment;
+    private $_owner;
 
 
     // Static Methods
@@ -118,6 +123,7 @@ class Comment extends Element
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
+            ->limit(100)
             ->all();
 
         foreach ($commentedElements as $element) {
@@ -188,6 +194,21 @@ class Comment extends Element
     // Public Methods
     // =========================================================================
 
+    public function extraFields()
+    {
+        $names = parent::extraFields();
+        $names[] = 'owner';
+        return $names;
+    }
+
+    public function rules()
+    {
+        $rules = parent::rules();
+        $rules[] = [['ownerId'], 'number', 'integerOnly' => true];
+        $rules[] = [['ownerSiteId'], SiteIdValidator::class];
+        return $rules;
+    }
+
     public function datetimeAttributes(): array
     {
         $attributes = parent::datetimeAttributes();
@@ -195,10 +216,34 @@ class Comment extends Element
         return $attributes;
     }
 
+    public function getSupportedSites(): array
+    {
+        if ($this->ownerSiteId !== null) {
+            return [$this->ownerSiteId];
+        }
+
+        if (($owner = $this->getOwner())) {
+            $siteIds = [];
+
+            foreach (ElementHelper::supportedSitesForElement($owner) as $siteInfo) {
+                $siteIds[] = $siteInfo['siteId'];
+            }
+
+            return $siteIds;
+        }
+
+        return [Craft::$app->getSites()->getPrimarySite()->id];
+    }
+
     public function getCpEditUrl()
     {
-        $site = Craft::$app->getSites()->getSiteById($this->siteId);
-        return UrlHelper::cpUrl('comments/edit/' . $this->id . '/' . $site->handle);
+        $url = UrlHelper::cpUrl('comments/' . $this->id);
+
+        if (Craft::$app->getIsMultiSite()) {
+            $url .= '/' . $this->getSite()->handle;
+        }
+
+        return $url;
     }
 
     public function getComment()
@@ -222,6 +267,11 @@ class Comment extends Element
         }
 
         $this->comment = $comment;
+    }
+
+    public function getRawComment()
+    {
+        return $this->comment;
     }
 
     public function can($property)
@@ -301,11 +351,46 @@ class Comment extends Element
         }
     }
 
+    public function getAuthorName()
+    {
+        if ($author = $this->getAuthor()) {
+            return $author->fullName;
+        }
+
+        return $this->name;
+    }
+
+    public function getAuthorEmail()
+    {
+        if ($author = $this->getAuthor()) {
+            return $author->email;
+        }
+
+        return $this->email;
+    }
+
     public function getOwner()
     {
-        if ($this->ownerId) {
-            return Craft::$app->getElements()->getElementById($this->ownerId);
+        if ($this->_owner !== null) {
+            return $this->_owner !== false ? $this->_owner : null;
         }
+
+        if ($this->ownerId === null) {
+            return null;
+        }
+
+        if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
+            $this->_owner = false;
+
+            return null;
+        }
+
+        return $this->_owner;
+    }
+
+    public function setOwner(ElementInterface $owner = null)
+    {
+        $this->_owner = $owner;
     }
 
     public function canReply()
@@ -440,6 +525,11 @@ class Comment extends Element
     {
         $settings = Comments::$plugin->getSettings();
 
+        // If saving via a queue (ResaveElements() for instance), skip validation
+        if ($this->scenario === Element::SCENARIO_ESSENTIALS) {
+            return parent::beforeValidate();
+        }
+
         // Let's check for spam!
         if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
             $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
@@ -512,10 +602,10 @@ class Comment extends Element
         } else {
             $record = new CommentRecord();
             $record->id = $this->id;
-            $record->commentDate = new \DateTime();
         }
 
         $record->ownerId = $this->ownerId;
+        $record->ownerSiteId = $this->ownerSiteId;
         $record->userId = $this->userId;
         $record->status = $this->status;
         $record->name = $this->name;
@@ -524,6 +614,11 @@ class Comment extends Element
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
         $record->userAgent = $this->userAgent;
+        $record->commentDate = $this->commentDate;
+
+        if (!$this->commentDate) {
+            $record->commentDate = new \DateTime();
+        }
 
         $record->save(false);
 
@@ -586,6 +681,11 @@ class Comment extends Element
         ];
     }
 
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['rawComment', 'authorName', 'authorEmail'];
+    }
+
     protected static function defineSortOptions(): array
     {
         return [
@@ -597,6 +697,8 @@ class Comment extends Element
                 'attribute' => 'commentDate'
             ],
             'ownerId' => Craft::t('comments', 'Element'),
+            'email' => Craft::t('comments', 'Email'),
+            'name' => Craft::t('comments', 'Name'),
         ];
     }
 
@@ -604,16 +706,12 @@ class Comment extends Element
     {
         switch ($attribute) {
             case 'ownerId': {
-                $element = null;
+                $owner = $this->getOwner();
                 
-                if ($this->ownerId) {
-                    $element = Craft::$app->getElements()->getElementById($this->ownerId);
-                }
-
-                if ($element == null) {
-                    return Craft::t('comments', '[Deleted element]');
+                if ($owner) {
+                    return "<a href='" . $owner->cpEditUrl . "'>" . $owner->title . "</a>";
                 } else {
-                    return "<a href='" . $element->cpEditUrl . "'>" . $element->title . "</a>";
+                    return Craft::t('comments', '[Deleted element]');
                 }
             }
             default: {

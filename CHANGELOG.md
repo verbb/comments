@@ -1,5 +1,73 @@
 # Changelog
 
+## 1.1.2 - 2019-03-19
+
+### Added
+- Add override notice for settings fields.
+
+### Changed
+- Allow `render()` to override comments query properly.
+
+### Fixed
+- Fix commentDate not being set in some cases.
+
+## 1.1.1 - 2019-03-02
+
+### Fixed
+- Fixed more migration cases from Craft 2.
+
+## 1.1.0 - 2019-03-01
+
+### Added
+- Add Google reCAPTCHA v3 for better spam protection.
+- Add better support for multi-site and the owner element (the commented-upon element).
+
+### Fixed
+- Fixed some migration cases from Craft 2.
+
+## 1.0.7.1 - 2019-02-25
+
+### Fixed
+- Add more checks to migrations.
+
+## 1.0.7 - 2019-02-24
+
+### Fixed
+- Add limit to comments index for large amounts of comments.
+- Fix forcing the current time on any new comment’s `commentDate`.
+- Add more checks to migrations.
+
+## 1.0.6.3 - 2019-02-21
+
+### Fixed
+- Fix validation being triggered when comments re-saved through queue
+
+## 1.0.6.2 - 2019-02-20
+
+### Fixed
+- Fix migration from 1.0.6 (again).
+
+## 1.0.6.1 - 2019-02-20
+
+### Fixed
+- Fix migration from 1.0.6.
+
+## 1.0.6 - 2019-02-20
+
+### Added
+- Add email/name to sort in the CP.
+- Add searching for comment, name and email in the CP.
+
+### Changed
+- Template now produces `#cc-w-{{ elementId }}` as opposed to a random number. (thanks @skoften).
+
+### Fixed
+- Fix only being able to vote on a comment once.
+- Fix only being able to flag a comment once.
+- Fix missing `owner` query function.
+- Refactor CP routes and fix “save and continue route”, fixing an error.
+- Fix error in the CP when trying to refer to an element has been deleted.
+
 ## 1.0.5 - 2019-01-23
 
 ### Added

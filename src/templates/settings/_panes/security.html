@@ -1,11 +1,42 @@
 {% import '_includes/forms' as forms %}
+{% import 'comments/_macros' as macros %}
+
+{{ forms.lightswitchField({
+    label: 'Enable reCAPTCHA?' | t('comments'),
+    instructions: 'Whether to use reCAPTCHA to protect against spam submissions.' | t('comments'),
+    name: 'recaptchaEnabled',
+    on: settings.recaptchaEnabled,
+    toggle: 'recaptcha-fields',
+    warning: macros.configWarning('recaptchaEnabled', 'comments'),
+}) }}
+
+<div id="recaptcha-fields" class="field {{ not settings.recaptchaEnabled ? 'hidden' }}">
+    {{ forms.textField({
+        label: 'reCAPTCHA Site Key' | t('comments'),
+        name: 'recaptchaKey',
+        required: true,
+        value: settings.recaptchaKey,
+        warning: macros.configWarning('recaptchaKey', 'comments'),
+    }) }}
+
+    {{ forms.textField({
+        label: 'reCAPTCHA Secret Key' | t('comments'),
+        name: 'recaptchaSecret',
+        required: true,
+        value: settings.recaptchaSecret,
+        warning: macros.configWarning('recaptchaSecret', 'comments'),
+    }) }}
+</div>
+
+<hr>
 
 {{ forms.lightswitchField({
     first: true,
-    label: 'Enable spam checks' | t('comments'),
+    label: 'Enable additional spam checks' | t('comments'),
     instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t('comments'),
     name: 'enableSpamChecks',
     on: settings.enableSpamChecks,
+    warning: macros.configWarning('enableSpamChecks', 'comments'),
 }) }}
 
 <hr>
@@ -16,6 +47,7 @@
     instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t('comments'),
     name: 'securityFlooding',
     value: settings.securityFlooding,
+    warning: macros.configWarning('securityFlooding', 'comments'),
 }) }}
 
 <hr>
@@ -26,6 +58,7 @@
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securityModeration,
+    warning: macros.configWarning('securityModeration', 'comments'),
 }) }}
 
 {{ forms.textareaField({
@@ -34,6 +67,7 @@
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securityBlacklist,
+    warning: macros.configWarning('securityBlacklist', 'comments'),
 }) }}
 
 {{ forms.textareaField({
@@ -42,4 +76,5 @@
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securityBanned,
+    warning: macros.configWarning('securityBanned', 'comments'),
 }) }}

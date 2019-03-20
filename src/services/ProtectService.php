@@ -1,26 +1,85 @@
 <?php
 namespace verbb\comments\services;
 
+use verbb\comments\Comments;
+
 use Craft;
 use craft\base\Component;
+use craft\web\View;
+
+use GuzzleHttp\Client;
 
 class ProtectService extends Component
 {
+    // Constants
+    // =========================================================================
+
+    const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    const API_URL = 'https://www.google.com/recaptcha/api.js';
+
+
     // Public Methods
     // =========================================================================
 
     public function getFields()
     {
-        $fields = $this->getOriginField() . $this->getHoneypotField() . $this->getJSField();
-        
+        $fields = $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
+
         return $fields;
     }
 
     public function verifyFields()
     {
-        $checks = $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField();
+        $checks = $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField() && $this->verifyRecaptcha();
 
         return $checks;
+    }
+
+    //
+    // reCAPTCHA
+    //
+
+    public function getRecaptcha()
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        if ($settings->recaptchaEnabled) {
+            Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, [
+                'defer' => 'defer',
+                'async' => 'async',
+            ]);
+        }
+    }
+
+    public function verifyRecaptcha()
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        if ($settings->recaptchaEnabled) {
+            $captchaResponse = Craft::$app->getRequest()->getParam('g-recaptcha-response');
+
+            if (!$captchaResponse) {
+                return false;
+            }
+
+            $client = new Client();
+
+            $response = $client->post(self::VERIFY_URL, [
+                'form_params' => [
+                    'secret'   => $settings->recaptchaSecret,
+                    'response' => $captchaResponse,
+                    'remoteip' => Craft::$app->request->getRemoteIP(),
+                ],
+            ]);
+
+            $result = json_decode((string)$response->getBody(), true);
+
+            if (!$result['success']) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     //
@@ -154,6 +213,38 @@ class ProtectService extends Component
     {
         return sprintf('<input type="hidden" id="__UATIME" name="__UATIME" value="%s" />', time());
     }
+
+    public function getCaptchaHtml()
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        if (!$settings->recaptchaEnabled) {
+            return '';
+        }
+
+        Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, ['defer' => 'defer', 'async' => 'async']);
+
+        // Craft::$app->view->registerJs('grecaptcha.ready(function() {
+        //     grecaptcha.execute(' . $settings->recaptchaKey . ', {action: "homepage"}).then(function(token) {
+
+        //     });
+        // });', View::POS_END);
+
+        // Craft::$app->view->registerCss('#g-recaptcha-response {
+        //     display: block !important;
+        //     position: absolute;
+        //     margin: -78px 0 0 0 !important;
+        //     width: 302px !important;
+        //     height: 76px !important;
+        //     z-index: -999999;
+        //     opacity: 0;
+        // }');
+
+        return '';
+
+        // return '<div class="g-recaptcha" data-sitekey="' . $settings->recaptchaKey . '"></div>';
+    }
+
 
 
     // Protected Methods

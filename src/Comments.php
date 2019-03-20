@@ -31,7 +31,7 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.0.2';
+    public $schemaVersion = '1.1.0';
     public $hasCpSettings = true;
     public $hasCpSection = true;
 
@@ -109,7 +109,10 @@ class Comments extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
-                'comments/edit/<commentId:\d+>/<siteHandle>' => 'comments/comments/edit-template',
+                'comments/new' => 'comments/comments/edit-comment',
+                'comments/<commentId:\d+>' => 'comments/comments/edit-comment',
+                'comments/<commentId:\d+>/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
+                'comments/new/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/settings' => 'comments/base/settings',
             ]);
         });
