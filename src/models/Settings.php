@@ -13,6 +13,7 @@ class Settings extends Model
 
     public $structureId;
     public $closed;
+    public $indexSidebarLimit = 25;
 
     // General
     public $allowAnonymous = false;

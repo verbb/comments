@@ -118,12 +118,16 @@ class Comment extends Element
             ]
         ];
 
+        $indexSidebarLimit =  Comments::$plugin->getSettings()->indexSidebarLimit;
+
         $commentedElements = (new Query())
-            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title'])
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title', 'elements.dateDeleted'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->limit(100)
+            ->where(['is', 'elements.dateDeleted', null])
+            ->limit($indexSidebarLimit)
+            ->groupBy('ownerId')
             ->all();
 
         foreach ($commentedElements as $element) {
