@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3 - 2019-04-07
+
+### Added
+- Add Dutch language file. (thanks @skoften).
+
+### Changed
+- Improve comments sidebar (Don’t include deleted elements, Add config limiter, Use group-by query).
+
 ## 1.1.2 - 2019-03-19
 
 ### Added
