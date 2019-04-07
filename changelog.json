@@ -1,5 +1,13 @@
 [
     {
+        "version": "0.5.2",
+        "downloadUrl": "https://github.com/verbb/comments/archive/0.5.2.zip",
+        "date": "2019-04-02T22:00:00-06:00",
+        "notes": [
+            "[Improved] Updated Full Name Parser library."
+        ]
+    },
+    {
         "version": "0.5.1",
         "downloadUrl": "https://github.com/verbb/comments/archive/0.5.1.zip",
         "date": "2018-11-06T00:00:00+10:00",

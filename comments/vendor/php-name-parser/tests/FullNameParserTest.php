@@ -3,6 +3,36 @@
 class FullNameParserTest extends PHPUnit_Framework_TestCase
 {
 
+    /** @test */
+    public function testProSuffix()
+    {
+        $parser = new FullNameParser();
+
+        $tests = [
+            'Smarty Pants Phd' => 'Phd',
+            'Smarty Pants PHD' => 'PHD',
+            'OLD MACDONALD, PHD' => 'PHD',
+        ];
+
+        $tests_no_match = [
+            'OLD MACDONALD',
+            'OLD PHDMACDONALDPHD',
+            'Prof. Ron Brown',
+        ];
+
+        foreach ($tests as $test => $expected_result) {
+            $suffixes = $parser->get_pro_suffix($test);
+            // $this->assertTrue(false !== array_search($expected_result, $suffixes));
+            $this->assertContains($expected_result, $suffixes);
+        }
+
+        foreach ($tests_no_match as $test) {
+            $suffixes = $parser->get_pro_suffix($test);
+            // Should get empty array
+            $this->assertSame($suffixes, []);
+        }
+    }
+
     /**
      * @dataProvider functionalNameProvider
      */
@@ -326,7 +356,7 @@ class FullNameParserTest extends PHPUnit_Framework_TestCase
                     "fname"      => "Smarty",
                     "initials"   => "",
                     "lname"      => "Pants",
-                    "suffix"     => "PhD"
+                    "suffix"     => "Phd"
                 )
             ),
             array(
@@ -408,7 +438,37 @@ class FullNameParserTest extends PHPUnit_Framework_TestCase
                     "lname"      => "Williams",
                     "suffix"     => ""
                 )
-            )
+            ),
+            array(
+                "Rev Al Sharpton",
+                array(
+                    "salutation" => "Rev.",
+                    "fname"      => "Al",
+                    "initials"   => "",
+                    "lname"      => "Sharpton",
+                    "suffix"     => ""
+                )
+            ),
+            array(
+                "Dr Ty P. Bennington iIi",
+                array(
+                    "salutation" => "Dr.",
+                    "fname"      => "Ty",
+                    "initials"   => "P.",
+                    "lname"      => "Bennington",
+                    "suffix"     => "III"
+                )
+            ),
+            array(
+                "Prof. Ron Brown MD",
+                array(
+                    "salutation" => "Prof.",
+                    "fname"      => "Ron",
+                    "initials"   => "",
+                    "lname"      => "Brown",
+                    "suffix"     => "MD"
+                )
+            ),
         );
     }
 
