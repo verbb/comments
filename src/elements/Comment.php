@@ -121,7 +121,7 @@ class Comment extends Element
         $indexSidebarLimit =  Comments::$plugin->getSettings()->indexSidebarLimit;
 
         $commentedElements = (new Query())
-            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title', 'elements.dateDeleted'])
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'ANY_VALUE(content.title) AS title', 'elements.dateDeleted'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
