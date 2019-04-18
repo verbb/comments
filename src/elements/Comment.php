@@ -320,7 +320,8 @@ class Comment extends Element
 
     public function getTimeAgo()
     {
-        return (new Carbon($this->commentDate->format('c')))->diffForHumans();
+        $diff = (new \DateTime())->diff($this->commentDate);
+        return DateTimeHelper::humanDurationFromInterval($diff);
     }
 
     public function isGuest()
