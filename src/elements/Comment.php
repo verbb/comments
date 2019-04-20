@@ -119,15 +119,22 @@ class Comment extends Element
 
         $indexSidebarLimit =  Comments::$plugin->getSettings()->indexSidebarLimit;
 
-        $commentedElements = (new Query())
-            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'ANY_VALUE(content.title) AS title', 'elements.dateDeleted'])
+        $query = (new Query())
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'ANY_VALUE(content.title) AS title'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->where(['is', 'elements.dateDeleted', null])
             ->limit($indexSidebarLimit)
-            ->groupBy('ownerId')
-            ->all();
+            ->groupBy('ownerId');
+
+        // Support Craft 3.1+
+        if (Craft::$app->getDb()->columnExists('{{%elements}}', 'dateDeleted')) {
+            $query
+                ->addSelect(['elements.dateDeleted'])
+                ->where(['is', 'elements.dateDeleted', null]);
+        }
+
+        $commentedElements = $query->all();
 
         foreach ($commentedElements as $element) {
             switch ($element['type']::displayName()) {
