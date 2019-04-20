@@ -169,7 +169,7 @@ class CommentsService extends Component
         // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
         if ($settings->autoCloseDays) {
             $now = new DateTime('now');
-            $interval = $now->diff($element->commentDate);
+            $interval = $now->diff($element->postDate);
 
             if ($interval->d > $settings->autoCloseDays) {
                 return true;
