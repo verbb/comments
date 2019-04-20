@@ -18,7 +18,6 @@ use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\SiteIdValidator;
 
-use Carbon\Carbon;
 use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 

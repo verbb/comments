@@ -26,7 +26,6 @@
     ],
     "require": {
         "craftcms/cms": "^3.0.0",
-        "nesbot/carbon": "^1.22",
         "theiconic/name-parser": "^1.0"
     },
     "autoload": {
