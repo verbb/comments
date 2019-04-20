@@ -4,6 +4,7 @@ namespace verbb\comments\elements;
 use verbb\comments\Comments;
 use verbb\comments\elements\actions\SetStatus;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\records\Comment as CommentRecord;
 
 use Craft;
@@ -327,7 +328,7 @@ class Comment extends Element
     public function getTimeAgo()
     {
         $diff = (new \DateTime())->diff($this->commentDate);
-        return DateTimeHelper::humanDurationFromInterval($diff);
+        return CommentsHelper::humanDurationFromInterval($diff);
     }
 
     public function isGuest()
