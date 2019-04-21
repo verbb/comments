@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.4 - 2019-04-21
+
+### Changed
+- Use Craft's date utilities for getting translatable time diff.
+- Remove Carbon dependancy.
+
+### Fixed
+- Fix error with `sql_mode=only_full_group_by`.
+- Fix error with auto close days enabled.
+
 ## 1.1.3 - 2019-04-07
 
 ### Added
