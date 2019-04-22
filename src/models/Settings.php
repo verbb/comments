@@ -43,6 +43,7 @@ class Settings extends Model
     public $recaptchaEnabled = false;
     public $recaptchaKey;
     public $recaptchaSecret;
+    public $securityMaxLength;
     public $securityFlooding;
     public $securityModeration;
     public $securityBlacklist;

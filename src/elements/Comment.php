@@ -552,6 +552,13 @@ class Comment extends Element
             $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
         }
 
+        // Check the maximum comment length.
+        if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+            $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                'limit' => $settings->securityMaxLength,
+            ]));
+        }
+
         // Protect against Anonymous submissions, if turned off
         if (!$settings->allowAnonymous && !$this->userId) {
             $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
@@ -719,7 +726,7 @@ class Comment extends Element
         switch ($attribute) {
             case 'ownerId': {
                 $owner = $this->getOwner();
-                
+
                 if ($owner) {
                     return "<a href='" . $owner->cpEditUrl . "'>" . $owner->title . "</a>";
                 } else {
