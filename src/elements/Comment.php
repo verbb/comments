@@ -354,13 +354,26 @@ class Comment extends Element
             $author->lastName = $nameInfo->getLastname();
 
             if (!$author->firstName && !$author->lastName) {
-                $author->firstName = 'Anonymous';
+                $author->firstName = Craft::t('comments', 'Anonymous');
             }
 
             return $author;
-        } else {
-            return Craft::$app->getUsers()->getUserById($this->userId);
         }
+
+        // Check if this is a regular user
+        $user = Craft::$app->getUsers()->getUserById($this->userId);
+
+        // But, they might have been deleted!
+        if (!$user) {
+            $author = new User();
+            $author->email = null;
+            $author->firstName = Craft::t('comments', '[Deleted');
+            $author->lastName = Craft::t('comments', 'User]');
+
+            return $author;
+        }
+
+        return $user;
     }
 
     public function getAuthorName()
@@ -419,6 +432,11 @@ class Comment extends Element
             return;
         }
 
+        // We better have an author
+        if (!$this->author) {
+            return;
+        }
+
         // Check that user is trying to edit their own comment
         if ($currentUser->id !== $this->author->id) {
             return;
@@ -433,6 +451,11 @@ class Comment extends Element
 
         // Only logged in users can upvote a comment
         if (!$currentUser) {
+            return;
+        }
+
+        // We better have an author
+        if (!$this->author) {
             return;
         }
 
