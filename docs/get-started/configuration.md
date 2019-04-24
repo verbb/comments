@@ -31,6 +31,7 @@ return [
 
         // Security
         'enableSpamChecks' => true,
+        'securityMaxLength' => '',
         'securityFlooding' => '',
         'securityModeration' => '',
         'securityBlacklist' => '',
@@ -62,6 +63,7 @@ return [
 - `outputDefaultJs` - Whether to output the default JS for the form.
 - `templateFolderOverride` - Provide a path to your own templates in the below folder.
 - `enableSpamChecks` - Whether to enable spam checks for comments.
+- `securityMaxLength` - The maximum number of characters a single comment can have. 
 - `securityFlooding` - The number of seconds between commenting.
 - `securityModeration` - A collection of words that if entered require comments to be moderated.
 - `securityBlacklist` - A collection of words that if entered mark comments as spam.
