@@ -234,6 +234,15 @@ Comments.Instance = Comments.Base.extend({
                 // Scroll to the new comment
                 location.hash = '#comment-' + xhr.id;
             }
+
+            // If a comment was successfully submitted but under review
+            if (xhr.success) {
+                // Clear all inputs
+                (this.$baseForm.querySelector('[name="fields[name]"]') || {}).value = '';
+                (this.$baseForm.querySelector('[name="fields[email]"]') || {}).value = '';
+                (this.$baseForm.querySelector('[name="fields[comment]"]') || {}).value = '';
+            }
+
         }.bind(this));
     },
 });
@@ -451,6 +460,14 @@ Comments.ReplyForm = Comments.Base.extend({
                 this.comment.$replyBtn.innerHTML = this.t('reply')
 
                 this.isOpen = false;
+            }
+
+            // If a comment was successfully submitted but under review
+            if (xhr.success) {
+                // Clear all inputs
+                (this.$container.querySelector('[name="fields[name]"]') || {}).value = '';
+                (this.$container.querySelector('[name="fields[email]"]') || {}).value = '';
+                (this.$container.querySelector('[name="fields[comment]"]') || {}).value = '';
             }
         }.bind(this));
     },
