@@ -575,7 +575,7 @@ class Comment extends Element
 
 
         // Must have an actual comment
-        if (!$this->comment) {
+        if (!trim($this->comment)) {
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
         }
 
