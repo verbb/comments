@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.5 - 2019-04-24
+
+### Added
+- Add support for max length. (thanks @ilicmarko).
+
+### Changed
+- Prevent whitespace being submitted as comments. (thanks @ilicmarko).
+- Clear form if comment or reply was successful. (thanks @ilicmarko).
+- Comments from a deleted user now show as from '[Delete User]'.
+
+### Fixed
+- Fix error when showing a comment from a deleted user.
+
 ## 1.1.4 - 2019-04-21
 
 ### Changed
