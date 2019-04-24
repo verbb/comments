@@ -42,12 +42,12 @@
 <hr>
 
 {{ forms.textField({
-first: true,
-label: 'Maximum comment length' | t('comments'),
-instructions: 'Limit the number of characters a comment can have.' | t('comments'),
-name: 'securityMaxLength',
-value: settings.securityMaxLength,
-warning: macros.configWarning('securityMaxLength', 'comments'),
+    first: true,
+    label: 'Maximum comment length' | t('comments'),
+    instructions: 'Limit the number of characters a comment can have.' | t('comments'),
+    name: 'securityMaxLength',
+    value: settings.securityMaxLength,
+    warning: macros.configWarning('securityMaxLength', 'comments'),
 }) }}
 
 <hr>
