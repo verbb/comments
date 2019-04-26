@@ -306,7 +306,10 @@ class CommentsController extends Controller
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
         $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
         $comment->siteId = $request->getParam('siteId', $comment->siteId);
-        $comment->userId = ($currentUser) ? $currentUser->id : null;
+
+        if (!$comment->userId) {
+            $comment->userId = ($currentUser) ? $currentUser->id : null;
+        }
 
         // Other handy stuff
         $comment->url = $request->referrer;
