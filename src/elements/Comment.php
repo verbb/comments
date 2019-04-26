@@ -602,7 +602,14 @@ class Comment extends Element
         }
 
         // Is this user trying to edit/save/delete a comment thats not their own?
+        // This is permisable from the CP
+        if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
 
+            if ($currentUser->id !== $this->author->id) {
+                $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+            }
+        }
 
         // Must have an actual comment
         if (!trim($this->comment)) {
