@@ -254,18 +254,22 @@ Comments.Comment = Comments.Base.extend({
         this.commentId = $element.getAttribute('data-id');
         this.siteId = $element.getAttribute('data-site-id');
 
-        this.$replyContainer = $element.querySelector('[data-role="reply"]');
-        this.$repliesContainer = $element.querySelector('[data-role="replies"]');
+        this.$replyContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="reply"]');
+        this.$repliesContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="replies"]');
+
+        // Make sure we restrict event-binding to the immediate container of this comment
+        // Otherwise, we risk binding events multiple times on reply comments, nested within this comment
+        var $contentContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="content"]');
 
         // Actions
-        this.$replyBtn = $element.querySelector('[data-action="reply"]');
+        this.$replyBtn = $contentContainer.querySelector('[data-action="reply"]');
 
-        this.$editBtn = $element.querySelector('[data-action="edit"]');
-        this.$deleteBtn = $element.querySelector('[data-action="delete"]');
-        this.$flagBtn = $element.querySelector('[data-action="flag"]');
+        this.$editBtn = $contentContainer.querySelector('[data-action="edit"]');
+        this.$deleteBtn = $contentContainer.querySelector('[data-action="delete"]');
+        this.$flagBtn = $contentContainer.querySelector('[data-action="flag"]');
         
-        this.$upvoteBtn = $element.querySelector('[data-action="upvote"]');
-        this.$downvoteBtn = $element.querySelector('[data-action="downvote"]');
+        this.$upvoteBtn = $contentContainer.querySelector('[data-action="upvote"]');
+        this.$downvoteBtn = $contentContainer.querySelector('[data-action="downvote"]');
 
         // Additional classes
         this.replyForm = new Comments.ReplyForm(this);
