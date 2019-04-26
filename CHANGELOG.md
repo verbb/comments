@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.6 - 2019-04-27 [CRITICAL]
+
+### Fixed
+- Fix comment-saving always assuming comments are from the current user.
+- Fix lack of validation for editing a comment from another user.
+- Fix JS bug where a user could act on another users’ comment from the front-end in some cases.
+
 ## 1.1.5 - 2019-04-24
 
 ### Added
