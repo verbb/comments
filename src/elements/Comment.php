@@ -126,7 +126,7 @@ class Comment extends Element
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
             ->limit($indexSidebarLimit)
-            ->groupBy('ownerId, title');
+            ->groupBy(['ownerId', 'title', 'elements.id']);
 
         // Support Craft 3.1+
         if (Craft::$app->getDb()->columnExists('{{%elements}}', 'dateDeleted')) {
