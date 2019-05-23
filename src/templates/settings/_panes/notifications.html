@@ -4,7 +4,7 @@
 {{ forms.lightswitchField({
     first: true,
     label: "Enable Author Notifications" | t('comments'),
-    instructions: "Authors receive an email for every new comment. Edit the content of this email through [Email Messages]({link})." | t('comments', { link: url('settings/email/messages') }),
+    instructions: "Authors receive an email for every new comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
     id: 'notificationAuthorEnabled',
     name: 'notificationAuthorEnabled',
     on: settings.notificationAuthorEnabled,
@@ -16,7 +16,7 @@
 {{ forms.lightswitchField({
     first: true,
     label: "Enable Reply Notifications" | t('comments'),
-    instructions: "Users receive an email when someone replies to their comment. Edit the content of this email through [Email Messages]({link})." | t('comments', { link: url('settings/email/messages') }),
+    instructions: "Users receive an email when someone replies to their comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
     id: 'notificationReplyEnabled',
     name: 'notificationReplyEnabled',
     on: settings.notificationReplyEnabled,
