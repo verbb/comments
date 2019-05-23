@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.7 - 2019-05-23
+
+### Fixed
+- Fix SQL error for Postgres when viewing comments in the CP.
+- Update link for email messages.
+
 ## 1.1.6 - 2019-04-27 [CRITICAL]
 
 ### Fixed
