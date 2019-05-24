@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.7.1 - 2019-05-25
+
+### Fixed
+- Add debugging to email notifications.
+
 ## 1.1.7 - 2019-05-23
 
 ### Fixed
