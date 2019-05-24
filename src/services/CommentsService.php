@@ -183,11 +183,16 @@ class CommentsService extends Component
     public function sendAuthorNotificationEmail(Comment $comment)
     {
         $recipient = null;
+        $emailSent = null;
+
+        Comments::log('Prepare Author Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
+            Comments::log('Cannot send element author notification: No element ' . json_encode($element));
+
             return;
         }
 
@@ -208,24 +213,26 @@ class CommentsService extends Component
         // }
 
         if (!$recipient) {
+            Comments::log('Cannot send element author notification: No recipient ' . json_encode($recipient));
+
             return;
         }
 
         // If the author and commenter are the same user - don't send
         if ($comment->userId === $recipient->id) {
+            Comments::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
             return;
         }
 
-        $message = Craft::$app->getMailer()
-            ->composeFromKey('comments_author_notification', [
-                'element' => $element,
-                'comment' => $comment,
-            ])
-            ->setTo($recipient);
-
-        $emailSent = null;
-
         try {
+            $message = Craft::$app->getMailer()
+                ->composeFromKey('comments_author_notification', [
+                    'element' => $element,
+                    'comment' => $comment,
+                ])
+                ->setTo($recipient);
+
             $emailSent = $message->send();
         } catch (\Throwable $e) {
             Comments::error('Error sending element author notification: ' . $e->getMessage());
@@ -233,17 +240,24 @@ class CommentsService extends Component
 
         if ($emailSent) {
             Comments::log('Email sent successfully to element author (' . $recipient->email . ')');
+        } else {
+            Comments::error('Unable to send email to element author (' . $recipient->email . ')');
         }
     }
 
     public function sendReplyNotificationEmail(Comment $comment)
     {
         $recipient = null;
+        $emailSent = null;
+
+        Comments::log('Prepare Reply Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
+            Comments::log('Cannot send reply notification: No element ' . json_encode($element));
+
             return;
         }
 
@@ -251,6 +265,8 @@ class CommentsService extends Component
         $parentComment = $comment->getParent();
 
         if (!$parentComment) {
+            Comments::log('Cannot send reply notification: No parent comment ' . json_encode($parentComment));
+
             return;
         }
 
@@ -258,22 +274,26 @@ class CommentsService extends Component
         $recipient = $parentComment->getAuthor();
 
         if (!$recipient) {
+            Comments::log('Cannot send reply notification: No recipient ' . json_encode($recipient));
+
             return;
         }
 
         // If the author and commenter are the same user - don't send
         if ($comment->userId === $recipient->id) {
+            Comments::log('Cannot send reply notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
             return;
         }
 
-        $message = Craft::$app->getMailer()
-            ->composeFromKey('comments_reply_notification', [
-                'element' => $element,
-                'comment' => $comment,
-            ])
-            ->setTo($recipient);
-
         try {
+            $message = Craft::$app->getMailer()
+                ->composeFromKey('comments_reply_notification', [
+                    'element' => $element,
+                    'comment' => $comment,
+                ])
+                ->setTo($recipient);
+
             $emailSent = $message->send();
         } catch (\Throwable $e) {
             Comments::error('Error sending reply notification: ' . $e->getMessage());
@@ -281,6 +301,8 @@ class CommentsService extends Component
 
         if ($emailSent) {
             Comments::log('Email sent successfully comment author (' . $recipient->email . ')');
+        } else {
+            Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
         }
     }
 

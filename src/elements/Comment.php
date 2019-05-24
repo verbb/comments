@@ -678,12 +678,16 @@ class Comment extends Element
             // Should we send a Notification email to the author of this comment?
             if ($settings->notificationAuthorEnabled) {
                 Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+            } else {
+                Comments::log('Author Notifications disabled.');
             }
 
             // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
                 Comments::$plugin->comments->sendReplyNotificationEmail($this);
+            } else {
+                Comments::log('Reply Notifications disabled.');
             }
         }
 
