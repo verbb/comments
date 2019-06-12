@@ -3,7 +3,7 @@ return [
 	//
 	// Email Messages
 	//
-	
+
 	'comments_author_notification_heading' => 'Als een reactie is ontvangen:',
 	'comments_author_notification_subject' => '"{{element.title}}" heeft een reactie ontvangen op {{siteName}}.',
 	'comments_author_notification_body' => "Hi {{user.friendlyName}},\n\n" .
@@ -17,7 +17,7 @@ return [
 	//  
 	// Email templates
 	//
-	
+
 	'Your name' => 'Je naam',
 	'Your email' => 'Je email',
 	'Add a comment...' => 'Plaats een reactie...',
