@@ -88,8 +88,13 @@ class SecurityService extends Component
         }
 
         $values = explode("\n", $setting);
+        $attributes = $comment->getAttributes();
 
-        foreach ($comment->getAttributes() as $attr) {
+        // add the comment too, it's not included in the attributes
+        $comment = ["comment" => $comment->comment];
+        $mergedAttributes = array_merge($attributes, $comment);
+        
+        foreach ($mergedAttributes as $attr) {
             if (!is_string($attr)) {
                 continue;
             }
