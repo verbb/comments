@@ -28,7 +28,7 @@ return [
 	//
 	// validation
 	//
-	
+
 	'Form validation failed. Marked as spam.' => 'Oops, comment validation failed. Marked as spam.',
 	'Comment blocked due to security policy.' => 'Comment blocked due to security policy.',
 	'Comment must be shorter than 1000 characters.' => 'Comment must be shorter than 1000 characters.',
