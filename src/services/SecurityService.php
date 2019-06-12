@@ -58,6 +58,25 @@ class SecurityService extends Component
         return true;
     }
 
+    public function checkCommentLength(Comment $comment)
+    {
+        $settings = Comments::$plugin->getSettings();
+        
+        // Check if max comment length is set.
+        if ($settings->securityMaxLength) {
+            // Check if the input is a positive integer
+            if (is_numeric($settings->securityMaxLength)
+                && $settings->securityMaxLength > 0
+                && $settings->securityMaxLength == round($settings->securityMaxLength, 0)
+            ) {
+                if (strlen($comment->getComment()) >= (int)$settings->securityMaxLength) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     // Private Methods
     // =========================================================================

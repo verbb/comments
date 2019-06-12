@@ -13,6 +13,7 @@ class Settings extends Model
 
     public $structureId;
     public $closed;
+    public $indexSidebarLimit = 25;
 
     // General
     public $allowAnonymous = false;
@@ -42,6 +43,7 @@ class Settings extends Model
     public $recaptchaEnabled = false;
     public $recaptchaKey;
     public $recaptchaSecret;
+    public $securityMaxLength;
     public $securityFlooding;
     public $securityModeration;
     public $securityBlacklist;

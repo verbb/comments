@@ -4,6 +4,7 @@ namespace verbb\comments\elements;
 use verbb\comments\Comments;
 use verbb\comments\elements\actions\SetStatus;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\records\Comment as CommentRecord;
 
 use Craft;
@@ -18,7 +19,6 @@ use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\SiteIdValidator;
 
-use Carbon\Carbon;
 use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
@@ -118,13 +118,24 @@ class Comment extends Element
             ]
         ];
 
-        $commentedElements = (new Query())
+        $indexSidebarLimit =  Comments::$plugin->getSettings()->indexSidebarLimit;
+
+        $query = (new Query())
             ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-            ->limit(100)
-            ->all();
+            ->limit($indexSidebarLimit)
+            ->groupBy(['ownerId', 'title', 'elements.id']);
+
+        // Support Craft 3.1+
+        if (Craft::$app->getDb()->columnExists('{{%elements}}', 'dateDeleted')) {
+            $query
+                ->addSelect(['elements.dateDeleted'])
+                ->where(['is', 'elements.dateDeleted', null]);
+        }
+
+        $commentedElements = $query->all();
 
         foreach ($commentedElements as $element) {
             switch ($element['type']::displayName()) {
@@ -316,7 +327,8 @@ class Comment extends Element
 
     public function getTimeAgo()
     {
-        return (new Carbon($this->commentDate->format('c')))->diffForHumans();
+        $diff = (new \DateTime())->diff($this->commentDate);
+        return CommentsHelper::humanDurationFromInterval($diff);
     }
 
     public function isGuest()
@@ -342,13 +354,26 @@ class Comment extends Element
             $author->lastName = $nameInfo->getLastname();
 
             if (!$author->firstName && !$author->lastName) {
-                $author->firstName = 'Anonymous';
+                $author->firstName = Craft::t('comments', 'Anonymous');
             }
 
             return $author;
-        } else {
-            return Craft::$app->getUsers()->getUserById($this->userId);
         }
+
+        // Check if this is a regular user
+        $user = Craft::$app->getUsers()->getUserById($this->userId);
+
+        // But, they might have been deleted!
+        if (!$user) {
+            $author = new User();
+            $author->email = null;
+            $author->firstName = Craft::t('comments', '[Deleted');
+            $author->lastName = Craft::t('comments', 'User]');
+
+            return $author;
+        }
+
+        return $user;
     }
 
     public function getAuthorName()
@@ -407,6 +432,11 @@ class Comment extends Element
             return;
         }
 
+        // We better have an author
+        if (!$this->author) {
+            return;
+        }
+
         // Check that user is trying to edit their own comment
         if ($currentUser->id !== $this->author->id) {
             return;
@@ -421,6 +451,11 @@ class Comment extends Element
 
         // Only logged in users can upvote a comment
         if (!$currentUser) {
+            return;
+        }
+
+        // We better have an author
+        if (!$this->author) {
             return;
         }
 
@@ -540,6 +575,13 @@ class Comment extends Element
             $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
         }
 
+        // Check the maximum comment length.
+        if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+            $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                'limit' => $settings->securityMaxLength,
+            ]));
+        }
+
         // Protect against Anonymous submissions, if turned off
         if (!$settings->allowAnonymous && !$this->userId) {
             $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
@@ -560,10 +602,17 @@ class Comment extends Element
         }
 
         // Is this user trying to edit/save/delete a comment thats not their own?
+        // This is permisable from the CP
+        if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
 
+            if ($currentUser->id !== $this->author->id) {
+                $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+            }
+        }
 
         // Must have an actual comment
-        if (!$this->comment) {
+        if (!trim($this->comment)) {
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
         }
 
@@ -629,12 +678,16 @@ class Comment extends Element
             // Should we send a Notification email to the author of this comment?
             if ($settings->notificationAuthorEnabled) {
                 Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+            } else {
+                Comments::log('Author Notifications disabled.');
             }
 
             // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
                 Comments::$plugin->comments->sendReplyNotificationEmail($this);
+            } else {
+                Comments::log('Reply Notifications disabled.');
             }
         }
 
@@ -707,7 +760,7 @@ class Comment extends Element
         switch ($attribute) {
             case 'ownerId': {
                 $owner = $this->getOwner();
-                
+
                 if ($owner) {
                     return "<a href='" . $owner->cpEditUrl . "'>" . $owner->title . "</a>";
                 } else {

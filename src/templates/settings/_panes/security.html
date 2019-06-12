@@ -43,6 +43,17 @@
 
 {{ forms.textField({
     first: true,
+    label: 'Maximum comment length' | t('comments'),
+    instructions: 'Limit the number of characters a comment can have.' | t('comments'),
+    name: 'securityMaxLength',
+    value: settings.securityMaxLength,
+    warning: macros.configWarning('securityMaxLength', 'comments'),
+}) }}
+
+<hr>
+
+{{ forms.textField({
+    first: true,
     label: 'Minimum time between comments' | t('comments'),
     instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t('comments'),
     name: 'securityFlooding',

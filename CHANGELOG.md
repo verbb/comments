@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.1.7.1 - 2019-05-25
+
+### Fixed
+- Add debugging to email notifications.
+
+## 1.1.7 - 2019-05-23
+
+### Fixed
+- Fix SQL error for Postgres when viewing comments in the CP.
+- Update link for email messages.
+
+## 1.1.6 - 2019-04-27 [CRITICAL]
+
+### Fixed
+- Fix comment-saving always assuming comments are from the current user.
+- Fix lack of validation for editing a comment from another user.
+- Fix JS bug where a user could act on another users’ comment from the front-end in some cases.
+
+## 1.1.5 - 2019-04-24
+
+### Added
+- Add support for max length. (thanks @ilicmarko).
+
+### Changed
+- Prevent whitespace being submitted as comments. (thanks @ilicmarko).
+- Clear form if comment or reply was successful. (thanks @ilicmarko).
+- Comments from a deleted user now show as from '[Delete User]'.
+
+### Fixed
+- Fix error when showing a comment from a deleted user.
+
+## 1.1.4 - 2019-04-21
+
+### Changed
+- Use Craft's date utilities for getting translatable time diff.
+- Remove Carbon dependancy.
+
+### Fixed
+- Fix error with `sql_mode=only_full_group_by`.
+- Fix error with auto close days enabled.
+
+## 1.1.3 - 2019-04-07
+
+### Added
+- Add Dutch language file. (thanks @skoften).
+
+### Changed
+- Improve comments sidebar (Don’t include deleted elements, Add config limiter, Use group-by query).
+
 ## 1.1.2 - 2019-03-19
 
 ### Added
