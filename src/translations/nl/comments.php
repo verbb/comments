@@ -23,15 +23,6 @@ return [
 	'Add a comment...' => 'Plaats een reactie...',
 	'Post comment' => 'Plaatsen'
 
-	//  
-	// Email templates
-	//
-
-	'Your name' => 'Je naam',
-	'Your email' => 'Je email',
-	'Add a comment...' => 'Plaats een reactie...',
-	'Post comment' => 'Plaatsen',
-
 	//
 	// validation
 	//
