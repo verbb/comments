@@ -80,12 +80,12 @@ class CommentsController extends Controller
         $commentId = $request->getParam('commentId');
 
         if (!Craft::$app->getElements()->deleteElementById($commentId)) {
-            $session->setError($comment->getErrors());
+            $session->setError(Craft::t('comments', 'Unable to delete comment.'));
         }
 
         $session->setNotice(Craft::t('comments', 'Comment deleted.'));
 
-        return $this->redirectToPostedUrl($comment);
+        return $this->redirectToPostedUrl();
     }
 
     //
