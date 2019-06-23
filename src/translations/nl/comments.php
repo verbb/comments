@@ -21,7 +21,7 @@ return [
 	'Your name' => 'Je naam',
 	'Your email' => 'Je email',
 	'Add a comment...' => 'Plaats een reactie...',
-	'Post comment' => 'Plaatsen'
+	'Post comment' => 'Plaatsen',
 
 	//
 	// validation
