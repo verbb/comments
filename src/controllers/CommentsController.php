@@ -17,7 +17,7 @@ class CommentsController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = ['actionSave'];
+    protected $allowAnonymous = ['save'];
 
 
     // Public Methods
