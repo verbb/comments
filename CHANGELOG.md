@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.8 - 2019-08-06
+
+### Added
+- Update missing translations. (thanks @skoften).
+
+### Fixed
+- Improve security keyword checking. (thanks @skoften).
+- Ensure actual comment content was being checked against security keywords. (thanks @skoften).
+- Fix error when anonymous commenting was enabled.
+- Fix error when deleting comment from CP.
+
 ## 1.1.7.1 - 2019-05-25
 
 ### Fixed
