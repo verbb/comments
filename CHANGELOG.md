@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.9 - 2019-08-31
+
+### Added
+- Added `guestRequireEmailName`, to control whether guests email and name should be required. True by default.
+- Add some example no-JS templates.
+
+### Fixed
+- Fix lack of returning comment/flag/vote models when performing actions on them.
+
 ## 1.1.8 - 2019-08-06
 
 ### Added
