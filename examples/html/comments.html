@@ -1,0 +1,49 @@
+{% spaceless %}
+
+{# ------------------------ #}
+{# Available Variables #}
+{# ------------------------ #}
+{# id, element, commentsQuery, settings #}
+{# ------------------------ #}
+
+{# Set a variable here to catch errors and validation, which returns a `comment` element #}
+{# but we're already using `comment` in our loop below #}
+{% if comment is defined %}
+    {% set activeComment = comment %}
+{% endif %}
+
+<div id="{{ id }}" class="cc-w{% if not settings.showAvatar %} no-avatar{% endif %}">
+    <div class="cc-w-i" data-role="comments">
+        {% for comment in commentsQuery.all() %}
+            {% include 'comment' %}
+        {% endfor %}
+    </div>
+
+    {% if settings.canComment(element) %}
+        {% include 'form' %}
+    {% endif %}
+</div>
+
+{% endspaceless %}
+
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+{% js %}
+
+//
+// Below is the most minimal non-ajax JS to get started with. Mainly used to toggle
+// element such as the edit comment form, inline-reply form and showing/hiding replies.
+//
+
+$(document).ready(function() {
+
+    // Toggle to show/hide reply form
+    $(document).on('click', 'a.cc-i-reply', function(e) {
+        e.preventDefault();
+
+        $(this).parents('.cc-i:first').find('[data-role="reply"]:first').toggle();
+    });
+
+});
+
+{% endjs %}

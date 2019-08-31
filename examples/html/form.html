@@ -1,0 +1,69 @@
+{% macro errorList(errors) %}
+    {% if errors %}
+        <div class="cc-e">
+            {% for error in errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% from _self import errorList %}
+
+<article class="cc-i cc-f" data-role="form">
+    {% if settings.showAvatar %}
+        <figure class="cc-i-figure">
+            <p class="cc-i-image">
+                {% if currentUser and currentUser.getPhoto() %}
+                    <img src="{{ currentUser.getPhoto().url({ width: 64, height: 64, mode: 'fit' }) }}" />
+                {% elseif settings.placeholderAvatar %}
+                    <img src="{{ settings.getPlaceholderAvatar().url({ width: 64, height: 64, mode: 'fit' }) }}" />
+                {% else %}
+                    <span class="cc-i-image-icon"></span>
+                {% endif %}
+            </p>
+        </figure>
+    {% endif %}
+
+    <div class="cc-i-wrap">
+        <form class="cc-f-wrap" role="form" method="post" accept-charset="UTF-8">
+            <input type="hidden" name="action" value="comments/comments/save">
+            <input type="hidden" name="elementId" value="{{ element.id }}">
+            <input type="hidden" name="siteId" value="{{ element.siteId }}">
+            <input type="hidden" name="newParentId" value="{{ newParentId ?? '' }}">
+            <input type="hidden" name="commentId" value="{{ commentId ?? '' }}">
+            {{ csrfInput() }}
+            {{ craft.comments.protect() }}
+
+            {% if not currentUser %}
+                <div class="cc-f-row">
+                    <div class="cc-f-col">
+                        <input class="cc-f-input" name="fields[name]" type="text" placeholder="{{ 'Your name' | t('comments') }}">
+
+                        {% if activeComment is defined %}
+                            {{ errorList(activeComment.getErrors('name')) }}
+                        {% endif %}
+                    </div>
+
+                    <div class="cc-f-col">
+                        <input class="cc-f-input" name="fields[email]" type="email" placeholder="{{ 'Your email' | t('comments') }}">
+
+                        {% if activeComment is defined %}
+                            {{ errorList(activeComment.getErrors('email')) }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <textarea class="cc-f-textarea" name="fields[comment]" placeholder="{{ 'Add a comment...' | t('comments') }}"></textarea>
+            
+            {% if activeComment is defined %}
+                {{ errorList(activeComment.getErrors('comment')) }}
+            {% endif %}
+
+            <div data-role="notice" class="cc-n"></div>
+
+            <button class="cc-f-btn" type="submit">{{ 'Post comment' | t('comments') }}</button>
+        </form>
+    </div>
+</article>
