@@ -17,7 +17,7 @@ Comments is a Craft CMS plugin that allows your users to comment on elements. No
 - Set permissions for each element (and element type) to allow or disable comments.
 - Plenty of settings to customise just about everything.
 
-<img src="https://verbb.io/uploads/plugins/v0/comments-overview.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
+<img src="https://verbb.io/uploads/plugins/comments/comments-overview.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
 
 ## Documentation
 
