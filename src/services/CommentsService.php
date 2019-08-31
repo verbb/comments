@@ -70,13 +70,18 @@ class CommentsService extends Component
             ]
         ];
 
-        // Build our complete form
-        $formHtml = $view->renderTemplate('comments', [
+        // Prepare variables to pass to templates - important to include route params
+        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
+
+        $variables = array_merge($routeParams, [
             'id' => $id,
             'element' => $element,
             'commentsQuery' => $query,
             'settings' => $settings,
         ]);
+
+        // Build our complete form
+        $formHtml = $view->renderTemplate('comments', $variables);
 
         $view->registerAssetBundle(FrontEndAsset::class);
 
@@ -105,11 +110,16 @@ class CommentsService extends Component
         $templatePath = $this->_getTemplatePath();
         $view->setTemplatesPath($templatePath);
 
-        // Build our complete form
-        $formHtml = $view->renderTemplate('comment', [
+        // Prepare variables to pass to templates - important to include route params
+        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
+
+        $variables = array_merge($routeParams, [
             'comment' => $comment,
             'settings' => $settings,
         ]);
+
+        // Build our complete form
+        $formHtml = $view->renderTemplate('comment', $variables);
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 
