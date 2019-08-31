@@ -8,6 +8,7 @@ Create an `comments.php` file under your `/config` directory with the following 
 return [
     '*' => [
         'allowAnonymous' => false,
+        'guestRequireEmailName' => true,
         'requireModeration' => true,
         'autoCloseDays' => '',
 
@@ -50,6 +51,7 @@ return [
 ### Configuration options
 
 - `allowAnonymous` - Whether to allow anonymous commenting.
+- `guestRequireEmailName` - Whether guests should be required to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.
 - `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
 - `allowVoting` - Whether to allow voting.

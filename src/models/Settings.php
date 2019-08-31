@@ -17,6 +17,7 @@ class Settings extends Model
 
     // General
     public $allowAnonymous = false;
+    public $guestRequireEmailName = true;
     public $requireModeration = true;
     public $autoCloseDays = '';
 

@@ -585,8 +585,10 @@ class Comment extends Element
         // Protect against Anonymous submissions, if turned off
         if (!$settings->allowAnonymous && !$this->userId) {
             $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
+        }
 
-            // Additionally, check for user email/name, which is compulsary for guests
+        // Additionally, check for user email/name, which is compulsary for guests
+        if ($settings->guestRequireEmailName && !$this->userId) {
             if (!$this->name) {
                 $this->addError('name', Craft::t('comments', 'Name is required.'));
             }
