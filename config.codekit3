@@ -425,6 +425,30 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"/examples/html/comment.html": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/examples/html/comment.html",
+		"oF": 0
+		},
+	"/examples/html/comments.html": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/examples/html/comments.html",
+		"oF": 0
+		},
+	"/examples/html/form.html": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/examples/html/form.html",
+		"oF": 0
+		},
 	"/LICENSE.md": {
 		"cB": 0,
 		"cS": 0,
