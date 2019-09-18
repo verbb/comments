@@ -55,7 +55,7 @@ class CommentsService extends Component
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
         
-        $variables = [
+        $jsVariables = [
             'baseUrl' => UrlHelper::actionUrl(),
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
@@ -78,7 +78,7 @@ class CommentsService extends Component
             'element' => $element,
             'commentsQuery' => $query,
             'settings' => $settings,
-        ]);
+        ]); 
 
         // Build our complete form
         $formHtml = $view->renderTemplate('comments', $variables);
@@ -88,7 +88,7 @@ class CommentsService extends Component
         if ($settings->outputDefaultJs) {
             $view->registerJs('new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
-                Json::encode($variables, JSON_UNESCAPED_UNICODE) .
+                Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
             ');', $view::POS_END);
         }
 
