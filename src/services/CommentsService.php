@@ -217,13 +217,6 @@ class CommentsService extends Component
             Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
-        // Check for Matrix and other elements which have an owner
-        // if ($element->getOwner()) {
-        //     if ($element->getOwner()->getAuthor()) {
-        //         $recipient = $element->getOwner()->getAuthor();
-        //     }
-        // }
-
         if (!$recipient) {
             Comments::log('Cannot send element author notification: No recipient ' . json_encode($recipient));
 
@@ -235,6 +228,18 @@ class CommentsService extends Component
             Comments::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
 
             return;
+        }
+
+        // Check if the recipient has opted-out of emails. Note the default behaviour is to always receive them
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($comment->ownerId, $comment->ownerSiteId, $recipient->id);
+
+        // We only care if we have a record - and its explicitly set to none
+        if ($subscribe) {
+            if (!$subscribe->subscribed) {
+                Comments::log('User has unsubscribed from author notifications.');
+
+                return;
+            }
         }
 
         try {
