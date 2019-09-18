@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.10 - 2019-09-18
+
+### Fixed
+- Fix incorrect variables being passed to JS.
+
 ## 1.1.9 - 2019-08-31
 
 ### Added
