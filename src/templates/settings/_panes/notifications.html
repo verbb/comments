@@ -24,15 +24,3 @@
     offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationReplyEnabled', 'comments'),
 }) }}
-
-{{ forms.lightswitchField({
-    first: true,
-    label: "Show Subscribe/Unsubscribe Checkbox" | t('comments'),
-    instructions: "Whether to show a Subscribe/Unsubscribe checkbox in the comments form. This will allow users to manage their email notifications per-comment." | t('comments'),
-    id: 'showReplyNotificationCheckbox',
-    name: 'showReplyNotificationCheckbox',
-    on: settings.showReplyNotificationCheckbox,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
-    warning: macros.configWarning('showReplyNotificationCheckbox', 'comments'),
-}) }}

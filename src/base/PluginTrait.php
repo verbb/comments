@@ -6,6 +6,7 @@ use verbb\comments\services\CommentsService;
 use verbb\comments\services\FlagsService;
 use verbb\comments\services\ProtectService;
 use verbb\comments\services\SecurityService;
+use verbb\comments\services\SubscribeService;
 use verbb\comments\services\VotesService;
 
 use Craft;
@@ -44,6 +45,11 @@ trait PluginTrait
         return $this->get('security');
     }
 
+    public function getSubscribe()
+    {
+        return $this->get('subscribe');
+    }
+
     public function getVotes()
     {
         return $this->get('votes');
@@ -56,6 +62,7 @@ trait PluginTrait
             'flags' => FlagsService::class,
             'protect' => ProtectService::class,
             'security' => SecurityService::class,
+            'subscribe' => SubscribeService::class,
             'votes' => VotesService::class,
         ]);
     }

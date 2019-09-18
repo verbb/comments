@@ -192,6 +192,8 @@ Comments.Instance = Comments.Base.extend({
     comments: {},
 
     init: function(id, settings) {
+        this.settings = settings;
+
         var $container = document.querySelector(id);
         var $comments = $container.querySelectorAll('[data-role="comment"]');
 
@@ -206,7 +208,11 @@ Comments.Instance = Comments.Base.extend({
         this.$commentsContainer = $container.querySelector('[data-role="comments"]');
         this.$baseForm = $container.querySelector('[data-role="form"]');
 
+        // Actions
+        this.$subscribeBtn = $container.querySelector('[data-action="subscribe"]');
+
         this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
+        this.addListener(this.$subscribeBtn, 'click', this.subscribe);
 
         // Create classes for each comment item
         for (var i = 0; i < $comments.length; i++) {
@@ -244,6 +250,35 @@ Comments.Instance = Comments.Base.extend({
             }
 
         }.bind(this));
+    },
+
+    subscribe: function(e) {
+        e.preventDefault();
+
+        var ownerId = this.settings.element.id;
+        var siteId = this.settings.element.siteId;
+
+        var $commentHeader = this.$subscribeBtn.parentNode;
+
+        this.clearNotifications($commentHeader);
+
+        this.toggleClass(this.$subscribeBtn, 'is-subscribed');
+
+        this.ajax(Comments.baseUrl + 'subscribe', {
+            method: 'POST',
+            data: this.serializeObject({ ownerId: ownerId, siteId: siteId }),
+            success: function(xhr) {
+                if (!xhr.success) {
+                    throw new Error(xhr);
+                }
+            }.bind(this),
+            error: function(response) {
+                if (response.errors) {
+                    this.setNotifications('error', $commentHeader, response.errors);
+                }
+            }.bind(this),   
+        });
+
     },
 });
 

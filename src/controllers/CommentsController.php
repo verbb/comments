@@ -4,6 +4,7 @@ namespace verbb\comments\controllers;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\models\Flag;
+use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
 use Craft;
@@ -278,6 +279,53 @@ class CommentsController extends Controller
                 'success' => true,
                 'comment' => $comment,
                 'id' => $comment->id,
+            ]);
+        }
+
+        return $this->redirect($request->referrer);
+    }
+
+    public function actionSubscribe()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $request = Craft::$app->getRequest();
+
+        $ownerId = $request->getParam('ownerId');
+        $siteId = $request->getParam('siteId');
+        $userId = $currentUser->id ?? null;
+
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId) ?? new Subscribe();
+        $subscribe->ownerId = $ownerId;
+        $subscribe->ownerSiteId = $siteId;
+
+        // Okay if no user here, although required, the model validation will pick it up
+        $subscribe->userId = $userId;
+
+        if (!Comments::$plugin->getSubscribe()->toggleSubscribe($subscribe)) {
+            if ($request->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                    'subscribe' => $subscribe,
+                    'errors' => $subscribe->getErrors(),
+                    'message' => Craft::t('comments', 'Unable to update subscribe status.'),
+                ]);
+            }
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'subscribe' => $subscribe,
+                'errors' => $subscribe->getErrors(),
+            ]);
+
+            return $this->redirect($request->referrer);
+        }
+
+        if ($request->getAcceptsJson()) {
+            $message = $subscribe->subscribed ? 'Subscribed to discussion.' : 'Unsubscribed from discussion.';
+
+            return $this->asJson([
+                'success' => true,
+                'subscribe' => $subscribe,
+                'notice' => Craft::t('comments', $message),
             ]);
         }
 

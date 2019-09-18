@@ -40,15 +40,6 @@
             <textarea class="cc-f-textarea" name="fields[comment]" placeholder="{{ 'Add a comment...' | t('comments') }}"></textarea>
             <div class="cc-e"></div>
 
-            {% if settings.showReplyNotificationCheckbox %}
-                {% set random = random() %}
-
-                <div class="cc-f-check">
-                    <input type="checkbox" id="subscribe-{{ random }}">
-                    <label for="subscribe-{{ random }}">Subscribe to replies on this comment</label>
-                </div>
-            {% endif %}
-
             <div data-role="notice" class="cc-n"></div>
 
             <button class="cc-f-btn" type="submit">{{ 'Post comment' | t('comments') }}</button>

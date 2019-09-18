@@ -527,6 +527,14 @@
 		"oAP": "/src/errors/FlagNotFoundException.php",
 		"oF": 0
 		},
+	"/src/errors/SubscribeNotFoundException.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/errors/SubscribeNotFoundException.php",
+		"oF": 0
+		},
 	"/src/errors/VoteNotFoundException.php": {
 		"cB": 0,
 		"ft": 8192,
@@ -541,6 +549,14 @@
 		"hM": 0,
 		"oA": 2,
 		"oAP": "/src/events/FlagEvent.php",
+		"oF": 0
+		},
+	"/src/events/SubscribeEvent.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/events/SubscribeEvent.php",
 		"oF": 0
 		},
 	"/src/events/VoteEvent.php": {

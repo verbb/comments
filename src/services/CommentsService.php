@@ -78,7 +78,9 @@ class CommentsService extends Component
             'element' => $element,
             'commentsQuery' => $query,
             'settings' => $settings,
-        ]); 
+        ]);
+
+        $jsVariables = array_merge($jsVariables, $variables);
 
         // Build our complete form
         $formHtml = $view->renderTemplate('comments', $variables);
@@ -294,6 +296,18 @@ class CommentsService extends Component
             Comments::log('Cannot send reply notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
 
             return;
+        }
+
+        // Check if the recipient has opted-out of emails. Note the default behaviour is to always receive them
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($comment->ownerId, $comment->ownerSiteId, $recipient->id);
+
+        // We only care if we have a record - and its explicitly set to none
+        if ($subscribe) {
+            if (!$subscribe->subscribed) {
+                Comments::log('User has unsubscribed from reply notifications.');
+
+                return;
+            }
         }
 
         try {

@@ -1,0 +1,34 @@
+<?php
+namespace verbb\comments\models;
+
+use verbb\comments\records\Subscribe as SubscribeRecord;
+
+use Craft;
+use craft\base\Model;
+use craft\validators\UniqueValidator;
+
+class Subscribe extends Model
+{
+    // Public Properties
+    // =========================================================================
+
+    public $id;
+    public $ownerId;
+    public $ownerSiteId;
+    public $userId;
+    public $subscribed;
+
+
+    // Public Methods
+    // =========================================================================
+
+    public function rules()
+    {
+        return [
+            [['id'], 'number', 'integerOnly' => true],
+            [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to change your settings.')],
+            [['ownerId'], 'required'],
+        ];
+    }
+
+}
