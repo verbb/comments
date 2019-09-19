@@ -54,9 +54,12 @@ class CommentsService extends Component
 
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
+
+        // Normalise the action URL
+        $actionUrl = trim(UrlHelper::actionUrl(), '/');
         
         $jsVariables = [
-            'baseUrl' => UrlHelper::actionUrl(),
+            'baseUrl' => $actionUrl,
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
             'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
