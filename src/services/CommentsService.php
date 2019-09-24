@@ -92,10 +92,10 @@ class CommentsService extends Component
         $view->registerAssetBundle(FrontEndAsset::class);
 
         if ($settings->outputDefaultJs) {
-            $view->registerJs('new Comments.Instance(' .
+            $view->registerJs('function onLoadComments() { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            ');', $view::POS_END);
+            '); }', $view::POS_END);
         }
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());

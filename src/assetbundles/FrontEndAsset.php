@@ -29,7 +29,7 @@ class FrontEndAsset extends AssetBundle
                 'js/comments.js',
             ];
 
-            $this->jsOptions = ['defer' => 'defer', 'async' => 'async'];
+            $this->jsOptions = ['defer' => 'defer', 'async' => 'async', 'onload' => 'onLoadComments()'];
         }
 
         parent::init();
