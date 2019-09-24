@@ -14,7 +14,6 @@
 }) }}
 
 {{ forms.lightswitchField({
-    first: true,
     label: "Enable Reply Notifications" | t('comments'),
     instructions: "Users receive an email when someone replies to their comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
     id: 'notificationReplyEnabled',
@@ -23,4 +22,15 @@
     onLabel: "Enable" | t('comments'),
     offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationReplyEnabled', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Allow Subscribe Notifications" | t('comments'),
+    instructions: "Users can subscribe to any comment made on an element." | t('comments'),
+    id: 'notificationSubscribeEnabled',
+    name: 'notificationSubscribeEnabled',
+    on: settings.notificationSubscribeEnabled,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationSubscribeEnabled', 'comments'),
 }) }}

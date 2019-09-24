@@ -25,6 +25,21 @@ class SubscribeService extends Component
     // Public Methods
     // =========================================================================
 
+    public function getSubscribeForOwner($ownerId, $ownerSiteId)
+    {
+        $items = [];
+
+        $results = $this->_createSubscribeQuery()
+            ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId])
+            ->all();
+
+        foreach ($results as $result) {
+            $items[] = new SubscribeModel($result);
+        }
+
+        return $items;
+    }
+
     public function getSubscribe($ownerId, $ownerSiteId, $userId)
     {
         $result = $this->_createSubscribeQuery()

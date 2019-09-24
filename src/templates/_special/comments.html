@@ -7,7 +7,7 @@
 {# ------------------------ #}
 
 <div id="{{ id }}" class="cc-w{% if not settings.showAvatar %} no-avatar{% endif %}">
-    {% if currentUser and settings.notificationReplyEnabled %}
+    {% if currentUser and settings.notificationSubscribeEnabled %}
         {% set subscribed = craft.comments.isSubscribed(element) %}
 
         <div class="cc-w-h">

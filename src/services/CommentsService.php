@@ -8,6 +8,7 @@ use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Component;
+use craft\elements\User;
 use craft\helpers\Json;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
@@ -233,18 +234,6 @@ class CommentsService extends Component
             return;
         }
 
-        // Check if the recipient has opted-out of emails. Note the default behaviour is to always receive them
-        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($comment->ownerId, $comment->ownerSiteId, $recipient->id);
-
-        // We only care if we have a record - and its explicitly set to none
-        if ($subscribe) {
-            if (!$subscribe->subscribed) {
-                Comments::log('User has unsubscribed from author notifications.');
-
-                return;
-            }
-        }
-
         try {
             $message = Craft::$app->getMailer()
                 ->composeFromKey('comments_author_notification', [
@@ -306,18 +295,6 @@ class CommentsService extends Component
             return;
         }
 
-        // Check if the recipient has opted-out of emails. Note the default behaviour is to always receive them
-        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($comment->ownerId, $comment->ownerSiteId, $recipient->id);
-
-        // We only care if we have a record - and its explicitly set to none
-        if ($subscribe) {
-            if (!$subscribe->subscribed) {
-                Comments::log('User has unsubscribed from reply notifications.');
-
-                return;
-            }
-        }
-
         try {
             $message = Craft::$app->getMailer()
                 ->composeFromKey('comments_reply_notification', [
@@ -335,6 +312,62 @@ class CommentsService extends Component
             Comments::log('Email sent successfully comment author (' . $recipient->email . ')');
         } else {
             Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
+        }
+    }
+
+    public function sendSubscribeNotificationEmail(Comment $comment)
+    {
+        $recipient = null;
+        $emailSent = null;
+
+        Comments::log('Prepare Subscribe Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            Comments::log('Cannot send reply notification: No element ' . json_encode($element));
+
+            return;
+        }
+
+        // Get all users subscribed to this element
+        $subscribed = Comments::$plugin->getSubscribe()->getSubscribeForOwner($element->id, $element->siteId);
+
+        // We only care if we have a record - and its explicitly set to none
+        if (!$subscribed) {
+            Comments::log('No users subscribed to this element.');
+
+            return;
+        }
+
+        foreach ($subscribed as $subscribe) {
+            try {
+                $user = Craft::$app->getElements()->getElementById($subscribe->userId, User::class);
+
+                if (!$user) {
+                    Comments::log('Unable to find user with ID: ' . $subscribe->userId);
+
+                    continue;
+                }
+
+                $message = Craft::$app->getMailer()
+                    ->composeFromKey('comments_subscriber_notification', [
+                        'element' => $element,
+                        'comment' => $comment,
+                    ])
+                    ->setTo($user);
+
+                if ($message->send()) {
+                    Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
+                } else {
+                    Comments::error('Unable to send email to subscriber (' . $user->email . ')');
+                }
+            } catch (\Throwable $e) {
+                Comments::error('Error sending reply notification: ' . $e->getMessage());
+
+                continue;
+            }
         }
     }
 

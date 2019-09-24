@@ -143,6 +143,11 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
                     'body' => Craft::t('comments', 'comments_reply_notification_body'),
+                ], [
+                    'key' => 'comments_subscriber_notification',
+                    'heading' => Craft::t('comments', 'comments_subscriber_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_subscriber_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_subscriber_notification_body'),
                 ]
             ]);
         });
