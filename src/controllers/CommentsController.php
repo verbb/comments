@@ -292,11 +292,13 @@ class CommentsController extends Controller
 
         $ownerId = $request->getParam('ownerId');
         $siteId = $request->getParam('siteId');
+        $commentId = $request->getParam('commentId', null);
         $userId = $currentUser->id ?? null;
 
-        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId) ?? new Subscribe();
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId, $commentId) ?? new Subscribe();
         $subscribe->ownerId = $ownerId;
         $subscribe->ownerSiteId = $siteId;
+        $subscribe->commentId = $commentId;
 
         // Okay if no user here, although required, the model validation will pick it up
         $subscribe->userId = $userId;

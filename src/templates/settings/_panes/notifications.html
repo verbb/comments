@@ -24,13 +24,39 @@
     warning: macros.configWarning('notificationReplyEnabled', 'comments'),
 }) }}
 
+<hr>
+
+<h3>Subscribing</h3>
+
 {{ forms.lightswitchField({
-    label: "Allow Subscribe Notifications" | t('comments'),
-    instructions: "Users can subscribe to any comment made on an element." | t('comments'),
+    label: "Auto-Subscribe Users to Replies on their Comments" | t('comments'),
+    instructions: "Whether to automatically subscribe to notifications on comments that the user owns. This means, any time another user replies to a comment they own, they'll receive a notification." | t('comments'),
+    id: 'notificationSubscribeDefault',
+    name: 'notificationSubscribeDefault',
+    on: settings.notificationSubscribeDefault,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationSubscribeDefault', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Allow Subscriber Notifications" | t('comments'),
+    instructions: "Users can subscribe to any comment made on an element. This will display a 'Subscribe' button at the top of your comments thread. Shown only for logged in users." | t('comments'),
     id: 'notificationSubscribeEnabled',
     name: 'notificationSubscribeEnabled',
     on: settings.notificationSubscribeEnabled,
     onLabel: "Enable" | t('comments'),
     offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeEnabled', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Allow Per-Comment Subscriber Notifications" | t('comments'),
+    instructions: "Users can subscribe to a specific thread of comments made on an element. This will display a 'Subscribe' button for each comment. Shown only for logged in users." | t('comments'),
+    id: 'notificationSubscribeCommentEnabled',
+    name: 'notificationSubscribeCommentEnabled',
+    on: settings.notificationSubscribeCommentEnabled,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationSubscribeCommentEnabled', 'comments'),
 }) }}

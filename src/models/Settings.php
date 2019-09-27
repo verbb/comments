@@ -53,7 +53,9 @@ class Settings extends Model
     // Notifications
     public $notificationAuthorEnabled = true;
     public $notificationReplyEnabled = true;
+    public $notificationSubscribeDefault = true;
     public $notificationSubscribeEnabled = false;
+    public $notificationSubscribeCommentEnabled = false;
 
     // Permissions
     public $permissions;

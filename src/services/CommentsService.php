@@ -9,6 +9,7 @@ use verbb\comments\elements\Comment;
 use Craft;
 use craft\base\Component;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
@@ -92,7 +93,7 @@ class CommentsService extends Component
         $view->registerAssetBundle(FrontEndAsset::class);
 
         if ($settings->outputDefaultJs) {
-            $view->registerJs('document.addEventListener("DOMContentLoaded", function(event) { new Comments.Instance(' .
+            $view->registerJs('window.addEventListener("load", function () { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
             '); });', $view::POS_END);
@@ -315,10 +316,21 @@ class CommentsService extends Component
         }
     }
 
+    private function _getCommentAncestors($comments, $comment)
+    {
+        if ($comment->parent) {
+            $comments[] = $comment->parent;
+
+            return $this->_getCommentAncestors($comments, $comment->parent);
+        }
+
+        return $comments;
+    }
+
     public function sendSubscribeNotificationEmail(Comment $comment)
     {
-        $recipient = null;
-        $emailSent = null;
+        $recipients = null;
+        // $emailSent = null;
 
         Comments::log('Prepare Subscribe Notifications.');
 
@@ -326,27 +338,53 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send reply notification: No element ' . json_encode($element));
+            Comments::log('Cannot send subscribe notification: No element ' . json_encode($element));
 
             return;
         }
 
-        // Get all users subscribed to this element
-        $subscribed = Comments::$plugin->getSubscribe()->getSubscribeForOwner($element->id, $element->siteId);
+        $subscribedUserIds = [];
 
-        // We only care if we have a record - and its explicitly set to none
-        if (!$subscribed) {
+        // Get all users subscribed to this element, generally.
+        $elementSubscribers = Comments::$plugin->getSubscribe()->getAllSubscribers($element->id, $element->siteId, null);
+
+        foreach ($elementSubscribers as $elementSubscriber) {
+            $subscribedUserIds[] = $elementSubscriber->userId;
+        }
+
+        // Then also check if we're replying to a comment and get all subscribers subscribing to that comment thread.
+        // But - by default, everyone subscribes to replies on their comment, so we want to check against that.
+        // Note the checks against ancestors, so we can check against an entire possible thread.
+        $commentAncestors = $this->_getCommentAncestors([], $comment);
+
+        foreach ($commentAncestors as $ancestor) {
+            // Only allow users to receive notifications
+            if (!$ancestor->userId) {
+                continue;
+            }
+
+            $hasSubscribed = Comments::$plugin->getSubscribe()->hasSubscribed($element->id, $element->siteId, $ancestor->userId, $ancestor->id);
+
+            if ($hasSubscribed) {
+                $subscribedUserIds[] = $ancestor->userId;
+            }
+        }
+
+        // Just in case there are any duplicates
+        $subscribedUserIds = array_unique($subscribedUserIds);
+
+        if (!$subscribedUserIds) {
             Comments::log('No users subscribed to this element.');
 
             return;
         }
 
-        foreach ($subscribed as $subscribe) {
+        foreach ($subscribedUserIds as $subscribedUserId) {
             try {
-                $user = Craft::$app->getElements()->getElementById($subscribe->userId, User::class);
+                $user = Craft::$app->getElements()->getElementById($subscribedUserId, User::class);
 
                 if (!$user) {
-                    Comments::log('Unable to find user with ID: ' . $subscribe->userId);
+                    Comments::log('Unable to find user with ID: ' . $subscribedUserId);
 
                     continue;
                 }

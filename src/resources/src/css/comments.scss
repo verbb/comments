@@ -378,11 +378,17 @@ a {
     margin-bottom: 1rem;
 }
 
-.cc-w-h a {
+//
+// Subscribing
+//
+
+.cc-sub {
     color: #656c7a;
     font-size: 80%;
     font-weight: 600;
     transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
 
     &.is-subscribed,
     &.is-subscribed:hover,
@@ -396,19 +402,14 @@ a {
     }
 }
 
-.cc-w-h-i {
-    display: inline-flex;
-    align-items: center;
-}
-
-.cc-w-h .cc-icon-envelope svg {
+.cc-sub .cc-icon-envelope svg {
     width: 17px;
     height: 19px;
     fill: inherit;
     margin-right: 5px;
 }
 
-.cc-w-h .cc-icon-check svg {
+.cc-sub .cc-icon-check svg {
     width: 12px;
     height: 14px;
     fill: inherit;
@@ -417,7 +418,7 @@ a {
     transition: opacity 0.2s ease;
 }
 
-.cc-w-h .is-subscribed .cc-icon-check svg {
+.cc-sub.is-subscribed .cc-icon-check svg {
     opacity: 1;
 }
 

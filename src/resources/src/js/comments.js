@@ -278,7 +278,6 @@ Comments.Instance = Comments.Base.extend({
                 }
             }.bind(this),   
         });
-
     },
 });
 
@@ -306,6 +305,8 @@ Comments.Comment = Comments.Base.extend({
         this.$upvoteBtn = $contentContainer.querySelector('[data-action="upvote"]');
         this.$downvoteBtn = $contentContainer.querySelector('[data-action="downvote"]');
 
+        this.$subscribeBtn = $contentContainer.querySelector('[data-action="subscribe"]');
+
         // Additional classes
         this.replyForm = new Comments.ReplyForm(this);
         this.editForm = new Comments.EditForm(this);
@@ -319,6 +320,8 @@ Comments.Comment = Comments.Base.extend({
 
         this.addListener(this.$upvoteBtn, 'click', this.upvote);
         this.addListener(this.$downvoteBtn, 'click', this.downvote);
+
+        this.addListener(this.$subscribeBtn, 'click', this.subscribe);
     },
 
     reply: function(e) {
@@ -435,6 +438,30 @@ Comments.Comment = Comments.Base.extend({
         }
         
         $like.textContent = count;
+    },
+
+    subscribe: function(e) {
+        e.preventDefault();
+
+        var ownerId = this.instance.settings.element.id;
+        var siteId = this.siteId;
+        var commentId = this.commentId;
+
+        this.toggleClass(this.$subscribeBtn, 'is-subscribed');
+
+        this.ajax(Comments.baseUrl + 'subscribe', {
+            method: 'POST',
+            data: this.serializeObject({ ownerId: ownerId, siteId: siteId, commentId: commentId }),
+            success: function(xhr) {
+                if (!xhr.success) {
+                    throw new Error(xhr);
+                }
+            }.bind(this),
+            error: function(response) {
+                if (response.errors) {
+                }
+            }.bind(this),   
+        });
     },
 });
 

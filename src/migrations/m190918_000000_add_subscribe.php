@@ -21,6 +21,7 @@ class m190918_000000_add_subscribe extends Migration
                 'ownerId' => $this->integer(),
                 'ownerSiteId' => $this->integer(),
                 'userId' => $this->integer(),
+                'commentId' => $this->integer(),
                 'subscribed' => $this->boolean(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),

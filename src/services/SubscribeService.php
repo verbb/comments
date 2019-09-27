@@ -25,12 +25,13 @@ class SubscribeService extends Component
     // Public Methods
     // =========================================================================
 
-    public function getSubscribeForOwner($ownerId, $ownerSiteId)
+    public function getAllSubscribers($ownerId, $ownerSiteId, $commentId)
     {
         $items = [];
 
+        // First, find all subscribers that are subscribing to the element overall
         $results = $this->_createSubscribeQuery()
-            ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId])
+            ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId, 'commentId' => $commentId, 'subscribed' => true])
             ->all();
 
         foreach ($results as $result) {
@@ -40,35 +41,42 @@ class SubscribeService extends Component
         return $items;
     }
 
-    public function getSubscribe($ownerId, $ownerSiteId, $userId)
+    public function getSubscribe($ownerId, $ownerSiteId, $userId, $commentId = null)
     {
         $result = $this->_createSubscribeQuery()
-            ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId, 'userId' => $userId])
+            ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId, 'userId' => $userId, 'commentId' => $commentId])
             ->one();
 
         return $result ? new SubscribeModel($result) : null;
     }
 
-    public function hasSubscribed($ownerId, $ownerSiteId, $userId)
+    public function hasSubscribed($ownerId, $ownerSiteId, $userId, $commentId = null)
     {
         $settings = Comments::$plugin->getSettings();
 
-        // Check for any database records, but if none, make sure to check the global
+        // Check if subscribed globally to the element, or to a particular comment
         $hasSubscribed = $this->_createSubscribeQuery()
             ->where([
                 'ownerId' => $ownerId,
                 'ownerSiteId' => $ownerSiteId,
                 'userId' => $userId,
+                'commentId' => $commentId,
             ])
             ->one();
 
         if ($hasSubscribed) {
-            return $hasSubscribed['subscribed'];
-        } else if (!$settings->notificationReplyEnabled) {
-            return false;
+            return (bool)$hasSubscribed['subscribed'];
+        } else if ($commentId && $settings->notificationSubscribeDefault) {
+            // If not specifically subscribed, check if we're checking against a comment. 
+            // If its the own users' they're automatically subscribed to replies on their own comments
+            $comment = Comments::$plugin->comments->getCommentById($commentId, $ownerSiteId);
+
+            if ($comment && $comment->userId == $userId) {
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     public function toggleSubscribe(SubscribeModel $subscribe, bool $runValidation = true): bool
@@ -77,10 +85,13 @@ class SubscribeService extends Component
 
         $subscribed = !$subscribe->subscribed;
 
-        // Make sure to check if null - that means there's no records, and we need to check the global
-        // setting first to get the initial state - then toggle that.
-        if (is_null($subscribe->subscribed)) {
-            if ($settings->notificationReplyEnabled) {
+        // Make sure to check if null - that means there's no records. We want to check if
+        // we're toggling on our own comment, and if so, we're unsubscribing, because by default
+        // you subscribe to your own comment thread.
+        if (is_null($subscribe->subscribed) && $subscribe->commentId && $settings->notificationSubscribeDefault) {
+            $comment = Comments::$plugin->comments->getCommentById($subscribe->commentId, $subscribe->ownerSiteId);
+
+            if ($comment && $comment->userId == $subscribe->userId) {
                 $subscribed = false;
             }
         }
@@ -111,6 +122,7 @@ class SubscribeService extends Component
         $subscribeRecord->ownerId = $subscribe->ownerId;
         $subscribeRecord->ownerSiteId = $subscribe->ownerSiteId;
         $subscribeRecord->userId = $subscribe->userId;
+        $subscribeRecord->commentId = $subscribe->commentId;
         $subscribeRecord->subscribed = $subscribe->subscribed;
 
         // Save the record
@@ -190,6 +202,7 @@ class SubscribeService extends Component
                 'ownerId',
                 'ownerSiteId',
                 'userId',
+                'commentId',
                 'subscribed',
             ])
             ->from(['{{%comments_subscribe}}']);

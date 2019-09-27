@@ -16,6 +16,7 @@ class Subscribe extends Model
     public $ownerId;
     public $ownerSiteId;
     public $userId;
+    public $commentId;
     public $subscribed;
 
 

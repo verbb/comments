@@ -68,6 +68,7 @@ class Install extends Migration
             'ownerId' => $this->integer(),
             'ownerSiteId' => $this->integer(),
             'userId' => $this->integer(),
+            'commentId' => $this->integer(),
             'subscribed' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -96,6 +97,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%comments_subscribe}}', 'ownerId', false);
         $this->createIndex(null, '{{%comments_subscribe}}', 'ownerSiteId', false);
         $this->createIndex(null, '{{%comments_subscribe}}', 'userId', false);
+        $this->createIndex(null, '{{%comments_subscribe}}', 'commentId', false);
     }
 
     public function addForeignKeys()
@@ -111,6 +113,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'ownerId', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'ownerSiteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%comments_subscribe}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
     }
     
     public function dropForeignKeys()
@@ -126,5 +129,6 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
     }
 }

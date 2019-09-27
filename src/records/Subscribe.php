@@ -32,4 +32,9 @@ class Subscribe extends ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
     }
+
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Comment::class, ['id' => 'commentId']);
+    }
 }
