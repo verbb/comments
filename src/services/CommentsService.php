@@ -406,8 +406,7 @@ class CommentsService extends Component
 		$message = Craft::$app->getMailer()
 		    ->composeFromKey($emailkey, [
 			'element' => $element,
-			'comment' => $comment,
-			'ids' => $subscribedUserIds
+			'comment' => $comment
 		    ])
 		    ->setTo($user);
 
