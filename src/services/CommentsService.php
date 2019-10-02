@@ -55,7 +55,7 @@ class CommentsService extends Component
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
         
-        $variables = [
+        $jsVariables = [
             'baseUrl' => UrlHelper::actionUrl(),
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
@@ -70,20 +70,25 @@ class CommentsService extends Component
             ]
         ];
 
-        // Build our complete form
-        $formHtml = $view->renderTemplate('comments', [
+        // Prepare variables to pass to templates - important to include route params
+        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
+
+        $variables = array_merge($routeParams, [
             'id' => $id,
             'element' => $element,
             'commentsQuery' => $query,
             'settings' => $settings,
-        ]);
+        ]); 
+
+        // Build our complete form
+        $formHtml = $view->renderTemplate('comments', $variables);
 
         $view->registerAssetBundle(FrontEndAsset::class);
 
         if ($settings->outputDefaultJs) {
             $view->registerJs('new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
-                Json::encode($variables, JSON_UNESCAPED_UNICODE) .
+                Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
             ');', $view::POS_END);
         }
 
@@ -105,11 +110,16 @@ class CommentsService extends Component
         $templatePath = $this->_getTemplatePath();
         $view->setTemplatesPath($templatePath);
 
-        // Build our complete form
-        $formHtml = $view->renderTemplate('comment', [
+        // Prepare variables to pass to templates - important to include route params
+        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
+
+        $variables = array_merge($routeParams, [
             'comment' => $comment,
             'settings' => $settings,
         ]);
+
+        // Build our complete form
+        $formHtml = $view->renderTemplate('comment', $variables);
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 

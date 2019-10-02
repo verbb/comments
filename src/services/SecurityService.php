@@ -6,6 +6,7 @@ use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\StringHelper;
 
 use DateTime;
 
@@ -99,12 +100,18 @@ class SecurityService extends Component
                 continue;
             }
 
+            // Cleanup the string content coming from submissions
+            $attr = trim($attr);
+
+            // Strip out encoded text
+            $attr = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $attr);
+
             foreach ($values as $value) {
-                if (trim($value)) {
-                    if (stristr(trim($attr), trim($value))) {
-                        // Found a match - that's all folks!
-                        return true;
-                    }
+                $value = trim($value);
+
+                if ($value && stristr($attr, $value)) {
+                    // Found a match - that's all folks!
+                    return true;
                 }
             }
         }

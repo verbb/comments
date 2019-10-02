@@ -104,11 +104,13 @@ class CommentsController extends Controller
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
+                    'comment' => $comment,
                     'errors' => $comment->getErrors(),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
+                'comment' => $comment,
                 'errors' => $comment->getErrors(),
             ]);
 
@@ -127,6 +129,7 @@ class CommentsController extends Controller
             return $this->asJson([
                 'success' => true,
                 'id' => $comment->id,
+                'comment' => $comment,
                 'html' => $html,
                 'notice' => $notice,
             ]);
@@ -154,11 +157,13 @@ class CommentsController extends Controller
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
+                    'flag' => $flag,
                     'errors' => $flag->getErrors(),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
+                'flag' => $flag,
                 'errors' => $flag->getErrors(),
             ]);
 
@@ -172,6 +177,7 @@ class CommentsController extends Controller
 
             return $this->asJson([
                 'success' => true,
+                'flag' => $flag,
                 'notice' => Craft::t('comments', $message),
             ]);
         }
@@ -220,11 +226,13 @@ class CommentsController extends Controller
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
+                    'vote' => $vote,
                     'errors' => $vote->getErrors(),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
+                'vote' => $vote,
                 'errors' => $vote->getErrors(),
             ]);
 
@@ -234,6 +242,7 @@ class CommentsController extends Controller
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
+                'vote' => $vote,
             ]);
         }
 
@@ -251,11 +260,13 @@ class CommentsController extends Controller
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
+                    'comment' => $comment,
                     'errors' => $comment->getErrors(),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
+                 'comment' => $comment,
                 'errors' => $comment->getErrors(),
             ]);
 
@@ -265,6 +276,7 @@ class CommentsController extends Controller
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
+                'comment' => $comment,
                 'id' => $comment->id,
             ]);
         }

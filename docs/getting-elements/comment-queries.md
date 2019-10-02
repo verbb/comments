@@ -897,24 +897,24 @@ Possible values include:
 
 | Value | Fetches comments…
 | - | -
-| `'live'` _(default)_ | that are live.
-| `'pending'` | that are pending (enabled with a Post Date in the future).
-| `'expired'` | that are expired (enabled with an Expiry Date in the past).
-| `'disabled'` | that are disabled.
-| `['live', 'pending']` | that are live or pending.
+| `'approved'` _(default)_ | that are approved.
+| `'pending'` | that are pending.
+| `'spam'` | that are marked as spam.
+| `'trashed'` | that are trashed (not deleted).
+| `['approved', 'pending']` | that are approved or pending.
 
 ::: code
 ```twig
-{# Fetch disabled comments #}
+{# Fetch pending comments #}
 {% set comments = {twig-function}
-    .status('disabled')
+    .status('pending')
     .all() %}
 ```
 
 ```php
-// Fetch disabled comments
+// Fetch pending comments
 $comments = \verbb\comments\elements\Comment::find()
-    ->status('disabled')
+    ->status('pending')
     ->all();
 ```
 :::

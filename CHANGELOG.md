@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.1.10 - 2019-09-18
+
+### Fixed
+- Fix incorrect variables being passed to JS.
+
+## 1.1.9 - 2019-08-31
+
+### Added
+- Added `guestRequireEmailName`, to control whether guests email and name should be required. True by default.
+- Add some example no-JS templates.
+
+### Fixed
+- Fix lack of returning comment/flag/vote models when performing actions on them.
+
+## 1.1.8 - 2019-08-06
+
+### Added
+- Update missing translations. (thanks @skoften).
+
+### Fixed
+- Improve security keyword checking. (thanks @skoften).
+- Ensure actual comment content was being checked against security keywords. (thanks @skoften).
+- Fix error when anonymous commenting was enabled.
+- Fix error when deleting comment from CP.
+
 ## 1.1.7.1 - 2019-05-25
 
 ### Fixed

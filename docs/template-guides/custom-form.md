@@ -53,3 +53,9 @@ A simple form that handles both logged-in users, and anonymous users. There are 
 The crucial parts are the `name` attributes for form elements, along with the `elementId`, `siteId` and `action` hidden fields.
 
 The `craft.comments.protect()` call includes additional fields that are used to prevent spam comments being submitted. Read the [Anti-Spam](docs:feature-tour/anti-spam) page for more.
+
+### Non-JS Examples
+
+We've put together an example using no Javascript, for a more traditional approach. You'll also likely want to turn off `Output default JS` in the plugin settings.
+
+View these example templates via [Github](https://github.com/verbb/comments/tree/craft-3/examples).
