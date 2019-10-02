@@ -388,7 +388,14 @@ class CommentsService extends Component
 
                     continue;
                 }
-
+                
+				// skip for current user
+				$currentUser = Craft::$app->getUser()->getIdentity();
+				
+				if($user->id == $currentUser->id) {
+					continue;
+				}
+                
                 $message = Craft::$app->getMailer()
                     ->composeFromKey('comments_subscriber_notification', [
                         'element' => $element,
