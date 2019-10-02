@@ -8,6 +8,8 @@ use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Component;
+use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
@@ -54,9 +56,12 @@ class CommentsService extends Component
 
         $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
+
+        // Normalise the action URL
+        $actionUrl = trim(UrlHelper::actionUrl(), '/');
         
         $jsVariables = [
-            'baseUrl' => UrlHelper::actionUrl(),
+            'baseUrl' => $actionUrl,
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
             'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
@@ -78,7 +83,9 @@ class CommentsService extends Component
             'element' => $element,
             'commentsQuery' => $query,
             'settings' => $settings,
-        ]); 
+        ]);
+
+        $jsVariables = array_merge($jsVariables, $variables);
 
         // Build our complete form
         $formHtml = $view->renderTemplate('comments', $variables);
@@ -86,10 +93,10 @@ class CommentsService extends Component
         $view->registerAssetBundle(FrontEndAsset::class);
 
         if ($settings->outputDefaultJs) {
-            $view->registerJs('new Comments.Instance(' .
+            $view->registerJs('window.addEventListener("load", function () { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            ');', $view::POS_END);
+            '); });', $view::POS_END);
         }
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
@@ -215,13 +222,6 @@ class CommentsService extends Component
             Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
-        // Check for Matrix and other elements which have an owner
-        // if ($element->getOwner()) {
-        //     if ($element->getOwner()->getAuthor()) {
-        //         $recipient = $element->getOwner()->getAuthor();
-        //     }
-        // }
-
         if (!$recipient) {
             Comments::log('Cannot send element author notification: No recipient ' . json_encode($recipient));
 
@@ -313,6 +313,99 @@ class CommentsService extends Component
             Comments::log('Email sent successfully comment author (' . $recipient->email . ')');
         } else {
             Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
+        }
+    }
+
+    private function _getCommentAncestors($comments, $comment)
+    {
+        if ($comment->parent) {
+            $comments[] = $comment->parent;
+
+            return $this->_getCommentAncestors($comments, $comment->parent);
+        }
+
+        return $comments;
+    }
+
+    public function sendSubscribeNotificationEmail(Comment $comment)
+    {
+        $recipients = null;
+        // $emailSent = null;
+
+        Comments::log('Prepare Subscribe Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            Comments::log('Cannot send subscribe notification: No element ' . json_encode($element));
+
+            return;
+        }
+
+        $subscribedUserIds = [];
+
+        // Get all users subscribed to this element, generally.
+        $elementSubscribers = Comments::$plugin->getSubscribe()->getAllSubscribers($element->id, $element->siteId, null);
+
+        foreach ($elementSubscribers as $elementSubscriber) {
+            $subscribedUserIds[] = $elementSubscriber->userId;
+        }
+
+        // Then also check if we're replying to a comment and get all subscribers subscribing to that comment thread.
+        // But - by default, everyone subscribes to replies on their comment, so we want to check against that.
+        // Note the checks against ancestors, so we can check against an entire possible thread.
+        $commentAncestors = $this->_getCommentAncestors([], $comment);
+
+        foreach ($commentAncestors as $ancestor) {
+            // Only allow users to receive notifications
+            if (!$ancestor->userId) {
+                continue;
+            }
+
+            $hasSubscribed = Comments::$plugin->getSubscribe()->hasSubscribed($element->id, $element->siteId, $ancestor->userId, $ancestor->id);
+
+            if ($hasSubscribed) {
+                $subscribedUserIds[] = $ancestor->userId;
+            }
+        }
+
+        // Just in case there are any duplicates
+        $subscribedUserIds = array_unique($subscribedUserIds);
+
+        if (!$subscribedUserIds) {
+            Comments::log('No users subscribed to this element.');
+
+            return;
+        }
+
+        foreach ($subscribedUserIds as $subscribedUserId) {
+            try {
+                $user = Craft::$app->getElements()->getElementById($subscribedUserId, User::class);
+
+                if (!$user) {
+                    Comments::log('Unable to find user with ID: ' . $subscribedUserId);
+
+                    continue;
+                }
+
+                $message = Craft::$app->getMailer()
+                    ->composeFromKey('comments_subscriber_notification', [
+                        'element' => $element,
+                        'comment' => $comment,
+                    ])
+                    ->setTo($user);
+
+                if ($message->send()) {
+                    Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
+                } else {
+                    Comments::error('Unable to send email to subscriber (' . $user->email . ')');
+                }
+            } catch (\Throwable $e) {
+                Comments::error('Error sending reply notification: ' . $e->getMessage());
+
+                continue;
+            }
         }
     }
 

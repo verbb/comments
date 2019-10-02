@@ -28,6 +28,8 @@ class FrontEndAsset extends AssetBundle
             $this->js = [
                 'js/comments.js',
             ];
+
+            $this->jsOptions = ['defer' => 'defer', 'async' => 'async'];
         }
 
         parent::init();

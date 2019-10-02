@@ -691,6 +691,11 @@ class Comment extends Element
             } else {
                 Comments::log('Reply Notifications disabled.');
             }
+
+            // Check for all users subscribed to notifications
+            if ($settings->notificationSubscribeEnabled) {
+                Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
+            }
         }
 
         if ($this->_hasNewParent()) {

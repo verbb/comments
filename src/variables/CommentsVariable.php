@@ -28,6 +28,17 @@ class CommentsVariable
         return Template::raw($fields);
     }
 
+    public function isSubscribed($element, $comment = null)
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $elementId = $element->id ?? null;
+        $elementSiteId = $element->siteId ?? null;
+        $userId = $currentUser->id ?? null;
+        $commentId = $comment->id ?? null;
+
+        return Comments::$plugin->getSubscribe()->hasSubscribed($elementId, $elementSiteId, $userId, $commentId);
+    }
+
 
     // Deprecated Methods
     // =========================================================================

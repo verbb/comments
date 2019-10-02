@@ -369,4 +369,58 @@ a {
 }
 
 
+//
+// Widget Header
+//
+
+.cc-w-h {
+    border-bottom: 1px solid #dbdfe4;
+    margin-bottom: 1rem;
+}
+
+//
+// Subscribing
+//
+
+.cc-sub {
+    color: #656c7a;
+    font-size: 80%;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+
+    &.is-subscribed,
+    &.is-subscribed:hover,
+    &.is-subscribed:active {
+        color: #5cb767;
+    }
+
+    &:hover,
+    &:active {
+        color: darken(#656c7a, 15%);
+    }
+}
+
+.cc-sub .cc-icon-envelope svg {
+    width: 17px;
+    height: 19px;
+    fill: inherit;
+    margin-right: 5px;
+}
+
+.cc-sub .cc-icon-check svg {
+    width: 12px;
+    height: 14px;
+    fill: inherit;
+    margin-left: 7px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.cc-sub.is-subscribed .cc-icon-check svg {
+    opacity: 1;
+}
+
+
 }

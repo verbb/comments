@@ -15,6 +15,12 @@ return [
     'comments_reply_notification_body' => "Hey {{user.friendlyName}},\n\n" .
         "A new reply to your comment on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
+
+    'comments_subscriber_notification_heading' => 'When a comment is received:',
+    'comments_subscriber_notification_subject' => '"{{element.title}}" has received a comment on {{siteName}}.',
+    'comments_subscriber_notification_body' => "Hey {{user.friendlyName}},\n\n" .
+        "A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
+        "{{element.url}}#comment-{{comment.id}}.",
     
     //  
     // Email templates
@@ -26,7 +32,7 @@ return [
     'Post comment' => 'Submit',
     
 	//
-	// validation
+	// Validation
 	//
 
 	'Form validation failed. Marked as spam.' => 'Oops, comment validation failed. Marked as spam.',
