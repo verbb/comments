@@ -60,6 +60,9 @@ class CommentsService extends Component
         // Normalise the action URL
         $actionUrl = trim(UrlHelper::actionUrl(), '/');
         
+	// get relative path
+	$actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
+	    
         $jsVariables = [
             'baseUrl' => $actionUrl,
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
