@@ -392,19 +392,24 @@ class CommentsService extends Component
                     continue;
                 }
                 
-				// skip for current user
-				$currentUser = Craft::$app->getUser()->getIdentity();
-				
-				if($user->id == $currentUser->id) {
-					continue;
-				}
-                
-                $message = Craft::$app->getMailer()
-                    ->composeFromKey('comments_subscriber_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                    ])
-                    ->setTo($user);
+		// skip for current user
+		$currentUser = Craft::$app->getUser()->getIdentity();
+
+		if($user->id == $currentUser->id) {
+			continue;
+		}
+		
+		// separate email keys for comment on comment vs comment on entry
+		$emailkey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+
+				// get message
+		$message = Craft::$app->getMailer()
+		    ->composeFromKey($emailkey, [
+			'element' => $element,
+			'comment' => $comment,
+			'ids' => $subscribedUserIds
+		    ])
+		    ->setTo($user);
 
                 if ($message->send()) {
                     Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
