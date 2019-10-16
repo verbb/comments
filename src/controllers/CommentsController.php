@@ -373,10 +373,11 @@ class CommentsController extends Controller
             $comment->userId = ($currentUser) ? $currentUser->id : null;
         }
 
-		// set comment url
-		// can be set via the comment form for custom urls
-		// default value: current referrer
-		$comment->url = ( $request->getParam("url") && $request->getParam("url") != "" ) ? $request->getParam("url") :  $request->referrer;
+
+	// set comment url
+	// can be set via the comment form for custom urls
+	// default value: current referrer
+	$comment->url = ( $request->getParam("url") && $request->getParam("url") != "" ) ? $request->getParam("url") :  $request->referrer;
         
         // Other handy stuff
         $comment->url = $request->referrer;
