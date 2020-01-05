@@ -16,10 +16,16 @@ return [
         "A new reply to your comment on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
-    'comments_subscriber_notification_heading' => 'When a comment is received:',
-    'comments_subscriber_notification_subject' => '"{{element.title}}" has received a comment on {{siteName}}.',
-    'comments_subscriber_notification_body' => "Hey {{user.friendlyName}},\n\n" .
+    'comments_subscriber_notification_element_heading' => 'When a comment is made on a subscribed element:',
+    'comments_subscriber_notification_element_subject' => 'A new comment has been made on {{ element.title }}',
+    'comments_subscriber_notification_element_body' => "Hi {{user.friendlyName}},\n\n" .
         "A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
+        "{{element.url}}#comment-{{comment.id}}.",
+
+    'comments_subscriber_notification_comment_heading' => 'When someone response to another comment:',
+    'comments_subscriber_notification_comment_subject' => 'Someone responded to your comment on {{ siteName }}',
+    'comments_subscriber_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+        "Somebody replied on your comment on the post \"{{ element.title }}\".\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
     
     //  

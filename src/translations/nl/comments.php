@@ -14,6 +14,19 @@ return [
 	'comments_reply_notification_body' => "Hi {{user.friendlyName}},\n\n" .
 		"Er is een nieuwe reactie op de post \"{{ element.title }}\" geplaatst.\n\n" .
 		"{{element.url}}#comment-{{comment.id}}.",
+
+	'comments_subscriber_notification_element_heading' => 'When a comment is made on a subscribed element:',
+	'comments_subscriber_notification_element_subject' => 'Iemand heeft een reactie geplaatst op {{ element.title }}',
+	'comments_subscriber_notification_element_body' => "Hi {{user.friendlyName}},\n\n" .
+	"A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
+	"{{element.url}}#comment-{{comment.id}}.",
+
+	'comments_subscriber_notification_comment_heading' => 'When a comment is made on another comment:',
+	'comments_subscriber_notification_comment_subject' => 'Iemand heeft op je gereageerd op {{ siteName }}',
+	'comments_subscriber_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+	"Somebody replied on your comment on the post \"{{ element.title }}\".\n\n" .
+	"{{element.url}}#comment-{{comment.id}}.",
+	
 	//  
 	// Email templates
 	//
