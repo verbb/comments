@@ -383,6 +383,9 @@ class CommentsController extends Controller
         $comment->email = $request->getParam('fields.email', $comment->email);
         $comment->comment = $request->getParam('fields.comment', $comment->comment);
 
+        // Set any other field content
+        $comment->setFieldValuesFromRequest('fields');
+
         // Set any new comment to be pending if requireModeration is true
         if ($settings->requireModeration) {
             $comment->status = Comment::STATUS_PENDING;
