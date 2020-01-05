@@ -4,8 +4,11 @@ namespace verbb\comments\elements\db;
 use verbb\comments\elements\Comment;
 
 use craft\base\ElementInterface;
+use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use craft\models\Section;
 
 class CommentQuery extends ElementQuery
 {
@@ -28,10 +31,23 @@ class CommentQuery extends ElementQuery
 
     public $parentId;
     public $ownerType;
+    public $ownerSectionId;
+    public $ownerSection;
 
 
     // Public Methods
     // =========================================================================
+
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'ownerSection':
+                $this->ownerSection($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
 
     public function ownerType($value)
     {
@@ -77,6 +93,29 @@ class CommentQuery extends ElementQuery
             }
 
             $this->ownerSiteId($site->id);
+        }
+
+        return $this;
+    }
+
+    public function ownerSectionId($value)
+    {
+        $this->ownerSectionId = $value;
+        return $this;
+    }
+
+    public function ownerSection($value)
+    {
+        if ($value instanceof Section) {
+            $this->ownerSectionId = $value->id;
+        } else if ($value !== null) {
+            $this->ownerSectionId = (new Query())
+                ->select(['id'])
+                ->from([Table::SECTIONS])
+                ->where(Db::parseParam('handle', $value))
+                ->column();
+        } else {
+            $this->ownerSectionId = null;
         }
 
         return $this;
@@ -202,6 +241,11 @@ class CommentQuery extends ElementQuery
         if ($this->ownerType) {
             $this->subQuery->innerJoin('{{%elements}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
             $this->subQuery->andWhere(Db::parseParam('ownerElements.type', $this->ownerType));
+        }
+
+        if ($this->ownerSection) {
+            $this->subQuery->innerJoin('{{%elements}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
+            $this->subQuery->andWhere(Db::parseParam('ownerElements.sectionId', $this->ownerSectionId));
         }
 
         return parent::beforePrepare();
