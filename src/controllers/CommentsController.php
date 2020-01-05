@@ -372,15 +372,9 @@ class CommentsController extends Controller
         if (!$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
         }
-
-
-	// set comment url
-	// can be set via the comment form for custom urls
-	// default value: current referrer
-	$comment->url = ( $request->getParam("url") && $request->getParam("url") != "" ) ? $request->getParam("url") :  $request->referrer;
         
         // Other handy stuff
-        $comment->url = $request->referrer;
+        $comment->url = $request->getParam('url', $request->referrer);
         $comment->ipAddress = $request->getUserIP();
         $comment->userAgent = $request->getUserAgent();
 

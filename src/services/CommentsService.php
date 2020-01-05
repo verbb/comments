@@ -59,9 +59,7 @@ class CommentsService extends Component
 
         // Normalise the action URL
         $actionUrl = trim(UrlHelper::actionUrl(), '/');
-        
-	// get relative path
-	$actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
+        $actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
 	    
         $jsVariables = [
             'baseUrl' => $actionUrl,
@@ -392,23 +390,22 @@ class CommentsService extends Component
                     continue;
                 }
                 
-		// skip for current user
-		$currentUser = Craft::$app->getUser()->getIdentity();
+        		// Skip for current user
+        		$currentUser = Craft::$app->getUser()->getIdentity();
 
-		if($user->id == $currentUser->id) {
-			continue;
-		}
-		
-		// separate email keys for comment on comment vs comment on entry
-		$emailkey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+        		if ($user->id == $currentUser->id) {
+        			continue;
+        		}
+        		
+        		// Separate email keys for comment on comment vs comment on entry
+        		$emailkey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
 
-				// get message
-		$message = Craft::$app->getMailer()
-		    ->composeFromKey($emailkey, [
-			'element' => $element,
-			'comment' => $comment
-		    ])
-		    ->setTo($user);
+        		$message = Craft::$app->getMailer()
+        		    ->composeFromKey($emailkey, [
+            			'element' => $element,
+            			'comment' => $comment
+        		    ])
+        		    ->setTo($user);
 
                 if ($message->send()) {
                     Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
