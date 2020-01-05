@@ -118,13 +118,16 @@ class Comment extends Element
             ]
         ];
 
-        $indexSidebarLimit =  Comments::$plugin->getSettings()->indexSidebarLimit;
+        $indexSidebarLimit = Comments::$plugin->getSettings()->indexSidebarLimit;
+        $indexSidebarGroup = Comments::$plugin->getSettings()->indexSidebarGroup;
+        $indexSidebarIndividualElements = Comments::$plugin->getSettings()->indexSidebarIndividualElements;
 
         $query = (new Query())
-            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title'])
+            ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title', 'entries.sectionId'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
+            ->leftJoin('{{%entries}} entries', '[[comments.ownerId]] = [[entries.id]]')
             ->limit($indexSidebarLimit)
             ->groupBy(['ownerId', 'title', 'elements.id']);
 
@@ -137,22 +140,40 @@ class Comment extends Element
 
         $commentedElements = $query->all();
 
+        // Keep a cache of sections here
+        $sectionsById = [];
+
+        foreach (Craft::$app->getSections()->getAllSections() as $section) {
+            $sectionsById[$section->id] = $section;
+        }
+
         foreach ($commentedElements as $element) {
+            $elementGroupPrefix = '';
+
             switch ($element['type']::displayName()) {
                 case 'Entry':
                     $displayName = 'Entries';
+                    $elementGroupPrefix = 'section';
+
                     break;
                 case 'Category':
                     $displayName = 'Categories';
+                    $elementGroupPrefix = 'categorygroup';
+
                     break;
                 case 'Asset':
                     $displayName = 'Assets';
+                    $elementGroupPrefix = 'volume';
+
                     break;
                 case 'User':
                     $displayName = 'Users';
+                    $elementGroupPrefix = 'usergroup';
+
                     break;
                 default:
                     $displayName = $element['type']::displayName();
+
                     break;
             }
 
@@ -171,16 +192,34 @@ class Comment extends Element
                 'defaultSort' => ['structure', 'asc'],
             ];
 
-            $sources['elements:' . $element['ownerId']] = [
-                'key' => 'elements:' . $element['ownerId'],
-                'label' => $element['title'],
-                'structureId' => self::getStructureId(),
-                'structureEditable' => false,
-                'criteria' => [
-                    'ownerId' => $element['ownerId'],
-                ],
-                'defaultSort' => ['structure', 'asc'],
-            ];
+            // Just do sections for the moment
+            if ($indexSidebarGroup && $elementGroupPrefix == 'section' && $element['sectionId']) {
+                $section = $sectionsById[$element['sectionId']] ?? '';
+
+                $sources[$elementGroupPrefix . ':' . $element['sectionId']] = [
+                    'key' => $elementGroupPrefix . ':' . $element['sectionId'],
+                    'label' => $section->name ?? '',
+                    'structureId' => self::getStructureId(),
+                    'structureEditable' => false,
+                    'criteria' => [
+                        'ownerSectionId' => $element['sectionId'],
+                    ],
+                    'defaultSort' => ['structure', 'asc'],
+                ];
+            }
+
+            if ($indexSidebarIndividualElements) {
+                $sources['elements:' . $element['ownerId']] = [
+                    'key' => 'elements:' . $element['ownerId'],
+                    'label' => $element['title'],
+                    'structureId' => self::getStructureId(),
+                    'structureEditable' => false,
+                    'criteria' => [
+                        'ownerId' => $element['ownerId'],
+                    ],
+                    'defaultSort' => ['structure', 'asc'],
+                ];
+            }
         }
 
         return $sources;
