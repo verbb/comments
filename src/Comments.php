@@ -36,7 +36,7 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.1.1';
+    public $schemaVersion = '1.1.2';
     public $hasCpSettings = true;
     public $hasCpSection = true;
 
@@ -78,21 +78,21 @@ class Comments extends Plugin
     {
         // Comments are a Structure, which helps with hierarchy-goodness.
         // We only use a single structure for all our comments so store this at the plugin settings level
-        if (!$this->getSettings()->structureId) {
+        if (!$this->getSettings()->structureUid) {
             $structure = new Structure();
 
             Craft::$app->getStructures()->saveStructure($structure);
 
             // Update our plugin settings straight away!
-            Craft::$app->getPlugins()->savePluginSettings($this, ['structureId' => $structure->id]);
+            Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
         }
     }
 
     public function beforeUninstall(): bool
     {
         // Clean up structure
-        if ($this->getSettings()->structureId) {
-            Craft::$app->getStructures()->deleteStructureById($this->getSettings()->structureId);
+        if ($this->getSettings()->structureUid) {
+            Craft::$app->getStructures()->deleteStructureById($this->getSettings()->getStructureId());
         }
 
         return true;

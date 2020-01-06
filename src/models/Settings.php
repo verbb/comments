@@ -5,13 +5,15 @@ use verbb\comments\Comments;
 
 use Craft;
 use craft\base\Model;
+use craft\db\Table;
+use craft\helpers\Db;
 
 class Settings extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $structureId;
+    public $structureUid;
     public $closed;
     public $indexSidebarLimit = 25;
     public $indexSidebarGroup = true;
@@ -93,5 +95,10 @@ class Settings extends Model
         }
 
         return true;
+    }
+
+    public function getStructureId()
+    {
+        return Db::idByUid(Table::STRUCTURES, $this->structureUid);
     }
 }

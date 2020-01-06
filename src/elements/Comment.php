@@ -103,7 +103,7 @@ class Comment extends Element
 
     public static function getStructureId()
     {
-        return Comments::$plugin->getSettings()->structureId;
+        return Comments::$plugin->getSettings()->getStructureId();
     }
 
     protected static function defineSources(string $context = null): array
