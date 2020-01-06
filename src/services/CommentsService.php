@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\assetbundles\FrontEndAsset;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\elements\Comment;
+use verbb\comments\events\EmailEvent;
 
 use Craft;
 use craft\base\Component;
@@ -20,6 +21,15 @@ use DateTime;
 
 class CommentsService extends Component
 {
+    // Constants
+    // =========================================================================
+
+    const EVENT_BEFORE_SEND_AUTHOR_EMAIL = 'beforeSendAuthorEmail';
+    const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
+    const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
+    const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
+
+
     // Public Methods
     // =========================================================================
 
@@ -254,6 +264,16 @@ class CommentsService extends Component
                 ])
                 ->setTo($recipient);
 
+            // Fire a 'beforeSendAuthorEmail' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL)) {
+                $this->trigger(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL, new EmailEvent([
+                    'mail' => $message,
+                    'user' => $recipient,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]));
+            }
+
             $emailSent = $message->send();
         } catch (\Throwable $e) {
             Comments::error('Error sending element author notification: ' . $e->getMessage());
@@ -315,6 +335,16 @@ class CommentsService extends Component
                 ])
                 ->setTo($recipient);
 
+            // Fire a 'beforeSendReplyEmail' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_REPLY_EMAIL)) {
+                $this->trigger(self::EVENT_BEFORE_SEND_REPLY_EMAIL, new EmailEvent([
+                    'mail' => $message,
+                    'user' => $recipient,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]));
+            }
+
             $emailSent = $message->send();
         } catch (\Throwable $e) {
             Comments::error('Error sending reply notification: ' . $e->getMessage());
@@ -363,6 +393,16 @@ class CommentsService extends Component
                         'comment' => $comment,
                     ])
                     ->setTo($user);
+
+                // Fire a 'beforeSendModeratorEmail' event
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL)) {
+                    $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, new EmailEvent([
+                        'mail' => $mail,
+                        'user' => $user,
+                        'element' => $element,
+                        'comment' => $comment,
+                    ]));
+                }
 
                 $mail->send();
 
@@ -420,6 +460,16 @@ class CommentsService extends Component
                     'comment' => $comment,
                 ])
                 ->setTo($recipient);
+
+            // Fire a 'beforeSendModeratorApprovedEmail' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL)) {
+                $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, new EmailEvent([
+                    'mail' => $message,
+                    'user' => $recipient,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]));
+            }
 
             $emailSent = $message->send();
         } catch (\Throwable $e) {
