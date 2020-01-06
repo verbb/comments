@@ -148,3 +148,63 @@ Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $e) {
     // Do something
 });
 ```
+
+
+
+## Notification related events
+
+### The `beforeSendAuthorEmail` event
+
+Plugins can get notified before the author's email is sent
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $e) {
+
+});
+```
+
+### The `beforeSendReplyEmail` event
+
+Plugins can get notified before a reply email is sent
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL, function(EmailEvent $e) {
+
+});
+```
+
+### The `beforeSendModeratorEmail` event
+
+Plugins can get notified before each moderator's email is sent
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $e) {
+
+});
+```
+
+### The `beforeSendModeratorApprovedEmail` event
+
+Plugins can get notified before the moderator approved email is sent
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, function(EmailEvent $e) {
+
+});
+```
