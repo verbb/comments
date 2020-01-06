@@ -2,6 +2,7 @@
 namespace verbb\comments\models;
 
 use verbb\comments\Comments;
+use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Model;
@@ -18,6 +19,7 @@ class Settings extends Model
     public $indexSidebarLimit = 25;
     public $indexSidebarGroup = true;
     public $indexSidebarIndividualElements = false;
+    public $defaultQueryStatus = [Comment::STATUS_APPROVED];
 
     // General
     public $allowAnonymous = false;

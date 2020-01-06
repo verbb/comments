@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\elements\db;
 
+use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 
 use craft\base\ElementInterface;
@@ -20,7 +21,7 @@ class CommentQuery extends ElementQuery
     public $ownerId;
     public $ownerSiteId;
     public $userId;
-    public $status = Comment::STATUS_APPROVED;
+    public $status;
     public $name;
     public $email;
     public $comment;
@@ -37,6 +38,16 @@ class CommentQuery extends ElementQuery
 
     // Public Methods
     // =========================================================================
+
+    public function __construct($elementType, array $config = [])
+    {
+        // Default status
+        if (!isset($config['status'])) {
+            $config['status'] = Comments::$plugin->getSettings()->defaultQueryStatus;
+        }
+
+        parent::__construct($elementType, $config);
+    }
 
     public function __set($name, $value)
     {
