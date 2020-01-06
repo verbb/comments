@@ -189,7 +189,7 @@ class CommentsService extends Component
             $now = new DateTime('now');
             $interval = $now->diff($element->postDate);
 
-            if ($interval->d > $settings->autoCloseDays) {
+            if ($interval->days > $settings->autoCloseDays) {
                 return true;
             }
         }
