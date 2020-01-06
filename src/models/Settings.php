@@ -25,6 +25,7 @@ class Settings extends Model
     public $allowAnonymous = false;
     public $guestRequireEmailName = true;
     public $requireModeration = true;
+    public $moderatorUserGroup;
     public $autoCloseDays = '';
 
     // Voting
@@ -62,6 +63,8 @@ class Settings extends Model
     public $notificationSubscribeDefault = true;
     public $notificationSubscribeEnabled = false;
     public $notificationSubscribeCommentEnabled = false;
+    public $notificationModeratorEnabled = false;
+    public $notificationModeratorApprovedEnabled = false;
 
     // Permissions
     public $permissions;

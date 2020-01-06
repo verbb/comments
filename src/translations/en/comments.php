@@ -27,7 +27,20 @@ return [
     'comments_subscriber_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
         "Somebody replied on your comment on the post \"{{ element.title }}\".\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
+
+    'comments_moderator_notification_comment_heading' => 'When a comment has been made, and awaits moderation:',
+    'comments_moderator_notification_comment_subject' => 'A new comment requires moderation on {{ siteName }}',
+    'comments_moderator_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+        "A new comment on the post \"{{ element.title }}\" has been made and requires moderation.\n\n" .
+        "{{comment.cpEditUrl}}.",
+
+    'comments_moderator_approved_notification_comment_heading' => 'When a comment has been approved via moderation:',
+    'comments_moderator_approved_notification_comment_subject' => 'Your comment has been approved on {{ siteName }}',
+    'comments_moderator_approved_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+        "Your comment has been approved on the post \"{{ element.title }}\".\n\n" .
+        "{{element.url}}#comment-{{comment.id}}.",
     
+
     //  
     // Email templates
     //

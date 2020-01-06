@@ -8,8 +8,10 @@ use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Component;
+use craft\db\Table;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
@@ -197,9 +199,10 @@ class CommentsService extends Component
         return false;
     }
 
-
     public function sendAuthorNotificationEmail(Comment $comment)
     {
+        $settings = Comments::$plugin->getSettings();
+
         $recipient = null;
         $emailSent = null;
 
@@ -232,6 +235,13 @@ class CommentsService extends Component
         // If the author and commenter are the same user - don't send
         if ($comment->userId === $recipient->id) {
             Comments::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
+            return;
+        }
+
+        // Check for moderation notifications, this cancels this notification until its been approved
+        if ($settings->notificationModeratorEnabled) {
+            Comments::log('Not sending author notification - marked as pending (to be moderated).');
 
             return;
         }
@@ -314,6 +324,112 @@ class CommentsService extends Component
             Comments::log('Email sent successfully comment author (' . $recipient->email . ')');
         } else {
             Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
+        }
+    }
+
+    public function sendModeratorNotificationEmail(Comment $comment)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        $recipient = null;
+        $emailSent = null;
+
+        Comments::log('Prepare Moderator Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            Comments::log('Cannot send moderator notification: No element ' . json_encode($element));
+
+            return;
+        }
+
+        // Get our recipients - they're a user group
+        if (!$settings->moderatorUserGroup) {
+            Comments::log('Cannot send moderator notification: No moderator group set.');
+
+            return;
+        }
+
+        $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
+        $recipients = User::find()->groupId($groupId)->all();
+
+        foreach ($recipients as $key => $user) {
+            try {
+                $mail = Craft::$app->getMailer()
+                    ->composeFromKey('comments_moderator_notification', [
+                        'element' => $element,
+                        'comment' => $comment,
+                    ])
+                    ->setTo($user);
+
+                $mail->send();
+
+                Comments::log('Email sent successfully comment moderator (' . $user->email . ')');
+            } catch (\Throwable $e) {
+                Comments::error('Unable to send email to comment moderator (' . $user->email . ') - ' . $e->getMessage());
+            }
+        }
+    }
+
+    public function sendModeratorApprovedNotificationEmail(Comment $comment)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        $recipient = null;
+        $emailSent = null;
+
+        Comments::log('Prepare Moderator Approved Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            Comments::log('Cannot send element moderator author notification: No element ' . json_encode($element));
+
+            return;
+        }
+
+        // Get our recipient
+        try {        
+            if ($element->getAuthor()) {
+                $recipient = $element->getAuthor();
+            }
+        } catch(\Throwable $e) {
+            Comments::log('Not sending element moderator author notification, no author found: ' . $e->getMessage());
+        }
+
+        if (!$recipient) {
+            Comments::log('Cannot send element moderator author notification: No recipient ' . json_encode($recipient));
+
+            return;
+        }
+
+        // If the author and commenter are the same user - don't send
+        if ($comment->userId === $recipient->id) {
+            Comments::log('Cannot send element moderator author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
+            return;
+        }
+
+        try {
+            $message = Craft::$app->getMailer()
+                ->composeFromKey('comments_moderator_approved_notification', [
+                    'element' => $element,
+                    'comment' => $comment,
+                ])
+                ->setTo($recipient);
+
+            $emailSent = $message->send();
+        } catch (\Throwable $e) {
+            Comments::error('Error sending element moderator author notification: ' . $e->getMessage());
+        }
+
+        if ($emailSent) {
+            Comments::log('Email sent successfully to element moderator author (' . $recipient->email . ')');
+        } else {
+            Comments::error('Unable to send email to element moderator author (' . $recipient->email . ')');
         }
     }
 

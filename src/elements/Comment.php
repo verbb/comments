@@ -51,6 +51,7 @@ class Comment extends Element
     private $_hasNewParent;
     private $comment;
     private $_owner;
+    private $previousStatus;
 
 
     // Static Methods
@@ -676,6 +677,10 @@ class Comment extends Element
             $this->setParent($parentNode);
         }
 
+        // Save the current status for later - remember to fetch it fresh, as the model has already been updated
+        $originalElement = Craft::$app->getElements()->getElementById($this->id, Comment::class, $this->siteId);
+        $this->previousStatus = $originalElement->status;
+
         return parent::beforeSave($isNew);
     }
 
@@ -723,6 +728,13 @@ class Comment extends Element
                 Comments::log('Author Notifications disabled.');
             }
 
+            // Should we send moderator emails?
+            if ($settings->notificationModeratorEnabled && $this->status == self::STATUS_PENDING) {
+                Comments::$plugin->comments->sendModeratorNotificationEmail($this);
+            } else {
+                Comments::log('Moderator Notifications disabled.');
+            }
+
             // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
@@ -734,6 +746,15 @@ class Comment extends Element
             // Check for all users subscribed to notifications
             if ($settings->notificationSubscribeEnabled) {
                 Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
+            }
+        }
+
+        // Check to see if we're moderating, and has just switch from pending to approved
+        if ($this->previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
+            if ($settings->notificationModeratorApprovedEnabled) {
+                Comments::$plugin->comments->sendModeratorApprovedNotificationEmail($this);
+            } else {
+                Comments::log('Moderator Approved Notifications disabled.');
             }
         }
 

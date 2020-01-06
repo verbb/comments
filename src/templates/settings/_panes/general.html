@@ -23,8 +23,27 @@
     instructions: 'All comments require manual approval before being publicly visible.' | t('comments'),
     name: 'requireModeration',
     on: settings.requireModeration,
+    toggle: 'moderator-groups',
     warning: macros.configWarning('requireModeration', 'comments'),
 }) }}
+
+<div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
+    {% set groups = [{ label: "None" | t('workflow'), value: '' }] %}
+    {% for group in craft.app.userGroups.getAllGroups() %}
+        {% set groups = groups | merge([{ label: group.name, value: group.uid }]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Moderator User Group' | t('comments'),
+        instructions: 'Select the user group that should be classified as moderators. The will determine who notifications should be sent to.' | t('comments'),
+        id: 'moderatorUserGroup',
+        name: 'moderatorUserGroup',
+        value: settings.moderatorUserGroup,
+        errors: settings.getErrors('moderatorUserGroup'),
+        options: groups,
+        warning: macros.configWarning('moderatorUserGroup', 'comments'),
+    }) }}
+</div>
 
 <hr>
 

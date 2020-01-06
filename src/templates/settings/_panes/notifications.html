@@ -26,7 +26,7 @@
 
 <hr>
 
-<h3>Subscribing</h3>
+<h3>{{ 'Subscribing' | t('comments') }}</h3>
 
 {{ forms.lightswitchField({
     label: "Auto-Subscribe Users to Replies on their Comments" | t('comments'),
@@ -59,4 +59,32 @@
     onLabel: "Enable" | t('comments'),
     offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeCommentEnabled', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Moderators' | t('comments') }}</h3>
+
+{{ forms.lightswitchField({
+    first: true,
+    label: "Enable Moderator Notifications" | t('comments'),
+    instructions: "Whether a nominated user group should receive an email when a new comment has been made, and needs to be moderated. Note this will override author notifications, who shouldn't receive the notification until its been approved." | t('comments'),
+    id: 'notificationModeratorEnabled',
+    name: 'notificationModeratorEnabled',
+    on: settings.notificationModeratorEnabled,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationModeratorEnabled', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: "Enable Moderator-Approved Notifications" | t('comments'),
+    instructions: "Authors receive an email when the moderator has approved a comment." | t('comments'),
+    id: 'notificationModeratorApprovedEnabled',
+    name: 'notificationModeratorApprovedEnabled',
+    on: settings.notificationModeratorApprovedEnabled,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationModeratorApprovedEnabled', 'comments'),
 }) }}

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0 - 2020-01-06
+
+### Added
+- Add ability to subscribe to comment threads, or individual comments.
+- Add ability to save additional custom fields content to comments (when using custom templates). Just add your fields with `fields[myHandle]`.
+- Allow passing of custom comment url with a comment submission.
+- Add name of user to comment heading, when replying.
+- Add dutch translation for notifications messages. (thanks @skoften).
+- Add notification for "someone made a comment on element x". (thanks @skoften).
+- Add notification for "someone replied to your comment". (thanks @skoften).
+
+### Changed
+- Notifications will skip sending to the currently logged in user. (thanks @skoften).
+
 ## 1.1.10 - 2019-09-18
 
 ### Fixed

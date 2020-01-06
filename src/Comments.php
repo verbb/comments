@@ -159,6 +159,16 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_subscriber_notification_comment_heading'),
                     'subject' => Craft::t('comments', 'comments_subscriber_notification_comment_subject'),
                     'body' => Craft::t('comments', 'comments_subscriber_notification_comment_body'),
+                ], [
+                    'key' => 'comments_moderator_notification',
+                    'heading' => Craft::t('comments', 'comments_moderator_notification_comment_heading'),
+                    'subject' => Craft::t('comments', 'comments_moderator_notification_comment_subject'),
+                    'body' => Craft::t('comments', 'comments_moderator_notification_comment_body'),
+                ], [
+                    'key' => 'comments_moderator_approved_notification',
+                    'heading' => Craft::t('comments', 'comments_moderator_approved_notification_comment_heading'),
+                    'subject' => Craft::t('comments', 'comments_moderator_approved_notification_comment_subject'),
+                    'body' => Craft::t('comments', 'comments_moderator_approved_notification_comment_body'),
                 ]
             ]);
         });
