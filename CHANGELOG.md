@@ -3,6 +3,7 @@
 ## 1.2.0 - 2020-01-06
 
 ### Added
+- Add GraphQL support. See [docs](https://verbb.io/craft-plugins/comments/docs/developers/graphql).
 - Add ability to subscribe to comment threads, or individual comments.
 - Add ability to save additional custom fields content to comments (when using custom templates). Just add your fields with `fields[myHandle]`.
 - Allow passing of custom comment url with a comment submission.
@@ -10,9 +11,23 @@
 - Add dutch translation for notifications messages. (thanks @skoften).
 - Add notification for "someone made a comment on element x". (thanks @skoften).
 - Add notification for "someone replied to your comment". (thanks @skoften).
+- Add `ownerSection` and `ownerSectionId` comment query params. See [docs](https://verbb.io/craft-plugins/comments/docs/getting-elements/comment-queries).
+- Add `indexSidebarGroup` and `indexSidebarIndividualElements` config settings. See [docs](https://verbb.io/craft-plugins/comments/docs/get-started/configuration).
+- The comments element index sidebar now groups comments made on entries into their sections.
+- Add `defaultQueryStatus` to control default query status for comment element queries.
+- Add moderator notifications. Includes two new moderator notification settings, and a user group to define who your moderators are.
+- Add `EVENT_BEFORE_SEND_AUTHOR_EMAIL` event.
+- Add `EVENT_BEFORE_SEND_REPLY_EMAIL` event.
+- Add `EVENT_BEFORE_SEND_MODERATOR_EMAIL` event.
+- Add `EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL` event.
 
 ### Changed
 - Notifications will skip sending to the currently logged in user. (thanks @skoften).
+
+### Fixed
+- Fix being unable to edit the content of a comment in the CP.
+- Fix project config using non-uid’s for structure and permissions.
+- Fix incorrect date comparison for `autoCloseDays`.
 
 ## 1.1.10 - 2019-09-18
 
