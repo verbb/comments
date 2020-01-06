@@ -721,6 +721,50 @@ $comments = \verbb\comments\elements\Comment::find()
 
 
 
+### `ownerSection`
+
+Return comments for a specific entry section.
+
+::: code
+```twig
+{# Fetch comments for specific entry section #}
+{% set comments = craft.comments.fetch()
+    .section(['news', 'blog'])
+    .all() %}
+```
+
+```php
+// Fetch comments for specific entry section
+$comments = \verbb\comments\elements\Comment::find()
+    ->section(['news', 'blog'])
+    ->all();
+```
+:::
+
+
+
+### `ownerSectionId`
+
+Return comments for a specific entry sectionId.
+
+::: code
+```twig
+{# Fetch comments for specific entry section #}
+{% set comments = craft.comments.fetch()
+    .sectionId(22)
+    .all() %}
+```
+
+```php
+// Fetch comments for specific entry section
+$comments = \verbb\comments\elements\Comment::find()
+    ->section(22)
+    ->all();
+```
+:::
+
+
+
 ### `ownerType`
 
 Return comments for a specific owner type - for instance, just for [Entries](https://docs.craftcms.com/api/v3/craft-elements-comment.html). Requires the full namespaced element class.
