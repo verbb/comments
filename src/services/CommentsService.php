@@ -161,12 +161,12 @@ class CommentsService extends Component
 
                 // Check for various elements
                 if ($elementType == 'craft\elements\Entry') {
-                    $id = $element->section->id;
+                    $uid = $element->section->uid;
                 } else {
-                    $id = $element->group->id;
+                    $uid = $element->group->uid;
                 }
 
-                if (!in_array($id, $permissions[$elementType])) {
+                if (!in_array($uid, $permissions[$elementType])) {
                     return false;
                 }
             }
