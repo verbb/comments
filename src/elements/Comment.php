@@ -819,6 +819,16 @@ class Comment extends Element
         }
     }
 
+    public static function gqlTypeNameByContext($context): string
+    {
+        return 'Comment';
+    }
+
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this);
+    }
+
 
     // Private Methods
     // =========================================================================

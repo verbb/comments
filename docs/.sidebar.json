@@ -41,7 +41,8 @@
             "developers/comment",
             "developers/flag",
             "developers/vote",
-            "developers/events"
+            "developers/events",
+            "developers/graphql"
         ]
     },
     {

@@ -4,6 +4,8 @@ namespace verbb\comments;
 use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
+use verbb\comments\gql\interfaces\CommentInterface;
+use verbb\comments\gql\queries\CommentQuery;
 use verbb\comments\models\Settings;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\variables\CommentsVariableBehavior;
@@ -12,12 +14,15 @@ use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterEmailMessagesEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\UrlHelper;
 use craft\models\Structure;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gql;
 use craft\services\SystemMessages;
 use craft\services\UserPermissions;
 use craft\web\UrlManager;
@@ -57,6 +62,7 @@ class Comments extends Plugin
         $this->_registerVariables();
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
+        $this->_registerGraphQl();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
@@ -176,6 +182,21 @@ class Comments extends Plugin
     {
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Comment::class;
+        });
+    }
+
+    private function _registerGraphQl()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            $event->types[] = CommentInterface::class;
+        });
+
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
+            $queries = CommentQuery::getQueries();
+            
+            foreach ($queries as $key => $value) {
+                $event->queries[$key] = $value;
+            }
         });
     }
 
