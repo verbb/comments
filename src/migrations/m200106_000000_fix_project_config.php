@@ -30,10 +30,15 @@ class m200106_000000_fix_project_config extends Migration
 
         // Swap from ID to UID
         $structureId = $projectConfig->get('plugins.comments.settings.structureId');
-        $structureUid = Db::uidById(Table::STRUCTURES, $structureId);
 
-        $projectConfig->set('plugins.comments.settings.structureUid', $structureUid);
-        $projectConfig->remove('plugins.comments.settings.structureId');
+        if ($structureId) {
+            $structureUid = Db::uidById(Table::STRUCTURES, $structureId);
+
+            if ($structureUid) {
+                $projectConfig->set('plugins.comments.settings.structureUid', $structureUid);
+                $projectConfig->remove('plugins.comments.settings.structureId');
+            }
+        }
 
         // Do the same for all permissions
         $allPermissions = $projectConfig->get('plugins.comments.settings.permissions');
@@ -45,25 +50,31 @@ class m200106_000000_fix_project_config extends Migration
             User::class => Table::USERGROUPS,
         ];
 
-        foreach ($allPermissions as $elementType => $permissions) {
-            if (!is_array($permissions)) {
-                continue;
+        if ($allPermissions) {
+            foreach ($allPermissions as $elementType => $permissions) {
+                if (!is_array($permissions)) {
+                    continue;
+                }
+
+                $table = $tables[$elementType] ?? '';
+
+                if (!$table) {
+                    continue;
+                }
+
+                foreach ($permissions as $index => $permissionId) {
+                    if (is_string($permissionId)) {
+                        continue;
+                    }
+
+                    $uid = Db::uidById($table, $permissionId);
+
+                    $allPermissions[$elementType][$index] = $uid;
+                }
             }
 
-            $table = $tables[$elementType] ?? '';
-
-            if (!$table) {
-                continue;
-            }
-
-            foreach ($permissions as $index => $permissionId) {
-                $uid = Db::uidById($table, $permissionId);
-
-                $allPermissions[$elementType][$index] = $uid;
-            }
+            $projectConfig->set('plugins.comments.settings.permissions', $allPermissions);
         }
-
-        $projectConfig->set('plugins.comments.settings.permissions', $allPermissions);
 
         return true;
     }
