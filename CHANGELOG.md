@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 - 2020-01-07
+
+### Fixed
+- Fixed issue causing new comments to not be submitted.
+
 ## 1.2.0 - 2020-01-06
 
 ### Added

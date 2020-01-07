@@ -115,6 +115,25 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"/docs/developers/graphql.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"hM": 0,
+		"oA": 1,
+		"oAP": "/docs/developers/graphql.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
 	"/docs/developers/vote.md": {
 		"cB": 0,
 		"cS": 0,
@@ -543,6 +562,14 @@
 		"oAP": "/src/errors/VoteNotFoundException.php",
 		"oF": 0
 		},
+	"/src/events/EmailEvent.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/events/EmailEvent.php",
+		"oF": 0
+		},
 	"/src/events/FlagEvent.php": {
 		"cB": 0,
 		"ft": 8192,
@@ -571,6 +598,54 @@
 		"ft": 65536,
 		"oA": 1,
 		"oAP": "/build/src/fields",
+		"oF": 0
+		},
+	"/src/gql/arguments/CommentArguments.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/arguments/CommentArguments.php",
+		"oF": 0
+		},
+	"/src/gql/interfaces/CommentInterface.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/interfaces/CommentInterface.php",
+		"oF": 0
+		},
+	"/src/gql/queries/CommentQuery.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/queries/CommentQuery.php",
+		"oF": 0
+		},
+	"/src/gql/resolvers/CommentResolver.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/resolvers/CommentResolver.php",
+		"oF": 0
+		},
+	"/src/gql/types/CommentType.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/types/CommentType.php",
+		"oF": 0
+		},
+	"/src/gql/types/generators/CommentGenerator.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/gql/types/generators/CommentGenerator.php",
 		"oF": 0
 		},
 	"/src/helpers": {
