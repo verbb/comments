@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 - 2020-01-90
+
+### Fixed
+- Fix subscribe to singular comment notifications. (thanks @frank-rocketpark).
+
 ## 1.2.1 - 2020-01-07
 
 ### Fixed
