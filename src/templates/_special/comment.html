@@ -93,7 +93,7 @@
                         </span>
                     {% endif %}
 
-                    {% if currentUser and settings.notificationSubscribeEnabled %}
+                    {% if currentUser and settings.notificationSubscribeCommentEnabled %}
                         {% set subscribed = craft.comments.isSubscribed(comment.owner, comment) %}
 
                         <span class="cc-ll-i">
