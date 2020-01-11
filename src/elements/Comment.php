@@ -13,7 +13,10 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User;
 use craft\elements\actions\Delete;
+use craft\elements\Asset;
+use craft\elements\Category;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\Entry;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
@@ -150,41 +153,30 @@ class Comment extends Element
 
         foreach ($commentedElements as $element) {
             $elementGroupPrefix = '';
+            $displayName = $element['type']::pluralDisplayName();
 
-            switch ($element['type']::displayName()) {
-                case 'Entry':
-                    $displayName = 'Entries';
+            switch ($element['type']) {
+                case Entry::class:
                     $elementGroupPrefix = 'section';
-
                     break;
-                case 'Category':
-                    $displayName = 'Categories';
+                case Category::class:
                     $elementGroupPrefix = 'categorygroup';
-
                     break;
-                case 'Asset':
-                    $displayName = 'Assets';
+                case Asset::class:
                     $elementGroupPrefix = 'volume';
-
                     break;
-                case 'User':
-                    $displayName = 'Users';
+                case User::class:
                     $elementGroupPrefix = 'usergroup';
-
-                    break;
-                default:
-                    $displayName = $element['type']::displayName();
-
                     break;
             }
 
-            $key = 'type:' . $element['type']::displayName();
+            $key = 'type:' . $element['type'];
 
             $sources[$key] = ['heading' => $displayName];
 
             $sources[$key . ':all'] = [
                 'key' => $key . ':all',
-                'label' => Craft::t('comments', 'All ' . $displayName),
+                'label' => Craft::t('comments', 'All {elements}', ['elements' => $displayName]),
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
                 'criteria' => [

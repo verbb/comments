@@ -28,7 +28,7 @@
 }) }}
 
 <div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
-    {% set groups = [{ label: "None" | t('workflow'), value: '' }] %}
+    {% set groups = [{ label: "None" | t('comments'), value: '' }] %}
     {% for group in craft.app.userGroups.getAllGroups() %}
         {% set groups = groups | merge([{ label: group.name, value: group.uid }]) %}
     {% endfor %}

@@ -1,12 +1,7 @@
 {% set parentLayout = '_layouts/elementindex' %}
 {% extends 'comments/_layouts' %}
 
-{% set crumbs = [
-    { label: 'Comments' | t('comments'), url: url('comments') },
-    { label: 'Comments' | t('comments'), url: url('comments') },
-] %}
-
 {% set elementType = 'verbb\\comments\\elements\\Comment' %}
 {% set selectedTab = 'comments' %}
 {% set showStatusMenu = true %}
-{% set title = 'Comments' %}
+{% set title = 'Comments' | t('comments') %}

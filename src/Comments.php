@@ -69,6 +69,17 @@ class Comments extends Plugin
         Craft::$app->view->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getCpNavItem()
+    {
+        $ret = parent::getCpNavItem();
+        $ret['label'] = Craft::t('comments', 'Comments');
+
+        return $ret;
+    }
+
     public function getSettingsResponse()
     {
         Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
