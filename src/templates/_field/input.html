@@ -2,7 +2,9 @@
 
 {{ forms.lightswitchField({
     label: 'Enable comments' | t('comments'),
-    instructions: 'Toggle whether comments should be allowed for this ' ~ element.displayName() | lower ~ ' or not.' | t('comments'),
+    instructions: 'Toggle whether comments should be allowed for this {element} or not.' | t('comments', {
+      'element': element.lowerDisplayName(),
+    }),
     id: name ~ '-commentEnabled',
     name: name ~ '[commentEnabled]',
     on: value.commentEnabled ?? false,
