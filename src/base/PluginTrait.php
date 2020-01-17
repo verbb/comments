@@ -55,6 +55,20 @@ trait PluginTrait
         return $this->get('votes');
     }
 
+    public static function log($message)
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
+    }
+
+    public static function error($message)
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
     private function _setPluginComponents()
     {
         $this->setComponents([
@@ -73,16 +87,6 @@ trait PluginTrait
             'logFile' => Craft::getAlias('@storage/logs/comments.log'),
             'categories' => ['comments'],
         ]);
-    }
-
-    public static function log($message)
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
-    }
-
-    public static function error($message)
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
     }
 
 }
