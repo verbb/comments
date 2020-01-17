@@ -3,10 +3,9 @@
 
 {% set crumbs = [
     { label: 'Comments' | t('comments'), url: url('comments') },
-    { label: 'Edit' | t('comments'), url: url('comments/edit' ~ comment.id) },
 ] %}
 
-{% set title = 'Edit Comment' %}
+{% set title = 'Edit Comment' | t('comments') %}
 {% set fullPageForm = true %}
 {% set noTabs = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
@@ -93,7 +92,7 @@
     <input type="hidden" name="status" value="{{ comment.status }}" />
 
     <div class="btn menubtn statusmenubtn">
-        <span class="status {{ comment.status }}"></span>{{ comment.status | capitalize }}
+        <span class="status {{ comment.status }}"></span>{{ comment.statuses[comment.status] }}
     </div>
 
     <div class="menu status-settings">

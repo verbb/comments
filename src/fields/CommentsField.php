@@ -15,7 +15,7 @@ class CommentsField extends Field
 
     public static function displayName(): string
     {
-        return Craft::t('app', 'Comment Options');
+        return Craft::t('comments', 'Comment Options');
     }
 
     public static function supportedTranslationMethods(): array
