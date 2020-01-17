@@ -3,12 +3,8 @@
 
 {% set crumbs = [
     { label: 'Comments' | t('comments'), url: url('comments') },
-    { label: 'Settings' | t('comments'), url: url('comments/settings') },
+    { label: 'Settings' | t('app'), url: url('comments/settings') },
 ] %}
-
-{% set selectedTab = 'settings' %}
-
-{% set fullPageForm = true %}
 
 {% set navItems = {
     'general': { title: 'General Settings' | t('comments') },
@@ -23,7 +19,9 @@
     'permissions': { title: 'Permissions' | t('comments') },
 } %}
 
+{% set selectedTab = 'settings' %}
 {% set selectedItem = 'general' %}
+{% set fullPageForm = true %}
 
 {% block sidebar %}
     <nav class="comments-settings-tabs" data-vui-tabs>

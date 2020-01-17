@@ -80,7 +80,12 @@
 // Edit Comments
 //
 
-#main-container #main #main-content #details .comments-meta hr {
+#details .meta.comments-meta {
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+.comments-meta hr {
     margin: 15px 0;
 }
 

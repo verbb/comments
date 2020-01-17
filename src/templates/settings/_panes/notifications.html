@@ -1,5 +1,5 @@
 {% import '_includes/forms' as forms %}
-{% import 'comments/_macros' as macros %}
+{% import 'verbb-base/_macros' as macros %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -78,7 +78,6 @@
 }) }}
 
 {{ forms.lightswitchField({
-    first: true,
     label: "Enable Moderator-Approved Notifications" | t('comments'),
     instructions: "Authors receive an email when the moderator has approved a comment." | t('comments'),
     id: 'notificationModeratorApprovedEnabled',

@@ -39,11 +39,13 @@ class Comments extends Plugin
     public $schemaVersion = '1.1.2';
     public $hasCpSettings = true;
     public $hasCpSection = true;
+    
 
     // Traits
     // =========================================================================
 
     use PluginTrait;
+
 
     // Public Methods
     // =========================================================================
