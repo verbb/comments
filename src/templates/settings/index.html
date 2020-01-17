@@ -26,7 +26,7 @@
 {% set selectedItem = 'general' %}
 
 {% block sidebar %}
-    <nav class="comments-settings-tabs" id="tabs">
+    <nav class="comments-settings-tabs" data-vui-tabs>
         <ul>
             {% for id, item in navItems %}
                 {% if item.heading is defined %}

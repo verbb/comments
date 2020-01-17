@@ -104,6 +104,10 @@ class Settings extends Model
 
     public function getStructureId()
     {
-        return Db::idByUid(Table::STRUCTURES, $this->structureUid);
+        if ($this->structureUid) {
+            return Db::idByUid(Table::STRUCTURES, $this->structureUid);
+        }
+
+        return null;
     }
 }

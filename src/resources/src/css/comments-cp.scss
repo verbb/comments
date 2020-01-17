@@ -5,10 +5,6 @@
 
 // ==========================================================================
 
-@import "base";
-
-
-
 // ==========================================================================
 // Comments Element Index
 // ==========================================================================
@@ -37,16 +33,16 @@
 // Custom title
 //
 
-.elementindex td[data-titlecell] .element {
+.content-pane .elements td[data-titlecell] .element {
     display: none;
 }
 
-.elementindex .comment-block {
+.content-pane .elements .comment-block {
     position: relative;
     margin-left: 5px;
 }
 
-.elementindex .comment-block .status {
+.content-pane .elements .comment-block .status {
     position: absolute;
     top: 5px;
     left: 0;
@@ -56,7 +52,7 @@
     top: 5px;
 }
 
-.elementindex .comment-block a {
+.content-pane .elements .comment-block a {
     margin-left: 20px;
     display: block;
 
