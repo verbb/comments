@@ -2,7 +2,7 @@
 
 {% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
 
-{% if noTabs is not defined %}
+{% if noTabs is not defined and currentUser.admin %}
     {% set tabs = {
         comments: { label: 'Comments' | t('comments'), url: url('comments') },
         settings: { label: 'Settings' | t('comments'), url: url('comments/settings') },
