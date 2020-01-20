@@ -1,6 +1,16 @@
 # Changelog
 
-## 1.2.2 - 2020-01-90
+## 1.2.3 - 2020-01-20
+
+### Added
+- Add German translation. (thanks @gglnx)
+
+### Fixed
+- Fix potential install error.
+- Don’t show settings to non-admins. (thanks @gglnx)
+- Fix a number of translations. (thanks @gglnx)
+
+## 1.2.2 - 2020-01-09
 
 ### Fixed
 - Fix subscribe to singular comment notifications. (thanks @frank-rocketpark).
