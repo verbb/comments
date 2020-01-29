@@ -1,16 +1,10 @@
-{% requireAdmin %}
-
 {% extends 'comments/_layouts' %}
 {% import '_includes/forms' as forms %}
 
 {% set crumbs = [
     { label: 'Comments' | t('comments'), url: url('comments') },
+    { label: 'Settings' | t('app'), url: url('comments/settings') },
 ] %}
-
-{% set selectedTab = 'settings' %}
-{% set title = 'Comments Settings' | t('comments') %}
-
-{% set fullPageForm = true %}
 
 {% set navItems = {
     'general': { title: 'General Settings' | t('comments') },
@@ -25,10 +19,12 @@
     'permissions': { title: 'Permissions' | t('comments') },
 } %}
 
+{% set selectedTab = 'settings' %}
 {% set selectedItem = 'general' %}
+{% set fullPageForm = true %}
 
 {% block sidebar %}
-    <nav class="comments-settings-tabs" id="tabs">
+    <nav class="comments-settings-tabs" data-vui-tabs>
         <ul>
             {% for id, item in navItems %}
                 {% if item.heading is defined %}

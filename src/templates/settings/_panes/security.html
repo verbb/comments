@@ -1,7 +1,8 @@
 {% import '_includes/forms' as forms %}
-{% import 'comments/_macros' as macros %}
+{% import 'verbb-base/_macros' as macros %}
 
 {{ forms.lightswitchField({
+    first: true,
     label: 'Enable reCAPTCHA?' | t('comments'),
     instructions: 'Whether to use reCAPTCHA to protect against spam submissions.' | t('comments'),
     name: 'recaptchaEnabled',
@@ -31,7 +32,6 @@
 <hr>
 
 {{ forms.lightswitchField({
-    first: true,
     label: 'Enable additional spam checks' | t('comments'),
     instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t('comments'),
     name: 'enableSpamChecks',
@@ -42,7 +42,6 @@
 <hr>
 
 {{ forms.textField({
-    first: true,
     label: 'Maximum comment length' | t('comments'),
     instructions: 'Limit the number of characters a comment can have.' | t('comments'),
     name: 'securityMaxLength',
@@ -53,7 +52,6 @@
 <hr>
 
 {{ forms.textField({
-    first: true,
     label: 'Minimum time between comments' | t('comments'),
     instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t('comments'),
     name: 'securityFlooding',

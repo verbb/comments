@@ -1,16 +1,11 @@
 # Changelog
 
-## 1.2.3 - 2020-01-20
+## 1.3.0 - 2020-01-29
 
 ### Added
-- Add German translation. (thanks @gglnx)
+- Craft 3.4 compatibility.
 
-### Fixed
-- Fix potential install error.
-- Don’t show settings to non-admins. (thanks @gglnx)
-- Fix a number of translations. (thanks @gglnx)
-
-## 1.2.2 - 2020-01-09
+## 1.2.2 - 2020-01-90
 
 ### Fixed
 - Fix subscribe to singular comment notifications. (thanks @frank-rocketpark).

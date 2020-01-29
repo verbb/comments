@@ -5,7 +5,6 @@ use verbb\comments\Comments;
 
 use Craft;
 use craft\web\AssetBundle;
-use craft\web\assets\cp\CpAsset;
 
 class FrontEndAsset extends AssetBundle
 {
