@@ -4,14 +4,18 @@ namespace verbb\comments;
 use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
+use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
 use verbb\comments\models\Settings;
+use verbb\comments\services\CommentsService;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\variables\CommentsVariableBehavior;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\PluginEvent;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterEmailMessagesEvent;
 use craft\events\RegisterGqlQueriesEvent;
@@ -23,6 +27,8 @@ use craft\models\Structure;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gql;
+use craft\services\Plugins;
+use craft\services\ProjectConfig;
 use craft\services\SystemMessages;
 use craft\services\UserPermissions;
 use craft\web\UrlManager;
@@ -36,7 +42,7 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.1.2';
+    public $schemaVersion = '1.1.3';
     public $hasCpSettings = true;
     public $hasCpSection = true;
     
@@ -65,6 +71,8 @@ class Comments extends Plugin
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
         $this->_registerGraphQl();
+        $this->_registerCraftEventListeners();
+        $this->_registerProjectConfigEventListeners();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
@@ -223,6 +231,31 @@ class Comments extends Plugin
             foreach ($queries as $key => $value) {
                 $event->queries[$key] = $value;
             }
+        });
+    }
+
+    private function _registerCraftEventListeners()
+    {
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
+            if ($event->plugin === $this) {
+                $this->getComments()->saveFieldLayout();
+            }
+        });
+    }
+
+    private function _registerProjectConfigEventListeners()
+    {
+        $projectConfigService = Craft::$app->getProjectConfig();
+        $service = $this->getComments();
+
+        $projectConfigService->onAdd(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
+            ->onUpdate(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
+            ->onRemove(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleDeletedFieldLayout']);
+
+        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$service, 'pruneDeletedField']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+            $event->config['comments'] = ProjectConfigData::rebuildProjectConfig();
         });
     }
 

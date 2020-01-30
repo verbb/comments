@@ -1,9 +1,12 @@
 <?php
 namespace verbb\comments\migrations;
 
+use verbb\comments\elements\Comment;
+
 use Craft;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
+use craft\records\FieldLayout;
 
 class Install extends Migration
 {
@@ -15,6 +18,16 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
+
+        // Don't make the same config changes twice
+        $installed = (Craft::$app->projectConfig->get('plugins.comments', true) !== null);
+        $configExists = (Craft::$app->projectConfig->get('comments', true) !== null);
+
+        if (!$installed && !$configExists) {
+            $this->insert(FieldLayout::tableName(), ['type' => Comment::class]);
+        }
+
+        return true;
     }
 
     public function safeDown()

@@ -11,11 +11,15 @@ use Craft;
 use craft\base\Component;
 use craft\db\Table;
 use craft\elements\User;
+use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 
 use DateTime;
 
@@ -28,6 +32,8 @@ class CommentsService extends Component
     const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
     const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
     const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
+
+    const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
 
 
     // Public Methods
@@ -586,6 +592,61 @@ class CommentsService extends Component
         }
     }
 
+    public function handleChangedFieldLayout(ConfigEvent $event)
+    {
+        $data = $event->newValue;
+
+        ProjectConfigHelper::ensureAllFieldsProcessed();
+        $fieldsService = Craft::$app->getFields();
+
+        if (empty($data) || empty($config = reset($data))) {
+            // Delete the field layout
+            $fieldsService->deleteLayoutsByType(Comment::class);
+            return;
+        }
+
+        // Save the field layout
+        $layout = FieldLayout::createFromConfig(reset($data));
+        $layout->id = $fieldsService->getLayoutByType(Comment::class)->id;
+        $layout->type = Comment::class;
+        $layout->uid = key($data);
+        $fieldsService->saveLayout($layout);
+    }
+
+    public function pruneDeletedField(FieldEvent $event)
+    {
+        /** @var Field $field */
+        $field = $event->field;
+        $fieldUid = $field->uid;
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
+
+        // Prune the UID from field layouts.
+        if (is_array($layoutData)) {
+            foreach ($layoutData as $layoutUid => $layout) {
+                if (!empty($layout['tabs'])) {
+                    foreach ($layout['tabs'] as $tabUid => $tab) {
+                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
+                    }
+                }
+            }
+        }
+    }
+
+    public function handleDeletedFieldLayout(ConfigEvent $event)
+    {
+        Craft::$app->getFields()->deleteLayoutsByType(Comment::class);
+    }
+
+    public function saveFieldLayout()
+    {
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
+
+        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
+
+        Craft::$app->getProjectConfig()->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
+    }
 
 
     // Private Methods

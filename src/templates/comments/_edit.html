@@ -55,7 +55,22 @@
         errors: comment.getErrors('comment') ?? '',
     }) }}
 
-    <hr/>
+    <hr>
+
+    {% set fieldLayout = craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment') %}
+
+    {% if fieldLayout.getTabs() | length %}
+        {% for tab in fieldLayout.getTabs() %}
+            <div id="tab{{ loop.index }}">
+                {% include "_includes/fields" with {
+                    fields: tab.getFields(),
+                    element: comment,
+                } only %}
+            </div>
+        {% endfor %}
+
+        <hr>
+    {% endif %}
 
     <div id="items" class="">
         <h2>{{ 'Replies' | t('comments') }}</h2>

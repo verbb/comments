@@ -289,6 +289,11 @@ class Comment extends Element
         return $url;
     }
 
+    public function getFieldLayout()
+    {
+        return Craft::$app->getFields()->getLayoutByType(self::class);
+    }
+
     public function getComment()
     {
         $comment = $this->comment;

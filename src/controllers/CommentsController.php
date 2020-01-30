@@ -62,6 +62,8 @@ class CommentsController extends Controller
         $comment->status = $request->getParam('status', $comment->status);
         $comment->comment = $request->getParam('comment', $comment->comment);
 
+        $comment->setFieldValuesFromRequest('fields');
+
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
             $session->setError($comment->getErrors());
         }

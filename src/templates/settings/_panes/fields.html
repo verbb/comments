@@ -1,0 +1,8 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+<div id="comment-fields">
+    {% include '_includes/fieldlayoutdesigner' with {
+        fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
+    } only %}
+</div>
