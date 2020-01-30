@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1 - 2020-01-30
+
+### Added
+- Add support for custom fields on comments.
+
+### Fixed
+- Fix structure not being setup correctly when installing plugin.
+
 ## 1.3.0 - 2020-01-29
 
 ### Added
