@@ -54,6 +54,24 @@ The crucial parts are the `name` attributes for form elements, along with the `e
 
 The `craft.comments.protect()` call includes additional fields that are used to prevent spam comments being submitted. Read the [Anti-Spam](docs:feature-tour/anti-spam) page for more.
 
+### Custom Fields
+
+You can also save custom fields to comments, but you'll be required to do your own custom templating, as per the above. Add fields to your comment form as required, being careful to note the handle of the custom fields in the `name` attribute of inputs.
+
+```twig
+<form method="post" role="form" method="post" accept-charset="UTF-8">
+    <input type="hidden" name="action" value="comments/comments/save">
+    <input type="hidden" name="elementId" value="{{ element.id }}">
+    <input type="hidden" name="siteId" value="{{ element.siteId }}">
+    {{ craft.comments.protect() }}
+    {{ csrfInput() }}
+
+    <input type="text" name="fields[myTextField]" value="Some Value">
+
+    <input type="submit" value="Add Comment" />
+</form>
+```
+
 ### Non-JS Examples
 
 We've put together an example using no Javascript, for a more traditional approach. You'll also likely want to turn off `Output default JS` in the plugin settings.
