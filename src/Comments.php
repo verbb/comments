@@ -96,6 +96,9 @@ class Comments extends Plugin
 
             Craft::$app->getStructures()->saveStructure($structure);
 
+            // We need to fetch the UID
+            $structure = Craft::$app->getStructures()->getStructureById($structure->id);
+
             // Update our plugin settings straight away!
             Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
         }
