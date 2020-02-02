@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 - 2020-02-02
+
+### Fixed
+- Fix comments not saving on multi-sites, in some circumstances.
+- Fix error when posting a new comment.
+
 ## 1.3.1 - 2020-01-30
 
 ### Added
