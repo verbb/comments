@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.4 - 2020-02-02
+
+### Fixed
+- Fix structure not being setup correctly when installing plugin.
+- Fix comments not saving on multi-sites, in some circumstances.
+- Fix error when posting a new comment.
+
 ## 1.2.3 - 2020-01-20
 
 ### Added
