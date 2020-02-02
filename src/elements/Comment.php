@@ -261,10 +261,6 @@ class Comment extends Element
 
     public function getSupportedSites(): array
     {
-        if ($this->ownerSiteId !== null) {
-            return [$this->ownerSiteId];
-        }
-
         if (($owner = $this->getOwner())) {
             $siteIds = [];
 
