@@ -673,7 +673,10 @@ class Comment extends Element
         // Save the current status for later - remember to fetch it fresh, as the model has already been updated
         if ($this->id) {
             $originalElement = Craft::$app->getElements()->getElementById($this->id, Comment::class, $this->siteId);
-            $this->previousStatus = $originalElement->status;
+
+            if ($originalElement) {
+                $this->previousStatus = $originalElement->status;
+            }
         }
 
         return parent::beforeSave($isNew);
