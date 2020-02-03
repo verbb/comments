@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.3 - 2020-02-03
+
+### Fixed
+- Fix error when deleting fields, in some circumstances.
+
 ## 1.3.2 - 2020-02-02
 
 ### Fixed
