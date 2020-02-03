@@ -12,6 +12,7 @@ use craft\base\Component;
 use craft\db\Table;
 use craft\elements\User;
 use craft\events\ConfigEvent;
+use craft\events\FieldEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
