@@ -236,11 +236,13 @@ class Comments extends Plugin
 
     private function _registerCraftEventListeners()
     {
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
-            if ($event->plugin === $this) {
-                $this->getComments()->saveFieldLayout();
-            }
-        });
+        if (!Craft::$app->getRequest()->getIsCpRequest()) {
+            Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
+                if ($event->plugin === $this) {
+                    $this->getComments()->saveFieldLayout();
+                }
+            });
+        }
     }
 
     private function _registerProjectConfigEventListeners()
