@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.4 - 2020-02-11
+
+### Fixed
+- PHP error when installing via console.
+
 ## 1.3.3 - 2020-02-03
 
 ### Fixed
