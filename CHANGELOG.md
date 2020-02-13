@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.5 - 2020-02-14
+
+### Fixed
+- Fix SQL error thrown in Postgres when viewing the comments index.
+
 ## 1.3.4 - 2020-02-11
 
 ### Fixed
