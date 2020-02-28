@@ -305,6 +305,13 @@ class CommentsService extends Component
         $recipient = null;
         $emailSent = null;
 
+        // Check for moderation notifications, this cancels this notification until its been approved
+        if ($settings->notificationModeratorEnabled) {
+            Comments::log('Not sending reply notification - marked as pending (to be moderated).');
+
+            return;
+        }
+
         Comments::log('Prepare Reply Notifications.');
 
         // Get our commented-on element
