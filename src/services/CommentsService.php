@@ -250,8 +250,15 @@ class CommentsService extends Component
         }
 
         // If the author and commenter are the same user - don't send
-        if ($comment->userId === $recipient->id) {
+        if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
             Comments::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
+            return;
+        }
+
+        // If the author and commenter have the same email - don't send
+        if ($comment->email === $recipient->email) {
+            Comments::log('Cannot send element author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
@@ -328,8 +335,15 @@ class CommentsService extends Component
         }
 
         // If the author and commenter are the same user - don't send
-        if ($comment->userId === $recipient->id) {
+        if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
             Comments::log('Cannot send reply notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
+            return;
+        }
+
+        // If the author and commenter have the same email - don't send
+        if ($comment->email === $recipient->email) {
+            Comments::log('Cannot send reply notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
@@ -454,8 +468,15 @@ class CommentsService extends Component
         }
 
         // If the author and commenter are the same user - don't send
-        if ($comment->userId === $recipient->id) {
+        if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
             Comments::log('Cannot send element moderator author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+
+            return;
+        }
+
+        // If the author and commenter have the same email - don't send
+        if ($comment->email === $recipient->email) {
+            Comments::log('Cannot send element moderator author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
