@@ -537,6 +537,11 @@ class Comment extends Element
         return Comments::$plugin->getFlags()->isOverFlagThreshold($this);
     }
 
+    public function getFlags()
+    {
+        return Comments::$plugin->getFlags()->getFlagsByCommentId($this->id);
+    }
+
 
     // Votes
     // =========================================================================
@@ -582,6 +587,21 @@ class Comment extends Element
     public function isPoorlyRated()
     {
         return Comments::$plugin->getVotes()->isOverDownvoteThreshold($this);
+    }
+
+    public function getVotes()
+    {
+        return Comments::$plugin->getVotes()->getVotesByCommentId($this->id);
+    }
+
+    public function getUpvotes()
+    {
+        return Comments::$plugin->getVotes()->getUpvotesByCommentId($this->id);
+    }
+
+    public function getDownvotes()
+    {
+        return Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
     }
 
 

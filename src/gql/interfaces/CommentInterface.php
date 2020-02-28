@@ -95,6 +95,26 @@ class CommentInterface extends Structure
                 'type' => CommentInterfaceLocal::getType(),
                 'description' => 'The comment’s parent.'
             ],
+            'votes' => [
+                'name' => 'votes',
+                'type' => Type::int(),
+                'description' => 'The number of total votes for this comment.'
+            ],
+            'upvotes' => [
+                'name' => 'upvotes',
+                'type' => Type::int(),
+                'description' => 'The number of upvotes for this comment.'
+            ],
+            'downvotes' => [
+                'name' => 'downvotes',
+                'type' => Type::int(),
+                'description' => 'The number of downvotes for this comment.'
+            ],
+            'flags' => [
+                'name' => 'flags',
+                'type' => Type::int(),
+                'description' => 'The number of flags for this comment.'
+            ],
         ]);
     }
 
