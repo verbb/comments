@@ -302,8 +302,7 @@ class CommentsService extends Component
 
     public function sendReplyNotificationEmail(Comment $comment)
     {
-        $recipient = null;
-        $emailSent = null;
+        $settings = Comments::$plugin->getSettings();
 
         // Check for moderation notifications, this cancels this notification until its been approved
         if ($settings->notificationModeratorEnabled) {
@@ -311,6 +310,9 @@ class CommentsService extends Component
 
             return;
         }
+        
+        $recipient = null;
+        $emailSent = null;
 
         Comments::log('Prepare Reply Notifications.');
 
