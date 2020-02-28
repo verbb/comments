@@ -220,6 +220,13 @@ class CommentsService extends Component
     {
         $settings = Comments::$plugin->getSettings();
 
+        // Check for moderation notifications, this cancels this notification until its been approved
+        if ($settings->notificationModeratorEnabled) {
+            Comments::log('Not sending author notification - marked as pending (to be moderated).');
+
+            return;
+        }
+
         $recipient = null;
         $emailSent = null;
 
@@ -259,13 +266,6 @@ class CommentsService extends Component
         // If the author and commenter have the same email - don't send
         if ($comment->email === $recipient->email) {
             Comments::log('Cannot send element author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
-
-            return;
-        }
-
-        // Check for moderation notifications, this cancels this notification until its been approved
-        if ($settings->notificationModeratorEnabled) {
-            Comments::log('Not sending author notification - marked as pending (to be moderated).');
 
             return;
         }
