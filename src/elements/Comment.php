@@ -739,13 +739,6 @@ class Comment extends Element
         $this->commentDate = DateTimeHelper::toDateTime($record->commentDate);
 
         if ($isNew) {
-            // Should we send a Notification email to the author of this comment?
-            if ($settings->notificationAuthorEnabled) {
-                Comments::$plugin->comments->sendAuthorNotificationEmail($this);
-            } else {
-                Comments::log('Author Notifications disabled.');
-            }
-
             // Should we send moderator emails?
             if ($settings->notificationModeratorEnabled && $this->status == self::STATUS_PENDING) {
                 Comments::$plugin->comments->sendModeratorNotificationEmail($this);
@@ -753,12 +746,24 @@ class Comment extends Element
                 Comments::log('Moderator Notifications disabled.');
             }
 
-            // If a reply to another comment, should we send a Notification email
-            // to the author of the original comment?
-            if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
-                Comments::$plugin->comments->sendReplyNotificationEmail($this);
+            // Don't send reply or author emails if we're moderating first
+            if ($settings->requireModeration) {
+                Comments::log('Not sending reply or author notification - marked as pending (to be moderated).');
             } else {
-                Comments::log('Reply Notifications disabled.');
+                // Should we send a Notification email to the author of this comment?
+                if ($settings->notificationAuthorEnabled) {
+                    Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+                } else {
+                    Comments::log('Author Notifications disabled.');
+                }
+
+                // If a reply to another comment, should we send a Notification email
+                // to the author of the original comment?
+                if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
+                    Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                } else {
+                    Comments::log('Reply Notifications disabled.');
+                }
             }
 
             // Check for all users subscribed to notifications
@@ -773,6 +778,21 @@ class Comment extends Element
                 Comments::$plugin->comments->sendModeratorApprovedNotificationEmail($this);
             } else {
                 Comments::log('Moderator Approved Notifications disabled.');
+            }
+
+            // Should we send a Notification email to the author of this comment?
+            if ($settings->notificationAuthorEnabled) {
+                Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+            } else {
+                Comments::log('Author Notifications disabled.');
+            }
+
+            // If a reply to another comment, should we send a Notification email
+            // to the author of the original comment?
+            if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
+                Comments::$plugin->comments->sendReplyNotificationEmail($this);
+            } else {
+                Comments::log('Reply Notifications disabled.');
             }
         }
 

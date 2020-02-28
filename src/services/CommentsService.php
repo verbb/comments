@@ -218,15 +218,6 @@ class CommentsService extends Component
 
     public function sendAuthorNotificationEmail(Comment $comment)
     {
-        $settings = Comments::$plugin->getSettings();
-
-        // Check for moderation notifications, this cancels this notification until its been approved
-        if ($settings->notificationModeratorEnabled) {
-            Comments::log('Not sending author notification - marked as pending (to be moderated).');
-
-            return;
-        }
-
         $recipient = null;
         $emailSent = null;
 
@@ -304,13 +295,6 @@ class CommentsService extends Component
     {
         $settings = Comments::$plugin->getSettings();
 
-        // Check for moderation notifications, this cancels this notification until its been approved
-        if ($settings->notificationModeratorEnabled) {
-            Comments::log('Not sending reply notification - marked as pending (to be moderated).');
-
-            return;
-        }
-        
         $recipient = null;
         $emailSent = null;
 
@@ -445,8 +429,6 @@ class CommentsService extends Component
 
     public function sendModeratorApprovedNotificationEmail(Comment $comment)
     {
-        $settings = Comments::$plugin->getSettings();
-
         $recipient = null;
         $emailSent = null;
 
