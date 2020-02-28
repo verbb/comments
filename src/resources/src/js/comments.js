@@ -19,6 +19,7 @@ Comments.Base = Base.extend({
             el.className += ' ' + className;
         }
     },
+
     removeClass: function(el, className) {
         if (el.classList) {
             el.classList.remove(className);
@@ -26,6 +27,7 @@ Comments.Base = Base.extend({
             el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
     },
+
     toggleClass: function(el, className) {
         if (el.classList) {
             el.classList.toggle(className);
@@ -42,11 +44,13 @@ Comments.Base = Base.extend({
             el.className = classes.join(' ');
         }
     },
+
     createElement: function(html) {
         var el = document.createElement('div');
         el.innerHTML =  html;
         return el.firstChild;
     },
+
     serialize: function(form) {
         var qs = [];
         var elements = form.querySelectorAll("input, select, textarea");
@@ -60,6 +64,7 @@ Comments.Base = Base.extend({
 
         return qs.join('&');
     },
+
     serializeObject: function(json) {
         var qs = Object.keys(json).map(function(key) { 
             return encodeURIComponent(key) + '=' + encodeURIComponent(json[key]);
@@ -70,6 +75,7 @@ Comments.Base = Base.extend({
 
         return qs.join('&');
     },
+
     ajax: function(url, settings) {
         settings = settings || {};
 
@@ -101,16 +107,19 @@ Comments.Base = Base.extend({
 
         xhr.send(settings.data || '');
     },
+
     addListener: function($element, event, func, useCapture) {
         if ($element) {
             $element.addEventListener(event, func.bind(this), useCapture || true);
         }
     },
+
     remove: function($element) {
         if ($element) {
             $element.parentNode.removeChild($element);
         }
     },
+
     clearNotifications: function($element) {
         var $elements = $element.querySelectorAll('.cc-e, [data-role="notice"], [data-role="errors"]');
 
@@ -120,6 +129,7 @@ Comments.Base = Base.extend({
             });
         }
     },
+
     setNotifications: function(type, $element, content) {
         if (content && $element) {
             if (type === 'error') {
@@ -137,6 +147,7 @@ Comments.Base = Base.extend({
             }
         }
     },
+
     checkCaptcha: function(data, callback) {
         // Only trigger if reCAPTCHA enabled
         if (!Comments.recaptchaEnabled) {
@@ -151,6 +162,7 @@ Comments.Base = Base.extend({
             return callback(data, this);
         });
     },
+
     postForm: function(e, url, callback) {
         var $form = e.target;
         var data = this.serialize($form);
@@ -183,8 +195,26 @@ Comments.Base = Base.extend({
             });
         }.bind(this));
     },
+
     t: function(key) {
         return (Comments.translations.hasOwnProperty(key)) ? Comments.translations[key] : '';
+    },
+
+    find: function(node, selector) {
+        removeId = false;
+
+        if (node.getAttribute('id') === null) {
+            node.setAttribute('id', 'ID_' + new Date().getTime());
+            removeId = true;
+        }
+
+        let result = document.querySelector('#' + node.getAttribute('id') + ' > ' + selector);
+
+        if (removeId) {
+            node.removeAttribute('id');
+        }
+
+        return result;
     },
 });
 
@@ -288,12 +318,12 @@ Comments.Comment = Comments.Base.extend({
         this.commentId = $element.getAttribute('data-id');
         this.siteId = $element.getAttribute('data-site-id');
 
-        this.$replyContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="reply"]');
-        this.$repliesContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="replies"]');
+        this.$replyContainer = this.find($element, '[data-role="wrap-content"] > [data-role="reply"]');
+        this.$repliesContainer = this.find($element, '[data-role="wrap-content"] > [data-role="replies"]');
 
         // Make sure we restrict event-binding to the immediate container of this comment
         // Otherwise, we risk binding events multiple times on reply comments, nested within this comment
-        var $contentContainer = $element.querySelector(':scope > [data-role="wrap-content"] > [data-role="content"]');
+        var $contentContainer = this.find($element, '[data-role="wrap-content"] > [data-role="content"]');
 
         // Actions
         this.$replyBtn = $contentContainer.querySelector('[data-action="reply"]');
