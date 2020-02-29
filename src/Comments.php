@@ -42,7 +42,7 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.1.3';
+    public $schemaVersion = '1.1.4';
     public $hasCpSettings = true;
     public $hasCpSection = true;
     

@@ -24,6 +24,22 @@ class CommentsController extends Controller
     // Public Methods
     // =========================================================================
 
+    public function beforeAction($action)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        // Protect Voting/Flagging - only allowed when the config is set
+        if ($settings->allowAnonymousFlagging) {
+            $this->allowAnonymous['flag'] = 1;
+        }
+
+        if ($settings->allowAnonymousVoting) {
+            $this->allowAnonymous['vote'] = 1;
+        }
+
+        return parent::beforeAction($action);
+    }
+
     //
     // Control Panel
     //

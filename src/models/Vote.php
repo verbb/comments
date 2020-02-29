@@ -14,6 +14,8 @@ class Vote extends Model
     public $id;
     public $commentId;
     public $userId;
+    public $sessionId;
+    public $lastIp;
     public $upvote;
     public $downvote;
 
@@ -23,14 +25,21 @@ class Vote extends Model
 
     public function rules()
     {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if ($currentUser) {
+            $targetAttribute = ['userId', 'commentId', 'upvote', 'downvote'];
+        } else {
+            $targetAttribute = ['sessionId', 'commentId', 'upvote', 'downvote'];
+        }
+
         return [
             [['id'], 'number', 'integerOnly' => true],
-            [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to vote.')],
             [['commentId'], 'required'],
             [
                 'commentId',
                 'unique',
-                'targetAttribute' => ['userId', 'commentId', 'upvote', 'downvote'],
+                'targetAttribute' => $targetAttribute,
                 'targetClass' => VoteRecord::class,
                 'message' => Craft::t('comments', 'You can only vote on a comment once.')
             ]

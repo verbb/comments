@@ -21,10 +21,12 @@ return [
 
         // Voting
         'allowVoting' => true,
+        'allowAnonymousVoting' => false,
         'flaggedCommentLimit' => 5,
 
         // Flagging
         'allowFlagging' => true,
+        'allowAnonymousFlagging' => false,
         'downvoteCommentLimit' => 5,
 
         // Templates - Default
@@ -76,9 +78,11 @@ return [
 - `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
 
 - `allowVoting` - Whether to allow voting.
+- `allowAnonymousVoting` - Whether to allow anonymous voting.
 - `flaggedCommentLimit` - Number of flags required for comment to be marked as `isFlagged`.
 
 - `allowFlagging` - Whether to allow flagging.
+- `allowAnonymousFlagging` - Whether to allow anonymous flagging.
 - `downvoteCommentLimit` - Number of down votes required for comment to be marked as `isPoorlyRated`.
 
 - `showAvatar` - Whether to show an avatar for comments

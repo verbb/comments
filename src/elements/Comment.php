@@ -328,9 +328,9 @@ class Comment extends Element
         // Provide some helpers
         switch ($property) {
             case 'flag':
-                return (bool)$this->can('allowFlagging');
+                return (bool)$this->canFlag();
             case 'vote':
-                return (bool)$this->can('allowVoting');
+                return (bool)$this->canVote();
             case 'reply':
                 return (bool)$this->canReply();
             case 'edit':
@@ -508,10 +508,8 @@ class Comment extends Element
 
     public function flagUrl()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        // Only logged in users can flag a comment
-        if (!$currentUser) {
+        // Check if this user can flag comments
+        if (!$this->canFlag()) {
             return;
         }
 
@@ -523,13 +521,8 @@ class Comment extends Element
     public function hasFlagged()
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $hasFlagged = false;
 
-        if ($currentUser) {
-            $hasFlagged = Comments::$plugin->getFlags()->hasFlagged($this, $currentUser);
-        }
-
-        return $hasFlagged;
+        return Comments::$plugin->getFlags()->hasFlagged($this, $currentUser);
     }
 
     public function isFlagged()
@@ -542,16 +535,32 @@ class Comment extends Element
         return Comments::$plugin->getFlags()->getFlagsByCommentId($this->id);
     }
 
+    public function canFlag()
+    {
+        $settings = Comments::$plugin->getSettings();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        // If flagging is plain disabled
+        if (!$settings->allowFlagging) {
+            return;
+        }
+
+        // Only guests can flag if the setting is configured to do so
+        if (!$currentUser && !$settings->allowAnonymousFlagging) {
+            return;
+        }
+
+        return true;
+    }
+
 
     // Votes
     // =========================================================================
 
     public function downvoteUrl()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        // Only logged in users can upvote a comment
-        if (!$currentUser) {
+        // Check if this user can vote on comments
+        if (!$this->canVote()) {
             return;
         }
 
@@ -563,10 +572,8 @@ class Comment extends Element
 
     public function upvoteUrl()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        // Only logged in users can upvote a comment
-        if (!$currentUser) {
+        // Check if this user can vote on comments
+        if (!$this->canVote()) {
             return;
         }
 
@@ -602,6 +609,24 @@ class Comment extends Element
     public function getDownvotes()
     {
         return Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
+    }
+
+    public function canVote()
+    {
+        $settings = Comments::$plugin->getSettings();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        // If voting is plain disabled
+        if (!$settings->allowVoting) {
+            return;
+        }
+
+        // Only guests can vote if the setting is configured to do so
+        if (!$currentUser && !$settings->allowAnonymousVoting) {
+            return;
+        }
+
+        return true;
     }
 
 

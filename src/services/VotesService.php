@@ -25,6 +25,8 @@ class VotesService extends Component
     // Properties
     // =========================================================================
 
+    protected $sessionName = 'comments_vote';
+
     private $_votesById;
 
 
@@ -42,9 +44,17 @@ class VotesService extends Component
 
     public function getVoteByUser(int $commentId, $userId)
     {
-        $result = $this->_createVotesQuery()
-            ->where(['commentId' => $commentId, 'userId' => $userId])
-            ->one();
+        // Try and fetch votes for a user, if not, use their sessionId
+        $query = $this->_createVotesQuery()
+            ->where(['commentId' => $commentId]);
+
+        if ($userId) {
+            $query->andWhere(['userId' => $userId]);
+        } else {
+            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+        }
+
+        $result = $query->one();
 
         return $result ? new VoteModel($result) : null;
     }
@@ -72,16 +82,32 @@ class VotesService extends Component
 
     public function hasDownVoted($comment, $user)
     {
-        return $this->_createVotesQuery()
-            ->where(['commentId' => $comment->id, 'userId' => $user->id, 'downvote' => '1'])
-            ->exists();
+        // Try and fetch votes for a user, if not, use their sessionId
+        $query = $this->_createVotesQuery()
+            ->where(['commentId' => $comment->id, 'downvote' => '1']);
+
+        if ($user && $user->id) {
+            $query->andWhere(['userId' => $user->id]);
+        } else {
+            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+        }
+
+        return $query->exists();
     }
 
     public function hasUpVoted($comment, $user)
     {
-        return $this->_createVotesQuery()
-            ->where(['commentId' => $comment->id, 'userId' => $user->id, 'upvote' => '1'])
-            ->exists();
+        // Try and fetch votes for a user, if not, use their sessionId
+        $query = $this->_createVotesQuery()
+            ->where(['commentId' => $comment->id, 'upvote' => '1']);
+
+        if ($user && $user->id) {
+            $query->andWhere(['userId' => $user->id]);
+        } else {
+            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+        }
+
+        return $query->exists();
     }
 
     public function isOverDownvoteThreshold($comment)
@@ -116,8 +142,13 @@ class VotesService extends Component
 
         $voteRecord->commentId = $vote->commentId;
         $voteRecord->userId = $vote->userId;
+        $voteRecord->sessionId = $this->_getSessionId();
         $voteRecord->upvote = $vote->upvote;
         $voteRecord->downvote = $vote->downvote;
+
+        if (Craft::$app->getConfig()->getGeneral()->storeUserIps) {
+            $voteRecord->lastIp = Craft::$app->getRequest()->userIP;
+        }
 
         // Save the record
         $voteRecord->save(false);
@@ -172,9 +203,27 @@ class VotesService extends Component
         return true;
     }
 
+    public function generateSessionId(): string
+    {
+        return md5(uniqid(mt_rand(), true));
+    }
+
 
     // Private Methods
     // =========================================================================
+
+    private function _getSessionId()
+    {
+        $session = Craft::$app->getSession();
+        $sessionId = $session[$this->sessionName];
+
+        if (!$sessionId) {
+            $sessionId = $this->generateSessionId();
+            $session->set($this->sessionName, $sessionId);
+        }
+
+        return $sessionId;
+    }
 
     private function _getVoteRecordById(int $voteId = null): VoteRecord
     {

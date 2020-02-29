@@ -10,6 +10,14 @@
     warning: macros.configWarning('allowVoting', 'comments'),
 }) }}
 
+{{ forms.lightswitchField({
+    label: 'Enable anonymous voting' | t('comments'),
+    instructions: 'Allow anonymous users to upvote or downvote other users comments.' | t('comments'),
+    name: 'allowAnonymousVoting',
+    on: settings.allowAnonymousVoting,
+    warning: macros.configWarning('allowAnonymousVoting', 'comments'),
+}) }}
+
 {{ forms.textField({
     label: "Downvote comments threshold" | t('comments'),
     id: 'downvoteCommentLimit',

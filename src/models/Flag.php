@@ -15,6 +15,8 @@ class Flag extends Model
     public $id;
     public $commentId;
     public $userId;
+    public $sessionId;
+    public $lastIp;
 
 
     // Public Methods
@@ -24,7 +26,6 @@ class Flag extends Model
     {
         return [
             [['id'], 'number', 'integerOnly' => true],
-            [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to flag a comment.')],
             [['commentId'], 'required'],
         ];
     }

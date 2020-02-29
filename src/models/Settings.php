@@ -30,10 +30,12 @@ class Settings extends Model
 
     // Voting
     public $allowVoting = true;
+    public $allowAnonymousVoting = false;
     public $flaggedCommentLimit = 5;
 
     // Flagging
     public $allowFlagging = true;
+    public $allowAnonymousFlagging = false;
     public $downvoteCommentLimit = 5;
 
     // Templates - Default

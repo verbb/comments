@@ -10,6 +10,14 @@
     warning: macros.configWarning('allowFlagging', 'comments'),
 }) }}
 
+{{ forms.lightswitchField({
+    label: 'Enable anonymous flagging' | t('comments'),
+    instructions: 'Allow anonymous (guest) users to flag a comment as inappropriate, spam, or any other reason.' | t('comments'),
+    name: 'allowAnonymousFlagging',
+    on: settings.allowAnonymousFlagging,
+    warning: macros.configWarning('allowAnonymousFlagging', 'comments'),
+}) }}
+
 {{ forms.textField({
     label: "Flagged comments threshold" | t('comments'),
     id: 'flaggedCommentLimit',

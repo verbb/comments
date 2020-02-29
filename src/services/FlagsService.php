@@ -25,6 +25,8 @@ class FlagsService extends Component
     // Properties
     // =========================================================================
 
+    protected $sessionName = 'comments_flag';
+
     private $_flagsById;
 
 
@@ -42,9 +44,17 @@ class FlagsService extends Component
 
     public function getFlagByUser(int $commentId, $userId)
     {
-        $result = $this->_createFlagsQuery()
-            ->where(['commentId' => $commentId, 'userId' => $userId])
-            ->one();
+        // Try and fetch flags for a user, if not, use their sessionId
+        $query = $this->_createFlagsQuery()
+            ->where(['commentId' => $commentId]);
+
+        if ($userId) {
+            $query->andWhere(['userId' => $userId]);
+        } else {
+            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+        }
+
+        $result = $query->one();
 
         return $result ? new FlagModel($result) : null;
     }
@@ -58,9 +68,17 @@ class FlagsService extends Component
 
     public function hasFlagged($comment, $user)
     {
-        return $this->_createFlagsQuery()
-            ->where(['commentId' => $comment->id, 'userId' => $user->id])
-            ->exists();
+        // Try and fetch flags for a user, if not, use their sessionId
+        $query = $this->_createFlagsQuery()
+            ->where(['commentId' => $comment->id]);
+
+        if ($user && $user->id) {
+            $query->andWhere(['userId' => $user->id]);
+        } else {
+            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+        }
+
+        return $query->exists();
     }
 
     public function isOverFlagThreshold($comment)
@@ -106,6 +124,11 @@ class FlagsService extends Component
 
         $flagRecord->commentId = $flag->commentId;
         $flagRecord->userId = $flag->userId;
+        $flagRecord->sessionId = $this->_getSessionId();
+
+        if (Craft::$app->getConfig()->getGeneral()->storeUserIps) {
+            $flagRecord->lastIp = Craft::$app->getRequest()->userIP;
+        }
 
         // Save the record
         $flagRecord->save(false);
@@ -160,9 +183,27 @@ class FlagsService extends Component
         return true;
     }
 
+    public function generateSessionId(): string
+    {
+        return md5(uniqid(mt_rand(), true));
+    }
+
 
     // Private Methods
     // =========================================================================
+
+    private function _getSessionId()
+    {
+        $session = Craft::$app->getSession();
+        $sessionId = $session[$this->sessionName];
+
+        if (!$sessionId) {
+            $sessionId = $this->generateSessionId();
+            $session->set($this->sessionName, $sessionId);
+        }
+
+        return $sessionId;
+    }
 
     private function _getFlagRecordById(int $flagId = null): FlagRecord
     {
