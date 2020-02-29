@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.6 - 2020-02-29
+
+### Added
+- Add votes, upvotes, downvotes and flags to GQL queries.
+- Add support for anonymous flag/voting.
+
+### Fixed
+- Fix layout and error of replies table in the CP.
+- Fix notification checking for two guest users.
+- Ensure we check for moderation when sending reply notifications.
+- Ensure reply/author notifications are sent when moderation approved.
+- Fix lack of IE support for `:scope`, throwing JS errors.
+- Fix SVG avatar placeholder.
+
 ## 1.3.5 - 2020-02-14
 
 ### Fixed
