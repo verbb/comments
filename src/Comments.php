@@ -236,7 +236,7 @@ class Comments extends Plugin
 
     private function _registerCraftEventListeners()
     {
-        if (!Craft::$app->getRequest()->getIsCpRequest()) {
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
             Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
                 if ($event->plugin === $this) {
                     $this->getComments()->saveFieldLayout();
