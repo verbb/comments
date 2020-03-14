@@ -10,6 +10,8 @@ use Craft;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\TypeLoader;
+use craft\gql\TypeManager;
+use craft\helpers\Gql as GqlHelper;
 
 class CommentGenerator implements GeneratorInterface
 {
@@ -29,7 +31,7 @@ class CommentGenerator implements GeneratorInterface
             $contentFieldGqlTypes[$contentField->handle] = $contentField->getContentGqlType();
         }
 
-        $commentFields = array_merge(CommentInterface::getFieldDefinitions(), $contentFieldGqlTypes);
+        $commentFields = TypeManager::prepareFieldDefinitions(array_merge(CommentInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
 
         // Generate a type for each entry type
         $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new CommentType([

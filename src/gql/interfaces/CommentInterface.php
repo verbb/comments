@@ -10,6 +10,7 @@ use craft\gql\base\InterfaceType as BaseInterfaceType;
 use craft\gql\interfaces\Structure;
 use craft\gql\types\DateTime;
 use craft\gql\TypeLoader;
+use craft\gql\TypeManager;
 use craft\gql\GqlEntityRegistry;
 use craft\helpers\Gql;
 
@@ -53,7 +54,7 @@ class CommentInterface extends Structure
 
     public static function getFieldDefinitions(): array
     {
-        return array_merge(parent::getFieldDefinitions(), self::getConditionalFields(), [
+        return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), self::getConditionalFields(), [
             'ownerId' => [
                 'name' => 'ownerId',
                 'type' => Type::int(),
@@ -115,7 +116,7 @@ class CommentInterface extends Structure
                 'type' => Type::int(),
                 'description' => 'The number of flags for this comment.'
             ],
-        ]);
+        ]), self::getName());
     }
 
     protected static function getConditionalFields(): array
