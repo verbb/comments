@@ -22,12 +22,13 @@ return [
         // Voting
         'allowVoting' => true,
         'allowAnonymousVoting' => false,
-        'flaggedCommentLimit' => 5,
+        'downvoteCommentLimit' => 5,
+        'hideVotingForThreshold' => false,
 
         // Flagging
         'allowFlagging' => true,
         'allowAnonymousFlagging' => false,
-        'downvoteCommentLimit' => 5,
+        'flaggedCommentLimit' => 5,
 
         // Templates - Default
         'showAvatar' => true,
@@ -79,11 +80,12 @@ return [
 
 - `allowVoting` - Whether to allow voting.
 - `allowAnonymousVoting` - Whether to allow anonymous voting.
-- `flaggedCommentLimit` - Number of flags required for comment to be marked as `isFlagged`.
+- `downvoteCommentLimit` - Number of down votes required for comment to be marked as `isPoorlyRated`.
+- `hideVotingForThreshold` - Whether to hide voting altogether when `isPoorlyRated` is true.
 
 - `allowFlagging` - Whether to allow flagging.
 - `allowAnonymousFlagging` - Whether to allow anonymous flagging.
-- `downvoteCommentLimit` - Number of down votes required for comment to be marked as `isPoorlyRated`.
+- `flaggedCommentLimit` - Number of flags required for comment to be marked as `isFlagged`.
 
 - `showAvatar` - Whether to show an avatar for comments
 - `placeholderAvatar` - When "Show avatar" is enabled, and a guest is making a comment, show this as their avatar.

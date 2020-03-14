@@ -616,22 +616,6 @@
 		"oAP": "/src/gql/interfaces/CommentInterface.php",
 		"oF": 0
 		},
-	"/src/gql/interfaces/FlagsType.php": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/src/gql/interfaces/FlagsType.php",
-		"oF": 0
-		},
-	"/src/gql/interfaces/VotesType.php": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/src/gql/interfaces/VotesType.php",
-		"oF": 0
-		},
 	"/src/gql/queries/CommentQuery.php": {
 		"cB": 0,
 		"ft": 8192,

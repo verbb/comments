@@ -26,3 +26,11 @@
     value: settings.downvoteCommentLimit,
     warning: macros.configWarning('downvoteCommentLimit', 'comments'),
 }) }}
+
+{{ forms.lightswitchField({
+    label: "Hide voting for threshold" | t('comments'),
+    instructions: "When the downvoting threshold is met, should the voting controls be hidden?" | t('comments'),
+    name: 'hideVotingForThreshold',
+    on: settings.hideVotingForThreshold,
+    warning: macros.configWarning('hideVotingForThreshold', 'comments'),
+}) }}

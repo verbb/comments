@@ -31,12 +31,13 @@ class Settings extends Model
     // Voting
     public $allowVoting = true;
     public $allowAnonymousVoting = false;
-    public $flaggedCommentLimit = 5;
+    public $downvoteCommentLimit = 5;
+    public $hideVotingForThreshold = false;
 
     // Flagging
     public $allowFlagging = true;
     public $allowAnonymousFlagging = false;
-    public $downvoteCommentLimit = 5;
+    public $flaggedCommentLimit = 5;
 
     // Templates - Default
     public $showAvatar = true;

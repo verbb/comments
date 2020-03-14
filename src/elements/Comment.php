@@ -626,6 +626,11 @@ class Comment extends Element
             return;
         }
 
+        // Has the downvote threshold been met, and the config setting set?
+        if ($settings->hideVotingForThreshold && $this->isPoorlyRated()) {
+            return;
+        }
+
         return true;
     }
 
