@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.7 - 2020-03-14
+
+### Added
+- Add `hideVotingForThreshold`.
+
+### Fixed
+- Fix custom fields not saving in settings.
+- Fix custom fields no appearing for GQL queries.
+- Fix incorrect `getVotes()` function. Change to `getAllVotes()`.
+
 ## 1.3.6 - 2020-02-29
 
 ### Added
