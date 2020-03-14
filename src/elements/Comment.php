@@ -583,7 +583,7 @@ class Comment extends Element
         ]);
     }
 
-    public function votes()
+    public function getVotes()
     {
         $upvotes = Comments::$plugin->getVotes()->getUpvotesByCommentId($this->id);
         $downvotes = Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
@@ -596,7 +596,7 @@ class Comment extends Element
         return Comments::$plugin->getVotes()->isOverDownvoteThreshold($this);
     }
 
-    public function getVotes()
+    public function getAllVotes()
     {
         return Comments::$plugin->getVotes()->getVotesByCommentId($this->id);
     }
