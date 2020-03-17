@@ -184,7 +184,7 @@ Ihr Kommentar zum Beitrag "{{ element.title }}" wurde freigeschaltet
     'Your name' => 'Ihr Name',
     'Your email' => 'Ihre E-Mail-Adresse',
     'Add a comment...' => 'Kommentar hinzufügen…',
-    'Post comment' => 'Kommentare veröffentlichen',
+    'Post comment' => 'Kommentar veröffentlichen',
     'Flag' => 'Melden',
     'Comment marked as inappropriate' => 'Kommentar wurde als unangebracht markiert',
     'Comment hidden due to low rating' => 'Kommentar wurde auf Grund niedriger Bewertungen versteckt',
