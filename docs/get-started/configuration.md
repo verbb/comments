@@ -47,6 +47,7 @@ return [
         'securityModeration' => '',
         'securityBlacklist' => '',
         'securityBanned' => '',
+        'recaptchaEnabled' => false,
         'recaptchaKey' => '',
         'recaptchaSecret' => '',
 
