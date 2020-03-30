@@ -54,6 +54,7 @@ return [
         // Notifications
         'notificationAuthorEnabled' => true,
         'notificationReplyEnabled' => true,
+        'notificationSubscribeAuto' => false,
         'notificationSubscribeDefault' => true,
         'notificationSubscribeEnabled' => false,
         'notificationSubscribeCommentEnabled' => false,
@@ -107,6 +108,7 @@ return [
 
 - `notificationAuthorEnabled` - Whether to notify element authors when a comment is made.
 - `notificationReplyEnabled` - Whether to notify comment authors when a reply is made.
+- `notificationSubscribeAuto` - Whether to automatically subscribe to notifications on any comments on the same element, after your first reply.
 - `notificationSubscribeDefault` - Whether to automatically subscribe to notifications on comments that the user owns.
 - `notificationSubscribeEnabled` - Whether to allow subscriber notification altogether.
 - `notificationSubscribeCommentEnabled` - Whether to notify comment authors when a reply is made.
