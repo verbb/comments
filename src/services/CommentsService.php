@@ -444,30 +444,10 @@ class CommentsService extends Component
         }
 
         // Get our recipient
-        try {        
-            if ($element->getAuthor()) {
-                $recipient = $element->getAuthor();
-            }
-        } catch(\Throwable $e) {
-            Comments::log('Not sending element moderator author notification, no author found: ' . $e->getMessage());
-        }
+        $recipient = $comment->getAuthor();
 
         if (!$recipient) {
             Comments::log('Cannot send element moderator author notification: No recipient ' . json_encode($recipient));
-
-            return;
-        }
-
-        // If the author and commenter are the same user - don't send
-        if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
-            Comments::log('Cannot send element moderator author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
-
-            return;
-        }
-
-        // If the author and commenter have the same email - don't send
-        if ($comment->email === $recipient->email) {
-            Comments::log('Cannot send element moderator author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
