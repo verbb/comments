@@ -420,9 +420,9 @@ class CommentsService extends Component
 
                 $mail->send();
 
-                Comments::log('Email sent successfully comment moderator (' . $user->email . ')');
+                Comments::log('Email sent successfully to moderator (' . $user->email . ')');
             } catch (\Throwable $e) {
-                Comments::error('Unable to send email to comment moderator (' . $user->email . ') - ' . $e->getMessage());
+                Comments::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
             }
         }
     }
@@ -438,7 +438,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send element moderator author notification: No element ' . json_encode($element));
+            Comments::log('Cannot send comment author notification: No element ' . json_encode($element));
 
             return;
         }
@@ -447,7 +447,7 @@ class CommentsService extends Component
         $recipient = $comment->getAuthor();
 
         if (!$recipient) {
-            Comments::log('Cannot send element moderator author notification: No recipient ' . json_encode($recipient));
+            Comments::log('Cannot send comment author notification: No recipient ' . json_encode($recipient));
 
             return;
         }
@@ -472,13 +472,13 @@ class CommentsService extends Component
 
             $emailSent = $message->send();
         } catch (\Throwable $e) {
-            Comments::error('Error sending element moderator author notification: ' . $e->getMessage());
+            Comments::error('Error sending comment author notification: ' . $e->getMessage());
         }
 
         if ($emailSent) {
-            Comments::log('Email sent successfully to element moderator author (' . $recipient->email . ')');
+            Comments::log('Email sent successfully to comment author (' . $recipient->email . ')');
         } else {
-            Comments::error('Unable to send email to element moderator author (' . $recipient->email . ')');
+            Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
         }
     }
 
