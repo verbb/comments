@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.8 - 2020-03-30
+
+### Added
+- Add `notificationSubscribeAuto` to allow user to auto-subscribe to all comments on an element.
+
+### Fixed
+- Fix wrong plural in german translation. (thanks @FabianWildgrube).
+- Fix incorrect logic and recipient for moderator approved emails.
+
 ## 1.3.7 - 2020-03-14
 
 ### Added
