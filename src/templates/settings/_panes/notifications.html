@@ -29,7 +29,18 @@
 <h3>{{ 'Subscribing' | t('comments') }}</h3>
 
 {{ forms.lightswitchField({
-    label: "Auto-Subscribe Users to Replies on their Comments" | t('comments'),
+    label: "Auto-Subscribe Users to all Comments" | t('comments'),
+    instructions: "Whether to automatically subscribe users to notifications after they have commented, whenever a comment in made on an element. For example, any time another user makes a comment on an entry, all users who have also commented will receive a notification." | t('comments'),
+    id: 'notificationSubscribeAuto',
+    name: 'notificationSubscribeAuto',
+    on: settings.notificationSubscribeAuto,
+    onLabel: "Enable" | t('comments'),
+    offLabel: "Disable" | t('comments'),
+    warning: macros.configWarning('notificationSubscribeAuto', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Auto-Subscribe Users to Replies only on their Comments" | t('comments'),
     instructions: "Whether to automatically subscribe to notifications on comments that the user owns. This means, any time another user replies to a comment they own, they'll receive a notification." | t('comments'),
     id: 'notificationSubscribeDefault',
     name: 'notificationSubscribeDefault',

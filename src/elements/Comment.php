@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\actions\SetStatus;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\models\Subscribe;
 use verbb\comments\records\Comment as CommentRecord;
 
 use Craft;
@@ -794,10 +795,15 @@ class Comment extends Element
                 } else {
                     Comments::log('Reply Notifications disabled.');
                 }
+
+                // Do we need to auto-subscribe the user?
+                if ($settings->notificationSubscribeAuto) {
+                    $this->_saveNewSubscriber();
+                }
             }
 
             // Check for all users subscribed to notifications
-            if ($settings->notificationSubscribeEnabled) {
+            if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
                 Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
             }
         }
@@ -823,6 +829,11 @@ class Comment extends Element
                 Comments::$plugin->comments->sendReplyNotificationEmail($this);
             } else {
                 Comments::log('Reply Notifications disabled.');
+            }
+
+            // Do we need to auto-subscribe the user?
+            if ($settings->notificationSubscribeAuto) {
+                $this->_saveNewSubscriber();
             }
         }
 
@@ -964,6 +975,27 @@ class Comment extends Element
         $oldParentId = $oldParentQuery->scalar();
 
         return $this->newParentId != $oldParentId;
+    }
+
+    private function _saveNewSubscriber()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $ownerId = $this->ownerId;
+        $siteId = $this->siteId;
+        $commentId = null;
+        $userId = $currentUser->id ?? null;
+
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId, $commentId) ?? new Subscribe();
+        $subscribe->ownerId = $ownerId;
+        $subscribe->ownerSiteId = $siteId;
+        $subscribe->commentId = $commentId;
+        $subscribe->subscribed = true;
+
+        // Okay if no user here, although required, the model validation will pick it up
+        $subscribe->userId = $userId;
+
+        Comments::$plugin->getSubscribe()->saveSubscribe($subscribe);
     }
 
 }
