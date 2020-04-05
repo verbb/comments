@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.9 - 2020-04-05
+
+### Added
+- Add `beforeSendSubscribeEmail` event.
+
+### Changed
+- Allow all notification events to have `isValid` set to prevent sending.
+
+### Fixed
+- Ensure plugin project config is removed when uninstalling.
+
 ## 1.3.8 - 2020-03-30
 
 ### Added
