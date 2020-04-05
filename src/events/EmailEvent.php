@@ -1,9 +1,9 @@
 <?php
 namespace verbb\comments\events;
 
-use yii\base\Event;
+use craft\events\CancelableEvent;
 
-class EmailEvent extends Event
+class EmailEvent extends CancelableEvent
 {
     // Properties
     // =========================================================================

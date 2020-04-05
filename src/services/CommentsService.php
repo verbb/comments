@@ -271,13 +271,18 @@ class CommentsService extends Component
                 ->setTo($recipient);
 
             // Fire a 'beforeSendAuthorEmail' event
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL)) {
-                $this->trigger(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL, new EmailEvent([
-                    'mail' => $message,
-                    'user' => $recipient,
-                    'element' => $element,
-                    'comment' => $comment,
-                ]));
+            $event = new EmailEvent([
+                'mail' => $message,
+                'user' => $recipient,
+                'element' => $element,
+                'comment' => $comment,
+            ]);
+            $this->trigger(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL, $event);
+
+            if (!$event->isValid) {
+                Comments::log('Email blocked via event hook.');
+
+                return;
             }
 
             $emailSent = $message->send();
@@ -351,14 +356,18 @@ class CommentsService extends Component
                 ->setTo($recipient);
 
             // Fire a 'beforeSendReplyEmail' event
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_REPLY_EMAIL)) {
-                $this->trigger(self::EVENT_BEFORE_SEND_REPLY_EMAIL, new EmailEvent([
-                    'mail' => $message,
-                    'user' => $recipient,
-                    'element' => $element,
-                    'comment' => $comment,
-                ]));
-            }
+            $event = new EmailEvent([
+                'mail' => $message,
+                'user' => $recipient,
+                'element' => $element,
+                'comment' => $comment,
+            ]);
+            $this->trigger(self::EVENT_BEFORE_SEND_REPLY_EMAIL, $event);
+
+            if (!$event->isValid) {
+                Comments::log('Email blocked via event hook.');
+
+               
 
             $emailSent = $message->send();
         } catch (\Throwable $e) {
@@ -410,13 +419,18 @@ class CommentsService extends Component
                     ->setTo($user);
 
                 // Fire a 'beforeSendModeratorEmail' event
-                if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL)) {
-                    $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, new EmailEvent([
-                        'mail' => $mail,
-                        'user' => $user,
-                        'element' => $element,
-                        'comment' => $comment,
-                    ]));
+                $event = new EmailEvent([
+                    'mail' => $mail,
+                    'user' => $user,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, $event);
+
+                if (!$event->isValid) {
+                    Comments::log('Email blocked via event hook.');
+
+                    continue;
                 }
 
                 $mail->send();
@@ -462,13 +476,18 @@ class CommentsService extends Component
                 ->setTo($recipient);
 
             // Fire a 'beforeSendModeratorApprovedEmail' event
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL)) {
-                $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, new EmailEvent([
-                    'mail' => $message,
-                    'user' => $recipient,
-                    'element' => $element,
-                    'comment' => $comment,
-                ]));
+            $event = new EmailEvent([
+                'mail' => $message,
+                'user' => $recipient,
+                'element' => $element,
+                'comment' => $comment,
+            ]);
+            $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $event);
+
+            if (!$event->isValid) {
+                Comments::log('Email blocked via event hook.');
+
+                return;
             }
 
             $emailSent = $message->send();
@@ -574,13 +593,18 @@ class CommentsService extends Component
         		    ->setTo($user);
 
                 // Fire a 'beforeSendSubscribeEmail' event
-                if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL)) {
-                    $this->trigger(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, new EmailEvent([
-                        'mail' => $mail,
-                        'user' => $user,
-                        'element' => $element,
-                        'comment' => $comment,
-                    ]));
+                $event = new EmailEvent([
+                    'mail' => $mail,
+                    'user' => $user,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, $event);
+
+                if (!$event->isValid) {
+                    Comments::log('Email blocked via event hook.');
+
+                    continue;
                 }
 
                 if ($message->send()) {

@@ -163,7 +163,8 @@ use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $e) {
-
+    // Prevent sending
+    $e->isValid = false;
 });
 ```
 
@@ -177,7 +178,8 @@ use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL, function(EmailEvent $e) {
-
+    // Prevent sending
+    $e->isValid = false;
 });
 ```
 
@@ -191,7 +193,8 @@ use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $e) {
-
+    // Prevent sending
+    $e->isValid = false;
 });
 ```
 
@@ -205,7 +208,8 @@ use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, function(EmailEvent $e) {
-
+    // Prevent sending
+    $e->isValid = false;
 });
 ```
 ```
@@ -220,6 +224,7 @@ use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, function(EmailEvent $e) {
-
+    // Prevent sending
+    $e->isValid = false;
 });
 ```
