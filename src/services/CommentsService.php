@@ -33,6 +33,7 @@ class CommentsService extends Component
     const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
     const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
     const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
+    const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
 
     const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
 
@@ -571,6 +572,16 @@ class CommentsService extends Component
             			'comment' => $comment
         		    ])
         		    ->setTo($user);
+
+                // Fire a 'beforeSendSubscribeEmail' event
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL)) {
+                    $this->trigger(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, new EmailEvent([
+                        'mail' => $mail,
+                        'user' => $user,
+                        'element' => $element,
+                        'comment' => $comment,
+                    ]));
+                }
 
                 if ($message->send()) {
                     Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
