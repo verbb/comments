@@ -34,6 +34,9 @@ class Install extends Migration
     {
         $this->dropForeignKeys();
         $this->dropTables();
+        $this->dropProjectConfig();
+
+        return true;
     }
 
     public function createTables()
@@ -147,5 +150,10 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
+    }
+
+    public function dropProjectConfig()
+    {
+        Craft::$app->projectConfig->remove('comments');
     }
 }
