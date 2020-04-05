@@ -208,3 +208,18 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_A
 
 });
 ```
+```
+
+### The `beforeSendSubscribeEmail` event
+
+Plugins can get notified before a subscribed element's email is sent. This is the email that is sent to all subscribers of an element, when a comment is made.
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, function(EmailEvent $e) {
+
+});
+```
