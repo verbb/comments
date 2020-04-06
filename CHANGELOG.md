@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.10 - 2020-04-06
+
+### Fixed
+- Fix error when sending subscribe notifications.
+- Fix error when sending reply notifications.
+- Fix errors with missing structure when moving environments with a project.yaml file.
+- Add structure checks in project config rebuild.
+
 ## 1.3.9 - 2020-04-05
 
 ### Added
