@@ -594,7 +594,7 @@ class CommentsService extends Component
 
                 // Fire a 'beforeSendSubscribeEmail' event
                 $event = new EmailEvent([
-                    'mail' => $mail,
+                    'mail' => $message,
                     'user' => $user,
                     'element' => $element,
                     'comment' => $comment,
