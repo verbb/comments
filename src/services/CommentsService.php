@@ -366,8 +366,9 @@ class CommentsService extends Component
 
             if (!$event->isValid) {
                 Comments::log('Email blocked via event hook.');
-
-               
+                
+                return;
+            }
 
             $emailSent = $message->send();
         } catch (\Throwable $e) {
