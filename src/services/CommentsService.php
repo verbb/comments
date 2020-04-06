@@ -21,6 +21,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\Structure;
 
 use DateTime;
 
@@ -366,7 +367,7 @@ class CommentsService extends Component
 
             if (!$event->isValid) {
                 Comments::log('Email blocked via event hook.');
-                
+
                 return;
             }
 
@@ -618,6 +619,20 @@ class CommentsService extends Component
 
                 continue;
             }
+        }
+    }
+
+    public function handleChangedPluginStructure(ConfigEvent $event)
+    {
+        $data = $event->newValue;
+
+        $structureUid = $data['structureUid'];
+
+        if ($structureUid) {
+            $structuresService = Craft::$app->getStructures();
+            $structure = $structuresService->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
+            
+            $structuresService->saveStructure($structure);
         }
     }
 

@@ -100,15 +100,7 @@ class Comments extends Plugin
         // Comments are a Structure, which helps with hierarchy-goodness.
         // We only use a single structure for all our comments so store this at the plugin settings level
         if (!$this->getSettings()->structureUid) {
-            $structure = new Structure();
-
-            Craft::$app->getStructures()->saveStructure($structure);
-
-            // We need to fetch the UID
-            $structure = Craft::$app->getStructures()->getStructureById($structure->id);
-
-            // Update our plugin settings straight away!
-            Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
+            $this->createAndStoreStructure();
         }
     }
 
@@ -120,6 +112,21 @@ class Comments extends Plugin
         }
 
         return true;
+    }
+
+    public function createAndStoreStructure()
+    {
+        $structure = new Structure();
+
+        Craft::$app->getStructures()->saveStructure($structure);
+
+        // We need to fetch the UID
+        $structure = Craft::$app->getStructures()->getStructureById($structure->id);
+
+        // Update our plugin settings straight away!
+        Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
+
+        return $structure;
     }
 
 
@@ -253,6 +260,9 @@ class Comments extends Plugin
         $projectConfigService->onAdd(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
             ->onUpdate(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
             ->onRemove(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleDeletedFieldLayout']);
+
+        $projectConfigService->onAdd('plugins.comments.settings', [$service, 'handleChangedPluginStructure'])
+            ->onUpdate('plugins.comments.settings', [$service, 'handleChangedPluginStructure']);
 
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$service, 'pruneDeletedField']);
 
