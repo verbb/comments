@@ -87,10 +87,7 @@ trait PluginTrait
 
     private function _setLogging()
     {
-        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-            'logFile' => Craft::getAlias('@storage/logs/comments.log'),
-            'categories' => ['comments'],
-        ]);
+        BaseHelper::setFileLogging('comments');
     }
 
 }
