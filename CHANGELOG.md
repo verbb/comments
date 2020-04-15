@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.11 - 2020-04-15
+
+### Changed
+- File logging now checks if the overall Craft app uses file logging.
+- Log files now only include `GET` and `POST` additional variables.
+
 ## 1.3.10 - 2020-04-06
 
 ### Fixed
