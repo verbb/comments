@@ -11,12 +11,22 @@
 }) }}
 
 {{ forms.lightswitchField({
+    label: 'Show email and name for guests' | t('comments'),
+    instructions: 'Guests are shown fields to enter their name and email. Only applicable for guest comments.' | t('comments'),
+    name: 'guestShowEmailName',
+    on: settings.guestShowEmailName,
+    warning: macros.configWarning('guestShowEmailName', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
     label: 'Require email and name for guests' | t('comments'),
     instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
     name: 'guestRequireEmailName',
     on: settings.guestRequireEmailName,
     warning: macros.configWarning('guestRequireEmailName', 'comments'),
 }) }}
+
+<hr>
 
 {{ forms.lightswitchField({
     label: 'Comments require moderation' | t('comments'),

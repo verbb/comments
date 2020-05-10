@@ -15,6 +15,7 @@ return [
         // General
         'allowGuest' => false,
         'guestRequireEmailName' => true,
+        'guestShowEmailName' => true,
         'requireModeration' => true,
         'moderatorUserGroup',
         'autoCloseDays' => '',
@@ -76,6 +77,7 @@ return [
 
 - `allowGuest` - Whether to allow guest commenting.
 - `guestRequireEmailName` - Whether guests should be required to enter their name and email.
+- `guestShowEmailName` - Whether guests should be shown fields to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
 - `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
