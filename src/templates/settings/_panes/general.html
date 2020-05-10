@@ -3,16 +3,16 @@
 
 {{ forms.lightswitchField({
     first: true,
-    label: 'Allow anonymous comments' | t('comments'),
-    instructions: 'Anonymous users can post a comment.' | t('comments'),
-    name: 'allowAnonymous',
-    on: settings.allowAnonymous,
-    warning: macros.configWarning('allowAnonymous', 'comments'),
+    label: 'Allow guest comments' | t('comments'),
+    instructions: 'Guest users can post a comment.' | t('comments'),
+    name: 'allowGuest',
+    on: settings.allowGuest,
+    warning: macros.configWarning('allowGuest', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
     label: 'Require email and name for guests' | t('comments'),
-    instructions: 'Guests are required to enter their name and email. Only applicable for anonymous comments.' | t('comments'),
+    instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
     name: 'guestRequireEmailName',
     on: settings.guestRequireEmailName,
     warning: macros.configWarning('guestRequireEmailName', 'comments'),

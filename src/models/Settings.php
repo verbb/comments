@@ -22,7 +22,7 @@ class Settings extends Model
     public $defaultQueryStatus = [Comment::STATUS_APPROVED];
 
     // General
-    public $allowAnonymous = false;
+    public $allowGuest = false;
     public $guestRequireEmailName = true;
     public $requireModeration = true;
     public $moderatorUserGroup;
@@ -30,13 +30,13 @@ class Settings extends Model
 
     // Voting
     public $allowVoting = true;
-    public $allowAnonymousVoting = false;
+    public $allowGuestVoting = false;
     public $downvoteCommentLimit = 5;
     public $hideVotingForThreshold = false;
 
     // Flagging
     public $allowFlagging = true;
-    public $allowAnonymousFlagging = false;
+    public $allowGuestFlagging = false;
     public $flaggedCommentLimit = 5;
 
     // Templates - Default
@@ -75,6 +75,11 @@ class Settings extends Model
 
     // Users
     public $users;
+
+    // Deprecated
+    public $allowAnonymous;
+    public $allowAnonymousVoting;
+    public $allowAnonymousFlagging;
 
 
     // Public Methods

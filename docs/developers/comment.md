@@ -11,11 +11,11 @@ Attribute | Description
 `ownerSiteId` | The element site ID this comment was made on (Entry, Asset, etc).
 `owner` | The element this comment was made on (Entry, Asset, etc).
 `userId` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) ID for the author of a comment.
-`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For anonymous, this will still return a new User, with their email, first/last name attributes populated.
+`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For guest, this will still return a new User, with their email, first/last name attributes populated.
 `parent` | Comment object of any parent. Only applicable when replying to another comment. For new comments, this will be null.
 `status` | The status of this comment. Available values are `approved`, `pending`, `spam`, `trashed`.
-`name` | Name of the commenter. Anonymous users only.
-`email` | Email address of the commenter. Anonymous users only.
+`name` | Name of the commenter. Guest users only.
+`email` | Email address of the commenter. Guest users only.
 `url` | The URL that this comment was made from.
 `ipAddress` | Commenters IP Address.
 `userAgent` | Commenters User Agent.
@@ -27,7 +27,7 @@ Attribute | Description
 
 Method | Description
 --- | ---
-`isGuest()` | Returns true/false if a comment was made by an anonymous user.
+`isGuest()` | Returns true/false if a comment was made by an guest user.
 `getTimeAgo()` | Returns a human-friendly string of how long ago a comment was made, ie: `2 min ago`.
 `getExcerpt(start, length)` | Returns an excerpt of the comment. You can also supply parameters to control length.
 `hasFlagged()` | Whether the user has already flagged a comment.

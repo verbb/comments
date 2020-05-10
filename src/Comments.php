@@ -42,7 +42,7 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.1.4';
+    public $schemaVersion = '1.1.5';
     public $hasCpSettings = true;
     public $hasCpSection = true;
     
@@ -73,6 +73,7 @@ class Comments extends Plugin
         $this->_registerGraphQl();
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
+        $this->_checkDeprecations();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
@@ -269,6 +270,26 @@ class Comments extends Plugin
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $event->config['comments'] = ProjectConfigData::rebuildProjectConfig();
         });
+    }
+
+    private function _checkDeprecations()
+    {
+        $settings = $this->getSettings();
+
+        // Check for renamed settings
+        $renamedSettings = [
+            'allowAnonymous' => 'allowGuest',
+            'allowAnonymousVoting' => 'allowGuestVoting',
+            'allowAnonymousFlagging' => 'allowGuestFlagging',
+        ];
+        
+        foreach ($renamedSettings as $old => $new) {
+            if (property_exists($settings, $old) && isset($settings->$old)) {
+                Craft::$app->getDeprecator()->log($old, "The {$old} config setting has been renamed to {$new}.");
+                $settings[$new] = $settings[$old];
+                unset($settings[$old]);
+            }
+        }
     }
 
 }

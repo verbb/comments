@@ -29,12 +29,12 @@ class CommentsController extends Controller
         $settings = Comments::$plugin->getSettings();
 
         // Protect Voting/Flagging - only allowed when the config is set
-        if ($settings->allowAnonymousFlagging) {
-            $this->allowAnonymous['flag'] = 1;
+        if ($settings->allowGuestFlagging) {
+            $this->allowGuest['flag'] = 1;
         }
 
-        if ($settings->allowAnonymousVoting) {
-            $this->allowAnonymous['vote'] = 1;
+        if ($settings->allowGuestVoting) {
+            $this->allowGuest['vote'] = 1;
         }
 
         return parent::beforeAction($action);

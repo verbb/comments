@@ -28,7 +28,7 @@ This represents the individual comment, but also calls nested comments recursive
 
 #### form.html [view template](https://github.com/verbb/comments/blob/craft-3/src/templates/_special/form.html)
 
-A simple form that handles both logged-in users, and anonymous users. There are some required fields and settings that you must include however. Below is the bare-minimum form implementation with all required fields:
+A simple form that handles both logged-in users, and guest users. There are some required fields and settings that you must include however. Below is the bare-minimum form implementation with all required fields:
 
 ```twig
 <form method="post" role="form" method="post" accept-charset="UTF-8">

@@ -388,7 +388,7 @@ class Comment extends Element
             $author->lastName = $nameInfo->getLastname();
 
             if (!$author->firstName && !$author->lastName) {
-                $author->firstName = Craft::t('comments', 'Anonymous');
+                $author->firstName = Craft::t('comments', 'Guest');
             }
 
             return $author;
@@ -547,7 +547,7 @@ class Comment extends Element
         }
 
         // Only guests can flag if the setting is configured to do so
-        if (!$currentUser && !$settings->allowAnonymousFlagging) {
+        if (!$currentUser && !$settings->allowGuestFlagging) {
             return;
         }
 
@@ -623,7 +623,7 @@ class Comment extends Element
         }
 
         // Only guests can vote if the setting is configured to do so
-        if (!$currentUser && !$settings->allowAnonymousVoting) {
+        if (!$currentUser && !$settings->allowGuestVoting) {
             return;
         }
 
@@ -666,8 +666,8 @@ class Comment extends Element
             ]));
         }
 
-        // Protect against Anonymous submissions, if turned off
-        if (!$settings->allowAnonymous && !$this->userId) {
+        // Protect against Guest submissions, if turned off
+        if (!$settings->allowGuest && !$this->userId) {
             $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
         }
 

@@ -13,7 +13,7 @@ return [
         'defaultQueryStatus' => ['approved'],
 
         // General
-        'allowAnonymous' => false,
+        'allowGuest' => false,
         'guestRequireEmailName' => true,
         'requireModeration' => true,
         'moderatorUserGroup',
@@ -21,13 +21,13 @@ return [
 
         // Voting
         'allowVoting' => true,
-        'allowAnonymousVoting' => false,
+        'allowGuestVoting' => false,
         'downvoteCommentLimit' => 5,
         'hideVotingForThreshold' => false,
 
         // Flagging
         'allowFlagging' => true,
-        'allowAnonymousFlagging' => false,
+        'allowGuestFlagging' => false,
         'flaggedCommentLimit' => 5,
 
         // Templates - Default
@@ -74,19 +74,19 @@ return [
 - `indexSidebarIndividualElements` - Whether to show individual elements in the comments index sidebar in the control panel.
 - `defaultQueryStatus` - Set the default status for element queries to return.
 
-- `allowAnonymous` - Whether to allow anonymous commenting.
+- `allowGuest` - Whether to allow guest commenting.
 - `guestRequireEmailName` - Whether guests should be required to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
 - `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
 
 - `allowVoting` - Whether to allow voting.
-- `allowAnonymousVoting` - Whether to allow anonymous voting.
+- `allowGuestVoting` - Whether to allow guest voting.
 - `downvoteCommentLimit` - Number of down votes required for comment to be marked as `isPoorlyRated`.
 - `hideVotingForThreshold` - Whether to hide voting altogether when `isPoorlyRated` is true.
 
 - `allowFlagging` - Whether to allow flagging.
-- `allowAnonymousFlagging` - Whether to allow anonymous flagging.
+- `allowGuestFlagging` - Whether to allow guest flagging.
 - `flaggedCommentLimit` - Number of flags required for comment to be marked as `isFlagged`.
 
 - `showAvatar` - Whether to show an avatar for comments
