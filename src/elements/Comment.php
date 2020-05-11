@@ -55,6 +55,7 @@ class Comment extends Element
     private $_hasNewParent;
     private $comment;
     private $_owner;
+    private $_author;
     private $previousStatus;
 
 
@@ -372,6 +373,11 @@ class Comment extends Element
 
     public function getAuthor()
     {
+        // Provide some caching
+        if ($this->_author !== null) {
+            return $this->_author;
+        }
+
         // If this user is a guest, we make a temprary UserModel, which is particularly
         // used for email notifications (which require a UserModel instance)
         if ($this->isGuest()) {
@@ -391,6 +397,8 @@ class Comment extends Element
                 $author->firstName = Craft::t('comments', 'Guest');
             }
 
+            $this->_author = $author;
+
             return $author;
         }
 
@@ -404,8 +412,12 @@ class Comment extends Element
             $author->firstName = Craft::t('comments', '[Deleted');
             $author->lastName = Craft::t('comments', 'User]');
 
+            $this->_author = $author;
+
             return $author;
         }
+
+        $this->_author = $user;
 
         return $user;
     }
