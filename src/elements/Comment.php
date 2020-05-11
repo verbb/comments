@@ -18,6 +18,7 @@ use craft\elements\Asset;
 use craft\elements\Category;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\Entry;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
@@ -56,6 +57,7 @@ class Comment extends Element
     private $comment;
     private $_owner;
     private $_author;
+    private $_user;
     private $previousStatus;
 
 
@@ -243,6 +245,8 @@ class Comment extends Element
     {
         $names = parent::extraFields();
         $names[] = 'owner';
+        $names[] = 'user';
+        $names[] = 'author';
         return $names;
     }
 
@@ -403,7 +407,7 @@ class Comment extends Element
         }
 
         // Check if this is a regular user
-        $user = Craft::$app->getUsers()->getUserById($this->userId);
+        $user = $this->getUser();
 
         // But, they might have been deleted!
         if (!$user) {
@@ -513,6 +517,26 @@ class Comment extends Element
         return UrlHelper::actionUrl('comments/comments/trash', [
             'commentId' => $this->id,
         ]);
+    }
+
+    public function getUser()
+    {
+        if ($this->_user === null) {
+            if ($this->userId === null) {
+                return null;
+            }
+
+            if (($this->_user = Craft::$app->getUsers()->getUserById($this->userId)) === null) {
+                $this->_user = false;
+            }
+        }
+
+        return $this->_user ?: null;
+    }
+
+    public function setUser(User $user = null)
+    {
+        $this->_user = $user;
     }
 
 
@@ -931,14 +955,53 @@ class Comment extends Element
         }
     }
 
+    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    {
+        if ($handle === 'user') {
+            // Get the source element IDs
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select(['id as source', 'userId as target'])
+                ->from(['{{%comments_comments}}'])
+                ->where(['and', ['id' => $sourceElementIds], ['not', ['userId' => null]]])
+                ->all();
+
+            return [
+                'elementType' => User::class,
+                'map' => $map
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
     public static function gqlTypeNameByContext($context): string
     {
         return 'Comment';
     }
 
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    {
+        if ($attribute === 'user') {
+            $elementQuery->andWith('user');
+        } else {
+            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
+    }
+
     public function getGqlTypeName(): string
     {
         return static::gqlTypeNameByContext($this);
+    }
+
+    public function setEagerLoadedElements(string $handle, array $elements)
+    {
+        if ($handle === 'user') {
+            $this->_user = $elements[0] ?? false;
+        } else {
+            parent::setEagerLoadedElements($handle, $elements);
+        }
     }
 
 
