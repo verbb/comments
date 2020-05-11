@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.4.0 - 2020-05-11
+
+### Added
+- Add `guestShowEmailName` config option.
+- Add performance improvements, with an 70% reduction in the number of database queries.
+- Add eager-loading for owner element, author element (and photo).
+- Add eager-loading for comment structure. Only applicable for default templates.
+
+### Changed
+- Clarify Anonymous commenting to be Guest commenting.
+
+### Deprecated
+- Deprecated plugin setting `allowAnonymous`. Use `allowGuest`.
+- Deprecated plugin setting `allowAnonymousVoting`. Use `allowGuestVoting`.
+- Deprecated plugin setting `allowAnonymousFlagging`. Use `allowGuestFlagging`.
+
 ## 1.3.12 - 2020-04-16
 
 ### Fixed
