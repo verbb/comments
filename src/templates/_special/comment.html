@@ -122,7 +122,7 @@
 
         <div data-role="replies">
             {% if comment.children | length %}
-                {% for nestedComment in comment.children.all() %}
+                {% for nestedComment in comment.children %}
                     {% include 'comment' with { comment: nestedComment } %}
                 {% endfor %}
             {% endif %}

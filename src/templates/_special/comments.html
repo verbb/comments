@@ -6,6 +6,11 @@
 {# id, element, commentsQuery, settings #}
 {# ------------------------ #}
 
+{# Include eager-loading here so we don't break backward compatibility with older custom templates #}
+{# using `descendants` will break all custom templates still calling `comment.children.all()` #}
+{# Refactor this at the next major plugin breakpoint #}
+{% set eagerLoadMap = commentsQuery.with | merge(['descendants']) %}
+
 <div id="{{ id }}" class="cc-w{% if not settings.showAvatar %} no-avatar{% endif %}">
     {% if currentUser and settings.notificationSubscribeEnabled %}
         {% set subscribed = craft.comments.isSubscribed(element) %}
@@ -28,7 +33,7 @@
     {% endif %}
 
     <div class="cc-w-i" data-role="comments">
-        {% for comment in commentsQuery.all() %}
+        {% for comment in commentsQuery.with(eagerLoadMap).all() %}
             {% include 'comment' %}
         {% endfor %}
     </div>
