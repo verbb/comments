@@ -71,6 +71,7 @@ class CommentsService extends Component
         $query->level('1');
         $query->orderBy('commentDate desc');
         $query->with([
+            'owner',
             'user',
             ['user.photo', ['withTransforms' => [['width' => 64, 'height' => 64, 'mode' => 'fit']]]],
         ]);

@@ -468,6 +468,15 @@ class Comment extends Element
         $this->_owner = $owner;
     }
 
+    public function getOwnerType()
+    {
+        if ($owner = $this->getOwner()) {
+            return get_class($owner);
+        }
+
+        return '';
+    }
+
     public function canReply()
     {
         return (bool)Comments::$plugin->getSettings()->canComment($this->getOwner());
@@ -973,6 +982,31 @@ class Comment extends Element
             ];
         }
 
+        if ($handle === 'owner') {
+            // Get the source element IDs
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select(['id as source', 'ownerId as target'])
+                ->from(['{{%comments_comments}}'])
+                ->where(['and', ['id' => $sourceElementIds], ['not', ['ownerId' => null]]])
+                ->all();
+
+            // This isn't amazing, but its benefit is pretty considerable. The thinking here is that its
+            // unlikely you'll be fetching comments across multiple different element types
+            // $elementType = Entry::class;
+            $firstElement = $sourceElements[0] ?? [];
+
+            if (!$firstElement) {
+                return null;
+            }
+
+            return [
+                'elementType' => $firstElement->getOwnerType(),
+                'map' => $map
+            ];
+        }
+
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
@@ -985,6 +1019,8 @@ class Comment extends Element
     {
         if ($attribute === 'user') {
             $elementQuery->andWith('user');
+        } else if ($attribute === 'owner') {
+            $elementQuery->andWith('owner');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
@@ -999,6 +1035,8 @@ class Comment extends Element
     {
         if ($handle === 'user') {
             $this->_user = $elements[0] ?? false;
+        } else if ($handle === 'owner') {
+            $this->_owner = $elements[0] ?? false;
         } else {
             parent::setEagerLoadedElements($handle, $elements);
         }
