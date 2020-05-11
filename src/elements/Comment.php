@@ -548,6 +548,14 @@ class Comment extends Element
         $this->_user = $user;
     }
 
+    public function isSubscribed()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $userId = $currentUser->id ?? null;
+
+        return Comments::$plugin->getSubscribe()->hasSubscribed($this->ownerId, $this->ownerSiteId, $userId, $this->id);
+    }
+
 
     // Flags
     // =========================================================================
