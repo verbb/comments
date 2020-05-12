@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1 - 2020-05-13
+
+### Fixed
+- Fix name/email fields not appearing on templates when being required, but not shown.
+
 ## 1.4.0 - 2020-05-11
 
 ### Added
