@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1.1 - 2020-05-13
+
+### Fixed
+- Fix name/email fields appearing when `allowGuest` is off.
+
 ## 1.4.1 - 2020-05-13
 
 ### Fixed

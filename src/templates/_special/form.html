@@ -23,7 +23,7 @@
             {{ csrfInput() }}
             {{ craft.comments.protect() }}
 
-            {% if not currentUser and (settings.guestShowEmailName or settings.guestRequireEmailName) %}
+            {% if not currentUser and settings.allowGuest and (settings.guestShowEmailName or settings.guestRequireEmailName) %}
                 <div class="cc-f-row">
                     <div class="cc-f-col">
                         <input class="cc-f-input" name="fields[name]" type="text" placeholder="{{ 'Your name' | t('comments') }}">
