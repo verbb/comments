@@ -8,23 +8,27 @@
     name: 'allowGuest',
     on: settings.allowGuest,
     warning: macros.configWarning('allowGuest', 'comments'),
+    toggle: 'allow-guest',
 }) }}
 
-{{ forms.lightswitchField({
-    label: 'Show email and name for guests' | t('comments'),
-    instructions: 'Guests are shown fields to enter their name and email. Only applicable for guest comments.' | t('comments'),
-    name: 'guestShowEmailName',
-    on: settings.guestShowEmailName,
-    warning: macros.configWarning('guestShowEmailName', 'comments'),
-}) }}
+<div id="allow-guest" style="margin-top: 24px;" {% if not settings.allowGuest %}class="hidden"{% endif %}>
+    {{ forms.lightswitchField({
+        label: 'Show email and name for guests' | t('comments'),
+        instructions: 'Guests are shown fields to enter their name and email. Only applicable for guest comments.' | t('comments'),
+        name: 'guestShowEmailName',
+        on: settings.guestShowEmailName,
+        warning: macros.configWarning('guestShowEmailName', 'comments'),
+        toggle: 'require-email-name',
+    }) }}
 
-{{ forms.lightswitchField({
-    label: 'Require email and name for guests' | t('comments'),
-    instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
-    name: 'guestRequireEmailName',
-    on: settings.guestRequireEmailName,
-    warning: macros.configWarning('guestRequireEmailName', 'comments'),
-}) }}
+    {{ forms.lightswitchField({
+        label: 'Require email and name for guests' | t('comments'),
+        instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
+        name: 'guestRequireEmailName',
+        on: settings.guestRequireEmailName,
+        warning: macros.configWarning('guestRequireEmailName', 'comments'),
+    }) }}
+</div>
 
 <hr>
 
