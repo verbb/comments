@@ -52,17 +52,12 @@ Comments.Base = Base.extend({
     },
 
     serialize: function(form) {
-        var qs = [];
-        var elements = form.querySelectorAll("input, select, textarea");
-
-        Array.prototype.forEach.call(elements, function(value, index) {
-            qs.push(encodeURIComponent(value.name) + "=" + encodeURIComponent(value.value));
-        });
+        var formData = new FormData(form);
 
         // Add CSRF to each request
-        qs.push(encodeURIComponent(Comments.csrfTokenName) + "=" + encodeURIComponent(Comments.csrfToken));
+        formData.append(Comments.csrfTokenName, Comments.csrfToken);
 
-        return qs.join('&');
+        return formData;
     },
 
     serializeObject: function(json) {
@@ -81,9 +76,6 @@ Comments.Base = Base.extend({
 
         var xhr = new XMLHttpRequest();
         xhr.open(settings.method || 'GET', url, true);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Accept', 'application/json');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onreadystatechange = function (state) {
             if (xhr.readyState === 4) {
