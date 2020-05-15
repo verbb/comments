@@ -391,11 +391,13 @@ class Comment extends Element
 
             // We only store guest users full name, so we need to split it for Craft.
             // Best results using a library - particularly when we're dealing with worldwide names.
-            $parser = new Parser();
-            $nameInfo = $parser->parse($this->name);
+            if ($this->name) {
+                $parser = new Parser();
+                $nameInfo = $parser->parse($this->name);
 
-            $author->firstName = $nameInfo->getFirstname();
-            $author->lastName = $nameInfo->getLastname();
+                $author->firstName = $nameInfo->getFirstname();
+                $author->lastName = $nameInfo->getLastname();
+            }
 
             if (!$author->firstName && !$author->lastName) {
                 $author->firstName = Craft::t('comments', 'Guest');
