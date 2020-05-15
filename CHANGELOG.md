@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 - 2020-05-15
+
+### Added
+- Add `showCustomFields` config settings. This is default to off, so as not to cause any breaking changes.
+- Add support for basic Craft fields, automatically rendering HTML for some fields. see [custom fields](https://verbb.io/craft-plugins/comments/docs/template-guides/custom-fields).
+- Add docs with regards to [custom fields](https://verbb.io/craft-plugins/comments/docs/template-guides/custom-fields).
+- Fix uploading assets from the front-end. They now work.
+
+### Changed
+- Use `FormData` JS to serialise comment form data. Check your site's [browser compatibility](https://caniuse.com/#search=formdata). We think you'll be fine, unless you need to support IE9.
+
+### Fixed
+- Fix error when a commenter has no name.
+
 ## 1.4.1.1 - 2020-05-13
 
 ### Fixed
