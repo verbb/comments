@@ -76,6 +76,8 @@ Comments.Base = Base.extend({
 
         var xhr = new XMLHttpRequest();
         xhr.open(settings.method || 'GET', url, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
 
         xhr.onreadystatechange = function (state) {
             if (xhr.readyState === 4) {
