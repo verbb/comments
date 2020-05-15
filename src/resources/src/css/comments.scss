@@ -361,6 +361,35 @@ a {
     }
 }
 
+//
+// Custom Fields
+//
+
+.cc-f-label {
+    color: #656c7a;
+    font-size: 90%;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.cc-f-label-i {
+    color: lighten(#656c7a, 10%);
+    font-size: 80%;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.cc-f-label-r {
+    color: #fb4143;
+}
+
+.cc-f-select {
+    background: #fff url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4'%3E%3Cpath fill='%23333F48' fill-rule='evenodd' d='M7.484.643a.23.23 0 0 1-.067.154l-3.12 3.12a.23.23 0 0 1-.154.067.23.23 0 0 1-.154-.067L.869.797A.23.23 0 0 1 .8.643.23.23 0 0 1 .868.489l.335-.335a.218.218 0 0 1 .154-.067.23.23 0 0 1 .154.067l2.632 2.632L6.775.154a.23.23 0 0 1 .154-.067.23.23 0 0 1 .154.067l.334.335c.04.04.067.1.067.154z'/%3E%3C/svg%3E") no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.7rem;
+    padding-right: 2rem;
+}
+
 
 //
 // Errors

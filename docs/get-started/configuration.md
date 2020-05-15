@@ -64,6 +64,11 @@ return [
 
         // Permissions
         'permissions' => [],
+
+        // Custom Fields
+        'showCustomFields' => false,
+        'showCustomFieldNames' => false,
+        'showCustomFieldInstructions' => false,
     ]
 ];
 ```
@@ -116,6 +121,10 @@ return [
 - `notificationSubscribeCommentEnabled` - Whether to notify comment authors when a reply is made.
 - `notificationModeratorEnabled` - Users can subscribe to a specific thread of comments made on an element.
 - `notificationModeratorApprovedEnabled` - Whether to notify comment authors when their comment has been approved via moderation.
+
+- `showCustomFields` - Whether custom fields should be shown automatically. Please note that only basic fields have supported templates. Unsupported fields will render a plain text field.
+- `showCustomFieldNames` - Whether custom fields should show their field names as labels.
+- `showCustomFieldInstructions` - Whether custom fields should show their instruction text underneath labels.
 
 ## Control Panel
 

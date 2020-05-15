@@ -1,3 +1,13 @@
+{% set fieldLayout = craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment') %}
+
+{% set containsFileInput = false %}
+
+{% for field in fieldLayout.getFields() %}
+    {% if className(field) == 'craft\\fields\\Assets' %}
+        {% set containsFileInput = true %}
+    {% endif %}
+{% endfor %}
+
 <article class="cc-i cc-f" data-role="form">
     {% if settings.showAvatar %}
         <figure class="cc-i-figure">
@@ -14,7 +24,7 @@
     {% endif %}
 
     <div class="cc-i-wrap">
-        <form class="cc-f-wrap" role="form" method="post" accept-charset="UTF-8">
+        <form class="cc-f-wrap" role="form" method="post" accept-charset="UTF-8" {% if containsFileInput %}enctype="multipart/form-data"{% endif %}>
             <input type="hidden" name="action" value="comments/comments/save">
             <input type="hidden" name="elementId" value="{{ element.id }}">
             <input type="hidden" name="siteId" value="{{ element.siteId }}">
@@ -34,6 +44,18 @@
                         <input class="cc-f-input" name="fields[email]" type="email" placeholder="{{ 'Your email' | t('comments') }}">
                         <div class="cc-e"></div>
                     </div>
+                </div>
+            {% endif %}
+
+            {% if settings.showCustomFields %}
+                <div class="cc-f-cf">
+                    {% for field in fieldLayout.getFields() %}
+                        <div class="cc-f-row">
+                            <div class="cc-f-col">
+                                {% include 'field' %}
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             {% endif %}
 

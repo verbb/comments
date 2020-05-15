@@ -1,6 +1,36 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
+{{ forms.lightswitchField({
+    first: true,
+    label: 'Show Custom Fields' | t('comments'),
+    instructions: 'Whether custom fields should be shown automatically. Please note that only basic fields have supported templates. Unsupported fields will render a plain text field.' | t('comments'),
+    name: 'showCustomFields',
+    on: settings.showCustomFields,
+    warning: macros.configWarning('showCustomFields', 'comments'),
+    toggle: 'show-fields',
+}) }}
+
+<div id="show-fields"{% if not settings.showCustomFields %} class="hidden"{% endif %}>
+    {{ forms.lightswitchField({
+        first: true,
+        label: 'Show Custom Field Names' | t('comments'),
+        instructions: 'Whether custom fields should show their field names as labels.' | t('comments'),
+        name: 'showCustomFieldNames',
+        on: settings.showCustomFieldNames,
+        warning: macros.configWarning('showCustomFieldNames', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        first: true,
+        label: 'Show Custom Field Instructions' | t('comments'),
+        instructions: 'Whether custom fields should show their instruction text underneath labels.' | t('comments'),
+        name: 'showCustomFieldInstructions',
+        on: settings.showCustomFieldInstructions,
+        warning: macros.configWarning('showCustomFieldInstructions', 'comments'),
+    }) }}
+</div>
+
 <div id="comment-fields">
     {% include '_includes/fieldlayoutdesigner' with {
         fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),

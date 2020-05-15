@@ -77,6 +77,11 @@ class Settings extends Model
     // Users
     public $users;
 
+    // Custom Fields
+    public $showCustomFields = false;
+    public $showCustomFieldNames = false;
+    public $showCustomFieldInstructions = false;
+
     // Deprecated
     public $allowAnonymous;
     public $allowAnonymousVoting;

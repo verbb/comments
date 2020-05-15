@@ -1,0 +1,11 @@
+{% if settings.showCustomFieldNames %}
+    <div class="cc-f-label">{{ field.name }} {% if field.required %}<span class="cc-f-label-r">*</span>{% endif %}</div>
+{% endif %}
+
+{% if settings.showCustomFieldInstructions %}
+    <div class="cc-f-label-i">{{ field.instructions }}</div>
+{% endif %}
+
+{% include ['fields/' ~ (field.displayName() | kebab), 'fields/plain-text'] ignore missing with { field: field } only %}
+
+<div class="cc-e"></div>

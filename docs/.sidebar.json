@@ -24,7 +24,8 @@
         "children": [
             "template-guides/available-variables",
             "template-guides/comments-form",
-            "template-guides/custom-form"
+            "template-guides/custom-form",
+            "template-guides/custom-fields"
         ]
     },
     {
