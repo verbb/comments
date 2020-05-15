@@ -79,20 +79,24 @@ Comments.Base = Base.extend({
 
         xhr.onreadystatechange = function (state) {
             if (xhr.readyState === 4) {
-                var response = JSON.parse(xhr.responseText);
+                try {
+                    var response = JSON.parse(xhr.responseText);
 
-                if (xhr.status === 200 && settings.success) {
-                    if (response.errors) {
+                    if (xhr.status === 200 && settings.success) {
+                        if (response.errors) {
+                            settings.error(response);
+                        } else {
+                            settings.success(response);
+                        }
+                    } else if (xhr.status != 200 && settings.error) {
+                        if (response.error) {
+                            response = [[response.error]];
+                        }
+
                         settings.error(response);
-                    } else {
-                        settings.success(response);
                     }
-                } else if (xhr.status != 200 && settings.error) {
-                    if (response.error) {
-                        response = [[response.error]];
-                    }
-
-                    settings.error(response);
+                } catch(e) {
+                    settings.error([e]);
                 }
             }
         };
