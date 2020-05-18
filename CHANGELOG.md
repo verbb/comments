@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.4 - 2020-05-19
+
+### Fixed
+- Improve `comments/base/resave-structure` by trying to find an existing comments structure
+
 ## 1.5.3 - 2020-05-18
 
 ### Fixed
