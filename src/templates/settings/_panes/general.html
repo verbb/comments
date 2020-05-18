@@ -70,3 +70,25 @@
     warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}
 
+<a class="fieldtoggle" data-target="structure-info">{{ "Structure Info" | t('comments') }}</a>
+
+<div id="structure-info" class="hidden">
+    {{ forms.textField({
+        label: "Structure UID" | t('comments'),
+        id: 'structureUid',
+        instructions: "The UID for the internal structure used by Comments." | t('comments'),
+        value: settings.structureUid,
+        disabled: true,
+        warning: macros.configWarning('structureUid', 'comments'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Structure ID" | t('comments'),
+        id: 'structureId',
+        instructions: "The ID for the internal structure used by Comments." | t('comments'),
+        value: settings.structureId,
+        disabled: true,
+        warning: macros.configWarning('structureId', 'comments'),
+    }) }}
+</div>
+
