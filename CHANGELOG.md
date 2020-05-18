@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.1 - 2020-05-18
+
+### Added
+- Add read-only structure info to settings. Useful for debugging.
+
 ## 1.5.0 - 2020-05-15
 
 ### Added
