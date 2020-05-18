@@ -79,6 +79,10 @@ Comments.Base = Base.extend({
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.setRequestHeader('Accept', 'application/json');
 
+        if (settings.contentType != 'formData') {
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        }
+
         xhr.onreadystatechange = function (state) {
             if (xhr.readyState === 4) {
                 try {
@@ -172,6 +176,7 @@ Comments.Base = Base.extend({
         this.checkCaptcha(data, function(data) {
             this.ajax(Comments.baseUrl + url, {
                 method: 'POST',
+                contentType: 'formData',
                 data: data,
                 success: function(xhr) {
                     this.removeClass($btn, 'loading');
