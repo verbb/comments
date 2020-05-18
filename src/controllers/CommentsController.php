@@ -30,11 +30,11 @@ class CommentsController extends Controller
 
         // Protect Voting/Flagging - only allowed when the config is set
         if ($settings->allowGuestFlagging) {
-            $this->allowGuest['flag'] = 1;
+            $this->allowAnonymous['flag'] = 1; 
         }
 
         if ($settings->allowGuestVoting) {
-            $this->allowGuest['vote'] = 1;
+            $this->allowAnonymous['vote'] = 1;
         }
 
         return parent::beforeAction($action);
