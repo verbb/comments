@@ -24,6 +24,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\UrlHelper;
 use craft\models\Structure;
+use craft\records\StructureElement;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gql;
@@ -117,17 +118,38 @@ class Comments extends Plugin
 
     public function createAndStoreStructure()
     {
-        $structure = new Structure();
+        $structure = null;
 
-        Craft::$app->getStructures()->saveStructure($structure);
+        // Try and find an existing comment elements' structure and use that
+        $firstComment = Comment::find()->one();
 
-        // We need to fetch the UID
-        $structure = Craft::$app->getStructures()->getStructureById($structure->id);
+        if ($firstComment) {
+            $structureRecord = StructureElement::findOne([
+                'elementId' => $firstComment->id,
+            ]);
 
-        // Update our plugin settings straight away!
-        Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
+            if ($structureRecord) {
+                $structure = Craft::$app->getStructures()->getStructureById($structureRecord->structureId);
+            }
+        }
 
-        return $structure;
+        if (!$structure) {
+            $structure = new Structure();
+
+            Craft::$app->getStructures()->saveStructure($structure);
+
+            // We need to fetch the UID
+            $structure = Craft::$app->getStructures()->getStructureById($structure->id);
+        }
+
+        if ($structure) {
+            // Update our plugin settings straight away!
+            Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
+
+            return $structure;
+        }
+
+        return null;
     }
 
 
