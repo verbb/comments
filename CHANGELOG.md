@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.3 - 2020-05-18
+
+### Fixed
+- Fix some Ajax actions (vote, flag) not working in some instances.
+- Fix `allowAnonymous` error, thrown when trying to comment.
+
 ## 1.5.2 - 2020-05-18
 
 ### Added
