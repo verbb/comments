@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.2 - 2020-05-18
+
+### Added
+- Add `comments/base/resave-structure` console command.
+
 ## 1.5.1 - 2020-05-18
 
 ### Added
