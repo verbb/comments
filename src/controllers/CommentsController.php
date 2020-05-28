@@ -270,6 +270,8 @@ class CommentsController extends Controller
 
     public function actionTrash()
     {
+        $this->requirePostRequest();
+        
         $request = Craft::$app->getRequest();
 
         $comment = $this->_setCommentFromPost();
