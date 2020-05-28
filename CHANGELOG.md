@@ -164,7 +164,7 @@
 ### Added
 - Craft 3.4 compatibility.
 
-## 1.2.2 - 2020-01-90
+## 1.2.2 - 2020-01-09
 
 ### Fixed
 - Fix subscribe to singular comment notifications. (thanks @frank-rocketpark).
