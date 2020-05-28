@@ -21,6 +21,8 @@ use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
+use craft\helpers\Html;
+use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\validators\SiteIdValidator;
 
@@ -918,8 +920,8 @@ class Comment extends Element
             $html = '<div class="comment-block">';
             $html .= '<span class="status ' . $context['element']->status . '"></span>';
             $html .= '<a href="' . $context['element']->getCpEditUrl() . '">';
-            $html .= '<span class="username">' . $context['element']->getAuthor() . '</span>';
-            $html .= '<small>' . htmlspecialchars($context['element']->getExcerpt(0, 100)) . '</small></a>';
+            $html .= Html::tag('span', $context['element']->getAuthor(), ['class' => 'username']);
+            $html .= Html::tag('small', htmlspecialchars($context['element']->getExcerpt(0, 100)));
             $html .= '</div>';
 
             return $html;
@@ -963,7 +965,9 @@ class Comment extends Element
                 $owner = $this->getOwner();
 
                 if ($owner) {
-                    return "<a href='" . $owner->cpEditUrl . "'>" . $owner->title . "</a>";
+                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
+                    
+                    return Template::raw($a);
                 } else {
                     return Craft::t('comments', '[Deleted element]');
                 }
