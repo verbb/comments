@@ -704,12 +704,14 @@ class CommentsService extends Component
 
     private function _checkOwnerFieldEnabled($element)
     {
-        foreach ($element->getFieldValues() as $key => $value) {
-            $field = Craft::$app->getFields()->getFieldByHandle($key);
+        if ($element) {
+            foreach ($element->getFieldValues() as $key => $value) {
+                $field = Craft::$app->getFields()->getFieldByHandle($key);
 
-            if (get_class($field) === 'verbb\comments\fields\CommentsField') {
-                if (isset($value['commentEnabled']) && !$value['commentEnabled']) {
-                    return false;
+                if ($field && get_class($field) === 'verbb\comments\fields\CommentsField') {
+                    if (isset($value['commentEnabled']) && !$value['commentEnabled']) {
+                        return false;
+                    }
                 }
             }
         }
