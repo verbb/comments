@@ -1,7 +1,14 @@
 # Changelog
 
+## 1.5.6 - 2020-05-29 [CRITICAL]
+
+### Fixed
+- Properly fix XSS vulnerability.
+- Fix an error for PHP 7.4.
+
 ## 1.5.5 - 2020-05-28 [CRITICAL]
 
+### Fixed
 - Fix XSS issue for guest names containing potentially malicious values. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
 - Fix XSS issue for asset volume names containing potentially malicious values. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
 - Fix CSRF issue for trashing a comment. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
