@@ -17,21 +17,21 @@
 
         {% if element == 'craft\\elements\\Entry' %}
             {% for section in craft.app.sections.getAllSections() %}
-                {% set elementOptions = [{ value: section.uid, label: section.name }] | merge(elementOptions) %}
+                {% set elementOptions = [{ value: section.uid, label: section.name | e }] | merge(elementOptions) %}
             {% endfor %}
         {% elseif element == 'craft\\elements\\Category' %}
             {% for group in craft.app.categories.getAllGroups() %}
-                {% set elementOptions = [{ value: group.uid, label: group.name }] | merge(elementOptions) %}
+                {% set elementOptions = [{ value: group.uid, label: group.name | e }] | merge(elementOptions) %}
             {% endfor %}
         {% elseif element == 'craft\\elements\\Asset' %}
             {% for group in craft.app.volumes.getAllVolumes() %}
-                {% set elementOptions = [{ value: group.uid, label: group.name }] | merge(elementOptions) %}
+                {% set elementOptions = [{ value: group.uid, label: group.name | e }] | merge(elementOptions) %}
             {% endfor %}
         {% elseif element == 'craft\\elements\\User' %}
             {% if CraftEdition != CraftSolo %}
                 {% if craft.userGroups %}
                     {% for group in craft.app.userGroups.getAllGroups() %}
-                        {% set elementOptions = [{ value: group.uid, label: group.name }] | merge(elementOptions) %}
+                        {% set elementOptions = [{ value: group.uid, label: group.name | e }] | merge(elementOptions) %}
                     {% endfor %}
                 {% endif %}
             {% endif %}
