@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.5 - 2020-05-28 [CRITICAL]
+
+- Fix XSS issue for guest names containing potentially malicious values. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
+- Fix XSS issue for asset volume names containing potentially malicious values. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
+- Fix CSRF issue for trashing a comment. Credit to Paweł Hałdrzyński [Limpid Security](https://limpidsecurity.pl).
+
 ## 1.5.4 - 2020-05-19
 
 ### Fixed
