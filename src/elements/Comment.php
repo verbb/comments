@@ -917,14 +917,14 @@ class Comment extends Element
 
         // Only do this for a Comment ElementType
         if (get_class($context['element']) === static::class) {
-            $html = '<div class="comment-block">';
-            $html .= '<span class="status ' . $context['element']->status . '"></span>';
-            $html .= '<a href="' . $context['element']->getCpEditUrl() . '">';
-            $html .= Html::tag('span', $context['element']->getAuthor(), ['class' => 'username']);
-            $html .= Html::tag('small', htmlspecialchars($context['element']->getExcerpt(0, 100)));
-            $html .= '</div>';
+            $span1 = Html::tag('span', '', ['class' => 'status ' . $context['element']->status]);
+            $span2 = Html::tag('span', Html::encode($context['element']->getAuthor()), ['class' => 'username']);
+            $small = Html::tag('small', Html::encode($context['element']->getExcerpt(0, 100)));
+            $a = Html::a($span2 . $small, $context['element']->getCpEditUrl());
 
-            return $html;
+            $html = Html::tag('div', $span1 . $a, ['class' => 'comment-block']);
+            
+            return Template::raw($html);
         }
     }
 
