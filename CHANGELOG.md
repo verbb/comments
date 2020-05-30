@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.6.0 - 2020-05-30
+
+> {warning} If you are using the default JS, but are using your own custom templates (or vice-versa), please update your custom templates to use POST forms for flagging, voting and deleting a comment. If you do not have custom templates, this does not apply to you.
+
+### Changed
+- Flagging, voting and deleting a comment is now triggered through POST forms instead of links. Please ensure you update any custom templates to reflect this change.
+- Flagging, voting and deleting a comment can now only be done via POST requests.
+
+### Fixed
+- Fix CSRF issue with delete, flag and vote URLs.
+
+### Deprecated
+- `comment.trashUrl` is now deprecated. Use a POST form instead. See [docs](https://verbb.io/craft-plugins/comments/docs/developers/comment).
+- `comment.flagUrl` is now deprecated. Use a POST form instead. See [docs](https://verbb.io/craft-plugins/comments/docs/developers/flag).
+- `comment.upvoteUrl` is now deprecated. Use a POST form instead. See [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).
+- `comment.downvoteUrl` is now deprecated. Use a POST form instead. See [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).
+
 ## 1.5.6 - 2020-05-29 [CRITICAL]
 
 ### Fixed
