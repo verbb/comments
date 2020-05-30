@@ -72,7 +72,7 @@
                         <span class="cc-v-count" data-role="likes">{{ comment.votes ?: '' }}</span>
 
                         <form data-action="upvote" role="form" method="post" accept-charset="UTF-8">
-                            <input type="hidden" name="action" value="comments/comments/upvote">
+                            <input type="hidden" name="action" value="comments/comments/vote">
                             <input type="hidden" name="siteId" value="{{ comment.siteId }}">
                             <input type="hidden" name="commentId" value="{{ comment.id }}">
                             <input type="hidden" name="upvote" value="true">
@@ -82,7 +82,7 @@
                         </form>
 
                         <form data-action="downvote" role="form" method="post" accept-charset="UTF-8">
-                            <input type="hidden" name="action" value="comments/comments/downvote">
+                            <input type="hidden" name="action" value="comments/comments/vote">
                             <input type="hidden" name="siteId" value="{{ comment.siteId }}">
                             <input type="hidden" name="commentId" value="{{ comment.id }}">
                             <input type="hidden" name="downvote" value="true">

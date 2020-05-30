@@ -56,13 +56,17 @@ You can also use a shorthand method if you prefer:
 {{ can('flag') }}
 ```
 
-## Action URLs
+## Deleting a comment
 
-There are a number of controller endpoints for various tasks related to commenting.
+You can delete a comment using a POST request to an action controller, and the following template code. You must supply a `commentId` and `siteId` in your form.
 
-URL | Description
---- | ---
-`trashUrl` | The url action end-point to trash a comment. This can be called directly, or via Ajax.
-`flagUrl` | The url action end-point to record a flag on a comment. This can be called directly, or via Ajax.
-`upvoteUrl` | The url action end-point to upvote a comment. This can be called directly, or via Ajax.
-`downvoteUrl` | The url action end-point to downvote a comment. This can be called directly, or via Ajax.
+```twig
+<form role="form" method="post" accept-charset="UTF-8">
+    <input type="hidden" name="action" value="comments/comments/trash">
+    <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+    <input type="hidden" name="commentId" value="{{ comment.id }}">
+    {{ csrfInput() }}
+
+    <button type="submit">{{ 'Delete' | t('comments') }}</button>
+</form>
+```
