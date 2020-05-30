@@ -42,7 +42,14 @@
 
                 <small class="cc-i-header-links {{ comment.hasFlagged() ? 'has-flag' }}">
                     {% if comment.can('flag') %}
-                        <a href="{{ comment.flagUrl }}" class="cc-i-flag" data-action="flag">{{ 'Flag' | t('comments') }}</a>
+                        <form data-action="flag" role="form" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="action" value="comments/comments/flag">
+                            <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+                            <input type="hidden" name="commentId" value="{{ comment.id }}">
+                            {{ csrfInput() }}
+
+                            <button type="submit" class="cc-i-flag">{{ 'Flag' | t('comments') }}</button>
+                        </form>
                     {% endif %}
                 </small>
             </header>
@@ -63,8 +70,26 @@
                 {% if comment.can('vote') %}
                     <span class="cc-v" data-role="voting">
                         <span class="cc-v-count" data-role="likes">{{ comment.votes ?: '' }}</span>
-                        <a href="{{ comment.upvoteUrl }}" class="cc-v-up" data-action="upvote"></a>
-                        <a href="{{ comment.downvoteUrl }}" class="cc-v-down" role="button" data-action="downvote"></a>
+
+                        <form data-action="upvote" role="form" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="action" value="comments/comments/upvote">
+                            <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+                            <input type="hidden" name="commentId" value="{{ comment.id }}">
+                            <input type="hidden" name="upvote" value="true">
+                            {{ csrfInput() }}
+
+                            <button type="submit" class="cc-v-up"></button>
+                        </form>
+
+                        <form data-action="downvote" role="form" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="action" value="comments/comments/downvote">
+                            <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+                            <input type="hidden" name="commentId" value="{{ comment.id }}">
+                            <input type="hidden" name="downvote" value="true">
+                            {{ csrfInput() }}
+
+                            <button type="submit" class="cc-v-down"></button>
+                        </form>
                     </span>
                 {% endif %}
 
@@ -87,9 +112,14 @@
 
                     {% if comment.can('trash') %}
                         <span class="cc-ll-i">
-                            <a href="{{ comment.trashUrl }}" class="cc-i-delete" data-action="delete">
-                                {{ 'Delete' | t('comments') }}
-                            </a>
+                            <form data-action="delete" role="form" method="post" accept-charset="UTF-8">
+                                <input type="hidden" name="action" value="comments/comments/trash">
+                                <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+                                <input type="hidden" name="commentId" value="{{ comment.id }}">
+                                {{ csrfInput() }}
+
+                                <button type="submit" class="cc-a cc-i-delete">{{ 'Delete' | t('comments') }}</button>
+                            </form>
                         </span>
                     {% endif %}
 

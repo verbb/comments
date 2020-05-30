@@ -333,10 +333,10 @@ Comments.Comment = Comments.Base.extend({
 
         this.$editBtn = $contentContainer.querySelector('[data-action="edit"]');
         this.$deleteBtn = $contentContainer.querySelector('[data-action="delete"]');
-        this.$flagBtn = $contentContainer.querySelector('[data-action="flag"]');
+        this.$flagForm = $contentContainer.querySelector('[data-action="flag"]');
         
-        this.$upvoteBtn = $contentContainer.querySelector('[data-action="upvote"]');
-        this.$downvoteBtn = $contentContainer.querySelector('[data-action="downvote"]');
+        this.$upvoteForm = $contentContainer.querySelector('[data-action="upvote"]');
+        this.$downvoteForm = $contentContainer.querySelector('[data-action="downvote"]');
 
         this.$subscribeBtn = $contentContainer.querySelector('[data-action="subscribe"]');
 
@@ -349,10 +349,10 @@ Comments.Comment = Comments.Base.extend({
         
         this.addListener(this.$editBtn, 'click', this.edit);
         this.addListener(this.$deleteBtn, 'click', this.delete);
-        this.addListener(this.$flagBtn, 'click', this.flag);
+        this.addListener(this.$flagForm, 'submit', this.flag);
 
-        this.addListener(this.$upvoteBtn, 'click', this.upvote);
-        this.addListener(this.$downvoteBtn, 'click', this.downvote);
+        this.addListener(this.$upvoteForm, 'submit', this.upvote);
+        this.addListener(this.$downvoteForm, 'submit', this.downvote);
 
         this.addListener(this.$subscribeBtn, 'click', this.subscribe);
     },
@@ -386,10 +386,13 @@ Comments.Comment = Comments.Base.extend({
 
         this.clearNotifications(this.$element);
 
+        var data = this.serialize(e.target);
+
         if (confirm(this.t('delete-confirm')) == true) {
             this.ajax(Comments.baseUrl + 'trash', {
                 method: 'POST',
-                data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId }),
+                contentType: 'formData',
+                data: data,
                 success: function(xhr) {
                     this.$element.parentNode.removeChild(this.$element);
                 }.bind(this),
@@ -403,31 +406,37 @@ Comments.Comment = Comments.Base.extend({
     flag: function(e) {
         e.preventDefault();
 
+        var data = this.serialize(e.target);
+
         this.clearNotifications(this.$element);
 
         this.ajax(Comments.baseUrl + 'flag', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId }),
+            contentType: 'formData',
+            data: data,
             success: function(xhr) {
-                this.toggleClass(this.$flagBtn.parentNode, 'has-flag');
+                this.toggleClass(this.$flagForm.parentNode, 'has-flag');
 
                 if (xhr.notice) {
                     console.log(xhr.notice)
                     this.setNotifications('notice', this.$element, xhr.notice);
                 }
             }.bind(this),
-            error: function(errors) {
+            error: function(xhr) {
                 this.setNotifications('error', this.$element, errors);
-            }.bind(this),   
+            }.bind(this)
         });
     },
 
     upvote: function(e) {
         e.preventDefault();
 
+        var data = this.serialize(e.target);
+
         this.ajax(Comments.baseUrl + 'vote', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId, upvote: true }),
+            contentType: 'formData',
+            data: data,
             success: function(xhr) {
                 this.vote(true);
             }.bind(this),
@@ -440,9 +449,12 @@ Comments.Comment = Comments.Base.extend({
     downvote: function(e) {
         e.preventDefault();
 
+        var data = this.serialize(e.target);
+
         this.ajax(Comments.baseUrl + 'vote', {
             method: 'POST',
-            data: this.serializeObject({ commentId: this.commentId, siteId: this.siteId, downvote: true }),
+            contentType: 'formData',
+            data: data,
             success: function(xhr) {
                 this.vote(false);
             }.bind(this),

@@ -344,7 +344,7 @@ class Comment extends Element
             case 'edit':
                 return (bool)$this->canEdit();
             case 'trash':
-                return (bool)$this->trashUrl();
+                return (bool)$this->canTrash();
         }
     }
 
@@ -508,8 +508,32 @@ class Comment extends Element
         return true;
     }
 
+    public function canTrash()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        // Only logged in users can upvote a comment
+        if (!$currentUser) {
+            return;
+        }
+
+        // We better have an author
+        if (!$this->author) {
+            return;
+        }
+
+        // Check that user is trying to trash their own comment
+        if ($currentUser->id !== $this->author->id) {
+            return;
+        }
+
+        return true;
+    }
+
     public function trashUrl()
     {
+        Craft::$app->getDeprecator()->log('trashUrl', '`trashUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/comment).');
+
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         // Only logged in users can upvote a comment
@@ -566,6 +590,8 @@ class Comment extends Element
 
     public function flagUrl()
     {
+        Craft::$app->getDeprecator()->log('flagUrl', '`flagUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/flag).');
+
         // Check if this user can flag comments
         if (!$this->canFlag()) {
             return;
@@ -617,6 +643,8 @@ class Comment extends Element
 
     public function downvoteUrl()
     {
+        Craft::$app->getDeprecator()->log('downvoteUrl', '`downvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
+
         // Check if this user can vote on comments
         if (!$this->canVote()) {
             return;
@@ -630,6 +658,8 @@ class Comment extends Element
 
     public function upvoteUrl()
     {
+        Craft::$app->getDeprecator()->log('upvoteUrl', '`upvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
+
         // Check if this user can vote on comments
         if (!$this->canVote()) {
             return;

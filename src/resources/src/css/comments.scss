@@ -22,7 +22,7 @@
 color: #2a2e2e;
 font-size: 15px;
 
-a {
+a, .cc-a {
     color: #3273dc;
 
     &:hover,
@@ -169,6 +169,9 @@ a {
     overflow: hidden;
     background-repeat: no-repeat;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M349.565 98.783C295.978 98.783 251.721 64 184.348 64c-24.955 0-47.309 4.384-68.045 12.013a55.947 55.947 0 0 0 3.586-23.562C118.117 24.015 94.806 1.206 66.338.048 34.345-1.254 8 24.296 8 56c0 19.026 9.497 35.825 24 45.945V488c0 13.255 10.745 24 24 24h16c13.255 0 24-10.745 24-24v-94.4c28.311-12.064 63.582-22.122 114.435-22.122 53.588 0 97.844 34.783 165.217 34.783 48.169 0 86.667-16.294 122.505-40.858C506.84 359.452 512 349.571 512 339.045v-243.1c0-23.393-24.269-38.87-45.485-29.016-34.338 15.948-76.454 31.854-116.95 31.854z'%3E%3C/path%3E%3C/svg%3E");
+    border: none;
+    cursor: pointer;
+    outline: none;
 }
 
 .cc-i-header .cc-icon svg {
@@ -188,6 +191,11 @@ a {
     font-weight: 500;
 }
 
+form[data-action] {
+    margin: 0;
+    padding: 0;
+}
+
 
 //
 // Voting
@@ -199,6 +207,12 @@ a {
     padding: 0 5px;
     margin: 0 4px;
     color: #656c7a;
+    text-indent: -9999px;
+    overflow: hidden;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
     
     &::after {
         content: '';
@@ -239,6 +253,22 @@ a {
 
 .cc-v-down::after  {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+
+//
+// Trashing
+//
+
+.cc-i-delete {
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 

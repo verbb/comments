@@ -159,6 +159,8 @@ class CommentsController extends Controller
 
     public function actionFlag()
     {
+        $this->requirePostRequest();
+        
         $currentUser = Craft::$app->getUser()->getIdentity();
         $request = Craft::$app->getRequest();
 
@@ -206,6 +208,8 @@ class CommentsController extends Controller
 
     public function actionVote()
     {
+        $this->requirePostRequest();
+
         $currentUser = Craft::$app->getUser()->getIdentity();
         $request = Craft::$app->getRequest();
 
