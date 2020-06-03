@@ -150,18 +150,18 @@ Comments.Base = Base.extend({
         }
     },
 
-    checkCaptcha: function(data, callback) {
+    checkCaptcha: function(formData, callback) {
         // Only trigger if reCAPTCHA enabled
         if (!Comments.recaptchaEnabled) {
-            return callback(data, this);
+            return callback(formData, this);
         }
 
         // Check for reCAPTCHA
         grecaptcha.execute(Comments.recaptchaKey, { action: 'commentForm' }).then(function(token) {
             // Append value to the form and proceed
-            data += '&g-recaptcha-response=' + token;
+            formData.append('g-recaptcha-response', token);
 
-            return callback(data, this);
+            return callback(formData, this);
         });
     },
 
