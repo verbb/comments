@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.1 - 2020-06-04
+
+### Fixed
+- Fix error trying to comment when using recaptcha.
+
 ## 1.6.0 - 2020-05-30
 
 > {warning} If you are using the default JS, but are using your own custom templates (or vice-versa), please update your custom templates to use POST forms for flagging, voting and deleting a comment. If you do not have custom templates, this does not apply to you.
