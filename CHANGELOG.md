@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.2 - 2020-06-15
+
+### Fixed
+- Fix JS error when deleting a comment from the front-end.
+
 ## 1.6.1 - 2020-06-04
 
 ### Fixed
