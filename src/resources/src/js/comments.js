@@ -332,7 +332,7 @@ Comments.Comment = Comments.Base.extend({
         this.$replyBtn = $contentContainer.querySelector('[data-action="reply"]');
 
         this.$editBtn = $contentContainer.querySelector('[data-action="edit"]');
-        this.$deleteBtn = $contentContainer.querySelector('[data-action="delete"]');
+        this.$deleteForm = $contentContainer.querySelector('[data-action="delete"]');
         this.$flagForm = $contentContainer.querySelector('[data-action="flag"]');
         
         this.$upvoteForm = $contentContainer.querySelector('[data-action="upvote"]');
@@ -348,7 +348,7 @@ Comments.Comment = Comments.Base.extend({
         this.addListener(this.$replyBtn, 'click', this.reply);
         
         this.addListener(this.$editBtn, 'click', this.edit);
-        this.addListener(this.$deleteBtn, 'click', this.delete);
+        this.addListener(this.$deleteForm, 'submit', this.delete);
         this.addListener(this.$flagForm, 'submit', this.flag);
 
         this.addListener(this.$upvoteForm, 'submit', this.upvote);
