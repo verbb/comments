@@ -71,12 +71,12 @@
 }) }}
 
 {{ forms.textareaField({
-    label: "Comment Blacklist" | t('comments'),
-    name: 'securityBlacklist',
+    label: "Comment Spamlist" | t('comments'),
+    name: 'securitySpamlist',
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
-    value: settings.securityBlacklist,
-    warning: macros.configWarning('securityBlacklist', 'comments'),
+    value: settings.securitySpamlist,
+    warning: macros.configWarning('securitySpamlist', 'comments'),
 }) }}
 
 {{ forms.textareaField({

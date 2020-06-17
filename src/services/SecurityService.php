@@ -25,7 +25,7 @@ class SecurityService extends Component
         }
         
         // Check for content where a comment should be marked as spam.
-        if ($this->_findInElementContent($comment, $settings->securityBlacklist)) {
+        if ($this->_findInElementContent($comment, $settings->securitySpamlist)) {
             $comment->status = Comment::STATUS_SPAM;
         }
 

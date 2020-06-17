@@ -303,6 +303,7 @@ class Comments extends Plugin
             'allowAnonymous' => 'allowGuest',
             'allowAnonymousVoting' => 'allowGuestVoting',
             'allowAnonymousFlagging' => 'allowGuestFlagging',
+            'securityBlacklist' => 'securitySpamlist',
         ];
         
         foreach ($renamedSettings as $old => $new) {
