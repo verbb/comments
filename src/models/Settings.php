@@ -58,7 +58,7 @@ class Settings extends Model
     public $securityMaxLength;
     public $securityFlooding;
     public $securityModeration;
-    public $securityDenylist;
+    public $securitySpamlist;
     public $securityBanned;
 
     // Notifications

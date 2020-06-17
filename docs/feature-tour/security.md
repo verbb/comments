@@ -8,7 +8,7 @@ Values are matched against every attribute that the [Comment](docs:developers/co
 
 If a match is found, the comment will be marked as `pending`.
 
-**Comment Blacklist**
+**Comment Spamlist**
 
 If a match is found, the comment will be marked as `spam`.
 

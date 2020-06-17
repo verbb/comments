@@ -108,7 +108,7 @@ return [
 - `securityMaxLength` - The maximum number of characters a single comment can have. 
 - `securityFlooding` - The number of seconds between commenting.
 - `securityModeration` - A collection of words that if entered require comments to be moderated.
-- `securityBlacklist` - A collection of words that if entered mark comments as spam.
+- `securitySpamlist` - A collection of words that if entered mark comments as spam.
 - `securityBanned` - A collection of words that if entered mark comments as trashed.
 - `recaptchaKey` - The required key for ReCAPTCHA.
 - `recaptchaSecret` - The required secret for ReCAPTCHA.
