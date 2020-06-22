@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\db\CommentQuery;
 
 use Craft;
+use craft\helpers\Json;
 use craft\helpers\Template;
 
 class CommentsVariable
@@ -37,6 +38,32 @@ class CommentsVariable
         $commentId = $comment->id ?? null;
 
         return Comments::$plugin->getSubscribe()->hasSubscribed($elementId, $elementSiteId, $userId, $commentId);
+    }
+
+    public function renderCss($elementId, $criteria = [])
+    {
+        $view = Craft::$app->getView();
+
+        $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/css/comments.css', true);
+
+        echo '<link href="' . $url . '" rel="stylesheet">';
+    }
+
+    public function renderJs($elementId, $criteria = [])
+    {
+        $view = Craft::$app->getView();
+
+        $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
+        
+        $id = 'cc-w-' . $elementId;
+        $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
+
+        echo '<script src="' . $url . '"></script>';
+
+        echo 'window.addEventListener("load", function () { new Comments.Instance(' .
+            Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
+            Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
+        '); });';
     }
 
 

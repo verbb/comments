@@ -66,54 +66,10 @@ class CommentsService extends Component
         $templatePath = $this->_getTemplatePath();
         $view->setTemplatesPath($templatePath);
 
-        $query = Comment::find();
-        $query->ownerId($elementId);
-        $query->level('1');
-        $query->orderBy('commentDate desc');
-        $query->with([
-            'owner',
-            'parent',
-            'user',
-            ['user.photo', ['withTransforms' => [['width' => 64, 'height' => 64, 'mode' => 'fit']]]],
-        ]);
-
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
-
-        $element = Craft::$app->getElements()->getElementById($elementId);
         $id = 'cc-w-' . $elementId;
 
-        // Normalise the action URL
-        $actionUrl = trim(UrlHelper::actionUrl(), '/');
-        $actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
-	    
-        $jsVariables = [
-            'baseUrl' => $actionUrl,
-            'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
-            'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
-            'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
-            'recaptchaKey' => $settings->recaptchaKey,
-            'translations' => [
-                'reply' => Craft::t('comments', 'Reply'),
-                'close' => Craft::t('comments', 'Close'),
-                'edit' => Craft::t('comments', 'Edit'),
-                'save' => Craft::t('comments', 'Save'),
-                'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
-            ]
-        ];
-
-        // Prepare variables to pass to templates - important to include route params
-        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
-
-        $variables = array_merge($routeParams, [
-            'id' => $id,
-            'element' => $element,
-            'commentsQuery' => $query,
-            'settings' => $settings,
-        ]);
-
-        $jsVariables = array_merge($jsVariables, $variables);
+        $variables = $this->getRenderVariables($id, $elementId, $criteria);
+        $jsVariables = $this->getRenderJsVariables($id, $elementId, $criteria);
 
         // Build our complete form
         $formHtml = $view->renderTemplate('comments', $variables);
@@ -130,6 +86,66 @@ class CommentsService extends Component
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 
         return Template::raw($formHtml);
+    }
+
+    public function getRenderVariables($id, $elementId, $criteria = [])
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        // Prepare variables to pass to templates - important to include route params
+        $routeParams = Craft::$app->getUrlManager()->getRouteParams();
+
+        $element = Craft::$app->getElements()->getElementById($elementId);
+
+        $query = Comment::find();
+        $query->ownerId($elementId);
+        $query->level('1');
+        $query->orderBy('commentDate desc');
+        $query->with([
+            'owner',
+            'parent',
+            'user',
+            ['user.photo', ['withTransforms' => [['width' => 64, 'height' => 64, 'mode' => 'fit']]]],
+        ]);
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return array_merge($routeParams, [
+            'id' => $id,
+            'element' => $element,
+            'commentsQuery' => $query,
+            'settings' => $settings,
+        ]);
+    }
+
+    public function getRenderJsVariables($id, $elementId, $criteria = [])
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        // Normalise the action URL
+        $actionUrl = trim(UrlHelper::actionUrl(), '/');
+        $actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
+
+        $variables = $this->getRenderVariables($id, $elementId, $criteria);
+
+        $jsVariables = [
+            'baseUrl' => $actionUrl,
+            'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
+            'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
+            'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
+            'recaptchaKey' => $settings->recaptchaKey,
+            'translations' => [
+                'reply' => Craft::t('comments', 'Reply'),
+                'close' => Craft::t('comments', 'Close'),
+                'edit' => Craft::t('comments', 'Edit'),
+                'save' => Craft::t('comments', 'Save'),
+                'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
+            ]
+        ];
+
+        return array_merge($jsVariables, $variables);
     }
 
     public function renderComment($comment)
