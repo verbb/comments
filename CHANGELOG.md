@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.3 - 2020-06-22
+
+> {warning} If you are using `securityBlacklist` in your config files, please rename it to `securitySpamlist`.
+
+### Added
+- Add `renderCss` and `renderJs`.
+
+### Changed
+- Change 'securityBlacklist' to 'securitySpamlist'.
+
 ## 1.6.2 - 2020-06-15
 
 ### Fixed
