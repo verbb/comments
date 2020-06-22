@@ -1,11 +1,16 @@
 # Changelog
 
+## 1.6.4 - 2020-06-22
+
+### Fixed
+- Fix JS error when using `craft.comments.renderJs`. (thanks @john-henry).
+
 ## 1.6.3 - 2020-06-22
 
 > {warning} If you are using `securityBlacklist` in your config files, please rename it to `securitySpamlist`.
 
 ### Added
-- Add `renderCss` and `renderJs`.
+- Add `craft.comments.renderCss` and `craft.comments.renderJs`.
 
 ### Changed
 - Change 'securityBlacklist' to 'securitySpamlist'.
