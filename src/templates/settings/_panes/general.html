@@ -76,6 +76,7 @@
     {{ forms.textField({
         label: 'Structure UID' | t('comments'),
         id: 'structureUid',
+        name: 'structureUid',
         instructions: 'The UID for the internal structure used by Comments.' | t('comments'),
         value: settings.structureUid,
         warning: macros.configWarning('structureUid', 'comments'),
@@ -84,6 +85,7 @@
     {{ forms.textField({
         label: 'Structure ID' | t('comments'),
         id: 'structureId',
+        name: 'structureId',
         instructions: 'The ID for the internal structure used by Comments.' | t('comments'),
         value: settings.structureId,
         warning: macros.configWarning('structureId', 'comments'),
