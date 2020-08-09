@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.5 - 2020-08-10
+
+### Fixed
+- Fix visual bug for Craft 3.5 in comments index.
+
 ## 1.6.4 - 2020-06-22
 
 ### Fixed
