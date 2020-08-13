@@ -14,7 +14,7 @@ See [Template Reference](docs:template-guides/comments-form)
 
 Returns HTML used with regards to spam checks. If you're not using the `render()` function above, you'll need to call this in your templates.
 
-### `craft.comments.renderCsss(elementId, params)`
+### `craft.comments.renderCss(elementId, params)`
 
 If you'd like to render the CSS for comments in a specific way, you can use this function. A `<link>` HTML node will be outputted at the location you add this tag to your templates. You should add this in your `<head>` to prevent a flash of unstyled content.
 
