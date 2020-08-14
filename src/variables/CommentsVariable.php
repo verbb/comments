@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\db\CommentQuery;
 
 use Craft;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Template;
 
@@ -40,30 +41,48 @@ class CommentsVariable
         return Comments::$plugin->getSubscribe()->hasSubscribed($elementId, $elementSiteId, $userId, $commentId);
     }
 
-    public function renderCss($elementId, $criteria = [])
+    public function renderCss($elementId, $attributes = [])
     {
         $view = Craft::$app->getView();
-
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/css/comments.css', true);
 
-        echo '<link href="' . $url . '" rel="stylesheet">';
+        $output = Html::cssFile($url, $attributes);
+
+        return Template::raw($output);
     }
 
-    public function renderJs($elementId, $criteria = [])
+    public function renderJs($elementId, $criteria = [], $loadInline = true, $attributes = [])
     {
         $view = Craft::$app->getView();
-
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
         
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
 
-        echo '<script src="' . $url . '"></script>';
+        $output = [];
+        $output[] = Html::jsFile($url, $attributes);
 
-        echo '<script>window.addEventListener("load", function () { new Comments.Instance(' .
-            Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
-            Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-        '); });</script>';
+        if ($loadInline) {
+            $jsString = 'window.addEventListener("load", function() { new Comments.Instance(' .
+                Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
+                Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
+            '); });';
+
+            $output[] = Html::script($jsString, ['type' => 'text/javascript']);
+        }
+
+        return Template::raw(implode(PHP_EOL, $output));
+    }
+
+    public function getJsVariables($elementId, $criteria = [])
+    {
+        $id = 'cc-w-' . $elementId;
+        $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
+
+        return [
+            'id' => '#' . $id,
+            'settings' => $jsVariables,
+        ];
     }
 
 
