@@ -73,6 +73,8 @@
 <a class="fieldtoggle" data-target="structure-info">{{ "Structure Info" | t('comments') }}</a>
 
 <div id="structure-info" class="hidden">
+    <p class="warning with-icon">{{ 'These values should not be altered manually. If for some reason they are empty, you can run the following commend to re-generate these values: <code>php craft comments/base/resave-structure</code>' | t('comments') | raw }}</p>
+
     {{ forms.textField({
         label: 'Structure UID' | t('comments'),
         id: 'structureUid',
