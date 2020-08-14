@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.6 - 2020-08-14
+
+### Added
+- Add `craft.comments.getJsVariables()`, to allow manual initialisation of front-end JS.
+- Add `loadInline` option to `craft.comments.renderJs()`, to disable immediate initialisation.
+- Add notice in settings for Structure info regeneration.
+
 ## 1.6.5 - 2020-08-10
 
 ### Fixed
