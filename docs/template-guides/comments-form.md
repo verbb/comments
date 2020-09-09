@@ -13,7 +13,7 @@ While the CSS and JS are an additional 7.3kb minified (2.3kb gzip), and 10.5kb m
 ### Parameters
 
 - `elementId` _(int)_ - The ID of the element to fetch comments on. Required.
-- `params` _(object)_ - Available options are any attribute of the [Comment](docs:developers/comment). Optional
+- `query` _(object)_ - Modify the [Comment Query](docs:getting-elements/comment-queries) used by the template. Optional
 
 The above would produce a form similar to the below.
 
