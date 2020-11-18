@@ -142,7 +142,15 @@ Comments.Base = Base.extend({
                 });
             } else if (type === 'validation') {
                 Object.keys(content).forEach(function(key) {
-                    $element.querySelector('[name="fields[' + key + ']"]').nextElementSibling.innerHTML = content[key][0];
+                    var $field = $element.querySelector('[name="fields[' + key + ']"]');
+
+                    if (!$field) {
+                        $field = $element.querySelector('[name="fields[' + key + '][]"]');
+                    }
+
+                    if ($field) {
+                        $field.nextElementSibling.innerHTML = content[key][0];
+                    }
                 });
             } else {
                 $element.querySelector('[data-role="notice"]').innerHTML = content;
