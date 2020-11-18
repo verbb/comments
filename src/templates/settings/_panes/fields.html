@@ -31,8 +31,6 @@
     }) }}
 </div>
 
-<div id="comment-fields">
-    {% include '_includes/fieldlayoutdesigner' with {
-        fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
-    } only %}
-</div>
+{% include '_includes/fieldlayoutdesigner' with {
+    fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
+} only %}
