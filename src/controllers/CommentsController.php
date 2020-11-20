@@ -83,18 +83,9 @@ class CommentsController extends Controller
 
         $comment->setFieldValuesFromRequest('fields');
 
-        if (!$comment->validate()) {
-            $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
-            
-            Craft::$app->getUrlManager()->setRouteParams([
-                'comment' => $comment,
-                'errors' => $comment->getErrors(),
-            ]);
+        $comment->scenario = Comment::SCENARIO_CP;
 
-            return null;
-        }
-
-        if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
+        if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
             
             Craft::$app->getUrlManager()->setRouteParams([

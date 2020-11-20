@@ -39,6 +39,9 @@ class Comment extends Element
     const STATUS_SPAM = 'spam';
     const STATUS_TRASHED = 'trashed';
 
+    const SCENARIO_CP = 'cp';
+    const SCENARIO_FRONT_END = 'frontEnd';
+
 
     // Public Properties
     // =========================================================================
@@ -250,6 +253,15 @@ class Comment extends Element
         $names[] = 'user';
         $names[] = 'author';
         return $names;
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_CP] = [];
+        $scenarios[self::SCENARIO_FRONT_END] = [];
+
+        return $scenarios;
     }
 
     public function rules()
@@ -741,51 +753,54 @@ class Comment extends Element
             return parent::beforeValidate();
         }
 
-        // Let's check for spam!
-        if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
-            $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
-        }
-
-        // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
-        if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
-            $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
-        }
-
-        // Check the maximum comment length.
-        if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
-            $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
-                'limit' => $settings->securityMaxLength,
-            ]));
-        }
-
-        // Protect against Guest submissions, if turned off
-        if (!$settings->allowGuest && !$this->userId) {
-            $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
-        }
-
-        // Additionally, check for user email/name, which is compulsary for guests
-        if ($settings->guestRequireEmailName && !$this->userId) {
-            if (!$this->name) {
-                $this->addError('name', Craft::t('comments', 'Name is required.'));
+        // Skip for CP saving
+        if ($this->scenario !== self::SCENARIO_CP) {
+            // Let's check for spam!
+            if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
+                $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
             }
 
-            if (!$this->email) {
-                $this->addError('email', Craft::t('comments', 'Email is required.'));
+            // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
+            if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
+                $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
             }
-        }
 
-        // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-        if (!Comments::$plugin->getComments()->checkPermissions($this->owner)) {
-            $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
-        }
+            // Check the maximum comment length.
+            if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+                $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                    'limit' => $settings->securityMaxLength,
+                ]));
+            }
 
-        // Is this user trying to edit/save/delete a comment thats not their own?
-        // This is permisable from the CP
-        if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
-            $currentUser = Craft::$app->getUser()->getIdentity();
+            // Protect against Guest submissions, if turned off
+            if (!$settings->allowGuest && !$this->userId) {
+                $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
+            }
 
-            if ($currentUser->id !== $this->author->id) {
-                $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+            // Additionally, check for user email/name, which is compulsary for guests
+            if ($settings->guestRequireEmailName && !$this->userId) {
+                if (!$this->name) {
+                    $this->addError('name', Craft::t('comments', 'Name is required.'));
+                }
+
+                if (!$this->email) {
+                    $this->addError('email', Craft::t('comments', 'Email is required.'));
+                }
+            }
+
+            // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
+            if (!Comments::$plugin->getComments()->checkPermissions($this->owner)) {
+                $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+            }
+
+            // Is this user trying to edit/save/delete a comment thats not their own?
+            // This is permisable from the CP
+            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+
+                if ($currentUser->id !== $this->author->id) {
+                    $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+                }
             }
         }
 
