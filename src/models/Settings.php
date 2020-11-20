@@ -109,6 +109,8 @@ class Settings extends Model
 
     public function canComment($element)
     {
+        $settings = Comments::$plugin->getSettings();
+
         $isClosed = Comments::$plugin->getComments()->checkClosed($element);
 
         if ($isClosed) {
@@ -118,6 +120,12 @@ class Settings extends Model
         $hasPermission = Comments::$plugin->getComments()->checkPermissions($element);
 
         if (!$hasPermission) {
+            return false;
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser && !$settings->allowGuest) {
             return false;
         }
 
