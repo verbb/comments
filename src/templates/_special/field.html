@@ -6,6 +6,8 @@
     <div class="cc-f-label-i">{{ field.instructions }}</div>
 {% endif %}
 
-{% include ['fields/' ~ (field.displayName() | kebab), 'fields/plain-text'] ignore missing with { field: field } only %}
+{% set type = className(field) | split('\\') | last | kebab %}
+
+{% include ['fields/' ~ type, 'fields/plain-text'] ignore missing with { field: field } only %}
 
 <div class="cc-e"></div>
