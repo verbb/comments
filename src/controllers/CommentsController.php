@@ -44,14 +44,17 @@ class CommentsController extends Controller
     // Control Panel
     //
 
-    public function actionEditComment($commentId, string $siteHandle = null)
+    public function actionEditComment($commentId, string $siteHandle = null, Comment $comment = null)
     {
         if (!$siteHandle) {
             $siteHandle = Craft::$app->getSites()->getCurrentSite()->handle;
         }
 
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
-        $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
+
+        if (!$comment) {
+            $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
+        }
 
         // Set the "Continue Editing" URL
         $siteSegment = Craft::$app->getIsMultiSite() && Craft::$app->getSites()->getCurrentSite()->id != $site->id ? "/{$site->handle}" : '';
@@ -80,8 +83,26 @@ class CommentsController extends Controller
 
         $comment->setFieldValuesFromRequest('fields');
 
+        if (!$comment->validate()) {
+            $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
+            
+            Craft::$app->getUrlManager()->setRouteParams([
+                'comment' => $comment,
+                'errors' => $comment->getErrors(),
+            ]);
+
+            return null;
+        }
+
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
-            $session->setError($comment->getErrors());
+            $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
+            
+            Craft::$app->getUrlManager()->setRouteParams([
+                'comment' => $comment,
+                'errors' => $comment->getErrors(),
+            ]);
+
+            return null;
         }
 
         $session->setNotice(Craft::t('comments', 'Comment saved successfully.'));
