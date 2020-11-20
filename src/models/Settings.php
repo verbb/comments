@@ -24,6 +24,7 @@ class Settings extends Model
 
     // General
     public $allowGuest = false;
+    public $guestNotice = '';
     public $guestRequireEmailName = true;
     public $guestShowEmailName = true;
     public $requireModeration = true;

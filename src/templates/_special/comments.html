@@ -40,6 +40,10 @@
 
     {% if settings.canComment(element) %}
         {% include 'form' %}
+    {% elseif settings.guestNotice %}
+        <div class="cc-f-m">
+            {{ settings.guestNotice | t('comments') }}
+        </div>
     {% endif %}
 </div>
 

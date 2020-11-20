@@ -14,6 +14,7 @@ return [
 
         // General
         'allowGuest' => false,
+        'guestNotice' => '',
         'guestRequireEmailName' => true,
         'guestShowEmailName' => true,
         'requireModeration' => true,
@@ -81,6 +82,7 @@ return [
 - `defaultQueryStatus` - Set the default status for element queries to return.
 
 - `allowGuest` - Whether to allow guest commenting.
+- `guestNotice` - When guest commenting is not allowed, and the user is a guest, display this message in place of the form.
 - `guestRequireEmailName` - Whether guests should be required to enter their name and email.
 - `guestShowEmailName` - Whether guests should be shown fields to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.

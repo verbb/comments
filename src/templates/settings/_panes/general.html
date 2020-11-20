@@ -9,6 +9,7 @@
     on: settings.allowGuest,
     warning: macros.configWarning('allowGuest', 'comments'),
     toggle: 'allow-guest',
+    reverseToggle: 'allow-guest-none',
 }) }}
 
 <div id="allow-guest" style="margin-top: 24px;" {% if not settings.allowGuest %}class="hidden"{% endif %}>
@@ -27,6 +28,17 @@
         name: 'guestRequireEmailName',
         on: settings.guestRequireEmailName,
         warning: macros.configWarning('guestRequireEmailName', 'comments'),
+    }) }}
+</div>
+
+<div id="allow-guest-none" style="margin-top: 24px;" {% if settings.allowGuest %}class="hidden"{% endif %}>
+    {{ forms.textField({
+        label: 'Guest Notice' | t('comments'),
+        id: 'guestNotice',
+        name: 'guestNotice',
+        instructions: 'This text will be shown to guests, informing that they are unable to comment.' | t('comments'),
+        value: settings.guestNotice,
+        warning: macros.configWarning('guestNotice', 'comments'),
     }) }}
 </div>
 
