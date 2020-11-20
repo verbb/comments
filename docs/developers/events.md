@@ -212,7 +212,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_A
     $e->isValid = false;
 });
 ```
-```
 
 ### The `beforeSendSubscribeEmail` event
 
