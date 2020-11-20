@@ -7,6 +7,7 @@ use verbb\comments\elements\Comment;
 use Craft;
 use craft\base\Model;
 use craft\db\Table;
+use craft\elements\Asset;
 use craft\helpers\Db;
 
 class Settings extends Model
@@ -87,14 +88,20 @@ class Settings extends Model
     public $allowAnonymousVoting;
     public $allowAnonymousFlagging;
 
+    private $_placeholderAvatar = null;
+
 
     // Public Methods
     // =========================================================================
 
     public function getPlaceholderAvatar()
     {
+        if ($this->_placeholderAvatar !== null) {
+            return $this->_placeholderAvatar;
+        }
+
         if ($this->placeholderAvatar && isset($this->placeholderAvatar[0])) {
-            return Craft::$app->getElements()->getElementById($this->placeholderAvatar[0]);
+            return $this->_placeholderAvatar = Craft::$app->getElements()->getElementById($this->placeholderAvatar[0], Asset::class);
         }
 
         return null;

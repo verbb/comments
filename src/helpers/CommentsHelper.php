@@ -58,9 +58,9 @@ class CommentsHelper
             }
         }
 
-        if ($settings->placeholderAvatar) {
-            if (self::_assetExists($settings->placeholderAvatar)) {
-                return $settings->placeholderAvatar;
+        if ($settings->getPlaceholderAvatar()) {
+            if (self::_assetExists($settings->getPlaceholderAvatar())) {
+                return $settings->getPlaceholderAvatar();
             }
         }
 
