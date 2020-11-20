@@ -1,7 +1,10 @@
 <?php
 namespace verbb\comments\helpers;
 
+use verbb\comments\Comments;
+
 use Craft;
+use craft\helpers\FileHelper;
 use craft\i18n\Locale;
 
 use DateInterval;
@@ -41,5 +44,39 @@ class CommentsHelper
         }
 
         return '';
+    }
+
+    public static function getAvatar($user = null)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        if ($user) {
+            if ($photo = $user->getPhoto()) {
+                if (self::_assetExists($photo)) {
+                    return $photo;
+                }
+            }
+        }
+
+        if ($settings->placeholderAvatar) {
+            if (self::_assetExists($settings->placeholderAvatar)) {
+                return $settings->placeholderAvatar;
+            }
+        }
+
+        return null;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private static function _assetExists($asset)
+    {
+        $volumePath = $asset->getVolume()->settings['path'];
+        $path = Craft::parseEnv($volumePath . DIRECTORY_SEPARATOR . $asset->getPath());
+        $path = FileHelper::normalizePath($path);
+
+        return file_exists($path);
     }
 }

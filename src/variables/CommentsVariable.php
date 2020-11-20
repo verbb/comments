@@ -3,6 +3,7 @@ namespace verbb\comments\variables;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\helpers\CommentsHelper;
 
 use Craft;
 use craft\helpers\Html;
@@ -83,6 +84,11 @@ class CommentsVariable
             'id' => '#' . $id,
             'settings' => $jsVariables,
         ];
+    }
+
+    public function getAvatar()
+    {
+        return CommentsHelper::getAvatar(Craft::$app->getUser()->getIdentity());
     }
 
 

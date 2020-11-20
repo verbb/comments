@@ -448,6 +448,11 @@ class Comment extends Element
         return $this->email;
     }
 
+    public function getAvatar()
+    {
+        return CommentsHelper::getAvatar($this->getAuthor());
+    }
+
     public function getOwner()
     {
         if ($this->_owner !== null) {
