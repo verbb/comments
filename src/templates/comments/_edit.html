@@ -125,46 +125,60 @@
 
     <hr/>
 
-    <h5 class="first">{{ "User" | t('comments') }}</h5>
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5 class="first">{{ "User" | t('comments') }}</h5>
 
-    {% if comment.userId and craft.users %}
-        {% set user = craft.users.id(comment.userId).one() %}
+        {% if comment.userId and craft.users %}
+            {% set user = craft.users.id(comment.userId).one() %}
 
-        <p><a class="go" href="{{ user.cpEditUrl }}">{{ user.getFriendlyName() }}</a></p>
-    {% else %}
-        <p>{{ comment.name }} ({{ comment.email }})</p>
-    {% endif %}
-
-    <hr/>
-
-    <h5>{{ 'Element' | t('comments') }}</h5>
-
-    {% if comment.owner %}
-        <p>
-            <a class="go" href="{{ comment.owner.cpEditUrl }}">
-                {{ comment.owner.title }}
-            </a>
-        </p>
-    {% endif %}
+            <p><a class="go" href="{{ user.cpEditUrl }}">{{ user.getFriendlyName() }}</a></p>
+        {% else %}
+            <p>{{ comment.name }} ({{ comment.email }})</p>
+        {% endif %}
+    </div>
 
     <hr/>
 
-    <h5>{{ 'URL' | t('comments') }}</h5>
-    <p>{{ comment.url }}</p>
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5>{{ 'Element' | t('comments') }}</h5>
 
-    <h5>{{ 'IP Address' | t('comments') }}</h5>
-    <p>{{ comment.ipAddress }}</p>
-
-    <h5>{{ 'User Agent' | t('comments') }}</h5>
-    <p>{{ comment.userAgent }}</p>
+        {% if comment.owner %}
+            <p>
+                <a class="go" href="{{ comment.owner.cpEditUrl }}">
+                    {{ comment.owner.title }}
+                </a>
+            </p>
+        {% endif %}
+    </div>
 
     <hr/>
 
-    <h5>{{ 'Created Date' | t('comments') }}</h5>
-    <p>{{ comment.commentDate | date('short') }} {{ comment.commentDate | time('short') }}</p>
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5>{{ 'URL' | t('comments') }}</h5>
+        <p>{{ comment.url }}</p>
+    </div>
 
-    <h5>{{ 'Updated Date' | t('comments') }}</h5>
-    <p>{{ comment.dateUpdated | date('short') }} {{ comment.dateUpdated | time('short') }}</p>
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5>{{ 'IP Address' | t('comments') }}</h5>
+        <p>{{ comment.ipAddress }}</p>
+    </div>
+
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5>{{ 'User Agent' | t('comments') }}</h5>
+        <p>{{ comment.userAgent }}</p>
+    </div>
+
+    <hr/>
+
+    <div style="word-break: break-word; margin-bottom: 1em;">
+        <h5>{{ 'Created Date' | t('comments') }}</h5>
+        <p>{{ comment.commentDate | date('short') }} {{ comment.commentDate | time('short') }}</p>
+    </div>
+
+    <div style="word-break: break-word;">
+        <h5>{{ 'Updated Date' | t('comments') }}</h5>
+        <p>{{ comment.dateUpdated | date('short') }} {{ comment.dateUpdated | time('short') }}</p>
+    </div>
 </div>
 
 {% endblock %}
