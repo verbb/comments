@@ -6,10 +6,9 @@ use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;
 
-use craft\gql\base\InterfaceType as BaseInterfaceType;
+use craft\gql\interfaces\elements\User;
 use craft\gql\interfaces\Structure;
 use craft\gql\types\DateTime;
-use craft\gql\TypeLoader;
 use craft\gql\TypeManager;
 use craft\gql\GqlEntityRegistry;
 use craft\helpers\Gql;
@@ -127,6 +126,11 @@ class CommentInterface extends Structure
                     'name' => 'userId',
                     'type' => Type::int(),
                     'description' => 'The ID of the author of this comment.'
+                ],
+                'user' => [
+                    'name' => 'user',
+                    'type' => User::getType(),
+                    'description' => 'The comment\'s author.'
                 ],
             ];
         }
