@@ -59,7 +59,7 @@ class CommentsField extends BaseField
             return Html::encode(Craft::t('comments', $this->label));
         }
 
-        return Craft::t('comments', 'Comment');
+        return '__blank__';
     }
 
     public function instructions()
