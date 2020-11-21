@@ -267,16 +267,14 @@ Comments.Instance = Comments.Base.extend({
         e.preventDefault();
 
         this.postForm(e, 'save', function(xhr) {
+
             if (xhr.html) {
                 var $html = this.createElement(xhr.html);
                 var $newComment = this.$commentsContainer.insertBefore($html, this.$commentsContainer.firstChild);
 
                 this.comments[xhr.id] = new Comments.Comment(this, $html);
 
-                // Clear all inputs
-                (this.$baseForm.querySelector('[name="fields[name]"]') || {}).value = '';
-                (this.$baseForm.querySelector('[name="fields[email]"]') || {}).value = '';
-                (this.$baseForm.querySelector('[name="fields[comment]"]') || {}).value = '';
+                this.$baseForm.querySelector('form').reset();
 
                 // Scroll to the new comment
                 location.hash = '#comment-' + xhr.id;
@@ -284,10 +282,7 @@ Comments.Instance = Comments.Base.extend({
 
             // If a comment was successfully submitted but under review
             if (xhr.success) {
-                // Clear all inputs
-                (this.$baseForm.querySelector('[name="fields[name]"]') || {}).value = '';
-                (this.$baseForm.querySelector('[name="fields[email]"]') || {}).value = '';
-                (this.$baseForm.querySelector('[name="fields[comment]"]') || {}).value = '';
+                this.$baseForm.querySelector('form').reset();
             }
 
         }.bind(this));
@@ -537,9 +532,7 @@ Comments.ReplyForm = Comments.Base.extend({
         this.clearNotifications(form);
 
         // Clear all inputs
-        (form.querySelector('[name="fields[name]"]') || {}).value = '';
-        (form.querySelector('[name="fields[email]"]') || {}).value = '';
-        (form.querySelector('[name="fields[comment]"]') || {}).innerHTML = '';
+        form.querySelector('form').reset();
 
         // Set the value to be the id of comment we're replying to
         (form.querySelector('input[name="newParentId"]') || {}).value = this.comment.commentId;
@@ -552,7 +545,11 @@ Comments.ReplyForm = Comments.Base.extend({
 
         this.isOpen = true;
 
-        this.addListener(this.$container.querySelector('[role="form"]'), 'submit', this.onSubmit, false);
+        this.$form = this.$container.querySelector('[role="form"]');
+
+        if (this.$form) {
+            this.addListener(this.$form, 'submit', this.onSubmit, false);
+        }
     },
 
     closeForm: function() {
@@ -583,10 +580,7 @@ Comments.ReplyForm = Comments.Base.extend({
 
             // If a comment was successfully submitted but under review
             if (xhr.success) {
-                // Clear all inputs
-                (this.$container.querySelector('[name="fields[name]"]') || {}).value = '';
-                (this.$container.querySelector('[name="fields[email]"]') || {}).value = '';
-                (this.$container.querySelector('[name="fields[comment]"]') || {}).value = '';
+                this.$form.reset();
             }
         }.bind(this));
     },
