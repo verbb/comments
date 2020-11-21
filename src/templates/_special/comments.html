@@ -34,12 +34,12 @@
 
     <div class="cc-w-i" data-role="comments">
         {% for comment in commentsQuery.with(eagerLoadMap).all() %}
-            {% include 'comment' %}
+            {{ commentsInclude('comment') }}
         {% endfor %}
     </div>
 
     {% if settings.canComment(element) %}
-        {% include 'form' %}
+        {{ commentsInclude('form') }}
     {% elseif settings.guestNotice %}
         <div class="cc-f-m">
             {{ settings.guestNotice | t('comments') }}

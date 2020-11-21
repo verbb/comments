@@ -10,6 +10,7 @@ use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
 use verbb\comments\models\Settings;
 use verbb\comments\services\CommentsService;
+use verbb\comments\twigextensions\Extension;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\variables\CommentsVariableBehavior;
 
@@ -69,6 +70,7 @@ class Comments extends Plugin
         $this->_setPluginComponents();
         $this->_setLogging();
         $this->_registerCpRoutes();
+        $this->_registerTwigExtensions();
         $this->_registerPermissions();
         $this->_registerEmailMessages();
         $this->_registerVariables();
@@ -168,6 +170,11 @@ class Comments extends Plugin
 
     // Private Methods
     // =========================================================================
+
+    private function _registerTwigExtensions()
+    {
+        Craft::$app->view->registerTwigExtension(new Extension);
+    }
 
     private function _registerCpRoutes()
     {
