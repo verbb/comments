@@ -22,6 +22,7 @@ use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Structure;
+use craft\web\View;
 
 use DateTime;
 
@@ -63,7 +64,7 @@ class CommentsService extends Component
         $settings = Comments::$plugin->getSettings();
         $view = Craft::$app->getView();
 
-        $templatePath = $this->_getTemplatePath();
+        $templatePath = $this->getComponentTemplatePath('comments');
         $view->setTemplatesPath($templatePath);
 
         $id = 'cc-w-' . $elementId;
@@ -158,7 +159,7 @@ class CommentsService extends Component
             return;
         }
 
-        $templatePath = $this->_getTemplatePath();
+        $templatePath = $this->getComponentTemplatePath('comment');
         $view->setTemplatesPath($templatePath);
 
         // Prepare variables to pass to templates - important to include route params
@@ -714,6 +715,29 @@ class CommentsService extends Component
         Craft::$app->getProjectConfig()->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
     }
 
+    public function getComponentTemplatePath(string $component): string
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        $view = Craft::$app->getView();
+        $oldTemplatePath = $view->getTemplatesPath();
+        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+
+        $templatePath = Craft::getAlias('@verbb/comments/templates/_special');
+
+        if ($settings->templateFolderOverride) {
+            $path = $settings->templateFolderOverride . DIRECTORY_SEPARATOR . $component;
+
+            if ($view->resolveTemplate($path, View::TEMPLATE_MODE_SITE)) {
+                $templatePath = Craft::$app->getPath()->getSiteTemplatesPath() . DIRECTORY_SEPARATOR . $settings->templateFolderOverride;
+            }
+        }
+
+        $view->setTemplatesPath($oldTemplatePath);
+
+        return $templatePath;
+    }
+
 
     // Private Methods
     // =========================================================================
@@ -733,19 +757,6 @@ class CommentsService extends Component
         }
 
         return true;
-    }
-
-    private function _getTemplatePath()
-    {
-        $settings = Comments::$plugin->getSettings();
-
-        $templatePath = Craft::getAlias('@verbb/comments/templates/_special');
-
-        if ($settings->templateFolderOverride) {
-            $templatePath = Craft::$app->path->getSiteTemplatesPath() . DIRECTORY_SEPARATOR . $settings->templateFolderOverride;
-        }
-
-        return $templatePath;
     }
 
 }
