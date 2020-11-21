@@ -4,6 +4,7 @@ namespace verbb\comments;
 use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
+use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
@@ -14,6 +15,7 @@ use verbb\comments\variables\CommentsVariableBehavior;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -23,6 +25,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\models\Structure;
 use craft\records\StructureElement;
 use craft\services\Elements;
@@ -73,6 +76,7 @@ class Comments extends Plugin
         $this->_registerElementTypes();
         $this->_registerGraphQl();
         $this->_registerCraftEventListeners();
+        $this->_defineFieldLayoutElements();
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
 
@@ -294,6 +298,19 @@ class Comments extends Plugin
         });
     }
 
+    private function _defineFieldLayoutElements()
+    {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
+            $fieldLayout = $e->sender;
+
+            switch ($fieldLayout->type) {
+                case Comment::class:
+                    $e->fields[] = CommentsFieldLayoutElement::class;
+                    break;
+            }
+        });
+    }
+
     private function _checkDeprecations()
     {
         $settings = $this->getSettings();
@@ -311,6 +328,17 @@ class Comments extends Plugin
                 Craft::$app->getDeprecator()->log($old, "The {$old} config setting has been renamed to {$new}.");
                 $settings[$new] = $settings[$old];
                 unset($settings[$old]);
+            }
+        }
+
+        $removedSettings = [
+            'showCustomFields',
+        ];
+
+        foreach ($removedSettings as $setting) {
+            if (property_exists($settings, $setting) && isset($settings->$setting)) {
+                Craft::$app->getDeprecator()->log($old, "The {$setting} config setting has been removed.");
+                unset($settings[$setting]);
             }
         }
     }

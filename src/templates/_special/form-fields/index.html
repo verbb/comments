@@ -1,0 +1,19 @@
+<div class="cc-f-cf">
+    {% for tab in fieldLayout.getTabs() %}
+        {% for element in tab.elements %}
+            {% if className(element) == 'craft\\fieldlayoutelements\\CustomField' %}
+                <div class="cc-f-row">
+                    <div class="cc-f-col">
+                        {% include 'form-fields/field' with { field: element.getField() } %}
+                    </div>
+                </div>
+            {% elseif className(element) == 'verbb\\comments\\fieldlayoutelements\\CommentsField' %}
+                <div class="cc-f-row">
+                    <div class="cc-f-col">
+                        {% include 'form-fields/elements/comment' %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>

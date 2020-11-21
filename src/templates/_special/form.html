@@ -47,20 +47,7 @@
                 </div>
             {% endif %}
 
-            {% if settings.showCustomFields %}
-                <div class="cc-f-cf">
-                    {% for field in fieldLayout.getFields() %}
-                        <div class="cc-f-row">
-                            <div class="cc-f-col">
-                                {% include 'field' %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <textarea class="cc-f-textarea" name="fields[comment]" placeholder="{{ 'Add a comment...' | t('comments') }}"></textarea>
-            <div class="cc-e"></div>
+            {% include 'form-fields' %}
 
             <div data-role="notice" class="cc-n"></div>
 

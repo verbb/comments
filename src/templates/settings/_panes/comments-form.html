@@ -1,0 +1,28 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: 'Show Custom Field Names' | t('comments'),
+    instructions: 'Whether custom fields should show their field names as labels.' | t('comments'),
+    name: 'showCustomFieldNames',
+    on: settings.showCustomFieldNames,
+    warning: macros.configWarning('showCustomFieldNames', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Show Custom Field Instructions' | t('comments'),
+    instructions: 'Whether custom fields should show their instruction text underneath labels.' | t('comments'),
+    name: 'showCustomFieldInstructions',
+    on: settings.showCustomFieldInstructions,
+    warning: macros.configWarning('showCustomFieldInstructions', 'comments'),
+}) }}
+
+{{ forms.fieldLayoutDesignerField({
+    label: 'Form Layout' | t('comments'),
+    instructions: 'Create the layout for your users to make comments on.' | t('comments'),
+    fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
+    customizableTabs: false,
+    customizableUi: false,
+    pretendTabName: 'Comment Form' | t('comments'),
+}) }}

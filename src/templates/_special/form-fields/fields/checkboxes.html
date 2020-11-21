@@ -7,7 +7,7 @@
         {% set id = 'comments-' ~ field.handle ~ '-' ~ random() %}
 
         <div>
-            <input id="{{ id }}" type="radio" name="fields[{{ field.handle }}]" value="{{ option.value }}" {% if field.required %}required{% endif %}>
+            <input id="{{ id }}" type="checkbox" name="fields[{{ field.handle }}][]" value="{{ option.value }}" {% if required %}required{% endif %}>
 
             <label for="{{ id }}">
                 {{ option.label | raw }}

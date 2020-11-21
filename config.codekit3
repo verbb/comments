@@ -621,6 +621,14 @@
 		"oAP": "/src/events/VoteEvent.php",
 		"oF": 0
 		},
+	"/src/fieldlayoutelements/CommentsField.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/fieldlayoutelements/CommentsField.php",
+		"oF": 0
+		},
 	"/src/fields": {
 		"ft": 65536,
 		"oA": 1,

@@ -1,6 +1,6 @@
 {%- set hasOptgroups = false -%}
 
-<select class="cc-f-input cc-f-select" name="fields[{{ field.handle }}]" {% if field.required %}required{% endif %}>
+<select class="cc-f-input cc-f-select" name="fields[{{ field.handle }}]" {% if required %}required{% endif %}>
     {% for key, option in field.options %}
         {% if option.optgroup is defined %}
             {% if hasOptgroups %}

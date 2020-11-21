@@ -80,7 +80,6 @@ class Settings extends Model
     public $users;
 
     // Custom Fields
-    public $showCustomFields = false;
     public $showCustomFieldNames = false;
     public $showCustomFieldInstructions = false;
 
@@ -88,6 +87,9 @@ class Settings extends Model
     public $allowAnonymous;
     public $allowAnonymousVoting;
     public $allowAnonymousFlagging;
+
+    // TODO remove at next breakpoint
+    public $showCustomFields = false;
 
     private $_placeholderAvatar = null;
 
