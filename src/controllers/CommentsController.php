@@ -56,6 +56,8 @@ class CommentsController extends Controller
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
         }
 
+        $comment->setScenario(Comment::SCENARIO_CP);
+
         // Set the "Continue Editing" URL
         $siteSegment = Craft::$app->getIsMultiSite() && Craft::$app->getSites()->getCurrentSite()->id != $site->id ? "/{$site->handle}" : '';
         $continueEditingUrl = 'comments/{id}' . $siteSegment;
@@ -82,8 +84,7 @@ class CommentsController extends Controller
         $comment->comment = $request->getParam('comment', $comment->comment);
 
         $comment->setFieldValuesFromRequest('fields');
-
-        $comment->scenario = Comment::SCENARIO_CP;
+        $comment->setScenario(Comment::SCENARIO_CP);
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
@@ -130,6 +131,7 @@ class CommentsController extends Controller
         $request = Craft::$app->getRequest();
 
         $comment = $this->_setCommentFromPost();
+        $comment->setScenario(Comment::SCENARIO_FRONT_END);
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($request->getAcceptsJson()) {
@@ -292,6 +294,7 @@ class CommentsController extends Controller
 
         $comment = $this->_setCommentFromPost();
         $comment->status = Comment::STATUS_TRASHED;
+        $comment->setScenario(Comment::SCENARIO_FRONT_END);
 
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
             if ($request->getAcceptsJson()) {

@@ -255,20 +255,25 @@ class Comment extends Element
         return $names;
     }
 
-    public function scenarios()
-    {
-        $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_CP] = [];
-        $scenarios[self::SCENARIO_FRONT_END] = [];
-
-        return $scenarios;
-    }
-
     public function rules()
     {
         $rules = parent::rules();
         $rules[] = [['ownerId'], 'number', 'integerOnly' => true];
         $rules[] = [['ownerSiteId'], SiteIdValidator::class];
+
+        // Check for custom fields. Craft will only check this for `SCENARIO_LIVE`, and we use custom scenarios
+        if ($fieldLayout = $this->getFieldLayout()) {
+            foreach ($fieldLayout->getFields() as $field) {
+                $attribute = 'field:' . $field->handle;
+                $isEmpty = [$this, 'isFieldEmpty:' . $field->handle];
+
+                if ($field->required) {
+                    // Allow custom field validation with our custom scenarios
+                    $rules[] = [[$attribute], 'required', 'isEmpty' => $isEmpty, 'on' => [self::SCENARIO_CP, self::SCENARIO_FRONT_END]];
+                }
+            }
+        }
+
         return $rules;
     }
 
@@ -754,7 +759,7 @@ class Comment extends Element
         }
 
         // Skip for CP saving
-        if ($this->scenario !== self::SCENARIO_CP) {
+        if ($this->scenario === self::SCENARIO_FRONT_END) {
             // Let's check for spam!
             if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
                 $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
