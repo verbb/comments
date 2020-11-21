@@ -1,0 +1,13 @@
+{% if comment.can('showAvatar') %}
+    <figure class="cc-i-figure" itemprop="creator" itemscope itemtype="http://schema.org/Person">
+        <p class="cc-i-image" itemprop="image">
+            {% set avatar = comment.getAvatar() %}
+
+            {% if avatar %}
+                <img src="{{ avatar.url({ width: 64, height: 64, mode: 'fit' }) }}" />
+            {% else %}
+                <span class="cc-i-image-icon"></span>
+            {% endif %}
+        </p>
+    </figure>
+{% endif %}

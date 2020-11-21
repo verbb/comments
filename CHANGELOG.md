@@ -5,7 +5,9 @@
 ### Added
 - The comment form now makes use of Craft's 3.5+ field layout designer.
 - The comment textarea can now be moved freely in the comment form, and optionally un-required.
-- Added `user` to GraphQL comment interface. (thanks @jaydensmith).
+- Add `commentsInclude` to front-end templates, allowing for easier resolution to default or custom templates.
+- Add ability to override only a single included template partial for custom templates, rather than overriding all. For example, you can override _just_ the comment form, or even just a custom field.
+- Add `user` to GraphQL comment interface. (thanks @jaydensmith).
 - Add `guestNotice` setting to define a notice when guest commenting is not allowed, and the user is a guest.
 - Add control panel scenario for Comment elements, to allow front-end and control panel differentiation for validation.
 
@@ -16,6 +18,8 @@
 - The reply and comments form are no longer shown when guest commenting is off, and the user is a guest.
 - Update example templates.
 - “Custom Fields” settings are now replaced by “Comments Form”.
+- Provide better handling when custom templates cannot be found. Comments will now fallback to default templates if the custom template cannot be found.
+- Front-end templates are now much more modular, allowing for greater flexibility with custom override templates. Hopefully this will help customising templates without having to main the entire set of front-end templates.
 
 ### Fixed
 - Fix minor alignment issue with field layout designer in plugin settings.

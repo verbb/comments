@@ -1,0 +1,38 @@
+<header class="cc-i-header" role="meta">
+    <span itemprop="creator" itemscope itemtype="http://schema.org/Person">
+        <strong class="cc-i-author" itemprop="name">
+            {{- comment.author.fullName ?? comment.author -}}
+        </strong>
+
+        {% if comment.parent %}
+            <span class="cc-icon cc-icon-right-arrow">
+                <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M340.5,218.6l99-99c4.7-4.7,4.7-12.3,0-17l-99-99C332.9-4,320,1.3,320,12v71H12c-6.6,0-12,5.4-12,12v32c0,6.6,5.4,12,12,12h308v71C320,220.8,332.9,226.1,340.5,218.6L340.5,218.6z"></path></svg>
+            </span>
+
+            <a class="cc-i-reply" href="{{ craft.app.request.url }}#comment-{{ comment.parent.id }}">
+                {{- comment.parent.author.fullName ?? comment.parent.author -}}
+            </a>
+        {% endif %}
+    </span>
+
+    {% if comment.can('showTimeAgo') %}
+        <div class="cc-ll">
+            <span class="cc-ll-i">
+                <a class="cc-i-share cc-dot" href="{{ craft.app.request.url }}#comment-{{ comment.id }}"><time itemprop="commentTime" title="{{ comment.commentDate | date('D M j Y H:i:s \\G\\M\\TO (T)') }}" datetime="{{ comment.commentDate | date('c') }}"><small>{{ comment.timeAgo | trim }}</small></time></a>
+            </span>
+        </div>
+    {% endif %}
+
+    <small class="cc-i-header-links {{ comment.hasFlagged() ? 'has-flag' }}">
+        {% if comment.can('flag') %}
+            <form data-action="flag" role="form" method="post" accept-charset="UTF-8">
+                <input type="hidden" name="action" value="comments/comments/flag">
+                <input type="hidden" name="siteId" value="{{ comment.siteId }}">
+                <input type="hidden" name="commentId" value="{{ comment.id }}">
+                {{ csrfInput() }}
+
+                <button type="submit" class="cc-i-flag">{{ 'Flag' | t('comments') }}</button>
+            </form>
+        {% endif %}
+    </small>
+</header>
