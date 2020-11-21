@@ -255,6 +255,17 @@ class Comment extends Element
         return $names;
     }
 
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        // Ths is the only way I can figure out extra scenarios to work...
+        $scenarios[self::SCENARIO_CP] = $scenarios[self::SCENARIO_CP] ?? [];
+        $scenarios[self::SCENARIO_FRONT_END] = $scenarios[self::SCENARIO_FRONT_END] ?? [];
+
+        return $scenarios;
+    }
+
     public function rules()
     {
         $rules = parent::rules();
