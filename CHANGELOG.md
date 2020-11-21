@@ -1,5 +1,33 @@
 # Changelog
 
+> {warning} If you are using any custom fields, you will need to re-order your fields. The comment textarea field is now content-managed, but added to the top of your form, instead of the bottom as is currently the case. Simply re-order your form fields in Settings > Comments Form after the update.
+
+### Added
+- Now requires Craft 3.5+.
+- The comment form now makes use of Craft's 3.5+ field layout designer.
+- The comment textarea can now be moved freely in the comment form, and optionally un-required.
+- Added `user` to GraphQL comment interface. (thanks @jaydensmith).
+- Add `guestNotice` setting to define a notice when guest commenting is not allowed, and the user is a guest.
+- Add control panel scenario for Comment elements, to allow front-end and control panel differentiation for validation.
+
+### Changed
+- Improve query performance when using a placeholder avatar.
+- Improve reliability of getting author’s avatars, adding checks if it exists.
+- The reply and comments form are no longer shown when guest commenting is off, and the user is a guest.
+- Update example templates.
+
+### Fixed
+- Fix minor alignment issue with field layout designer in plugin settings.
+- Fix asset fields and other multi-value fields not showing errors correctly on the front-end.
+- Fix custom fields for comments not showing correctly for non-English sites.
+- Fix minor sidebar layout issue when editing a comment.
+- Fix comments not validating correctly when editing in the control panel.
+- Ensure required custom fields are validated from the control panel and front-end for a comment.
+- Ensure comments form is properly reset after submission (JS).
+
+### Deprecated
+- The `showCustomFields` id deprecated, as it no longer had any effect.
+
 ## 1.6.6 - 2020-08-14
 
 ### Added
