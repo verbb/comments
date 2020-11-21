@@ -4,6 +4,7 @@ namespace verbb\comments\elements;
 use verbb\comments\Comments;
 use verbb\comments\elements\actions\SetStatus;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\models\Subscribe;
 use verbb\comments\records\Comment as CommentRecord;
@@ -820,8 +821,8 @@ class Comment extends Element
             }
         }
 
-        // Must have an actual comment
-        if (!trim($this->comment)) {
+        // Must have an actual comment if required
+        if (!trim($this->comment) && $this->_getCommentIsRequired()) {
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
         }
 
@@ -1189,6 +1190,26 @@ class Comment extends Element
         $subscribe->userId = $userId;
 
         Comments::$plugin->getSubscribe()->saveSubscribe($subscribe);
+    }
+
+    private function _getCommentIsRequired()
+    {
+        // Default to true, mostly for backward compatibility, just in case for some reason
+        // the field layout element isn't found.
+        $isCommentRequired = true;
+
+        // From the field layout designer, find if the comment is required
+        if ($fieldLayout = $this->getFieldLayout()) {
+            foreach ($fieldLayout->getTabs() as $tab) {
+                foreach ($tab->elements as $element) {
+                    if ($element instanceof CommentsFieldLayoutElement) {
+                        $isCommentRequired = (bool)$element->required;
+                    }
+                }
+            }
+        }
+
+        return $isCommentRequired;
     }
 
 }
