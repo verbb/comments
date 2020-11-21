@@ -23,8 +23,8 @@
         "collapsable": false,
         "children": [
             "template-guides/available-variables",
-            "template-guides/comments-form",
-            "template-guides/custom-form",
+            "template-guides/rendering-comments",
+            "template-guides/custom-templates",
             "template-guides/custom-fields"
         ]
     },

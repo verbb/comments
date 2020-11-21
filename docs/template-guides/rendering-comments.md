@@ -1,4 +1,4 @@
-# Comments Form
+# Rendering Comments
 
 By far the easiest and quickest way to setup commenting on your site. With this template tag, you can output a list of comments on a particular element, along with a form for your users to fill out to comment. It also includes an individual form for each comment, to allow direct response to another users comment.
 
@@ -19,7 +19,7 @@ The above would produce a form similar to the below.
 
 ![Comments Default Templating](/docs/screenshots/comments-default-templating.png)
 
-You can roll-your-own templates using [Template Overrides](docs:template-guides/custom-form).
+You can roll-your-own templates using [Custom Templates](docs:template-guides/custom-templates).
 
 ## Default Templates
 
@@ -29,4 +29,4 @@ There are a few templating options available via the Settings page of the Commen
 
 The `render()` function is designed to be a single-line implementation, complete with CSS and JS. You can opt-out of using these resources, while still using the `render()` tag to generate the required Twig. As such, you'll be required to style the components yourself and any required Javascript. Consult the [resources](https://github.com/verbb/comments/tree/craft-3/src/resources/src) folder for a start.
 
-For a complete build-your-own solution, create a [Custom Form](docs:template-guides/custom-form).
+For a complete build-your-own solution, create [Custom Templates](docs:template-guides/custom-templates).

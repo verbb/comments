@@ -8,7 +8,7 @@ See [Comment Queries](docs:getting-elements/comment-queries)
 
 ### `craft.comments.render(elementId, params)`
 
-See [Template Reference](docs:template-guides/comments-form)
+See [Rendering Comments](docs:template-guides/rendering-comments)
 
 ### `craft.comments.protect()`
 
@@ -22,7 +22,7 @@ You can also provide `attributes`, and object of attributes added to the `<link>
 
 Be sure to disable `Output default CSS` else this will be rendered twice.
 
-See also [Template Reference](docs:template-guides/comments-form)
+See [Rendering Comments](docs:template-guides/rendering-comments)
 
 ### `craft.comments.renderJs(elementId, params, loadInline, attributes)`
 
@@ -32,7 +32,7 @@ You can also provide `attributes`, and object of attributes added to the `<scrip
 
 Be sure to disable `Output default JS` else this will be rendered twice.
 
-See also [Template Reference](docs:template-guides/comments-form)
+See [Rendering Comments](docs:template-guides/rendering-comments)
 
 ### `craft.comments.getJsVariables(elementId, params)`
 

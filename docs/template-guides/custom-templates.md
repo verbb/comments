@@ -1,4 +1,4 @@
-# Custom Form
+# Custom Templates
 
 If you'd prefer to make your own templates for listing comments - go right ahead! You can either use the `craft.comments.fetch()` tag to completely write your own, or override the default templates for the single-line `craft.comments.render()` tag.
 
