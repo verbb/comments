@@ -19,6 +19,16 @@ class CommentsField extends BaseField
     // Public Methods
     // =========================================================================
 
+    public function __construct($config = [])
+    {
+        // Hidden by default - better way?
+        if (!isset($config['label'])) {
+            $config['label'] = '__blank__';
+        }
+
+        parent::__construct($config);
+    }
+
     public function attribute(): string
     {
         return 'comment';
@@ -49,7 +59,7 @@ class CommentsField extends BaseField
             return Html::encode(Craft::t('comments', $this->label));
         }
 
-        return '__blank__';
+        return Craft::t('comments', 'Comment');
     }
 
     public function instructions()
