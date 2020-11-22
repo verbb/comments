@@ -19,7 +19,7 @@ The above would produce a form similar to the below.
 
 ![Comments Default Templating](/docs/screenshots/comments-default-templating.png)
 
-You can roll-your-own templates using [Custom Templates](docs:template-guides/custom-templates).
+You can roll-your-own templates, or even override template partials using [Custom Templates](docs:template-guides/custom-templates).
 
 ## Default Templates
 
