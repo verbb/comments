@@ -28,7 +28,7 @@
         <div data-role="replies">
             {% if comment.children | length %}
                 {% for nestedComment in comment.children %}
-                    {{ commentsInclude('comment', { comment: nestedComment }) }}
+                    {{ commentsInclude('_includes/comment', { comment: nestedComment }) }}
                 {% endfor %}
             {% endif %}
         </div>

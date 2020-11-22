@@ -159,7 +159,7 @@ class CommentsService extends Component
             return;
         }
 
-        $templatePath = $this->getComponentTemplatePath('comment');
+        $templatePath = $this->getComponentTemplatePath('_includes/comment');
         $view->setTemplatesPath($templatePath);
 
         // Prepare variables to pass to templates - important to include route params
@@ -171,7 +171,7 @@ class CommentsService extends Component
         ]);
 
         // Build our complete form
-        $formHtml = $view->renderTemplate('comment', $variables);
+        $formHtml = $view->renderTemplate('_includes/comment', $variables);
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 
