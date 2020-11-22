@@ -1,6 +1,10 @@
 # Changelog
 
+## 1.7.0 - 2020-11-22
+
 > {warning} If you are using any custom fields, you will need to re-order your fields. The comment textarea field is now content-managed, but added to the top of your form, instead of the bottom as is currently the case. Simply re-order your form fields in Settings > Comments Form after the update.
+
+> {tip} If you are using custom templates, consider reading the new [Custom Templates](https://verbb.io/craft-plugins/comments/docs/template-guides/custom-templates) documentation. There are no breaking changes in this release, but you may find the new method of overriding template partials much less heavy-handed and modular to implement. You might be able to clean up your templates a little!
 
 ### Added
 - The comment form now makes use of Craft's 3.5+ field layout designer.
