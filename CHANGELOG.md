@@ -35,7 +35,7 @@
 - Ensure comments form is properly reset after submission (JS).
 
 ### Deprecated
-- The `showCustomFields` id deprecated, as it no longer had any effect.
+- The `showCustomFields` is deprecated, as it no longer had any effect.
 
 ## 1.6.6 - 2020-08-14
 
