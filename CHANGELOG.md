@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1 - 2020-11-23
+
+### Fixed
+- Fix field layout for comments not getting created correctly for new installs.
+
 ## 1.7.0 - 2020-11-22
 
 > {warning} If you are using any custom fields, you will need to re-order your fields. The comment textarea field is now content-managed, but added to the top of your form, instead of the bottom as is currently the case. Simply re-order your form fields in Settings > Comments Form after the update.
