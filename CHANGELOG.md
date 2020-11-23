@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.2.1 - 2020-11-24
+
+### Fixed
+- **Really** fix an issue where the field layout may not exist.
+
 ## 1.7.2 - 2020-11-24
 
 ### Fixed
