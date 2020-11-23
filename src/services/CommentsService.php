@@ -706,15 +706,6 @@ class CommentsService extends Component
         Craft::$app->getFields()->deleteLayoutsByType(Comment::class);
     }
 
-    public function saveFieldLayout()
-    {
-        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
-
-        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
-
-        Craft::$app->getProjectConfig()->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
-    }
-
     public function getComponentTemplatePath(string $component): string
     {
         $settings = Comments::$plugin->getSettings();

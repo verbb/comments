@@ -77,7 +77,6 @@ class Comments extends Plugin
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
         $this->_registerGraphQl();
-        $this->_registerCraftEventListeners();
         $this->_defineFieldLayoutElements();
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
@@ -273,17 +272,6 @@ class Comments extends Plugin
                 $event->queries[$key] = $value;
             }
         });
-    }
-
-    private function _registerCraftEventListeners()
-    {
-        if (Craft::$app->getRequest()->getIsCpRequest()) {
-            Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
-                if ($event->plugin === $this) {
-                    $this->getComments()->saveFieldLayout();
-                }
-            });
-        }
     }
 
     private function _registerProjectConfigEventListeners()
