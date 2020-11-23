@@ -10,7 +10,7 @@ use craft\records\FieldLayout;
 
 use yii\db\Expression;
 
-class m201124_000000_ensure_field_layout extends Migration
+class m201124_100000_ensure_field_layout extends Migration
 {
     public function safeUp()
     {
@@ -27,7 +27,7 @@ class m201124_000000_ensure_field_layout extends Migration
 
     public function safeDown()
     {
-        echo "m201124_000000_ensure_field_layout cannot be reverted.\n";
+        echo "m201124_100000_ensure_field_layout cannot be reverted.\n";
 
         return false;
     }
