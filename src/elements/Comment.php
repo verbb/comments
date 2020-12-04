@@ -298,17 +298,10 @@ class Comment extends Element
 
     public function getSupportedSites(): array
     {
-        if (($owner = $this->getOwner())) {
-            $siteIds = [];
+        // Only support the site the comment is being made on
+        $siteId = $this->siteId ?: Craft::$app->getSites()->getPrimarySite()->id;
 
-            foreach (ElementHelper::supportedSitesForElement($owner) as $siteInfo) {
-                $siteIds[] = $siteInfo['siteId'];
-            }
-
-            return $siteIds;
-        }
-
-        return [Craft::$app->getSites()->getPrimarySite()->id];
+        return [$siteId];
     }
 
     public function getCpEditUrl()
