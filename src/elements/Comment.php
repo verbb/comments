@@ -30,6 +30,8 @@ use craft\validators\SiteIdValidator;
 use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
+use Exception;
+
 class Comment extends Element
 {
     // Constants
