@@ -308,6 +308,10 @@ class Comments extends Plugin
 
     private function _checkDeprecations()
     {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            return;
+        }
+
         $settings = $this->getSettings();
 
         // Check for renamed settings
