@@ -4,6 +4,7 @@ namespace verbb\comments\gql\resolvers;
 use verbb\comments\elements\Comment;
 
 use craft\gql\base\ElementResolver;
+use craft\helpers\Gql as GqlHelper;
 
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -26,6 +27,12 @@ class CommentResolver extends ElementResolver
 
         foreach ($arguments as $key => $value) {
             $query->$key($value);
+        }
+
+        $canQueryComments = (bool)isset(GqlHelper::extractAllowedEntitiesFromSchema()['comments']);
+
+        if (!$canQueryComments) {
+            return [];
         }
 
         return $query;
