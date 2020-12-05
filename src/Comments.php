@@ -21,8 +21,8 @@ use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterEmailMessagesEvent;
-use craft\events\RegisterGqlPermissionsEvent;
 use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -274,13 +274,12 @@ class Comments extends Plugin
             }
         });
 
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
-            $permissions = [];
-
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
             $label = Craft::t('comments', 'Comments');
-            $permissions[$label]['comments:read'] = ['label' => Craft::t('comments', 'View comments')];
 
-            $event->permissions = array_merge($event->permissions, $permissions);
+            $event->queries[$label] = [
+                'comments:read' => ['label' => Craft::t('comments', 'View comments')],
+            ];
         });
     }
 
