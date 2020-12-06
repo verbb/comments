@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.3 - 2020-12-07
+
+### Changed
+- Comment queries via GraphQL are now no longer automatically included in the public schema.
+- Update comments to only support being saved in a single site.
+
+### Fixed
+- Fix potential error thrown during migrations run via console commands.
+- Fix error when a reply failed on a multi-site.
+
 ## 1.7.2.1 - 2020-11-24
 
 ### Fixed
