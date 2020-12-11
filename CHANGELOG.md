@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.4 - 2020-12-11
+
+### Fixed
+- Ensure a field layout for comments is created when plugin settings are save in the control panel.
+- Fix error when trying to check avatar existance on non-local volumes.
+- Fix pending status icon when “Use shapes to represent statuses” was set to true.
+
 ## 1.7.3 - 2020-12-07
 
 ### Changed
