@@ -16,6 +16,7 @@ use verbb\comments\variables\CommentsVariableBehavior;
 
 use Craft;
 use craft\base\Plugin;
+use craft\db\Table;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
@@ -26,6 +27,7 @@ use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Structure;
@@ -78,6 +80,7 @@ class Comments extends Plugin
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
         $this->_registerGraphQl();
+        $this->_registerCraftEventListeners();
         $this->_defineFieldLayoutElements();
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
@@ -258,6 +261,22 @@ class Comments extends Plugin
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Comment::class;
         });
+    }
+
+    private function _registerCraftEventListeners()
+    {
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
+                if ($event->plugin === $this) {
+                    $fieldLayout = Craft::$app->getFields()->getLayoutByType(Comment::class);
+
+                    // Ensure the field layout is created, if not.
+                    if ($fieldLayout && !$fieldLayout->id) {
+                        Db::insert(Table::FIELDLAYOUTS, ['type' => Comment::class]);
+                    }
+                }
+            });
+        }
     }
 
     private function _registerGraphQl()
