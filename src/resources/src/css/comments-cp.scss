@@ -14,11 +14,6 @@
     border-color: transparent !important;
 }
 
-.status.pending {
-    background-color: #F2842D;
-    border-color: transparent !important;
-}
-
 .status.spam {
     background-color: #0F7CCC;
     border-color: transparent !important;
@@ -27,7 +22,12 @@
 .status.trashed {
     background-color: #D0021B;
     border-color: transparent !important;
+
+    body.use-shapes & {
+        border-radius: 1px;
+    }
 }
+
 
 .elements .element[data-type="verbb\\comments\\elements\\Comment"] {
     display: none;
