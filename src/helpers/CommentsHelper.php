@@ -73,10 +73,6 @@ class CommentsHelper
 
     private static function _assetExists($asset)
     {
-        $volumePath = $asset->getVolume()->settings['path'];
-        $path = Craft::parseEnv($volumePath . DIRECTORY_SEPARATOR . $asset->getPath());
-        $path = FileHelper::normalizePath($path);
-
-        return file_exists($path);
+        return $asset->getVolume()->fileExists($asset->getPath());
     }
 }
