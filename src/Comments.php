@@ -274,6 +274,8 @@ class Comments extends Plugin
                     if ($fieldLayout && !$fieldLayout->id) {
                         Db::insert(Table::FIELDLAYOUTS, ['type' => Comment::class]);
                     }
+
+                    $this->getComments()->saveFieldLayout();
                 }
             });
         }
