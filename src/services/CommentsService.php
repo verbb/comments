@@ -64,6 +64,7 @@ class CommentsService extends Component
         $settings = Comments::$plugin->getSettings();
         $view = Craft::$app->getView();
 
+        $oldTemplatesPath = $view->getTemplatesPath();
         $templatePath = $this->getComponentTemplatePath('comments');
         $view->setTemplatesPath($templatePath);
 
@@ -84,7 +85,7 @@ class CommentsService extends Component
             '); });', $view::POS_END);
         }
 
-        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+        $view->setTemplatesPath($oldTemplatesPath);
 
         return Template::raw($formHtml);
     }
