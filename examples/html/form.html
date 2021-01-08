@@ -1,6 +1,6 @@
 {% macro errorList(errors) %}
     {% if errors %}
-        <div class="cc-e">
+        <div data-role="errors" class="cc-e"></div>
             {% for error in errors %}
                 {{ error }}
             {% endfor %}

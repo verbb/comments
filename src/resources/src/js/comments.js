@@ -123,7 +123,7 @@ Comments.Base = Base.extend({
     },
 
     clearNotifications: function($element) {
-        var $elements = $element.querySelectorAll('.cc-e, [data-role="notice"], [data-role="errors"]');
+        var $elements = $element.querySelectorAll('[data-role="notice"], [data-role="errors"]');
 
         if ($elements) {
             Array.prototype.forEach.call($elements, function(el, i) {
@@ -613,7 +613,7 @@ Comments.EditForm = Comments.Base.extend({
 
         // Clear and update
         form.querySelector('[name="fields[comment]"]').innerHTML = this.commentText;
-        form.querySelector('.cc-f-btn').innerHTML = this.t('save');
+        form.querySelector('[type="submit"]').innerHTML = this.t('save');
 
         // Set the value to be the id of comment we're replying to
         (form.querySelector('input[name="commentId"]') || {}).value = this.comment.commentId;
