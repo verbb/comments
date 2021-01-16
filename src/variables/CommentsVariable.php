@@ -20,9 +20,9 @@ class CommentsVariable
         return Comments::$plugin->getComments()->fetch($criteria);
     }
 
-    public function render($elementId, $criteria = [])
+    public function render($elementId, $criteria = [], $jsSettings = [])
     {
-        return Comments::$plugin->getComments()->render($elementId, $criteria);
+        return Comments::$plugin->getComments()->render($elementId, $criteria, $jsSettings);
     }
 
     public function protect()

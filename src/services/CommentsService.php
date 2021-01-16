@@ -59,7 +59,7 @@ class CommentsService extends Component
         return $query;
     }
 
-    public function render($elementId, $criteria = [])
+    public function render($elementId, $criteria = [], $jsSettings = [])
     {
         $settings = Comments::$plugin->getSettings();
         $view = Craft::$app->getView();
@@ -71,7 +71,7 @@ class CommentsService extends Component
         $id = 'cc-w-' . $elementId;
 
         $variables = $this->getRenderVariables($id, $elementId, $criteria);
-        $jsVariables = $this->getRenderJsVariables($id, $elementId, $criteria);
+        $jsVariables = $this->getRenderJsVariables($id, $elementId, $criteria, $jsSettings);
 
         // Build our complete form
         $formHtml = $view->renderTemplate('comments', $variables);
@@ -122,7 +122,7 @@ class CommentsService extends Component
         ]);
     }
 
-    public function getRenderJsVariables($id, $elementId, $criteria = [])
+    public function getRenderJsVariables($id, $elementId, $criteria = [], $jsSettings = [])
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -132,7 +132,7 @@ class CommentsService extends Component
 
         $variables = $this->getRenderVariables($id, $elementId, $criteria);
 
-        $jsVariables = [
+        $jsVariables = array_merge([
             'baseUrl' => $actionUrl,
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
@@ -145,7 +145,7 @@ class CommentsService extends Component
                 'save' => Craft::t('comments', 'Save'),
                 'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
             ]
-        ];
+        ], $jsSettings);
 
         return array_merge($jsVariables, $variables);
     }
