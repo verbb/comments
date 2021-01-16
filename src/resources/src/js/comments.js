@@ -391,13 +391,27 @@ Comments.Comment = Comments.Base.extend({
 
         var data = this.serialize(e.target);
 
+        var trashAction = 'remove';
+
+        if (this.instance.settings.trashAction) {
+            trashAction = this.instance.settings.trashAction;
+        }
+
+        var $message = this.find(this.$element, '[data-role="wrap-content"] > [data-role="content"] > .cc-i-body > [data-role="message"]');
+
         if (confirm(this.t('delete-confirm')) == true) {
             this.ajax(Comments.baseUrl + 'trash', {
                 method: 'POST',
                 contentType: 'formData',
                 data: data,
                 success: function(xhr) {
-                    this.$element.parentNode.removeChild(this.$element);
+                    if (trashAction === 'remove') {
+                        this.$element.parentNode.removeChild(this.$element);
+                    } else if (trashAction === 'message' && $message) {
+                        $message.innerHTML = this.instance.settings.trashActionMessage;
+                    } else if (trashAction === 'refresh') {
+                        location.reload();
+                    }
                 }.bind(this),
                 error: function(errors) {
                     this.setNotifications('error', this.$element, errors);
