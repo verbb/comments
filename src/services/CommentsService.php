@@ -99,16 +99,16 @@ class CommentsService extends Component
 
         $element = Craft::$app->getElements()->getElementById($elementId);
 
-        $query = Comment::find();
-        $query->ownerId($elementId);
-        $query->level('1');
-        $query->orderBy('commentDate desc');
-        $query->with([
-            'owner',
-            'parent',
-            'user',
-            ['user.photo', ['withTransforms' => [['width' => 64, 'height' => 64, 'mode' => 'fit']]]],
-        ]);
+        $query = Comment::find()
+            ->ownerId($elementId)
+            ->level('1')
+            ->orderBy('commentDate desc')
+            ->with([
+                'owner',
+                'parent',
+                'user',
+                ['user.photo', ['withTransforms' => [['width' => 64, 'height' => 64, 'mode' => 'fit']]]],
+            ]);
 
         if ($criteria) {
             Craft::configure($query, $criteria);
