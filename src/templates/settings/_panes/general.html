@@ -54,7 +54,7 @@
 }) }}
 
 <div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
-    {% set groups = [{ label: "None" | t('comments'), value: '' }] %}
+    {% set groups = [{ label: 'None' | t('comments'), value: '' }] %}
     {% for group in craft.app.userGroups.getAllGroups() %}
         {% set groups = groups | merge([{ label: group.name, value: group.uid }]) %}
     {% endfor %}
@@ -74,15 +74,24 @@
 <hr>
 
 {{ forms.textField({
-    label: "Auto-close comments" | t('comments'),
+    label: 'Auto-close comments' | t('comments'),
     id: 'autoCloseDays',
     name: 'autoCloseDays',
-    instructions: "Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable." | t('comments'),
+    instructions: 'Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable.' | t('comments'),
     value: settings.autoCloseDays,
     warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}
 
-<a class="fieldtoggle" data-target="structure-info">{{ "Structure Info" | t('comments') }}</a>
+{{ forms.textField({
+    label: 'Maximum reply depth' | t('comments'),
+    id: 'maxReplyDepth',
+    name: 'maxReplyDepth',
+    instructions: 'Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.' | t('comments'),
+    value: settings.maxReplyDepth,
+    warning: macros.configWarning('maxReplyDepth', 'comments'),
+}) }}
+
+<a class="fieldtoggle" data-target="structure-info">{{ 'Structure Info' | t('comments') }}</a>
 
 <div id="structure-info" class="hidden">
     <p class="warning with-icon">{{ 'These values should not be altered manually. If for some reason they are empty, you can run the following commend to re-generate these values: <code>php craft comments/base/resave-structure</code>' | t('comments') | raw }}</p>

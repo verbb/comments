@@ -512,7 +512,20 @@ class Comment extends Element
 
     public function canReply()
     {
-        return (bool)Comments::$plugin->getSettings()->canComment($this->getOwner());
+        $settings = Comments::$plugin->getSettings();
+
+        $canReply = (bool)$settings->canComment($this->getOwner());
+
+        if ($canReply && is_numeric($settings->maxReplyDepth)) {
+            $maxReplyDepth = (int)$settings->maxReplyDepth;
+
+            // Check against plugin reply level settings
+            if (($this->level - 1) >= $settings->maxReplyDepth) {
+                $canReply = false;
+            }
+        }
+
+        return $canReply;
     }
 
     public function canEdit()

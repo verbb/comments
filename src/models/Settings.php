@@ -30,6 +30,7 @@ class Settings extends Model
     public $requireModeration = true;
     public $moderatorUserGroup;
     public $autoCloseDays = '';
+    public $maxReplyDepth;
 
     // Voting
     public $allowVoting = true;
