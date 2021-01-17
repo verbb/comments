@@ -517,18 +517,21 @@ class Comment extends Element
 
     public function getOwner()
     {
+        $renderCache = Comments::$plugin->getRenderCache();
+        $cacheKey = $this->ownerId;
+
         if ($this->_owner !== null) {
             return $this->_owner !== false ? $this->_owner : null;
         }
 
-        if ($this->ownerId === null) {
-            return null;
+        if ($cacheKey && $this->_owner = $renderCache->getElement($cacheKey)) {
+            return $this->_owner;
         }
 
-        if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
-            $this->_owner = false;
+        $this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
 
-            return null;
+        if ($this->_owner) {
+            $renderCache->addElement($cacheKey, $this->_owner);
         }
 
         return $this->_owner;

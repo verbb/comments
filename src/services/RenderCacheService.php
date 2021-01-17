@@ -14,6 +14,7 @@ class RenderCacheService extends Component
 
     public $avatars = [];
     public $comments = [];
+    public $elements = [];
 
 
     // Public Methods
@@ -37,6 +38,16 @@ class RenderCacheService extends Component
     public function addComment($key, $value)
     {
         $this->comments[$key] = $value;
+    }
+
+    public function getElement($key)
+    {
+        return $this->elements[$key] ?? null;
+    }
+
+    public function addElement($key, $value)
+    {
+        $this->elements[$key] = $value;
     }
 
 }
