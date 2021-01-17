@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\services\CommentsService;
 use verbb\comments\services\FlagsService;
 use verbb\comments\services\ProtectService;
+use verbb\comments\services\RenderCacheService;
 use verbb\comments\services\SecurityService;
 use verbb\comments\services\SubscribeService;
 use verbb\comments\services\VotesService;
@@ -42,6 +43,11 @@ trait PluginTrait
         return $this->get('protect');
     }
 
+    public function getRenderCache()
+    {
+        return $this->get('renderCache');
+    }
+
     public function getSecurity()
     {
         return $this->get('security');
@@ -77,6 +83,7 @@ trait PluginTrait
             'comments' => CommentsService::class,
             'flags' => FlagsService::class,
             'protect' => ProtectService::class,
+            'renderCache' => RenderCacheService::class,
             'security' => SecurityService::class,
             'subscribe' => SubscribeService::class,
             'votes' => VotesService::class,

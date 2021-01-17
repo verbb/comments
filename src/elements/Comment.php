@@ -474,7 +474,22 @@ class Comment extends Element
 
     public function getAvatar()
     {
-        return CommentsHelper::getAvatar($this->getAuthor());
+        $author = $this->getAuthor();
+
+        $renderCache = Comments::$plugin->getRenderCache();
+        $cacheKey = $author->id ?? '';
+
+        if ($cacheKey && $cachedAvatar = $renderCache->getAvatar($cacheKey)) {
+            return $cachedAvatar;
+        }
+
+        $avatar = CommentsHelper::getAvatar($author);
+
+        if ($avatar) {
+            $renderCache->addAvatar($cacheKey, $avatar);
+        }
+
+        return $avatar;
     }
 
     public function getOwner()
