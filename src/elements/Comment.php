@@ -500,7 +500,7 @@ class Comment extends Element
         $author = $this->getAuthor();
 
         $renderCache = Comments::$plugin->getRenderCache();
-        $cacheKey = $author->id ?? '';
+        $cacheKey = $author->id ?? $author->email ?? '';
 
         if ($cacheKey && $cachedAvatar = $renderCache->getAvatar($cacheKey)) {
             return $cachedAvatar;
