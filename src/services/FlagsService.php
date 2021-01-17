@@ -9,6 +9,8 @@ use verbb\comments\records\Flag as FlagRecord;
 
 use Craft;
 use craft\base\Component;
+use craft\base\MemoizableArray;
+use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
 class FlagsService extends Component
@@ -27,58 +29,66 @@ class FlagsService extends Component
 
     protected $sessionName = 'comments_flag';
 
-    private $_flagsById;
+    private $_flags;
 
 
     // Public Methods
     // =========================================================================
 
+    public function __serialize()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['_flags']);
+        return $vars;
+    }
+
+    public function getAllFlags(): array
+    {
+        return $this->_flags()->all();
+    }
+
     public function getFlagByCommentId(int $commentId)
     {
-        $result = $this->_createFlagsQuery()
-            ->where(['commentId' => $commentId])
-            ->one();
-
-        return $result ? new FlagModel($result) : null;
+        return $this->_flags()->firstWhere('commentId', $commentId);
     }
 
     public function getFlagByUser(int $commentId, $userId)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $query = $this->_createFlagsQuery()
-            ->where(['commentId' => $commentId]);
+        $flags = $this->getAllFlags();
+        $criteria = ['commentId' => $commentId];
 
         if ($userId) {
-            $query->andWhere(['userId' => $userId]);
+            $criteria['userId'] = $userId;
         } else {
-            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+            $criteria['sessionId'] = $this->_getSessionId();
         }
 
-        $result = $query->one();
+        if ($items = ArrayHelper::whereMultiple($flags, $criteria)) {
+            return reset($items);
+        }
 
-        return $result ? new FlagModel($result) : null;
+        return null;
     }
 
     public function getFlagsByCommentId(int $commentId)
     {
-        return $this->_createFlagsQuery()
-            ->where(['commentId' => $commentId])
-            ->count();
+        return count($this->_flags()->where('commentId', $commentId));
     }
 
     public function hasFlagged($comment, $user)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $query = $this->_createFlagsQuery()
-            ->where(['commentId' => $comment->id]);
+        $flags = $this->getAllFlags();
+        $criteria = ['commentId' => $comment->id];
 
         if ($user && $user->id) {
-            $query->andWhere(['userId' => $user->id]);
+            $criteria['userId'] = $user->id;
         } else {
-            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+            $criteria['sessionId'] = $this->_getSessionId();
         }
 
-        return $query->exists();
+        return (bool)ArrayHelper::whereMultiple($flags, $criteria);
     }
 
     public function isOverFlagThreshold($comment)
@@ -138,8 +148,8 @@ class FlagsService extends Component
             $flag->id = $flagRecord->id;
         }
 
-        // Might as well update our cache of the model while we have it.
-        $this->_flagsById[$flag->id] = $flag;
+        // Clear caches
+        $this->_flags = null;
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_FLAG)) {
             $this->trigger(self::EVENT_AFTER_SAVE_FLAG, new FlagEvent([
@@ -174,6 +184,9 @@ class FlagsService extends Component
             ->delete('{{%comments_flags}}', ['id' => $flag->id])
             ->execute();
 
+        // Clear caches
+        $this->_flags = null;
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_FLAG)) {
             $this->trigger(self::EVENT_AFTER_DELETE_FLAG, new FlagEvent([
                 'flag' => $flag,
@@ -191,6 +204,21 @@ class FlagsService extends Component
 
     // Private Methods
     // =========================================================================
+
+    private function _flags(): MemoizableArray
+    {
+        if ($this->_flags === null) {
+            $flags = [];
+
+            foreach ($this->_createFlagsQuery()->all() as $result) {
+                $flags[] = new FlagModel($result);
+            }
+
+            $this->_flags = new MemoizableArray($flags);
+        }
+
+        return $this->_flags;
+    }
 
     private function _getSessionId()
     {

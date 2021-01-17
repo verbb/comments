@@ -9,6 +9,8 @@ use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\Component;
+use craft\base\MemoizableArray;
+use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
 class VotesService extends Component
@@ -27,87 +29,99 @@ class VotesService extends Component
 
     protected $sessionName = 'comments_vote';
 
-    private $_votesById;
+    private $_votes;
 
 
     // Public Methods
     // =========================================================================
 
+    public function __serialize()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['_votes']);
+        return $vars;
+    }
+
+    public function getAllVotes(): array
+    {
+        return $this->_votes()->all();
+    }
+
     public function getVoteByCommentId(int $commentId)
     {
-        $result = $this->_createVotesQuery()
-            ->where(['commentId' => $commentId])
-            ->one();
-
-        return $result ? new VoteModel($result) : null;
+        return $this->_votes()->firstWhere('commentId', $commentId);
     }
 
     public function getVoteByUser(int $commentId, $userId)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $query = $this->_createVotesQuery()
-            ->where(['commentId' => $commentId]);
+        $votes = $this->getAllVotes();
+        $criteria = ['commentId' => $commentId];
 
         if ($userId) {
-            $query->andWhere(['userId' => $userId]);
+            $criteria['userId'] = $userId;
         } else {
-            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+            $criteria['sessionId'] = $this->_getSessionId();
         }
 
-        $result = $query->one();
+        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
+            return reset($items);
+        }
 
-        return $result ? new VoteModel($result) : null;
+        return null;
     }
 
     public function getVotesByCommentId(int $commentId)
     {
-        return $this->_createVotesQuery()
-            ->where(['commentId' => $commentId])
-            ->count();
+        return count($this->_votes()->where('commentId', $commentId));
     }
 
     public function getUpvotesByCommentId(int $commentId)
     {
-        return $this->_createVotesQuery()
-            ->where(['commentId' => $commentId, 'upvote' => '1'])
-            ->count();
+        return count(ArrayHelper::whereMultiple($this->_votes(), ['commentId' => $commentId, 'upvote' => '1']));
     }
 
     public function getDownvotesByCommentId(int $commentId)
     {
-        return $this->_createVotesQuery()
-            ->where(['commentId' => $commentId, 'downvote' => '1'])
-            ->count();
+        return count(ArrayHelper::whereMultiple($this->_votes(), ['commentId' => $commentId, 'downvote' => '1']));
     }
 
     public function hasDownVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $query = $this->_createVotesQuery()
-            ->where(['commentId' => $comment->id, 'downvote' => '1']);
+        $votes = $this->getAllVotes();
+        $criteria = ['commentId' => $comment->id, 'downvote' => '1'];
 
-        if ($user && $user->id) {
-            $query->andWhere(['userId' => $user->id]);
+        if ($userId) {
+            $criteria['userId'] = $user->id;
         } else {
-            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+            $criteria['sessionId'] = $this->_getSessionId();
         }
 
-        return $query->exists();
+        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
+            return (bool)reset($items);
+        }
+
+        return false;
     }
 
     public function hasUpVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $query = $this->_createVotesQuery()
-            ->where(['commentId' => $comment->id, 'upvote' => '1']);
+        $votes = $this->getAllVotes();
+        $criteria = ['commentId' => $comment->id, 'upvote' => '1'];
 
-        if ($user && $user->id) {
-            $query->andWhere(['userId' => $user->id]);
+        if ($userId) {
+            $criteria['userId'] = $user->id;
         } else {
-            $query->andWhere(['sessionId' => $this->_getSessionId()]);
+            $criteria['sessionId'] = $this->_getSessionId();
         }
 
-        return $query->exists();
+        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
+            return (bool)reset($items);
+        }
+
+        return false;
     }
 
     public function isOverDownvoteThreshold($comment)
@@ -158,8 +172,8 @@ class VotesService extends Component
             $vote->id = $voteRecord->id;
         }
 
-        // Might as well update our cache of the model while we have it.
-        $this->_votesById[$vote->id] = $vote;
+        // Clear caches
+        $this->_votes = null;
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_SAVE_VOTE, new VoteEvent([
@@ -194,6 +208,9 @@ class VotesService extends Component
             ->delete('{{%comments_votes}}', ['id' => $vote->id])
             ->execute();
 
+        // Clear caches
+        $this->_votes = null;
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_VOTE, new VoteEvent([
                 'vote' => $vote,
@@ -211,6 +228,21 @@ class VotesService extends Component
 
     // Private Methods
     // =========================================================================
+
+    private function _votes(): MemoizableArray
+    {
+        if ($this->_votes === null) {
+            $votes = [];
+
+            foreach ($this->_createVotesQuery()->all() as $result) {
+                $votes[] = new VoteModel($result);
+            }
+
+            $this->_votes = new MemoizableArray($votes);
+        }
+
+        return $this->_votes;
+    }
 
     private function _getSessionId()
     {
