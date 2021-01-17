@@ -646,7 +646,7 @@ Comments.EditForm = Comments.Base.extend({
     closeForm: function() {
         var $comment = this.$element.querySelector('[data-role="message"]');
         
-        $comment.innerHTML = this.commentText.replace(/\n/g, '<br>');
+        $comment.innerHTML = '<p>' + this.commentText.replace(/\n/g, '<br>') + '</p>';
 
         this.isOpen = false;
     },
