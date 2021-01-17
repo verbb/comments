@@ -84,7 +84,7 @@
                     commentDate: ['commentDate', { label: 'Date' | t('comments') }],
                 },
                 context: 'comments',
-                elements: comment.children.all(),
+                elements: comment.children.anyStatus().all(),
                 showCheckboxes: false,
                 structureEditable: false,
             } %}
