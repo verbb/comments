@@ -5,9 +5,10 @@ use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
-use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
+use verbb\comments\helpers\ProjectConfigData;
+use verbb\comments\integrations\CommentFeedMeElement;
 use verbb\comments\models\Settings;
 use verbb\comments\services\CommentsService;
 use verbb\comments\twigextensions\Extension;
@@ -44,6 +45,9 @@ use craft\web\twig\variables\CraftVariable;
 
 use yii\base\Event;
 use yii\web\User;
+
+use craft\feedme\events\RegisterFeedMeElementsEvent;
+use craft\feedme\services\Elements as FeedMeElements;
 
 class Comments extends Plugin
 {
@@ -84,6 +88,7 @@ class Comments extends Plugin
         $this->_defineFieldLayoutElements();
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
+        $this->_registerFeedMeSupport();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
@@ -369,6 +374,15 @@ class Comments extends Plugin
                 Craft::$app->getDeprecator()->log($old, "The {$setting} config setting has been removed.");
                 unset($settings[$setting]);
             }
+        }
+    }
+
+    private function _registerFeedMeSupport()
+    {
+        if (class_exists(FeedMeElements::class)) {
+            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $e) {
+                $e->elements[] = CommentFeedMeElement::class;
+            });
         }
     }
 

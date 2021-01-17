@@ -717,6 +717,14 @@
 		"plM": 3758088159,
 		"prP": 0
 		},
+	"/src/integrations/CommentFeedMeElement.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/integrations/CommentFeedMeElement.php",
+		"oF": 0
+		},
 	"/src/migrations": {
 		"ft": 65536,
 		"oA": 1,
