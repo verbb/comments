@@ -249,6 +249,16 @@ class Comment extends Element
     // Public Methods
     // =========================================================================
 
+    public function init()
+    {
+        parent::init();
+
+        if ($this->id) {
+            // Add this comment to a render cache, so when calling `parent` we can make use of it
+            Comments::$plugin->getRenderCache()->addComment($this->id, $this);
+        }
+    }
+
     public function extraFields()
     {
         $names = parent::extraFields();
@@ -348,6 +358,19 @@ class Comment extends Element
     public function getRawComment()
     {
         return $this->comment;
+    }
+
+    public function getParent()
+    {
+        // See if we've already processed the comment in our cache
+        $renderCache = Comments::$plugin->getRenderCache();
+        $cacheKey = $this->id ?? '';
+
+        if ($cacheKey && $cachedComment = $renderCache->getComment($cacheKey)) {
+            return $cachedComment;
+        }
+
+        return parent::getParent();
     }
 
     public function can($property)
