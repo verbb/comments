@@ -26,7 +26,7 @@
         <div data-role="notice" class="cc-n"></div>
 
         <div data-role="replies">
-            {% if comment.hasDescendants() %}
+            {% if comment.children | length %}
                 {% for nestedComment in comment.children %}
                     {{ commentsInclude('_includes/comment', { comment: nestedComment }) }}
                 {% endfor %}

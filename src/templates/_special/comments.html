@@ -7,19 +7,19 @@
 {# ------------------------ #}
 
 {# Include eager-loading here so we don't break backward compatibility with older custom templates #}
-{# using `descendants` will break all custom templates still calling `comment.children.all()` #}
+{# using `children` will break all custom templates still calling `comment.children.all()` #}
 {# Refactor this at the next major plugin breakpoint #}
 {# Also - there MUST be a better way to eager-load many nested children at once rather than this monstrosity #}
 {% set eagerLoadMap = commentsQuery.with | merge([
-    'descendants',
-    'descendants.descendants',
-    'descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants.descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants.descendants.descendants.descendants.descendants',
-    'descendants.descendants.descendants.descendants.descendants.descendants.descendants.descendants.descendants',
+    'children',
+    'children.children',
+    'children.children.children',
+    'children.children.children.children',
+    'children.children.children.children.children',
+    'children.children.children.children.children.children',
+    'children.children.children.children.children.children.children',
+    'children.children.children.children.children.children.children.children',
+    'children.children.children.children.children.children.children.children.children',
 ]) %}
 
 <div id="{{ id }}" class="cc-w{% if not settings.showAvatar %} no-avatar{% endif %}">
