@@ -1,5 +1,46 @@
 # Changelog
 
+## 1.8.0 - 2021-01-18
+
+### Added
+- Add Gravatar support to automatically fetch commenter avatars.
+- Add comments widget to show summary of comments in the Dashboard.
+- Add `votes` param to `orderBy` comment queries, allowing you to order comments by their total number of votes.
+- Add `isFlagged` comment query param.
+- Add `maxUserComments` plugin setting to control the maximum number of comments each user can add, for each owner element.
+- Add `securityMatchExact` plugin setting to allow security keywords to be exact word matches.
+- Add `notificationAdmins` plugin setting, allowing you to add emails for administrators to get email notifications on every comment.
+- Add `templateEmail` plugin setting to provide your own template for email notifications.
+- Add `maxReplyDepth` plugin setting to control how many levels of replies a comment can have - even disable replies altogether.
+- Add `notificationAdmin` to provide a collection of emails for certainly admin-centric notifications.
+- Add `notificationAdminEnabled` to notify nominated admins whenever a comment is made.
+- Add `notificationFlaggedEnabled` to notify nominated admins whenever a comment is flagged.
+- Add “Votes” column to comment index in control panel.
+- Add “Flagged” column to comment index in control panel.
+- Add native Feed Me support.
+- Add custom field support for Feed Me importing.
+- Add `commentsSiteInclude()` Twig function to allow template include resolution to site templates.
+- Add `jsSettings` optional parameter to `craft.comments.render()` to supply JS with extra settings.
+- Add `trashAction` and `trashActionMessage` to JS render variables.
+- Add comment caching for parent comments.
+- Add caching for avatars, to prevent fetching the same avatar multiple times.
+
+### Changed
+- Improved database query performance, lowering average queries by 30%.
+- Replace class selectors with attributes for javascript. (thanks @jsunsawyer).
+- Comments now requires Craft 3.5.8+.
+- Memoize flags and votes for performance.
+
+### Fixed
+- Fix eager-loading comments more than 2 levels deep.
+- Fix comment replies not appearing in the control panel when editing a comment, if the replies were trashed.
+- Fix guest avatars not caching correctly for comment elements.
+- Fix comment owner not being cached properly for comment elements.
+- Fix missing `<p>` tags when editing a comment and closing a comment on the front-end.
+
+### Removed
+- Removed `showCustomFields` config setting.
+
 ## 1.7.5 - 2020-12-12
 
 ### Fixed
