@@ -1,0 +1,59 @@
+{% import '_includes/forms' as forms %}
+
+{{ forms.textField({
+    label: 'Heading' | t('comments'),
+    name: 'heading',
+    value: widget.heading,
+    errors: widget.getErrors('heading'),
+}) }}
+
+{{ forms.textField({
+    label: 'Sub-Heading' | t('comments'),
+    name: 'subheading',
+    value: widget.subheading,
+    errors: widget.getErrors('subheading'),
+}) }}
+
+{{ forms.textField({
+    label: 'Limit' | t('comments'),
+    name: 'limit',
+    value: widget.limit,
+    size: 2,
+    errors: widget.getErrors('limit'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Show Flagged Comments' | t('comments'),
+    name: 'showFlagged',
+    on: widget.showFlagged,
+    errors: widget.getErrors('showFlagged'),
+}) }}
+
+{{ forms.selectField({
+    label: 'Status' | t('comments'),
+    instructions: 'Show comments for certain status.' | t('comments'),
+    name: 'status',
+    value: widget.status,
+    options: [
+        {
+            label: 'All' | t('comments'),
+            value: ''
+        },
+        {
+            label: 'Approved' | t('comments'),
+            value: 'approved'
+        },
+        {
+            label: 'Pending' | t('comments'),
+            value: 'pending'
+        },
+        {
+            label: 'Spam' | t('comments'),
+            value: 'spam'
+        },
+        {
+            label: 'Trashed' | t('comments'),
+            value: 'trashed'
+        },
+    ],
+}) }}

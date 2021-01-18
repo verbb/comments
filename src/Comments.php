@@ -14,6 +14,7 @@ use verbb\comments\services\CommentsService;
 use verbb\comments\twigextensions\Extension;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\variables\CommentsVariableBehavior;
+use verbb\comments\widgets\Comments as CommentsWidget;
 
 use Craft;
 use craft\base\Plugin;
@@ -33,6 +34,7 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Structure;
 use craft\records\StructureElement;
+use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gql;
@@ -89,6 +91,7 @@ class Comments extends Plugin
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
         $this->_registerFeedMeSupport();
+        $this->_registerWidgets();
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
@@ -394,6 +397,12 @@ class Comments extends Plugin
                 $e->elements[] = CommentFeedMeElement::class;
             });
         }
+    }
+    private function _registerWidgets()
+    {
+        Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = CommentsWidget::class;
+        });
     }
 
 }

@@ -41,42 +41,43 @@
     display: none;
 }
 
-.content-pane .elements .comment-block {
-    position: relative;
-    margin-left: 5px;
-}
-
-.content-pane .elements .comment-block .status {
-    position: absolute;
-    top: 5px;
-    left: 0;
-}
-
 .elements .tableview .toggle {
     top: 5px;
 }
 
-.content-pane .elements .comment-block a {
-    margin-left: 20px;
-    display: block;
+.comments-widget .comment-block,
+.content-pane .elements .comment-block {
+    position: relative;
+    margin-left: 5px;
 
-    small {
-        color: #aaa;
-        font-size: 85%;
+    .status {
+        position: absolute;
+        top: 5px;
+        left: 0;
+    }
+    
+    a {
+        margin-left: 20px;
         display: block;
-    }
 
-    &:hover {
-        text-decoration: none;
-    }
+        small {
+            color: #aaa;
+            font-size: 85%;
+            display: block;
+        }
 
-    &:hover small {
-        color: #666;
-        text-decoration: none;
-    }
+        &:hover {
+            text-decoration: none;
+        }
 
-    &:hover span {
-        text-decoration: underline;
+        &:hover small {
+            color: #666;
+            text-decoration: none;
+        }
+
+        &:hover span {
+            text-decoration: underline;
+        }
     }
 }
 
@@ -94,9 +95,6 @@
 }
 
 
-
-
-
 // ==========================================================================
 // Comments Settings
 // ==========================================================================
@@ -106,4 +104,17 @@
     max-width: 100% !important;
 }
 
+
+// ==========================================================================
+// Comments Widget
+// ==========================================================================
+
+.comments-widget .comment-block {
+    margin-left: 0;
+    margin-bottom: 10px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
 

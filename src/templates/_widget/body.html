@@ -1,0 +1,18 @@
+{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+
+<div class="comments-widget">
+    {% if comments | length %}
+        {% for comment in comments %}
+            <div class="comment-block">
+                <span class="status {{ comment.status }}"></span>
+
+                <a href="{{ comment.getCpEditUrl() }}">
+                    <span class="username">{{ comment.getOwner() }} - {{ comment.getAuthor() }}</span>
+                    <small>{{ comment.dateCreated | timestamp('short') }}: {{ comment.getExcerpt(0, 100) }}</small>
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{{ 'No comments.' | t('comments') }}</p>
+    {% endif %}
+</div>
