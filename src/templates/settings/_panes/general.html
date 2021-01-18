@@ -3,7 +3,7 @@
 
 {{ forms.lightswitchField({
     first: true,
-    label: 'Allow guest comments' | t('comments'),
+    label: 'Allow Guest Comments' | t('comments'),
     instructions: 'Guest users can post a comment.' | t('comments'),
     name: 'allowGuest',
     on: settings.allowGuest,
@@ -14,7 +14,7 @@
 
 <div id="allow-guest" style="margin-top: 24px;" {% if not settings.allowGuest %}class="hidden"{% endif %}>
     {{ forms.lightswitchField({
-        label: 'Show email and name for guests' | t('comments'),
+        label: 'Show Email and Name for Guests' | t('comments'),
         instructions: 'Guests are shown fields to enter their name and email. Only applicable for guest comments.' | t('comments'),
         name: 'guestShowEmailName',
         on: settings.guestShowEmailName,
@@ -23,7 +23,7 @@
     }) }}
 
     {{ forms.lightswitchField({
-        label: 'Require email and name for guests' | t('comments'),
+        label: 'Require Email and Name for Guests' | t('comments'),
         instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
         name: 'guestRequireEmailName',
         on: settings.guestRequireEmailName,
@@ -45,7 +45,7 @@
 <hr>
 
 {{ forms.lightswitchField({
-    label: 'Comments require moderation' | t('comments'),
+    label: 'Comments Require Moderation' | t('comments'),
     instructions: 'All comments require manual approval before being publicly visible.' | t('comments'),
     name: 'requireModeration',
     on: settings.requireModeration,
@@ -74,7 +74,7 @@
 <hr>
 
 {{ forms.textField({
-    label: 'Auto-close comments' | t('comments'),
+    label: 'Auto-close Comments' | t('comments'),
     id: 'autoCloseDays',
     name: 'autoCloseDays',
     instructions: 'Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable.' | t('comments'),
@@ -83,7 +83,7 @@
 }) }}
 
 {{ forms.textField({
-    label: 'Maximum reply depth' | t('comments'),
+    label: 'Maximum Reply Depth' | t('comments'),
     id: 'maxReplyDepth',
     name: 'maxReplyDepth',
     instructions: 'Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.' | t('comments'),
@@ -92,7 +92,7 @@
 }) }}
 
 {{ forms.textField({
-    label: 'Maximum comments per user' | t('comments'),
+    label: 'Maximum Comments per-user' | t('comments'),
     id: 'maxUserComments',
     name: 'maxUserComments',
     instructions: 'Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.' | t('comments'),

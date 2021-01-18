@@ -4,7 +4,7 @@
 <p>{{ 'The default templates are what is used when calling `craft.comments.render()`, and automatically outputs CSS and JS code in your templates. If you want full control over your templates, use [Custom Templates]({link}).' | t('comments', { link: url('comments/settings#tab-templates-custom') }) | md }}</p>
 
 {{ forms.lightswitchField({
-    label: 'Show avatar' | t('comments'),
+    label: 'Show Avatar' | t('comments'),
     instructions: 'Whether to show an avatar for comments. Craft users who comment will have their user profile image shown, while guests will show a placeholder (be sure to add one below).' | t('comments'),
     name: 'showAvatar',
     on: settings.showAvatar,
@@ -12,7 +12,7 @@
 }) }}
 
 {{ forms.elementSelectField({
-    label: 'Placeholder avatar' | t('comments'),
+    label: 'Placeholder Avatar' | t('comments'),
     instructions: 'When "Show avatar" is turned on, and a guest is making a comment, show this as their avatar.' | t('comments'),
     id: 'placeholderAvatar',
     name: 'placeholderAvatar',
@@ -33,7 +33,7 @@
 }) }}
 
 {{ forms.lightswitchField({
-    label: 'Show time ago' | t('comments'),
+    label: 'Show Time Ago' | t('comments'),
     instructions: 'Whether to show how long ago a comment was made.' | t('comments'),
     name: 'showTimeAgo',
     on: settings.showTimeAgo,
@@ -47,7 +47,7 @@
 <p><strong class="warning">{{ 'Warning' | t('comments') }}: </strong>{{ 'If disabling any of these options, you\'ll need to supply your own CSS or JS in order for the form and comments functionality to look and work correctly.' | t('comments') }}</p>
 
 {{ forms.lightswitchField({
-    label: 'Output default CSS' | t('comments'),
+    label: 'Output Default CSS' | t('comments'),
     instructions: 'Whether to output the default CSS for the form.' | t('comments'),
     name: 'outputDefaultCss',
     on: settings.outputDefaultCss,
@@ -55,7 +55,7 @@
 }) }}
 
 {{ forms.lightswitchField({
-    label: 'Output default JS' | t('comments'),
+    label: 'Output Default JS' | t('comments'),
     instructions: 'Whether to output the default JS for the form.' | t('comments'),
     name: 'outputDefaultJs',
     on: settings.outputDefaultJs,

@@ -32,8 +32,8 @@
 <hr>
 
 {{ forms.lightswitchField({
-    label: 'Enable additional spam checks' | t('comments'),
-    instructions: 'Whether to enable spam checks for comments. Enabled by default, but you may have cases where you wish to turn this off.' | t('comments'),
+    label: 'Enable Spam Checks' | t('comments'),
+    instructions: 'Whether to enable spam checks for comments.' | t('comments'),
     name: 'enableSpamChecks',
     on: settings.enableSpamChecks,
     warning: macros.configWarning('enableSpamChecks', 'comments'),
@@ -42,7 +42,7 @@
 <hr>
 
 {{ forms.textField({
-    label: 'Maximum comment length' | t('comments'),
+    label: 'Maximum Comment Length' | t('comments'),
     instructions: 'Limit the number of characters a comment can have.' | t('comments'),
     name: 'securityMaxLength',
     value: settings.securityMaxLength,
@@ -52,7 +52,7 @@
 <hr>
 
 {{ forms.textField({
-    label: 'Minimum time between comments' | t('comments'),
+    label: 'Minimum Time Between Comments' | t('comments'),
     instructions: 'The number of seconds between commenting. Helps to prevent comment flooding.' | t('comments'),
     name: 'securityFlooding',
     value: settings.securityFlooding,
@@ -62,7 +62,7 @@
 <hr>
 
 {{ forms.textareaField({
-    label: "Comment Moderation" | t('comments'),
+    label: 'Moderated Keywords' | t('comments'),
     name: 'securityModeration',
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
@@ -71,7 +71,7 @@
 }) }}
 
 {{ forms.textareaField({
-    label: "Comment Spamlist" | t('comments'),
+    label: 'Spam Keywords' | t('comments'),
     name: 'securitySpamlist',
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,
@@ -80,7 +80,7 @@
 }) }}
 
 {{ forms.textareaField({
-    label: "Comment Banned" | t('comments'),
+    label: 'Banned Keywords' | t('comments'),
     name: 'securityBanned',
     instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
     rows: 10,

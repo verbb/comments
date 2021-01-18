@@ -3,7 +3,7 @@
 
 {{ forms.lightswitchField({
     first: true,
-    label: 'Enable flagging' | t('comments'),
+    label: 'Enable Flagging' | t('comments'),
     instructions: 'Allow your users to flag a comment as inappropriate, spam, or any other reason.' | t('comments'),
     name: 'allowFlagging',
     on: settings.allowFlagging,
@@ -11,7 +11,7 @@
 }) }}
 
 {{ forms.lightswitchField({
-    label: 'Enable guest flagging' | t('comments'),
+    label: 'Enable Guest Flagging' | t('comments'),
     instructions: 'Allow guest (guest) users to flag a comment as inappropriate, spam, or any other reason.' | t('comments'),
     name: 'allowGuestFlagging',
     on: settings.allowGuestFlagging,
@@ -19,7 +19,7 @@
 }) }}
 
 {{ forms.textField({
-    label: "Flagged comments threshold" | t('comments'),
+    label: 'Flagged Comments Threshold' | t('comments'),
     id: 'flaggedCommentLimit',
     name: 'flaggedCommentLimit',
     instructions: "Users can flag a comment as inappropriate. After the provided amount of flags are received for a comment, the 'isFlagged' property for the comment will be true. You can then decide how to handle a flagged comment." | t('comments'),
