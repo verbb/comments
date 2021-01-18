@@ -35,6 +35,7 @@ class CommentQuery extends ElementQuery
     public $ownerType;
     public $ownerSectionId;
     public $ownerSection;
+    public $isFlagged;
 
 
     // Public Methods
@@ -187,6 +188,12 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
+    public function isFlagged($value)
+    {
+        $this->isFlagged = $value;
+        return $this;
+    }
+
     protected function beforePrepare(): bool
     {
         $this->joinElementTable('comments_comments');
@@ -248,6 +255,10 @@ class CommentQuery extends ElementQuery
 
         if ($this->commentDate) {
             $this->subQuery->andWhere(Db::parseDateParam('comments_comments.commentDate', $this->commentDate));
+        }
+
+        if ($this->isFlagged) {
+            $this->subQuery->innerJoin('{{%comments_flags}} comments_flags', '[[comments_comments.id]] = [[comments_flags.commentId]]');
         }
 
         if ($this->ownerType) {

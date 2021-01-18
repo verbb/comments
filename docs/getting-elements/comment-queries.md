@@ -517,6 +517,28 @@ $comments = \verbb\comments\elements\Comment::find()
 
 
 
+### `isFlagged`
+
+Narrows the query results based on whether the comments have been flagged.
+
+::: code
+```twig
+{# Fetch comments that are flagged #}
+{% set comments = craft.comments.fetch()
+    .isFlagged(true)
+    .all() %}
+```
+
+```php
+// Fetch comments that are flagged
+$comments = \verbb\comments\elements\Comment::find()
+    ->isFlagged(true)
+    ->all();
+```
+:::
+
+
+
 ### `leaves`
 
 Narrows the query results based on whether the comments are “leaves” (comments with no descendants).
