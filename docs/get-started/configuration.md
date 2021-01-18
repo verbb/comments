@@ -20,6 +20,8 @@ return [
         'requireModeration' => true,
         'moderatorUserGroup',
         'autoCloseDays' => '',
+        'maxReplyDepth' => '',
+        'maxUserComments' => '',
 
         // Voting
         'allowVoting' => true,
@@ -47,7 +49,7 @@ return [
         'securityMaxLength' => '',
         'securityFlooding' => '',
         'securityModeration' => '',
-        'securityBlacklist' => '',
+        'securitySpamlist' => '',
         'securityBanned' => '',
         'recaptchaEnabled' => false,
         'recaptchaKey' => '',
@@ -67,7 +69,6 @@ return [
         'permissions' => [],
 
         // Custom Fields
-        'showCustomFields' => false,
         'showCustomFieldNames' => false,
         'showCustomFieldInstructions' => false,
     ]
@@ -88,6 +89,8 @@ return [
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
 - `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
+- `maxReplyDepth` - Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
+- `maxUserComments` - Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.
 
 - `allowVoting` - Whether to allow voting.
 - `allowGuestVoting` - Whether to allow guest voting.
@@ -124,7 +127,6 @@ return [
 - `notificationModeratorEnabled` - Users can subscribe to a specific thread of comments made on an element.
 - `notificationModeratorApprovedEnabled` - Whether to notify comment authors when their comment has been approved via moderation.
 
-- `showCustomFields` - Whether custom fields should be shown automatically. Please note that only basic fields have supported templates. Unsupported fields will render a plain text field.
 - `showCustomFieldNames` - Whether custom fields should show their field names as labels.
 - `showCustomFieldInstructions` - Whether custom fields should show their instruction text underneath labels.
 
