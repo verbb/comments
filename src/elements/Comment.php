@@ -1054,6 +1054,7 @@ class Comment extends Element
             'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
             'votes' => ['label' => Craft::t('comments', 'Votes')],
+            'flagged' => ['label' => Craft::t('comments', 'Flagged')],
         ];
     }
 
@@ -1076,6 +1077,7 @@ class Comment extends Element
             'email' => Craft::t('comments', 'Email'),
             'name' => Craft::t('comments', 'Name'),
             'votes' => Craft::t('comments', 'Votes'),
+            'flagged' => Craft::t('comments', 'Flagged'),
         ];
     }
 
@@ -1092,6 +1094,12 @@ class Comment extends Element
                 } else {
                     return Craft::t('comments', '[Deleted element]');
                 }
+            }
+            case 'votes': {
+                return $this->getVotes();
+            }
+            case 'flagged': {
+                return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
             }
             default: {
                 return parent::tableAttributeHtml($attribute);
