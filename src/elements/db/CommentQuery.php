@@ -4,6 +4,7 @@ namespace verbb\comments\elements\db;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
@@ -259,6 +260,12 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('ownerElements.sectionId', $this->ownerSectionId));
         }
 
+        if ($this->_orderByVotes()) {
+            $this->subQuery->leftJoin('{{%comments_votes}} comments_votes', '[[comments_comments.id]] = [[comments_votes.commentId]]');
+            $this->subQuery->addSelect(['comments_comments.id', '(IFNULL(SUM(comments_votes.upvote), 0) - IFNULL(SUM(comments_votes.downvote), 0)) votes']);
+            $this->subQuery->addGroupBy(['comments_comments.id', 'structureelements.structureId']);
+        }
+
         return parent::beforePrepare();
     }
 
@@ -284,5 +291,21 @@ class CommentQuery extends ElementQuery
             default:
                 return parent::statusCondition($status);
         }
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _orderByVotes()
+    {
+        if ($this->orderBy) {
+            if (is_string($this->orderBy)) {
+                return strstr($this->orderBy, 'votes');
+            } else if (is_array($this->orderBy)) {
+                return isset($this->orderBy['votes']);
+            }
+        }
+
+        return false;
     }
 }

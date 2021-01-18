@@ -648,7 +648,7 @@ $comments = \verbb\comments\elements\Comment::find()
 
 ### `orderBy`
 
-Determines the order that the comments should be returned in.
+Determines the order that the comments should be returned in. You can also use `votes` to order by the total number of votes.
 
 ::: code
 ```twig
