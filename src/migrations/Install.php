@@ -36,6 +36,8 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
+        $this->delete(FieldLayout::tableName(), ['type' => Comment::class]);
+
         return true;
     }
 
