@@ -1053,6 +1053,7 @@ class Comment extends Element
             'comment' => ['label' => Craft::t('comments', 'Comment')],
             'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
+            'votes' => ['label' => Craft::t('comments', 'Votes')],
         ];
     }
 
@@ -1074,6 +1075,7 @@ class Comment extends Element
             'ownerId' => Craft::t('comments', 'Element'),
             'email' => Craft::t('comments', 'Email'),
             'name' => Craft::t('comments', 'Name'),
+            'votes' => Craft::t('comments', 'Votes'),
         ];
     }
 
