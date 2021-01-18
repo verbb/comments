@@ -50,6 +50,17 @@ class CommentsHelper
     {
         $settings = Comments::$plugin->getSettings();
 
+        if ($settings->enableGravatar) {
+            try {
+                $gravatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=64&d=404';
+
+                // Try to fetch the gravatar. It'll throw an error if not found, so we fall back.
+                file_get_contents($gravatar);
+
+                return $gravatar;
+            } catch (\Throwable $e) {}
+        }
+
         if ($user) {
             if ($photo = $user->getPhoto()) {
                 if (self::_assetExists($photo)) {

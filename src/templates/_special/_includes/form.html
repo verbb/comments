@@ -15,7 +15,11 @@
                 {% set avatar = craft.comments.getAvatar() %}
 
                 {% if avatar %}
-                    <img src="{{ avatar.url({ width: 64, height: 64, mode: 'fit' }) }}" />
+                    {% if avatar is iterable %}
+                        <img src="{{ avatar.url({ width: 64, height: 64, mode: 'fit' }) }}" />
+                    {% else %}
+                        <img src="{{ avatar }}" />
+                    {% endif %}
                 {% else %}
                     <span class="cc-i-image-icon"></span>
                 {% endif %}

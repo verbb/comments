@@ -47,6 +47,7 @@ class Settings extends Model
     // Templates - Default
     public $showAvatar = true;
     public $placeholderAvatar;
+    public $enableGravatar = false;
     public $showTimeAgo = true;
     public $outputDefaultCss = true;
     public $outputDefaultJs = true;

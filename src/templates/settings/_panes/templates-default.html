@@ -9,28 +9,38 @@
     name: 'showAvatar',
     on: settings.showAvatar,
     warning: macros.configWarning('showAvatar', 'comments'),
+    toggle: 'avatar-fields',
 }) }}
 
-{{ forms.elementSelectField({
-    label: 'Placeholder Avatar' | t('comments'),
-    instructions: 'When "Show avatar" is turned on, and a guest is making a comment, show this as their avatar.' | t('comments'),
-    id: 'placeholderAvatar',
-    name: 'placeholderAvatar',
-    elements: [settings.getPlaceholderAvatar()],
-    elementType: 'craft\\elements\\Asset',
-    selectionLabel: 'Choose placeholder avatar' | t('comments'),
-    sources: '*',
-    criteria: {
-        kind: [],
-        enabledForSite: null,
-        siteId: null,
-    },
-    limit: 1,
-    jsClass: 'Craft.AssetSelectInput',
-    viewMode: 'large',
-    modalStorageKey: 'comments.placeholderAvatar',
-    warning: macros.configWarning('placeholderAvatar', 'comments'),
-}) }}
+<div id="avatar-fields" class="field {{ not settings.showAvatar ? 'hidden' }}">
+    {{ forms.elementSelectField({
+        label: 'Placeholder Avatar' | t('comments'),
+        instructions: 'If a guest is making a comment, this will be shown as their avatar.' | t('comments'),
+        id: 'placeholderAvatar',
+        name: 'placeholderAvatar',
+        elements: [settings.getPlaceholderAvatar()],
+        elementType: 'craft\\elements\\Asset',
+        selectionLabel: 'Choose placeholder avatar' | t('comments'),
+        sources: '*',
+        criteria: {
+            kind: [],
+            enabledForSite: null,
+            siteId: null,
+        },
+        limit: 1,
+        jsClass: 'Craft.AssetSelectInput',
+        modalStorageKey: 'comments.placeholderAvatar',
+        warning: macros.configWarning('placeholderAvatar', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Enable Gravatar Support' | t('comments'),
+        instructions: 'Whether to enable Gravatar support. We‘ll try and fetch the users‘ Gravatar, based on their email. If they don‘t have a Gravatar, their user profile or placeholder avatar will be used.' | t('comments'),
+        name: 'enableGravatar',
+        on: settings.enableGravatar,
+        warning: macros.configWarning('enableGravatar', 'comments'),
+    }) }}
+</div>
 
 {{ forms.lightswitchField({
     label: 'Show Time Ago' | t('comments'),
