@@ -979,6 +979,9 @@ class Comment extends Element
             if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
                 Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
             }
+
+            // Send admin notifications
+            Comments::$plugin->comments->sendAdminNotificationEmail($this);
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved

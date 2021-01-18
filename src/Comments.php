@@ -201,8 +201,8 @@ class Comments extends Plugin
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
             $event->permissions[Craft::t('comments', 'Comments')] = [
-                'commentsEdit' => ['label' => Craft::t('comments', 'Edit other users\' comments')],
-                'commentsTrash' => ['label' => Craft::t('comments', 'Trash other users\' comments')],
+                'commentsEdit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
+                'commentsTrash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
                 'commentsDelete' => ['label' => Craft::t('comments', 'Delete comments')],
             ];
         });
@@ -242,6 +242,11 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_moderator_approved_notification_comment_heading'),
                     'subject' => Craft::t('comments', 'comments_moderator_approved_notification_comment_subject'),
                     'body' => Craft::t('comments', 'comments_moderator_approved_notification_comment_body'),
+                ], [
+                    'key' => 'comments_admin_notification',
+                    'heading' => Craft::t('comments', 'comments_admin_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_admin_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_admin_notification_body'),
                 ]
             ]);
         });

@@ -8,8 +8,6 @@
     id: 'notificationAuthorEnabled',
     name: 'notificationAuthorEnabled',
     on: settings.notificationAuthorEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationAuthorEnabled', 'comments'),
 }) }}
 
@@ -19,8 +17,6 @@
     id: 'notificationReplyEnabled',
     name: 'notificationReplyEnabled',
     on: settings.notificationReplyEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationReplyEnabled', 'comments'),
 }) }}
 
@@ -34,8 +30,6 @@
     id: 'notificationSubscribeAuto',
     name: 'notificationSubscribeAuto',
     on: settings.notificationSubscribeAuto,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeAuto', 'comments'),
 }) }}
 
@@ -45,8 +39,6 @@
     id: 'notificationSubscribeDefault',
     name: 'notificationSubscribeDefault',
     on: settings.notificationSubscribeDefault,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeDefault', 'comments'),
 }) }}
 
@@ -56,8 +48,6 @@
     id: 'notificationSubscribeEnabled',
     name: 'notificationSubscribeEnabled',
     on: settings.notificationSubscribeEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeEnabled', 'comments'),
 }) }}
 
@@ -67,8 +57,6 @@
     id: 'notificationSubscribeCommentEnabled',
     name: 'notificationSubscribeCommentEnabled',
     on: settings.notificationSubscribeCommentEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationSubscribeCommentEnabled', 'comments'),
 }) }}
 
@@ -83,8 +71,6 @@
     id: 'notificationModeratorEnabled',
     name: 'notificationModeratorEnabled',
     on: settings.notificationModeratorEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationModeratorEnabled', 'comments'),
 }) }}
 
@@ -94,7 +80,30 @@
     id: 'notificationModeratorApprovedEnabled',
     name: 'notificationModeratorApprovedEnabled',
     on: settings.notificationModeratorApprovedEnabled,
-    onLabel: "Enable" | t('comments'),
-    offLabel: "Disable" | t('comments'),
     warning: macros.configWarning('notificationModeratorApprovedEnabled', 'comments'),
 }) }}
+
+<hr>
+
+<h3>{{ 'Administrators' | t('comments') }}</h3>
+
+{{ forms.editableTableField({
+    label: 'Admin Notifications' | t('comments'),
+    instructions: 'Enter the email address of any administrators to receive emails for any comment.' | t('comments'),
+    name: 'notificationAdmins',
+    id: 'notificationAdmins',
+    cols: {
+        email: {
+            type: 'singleline',
+            heading: 'Email Address' | t('comments'),
+        },
+        enabled: {
+            type: 'lightswitch',
+            heading: 'Enabled' | t('comments'),
+            thin: true,
+        },
+    },
+    rows: settings.notificationAdmins,
+    errors: settings.getErrors('notificationAdmins'),
+    warning: macros.configWarning('notificationAdmins', 'comments'),
+})|spaceless }}

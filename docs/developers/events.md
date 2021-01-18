@@ -227,3 +227,18 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_E
     $e->isValid = false;
 });
 ```
+
+### The `beforeSendAdminEmail` event
+
+Plugins can get notified before the admin's email is sent
+
+```php
+use verbb\comments\events\EmailEvent;
+use verbb\comments\services\CommentsService;
+use yii\base\Event;
+
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function(EmailEvent $e) {
+    // Prevent sending
+    $e->isValid = false;
+});
+```
