@@ -56,14 +56,15 @@ class Settings extends Model
 
     // Security
     public $enableSpamChecks = true;
-    public $recaptchaEnabled = false;
-    public $recaptchaKey;
-    public $recaptchaSecret;
     public $securityMaxLength;
     public $securityFlooding;
     public $securityModeration;
     public $securitySpamlist;
     public $securityBanned;
+    public $securityMatchExact = false;
+    public $recaptchaEnabled = false;
+    public $recaptchaKey;
+    public $recaptchaSecret;
 
     // Notifications
     public $notificationAuthorEnabled = true;

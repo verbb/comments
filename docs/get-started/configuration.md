@@ -51,6 +51,7 @@ return [
         'securityModeration' => '',
         'securitySpamlist' => '',
         'securityBanned' => '',
+        'securityMatchExact' => false,
         'recaptchaEnabled' => false,
         'recaptchaKey' => '',
         'recaptchaSecret' => '',
@@ -115,6 +116,7 @@ return [
 - `securityModeration` - A collection of words that if entered require comments to be moderated.
 - `securitySpamlist` - A collection of words that if entered mark comments as spam.
 - `securityBanned` - A collection of words that if entered mark comments as trashed.
+- `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (eg. ‘craft’ will not match ‘crafty’).
 - `recaptchaKey` - The required key for ReCAPTCHA.
 - `recaptchaSecret` - The required secret for ReCAPTCHA.
 

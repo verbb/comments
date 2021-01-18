@@ -64,7 +64,7 @@
 {{ forms.textareaField({
     label: 'Moderated Keywords' | t('comments'),
     name: 'securityModeration',
-    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securityModeration,
     warning: macros.configWarning('securityModeration', 'comments'),
@@ -73,7 +73,7 @@
 {{ forms.textareaField({
     label: 'Spam Keywords' | t('comments'),
     name: 'securitySpamlist',
-    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securitySpamlist,
     warning: macros.configWarning('securitySpamlist', 'comments'),
@@ -82,8 +82,16 @@
 {{ forms.textareaField({
     label: 'Banned Keywords' | t('comments'),
     name: 'securityBanned',
-    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. It will also match words within other words (eg. \'craft\' will match \'crafty\'). Case insensitive.' | t('comments'),
+    instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. Case insensitive.' | t('comments'),
     rows: 10,
     value: settings.securityBanned,
     warning: macros.configWarning('securityBanned', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Enable Exact Keyword Matching' | t('comments'),
+    instructions: 'Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (eg. ‘craft’ will not match ‘crafty’).' | t('comments'),
+    name: 'securityMatchExact',
+    on: settings.securityMatchExact,
+    warning: macros.configWarning('securityMatchExact', 'comments'),
 }) }}

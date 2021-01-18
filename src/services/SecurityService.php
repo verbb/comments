@@ -84,6 +84,8 @@ class SecurityService extends Component
 
     private function _findInElementContent($comment, $setting)
     {
+        $settings = Comments::$plugin->getSettings();
+
         if (!$setting) {
             return false;
         }
@@ -109,9 +111,17 @@ class SecurityService extends Component
             foreach ($values as $value) {
                 $value = trim($value);
 
-                if ($value && stristr($attr, $value)) {
-                    // Found a match - that's all folks!
-                    return true;
+                if ($value) {
+                    if ($settings->securityMatchExact) {
+                        if (preg_match('/\b' . $value . '\b/', $attr)) {
+                            return true;
+                        }
+                    } else {
+                        if (stristr($attr, $value)) {
+                            // Found a match - that's all folks!
+                            return true;
+                        }
+                    }
                 }
             }
         }
