@@ -91,6 +91,15 @@
     warning: macros.configWarning('maxReplyDepth', 'comments'),
 }) }}
 
+{{ forms.textField({
+    label: 'Maximum comments per user' | t('comments'),
+    id: 'maxUserComments',
+    name: 'maxUserComments',
+    instructions: 'Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.' | t('comments'),
+    value: settings.maxUserComments,
+    warning: macros.configWarning('maxUserComments', 'comments'),
+}) }}
+
 <a class="fieldtoggle" data-target="structure-info">{{ 'Structure Info' | t('comments') }}</a>
 
 <div id="structure-info" class="hidden">

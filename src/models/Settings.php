@@ -31,6 +31,7 @@ class Settings extends Model
     public $moderatorUserGroup;
     public $autoCloseDays = '';
     public $maxReplyDepth;
+    public $maxUserComments;
 
     // Voting
     public $allowVoting = true;
@@ -131,6 +132,15 @@ class Settings extends Model
 
         if (!$currentUser && !$settings->allowGuest) {
             return false;
+        }
+
+        if ($settings->maxUserComments && $currentUser) {
+            // Has the user already commented X amount of times on this element?
+            $count = Comment::find()->ownerId($element->id)->userId($currentUser->id)->count();
+
+            if ($count >= $settings->maxUserComments) {
+                return false;
+            }
         }
 
         return true;
