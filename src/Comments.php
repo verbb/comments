@@ -247,6 +247,11 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_admin_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_admin_notification_subject'),
                     'body' => Craft::t('comments', 'comments_admin_notification_body'),
+                ], [
+                    'key' => 'comments_flag_notification',
+                    'heading' => Craft::t('comments', 'comments_flag_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_flag_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_flag_notification_body'),
                 ]
             ]);
         });

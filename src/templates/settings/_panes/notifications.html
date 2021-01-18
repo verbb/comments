@@ -88,8 +88,8 @@
 <h3>{{ 'Administrators' | t('comments') }}</h3>
 
 {{ forms.editableTableField({
-    label: 'Admin Notifications' | t('comments'),
-    instructions: 'Enter the email address of any administrators to receive emails for any comment.' | t('comments'),
+    label: 'Comment Administrators' | t('comments'),
+    instructions: 'Enter the email address of any administrators, used for the below settings.' | t('comments'),
     name: 'notificationAdmins',
     id: 'notificationAdmins',
     cols: {
@@ -107,3 +107,21 @@
     errors: settings.getErrors('notificationAdmins'),
     warning: macros.configWarning('notificationAdmins', 'comments'),
 })|spaceless }}
+
+{{ forms.lightswitchField({
+    label: 'Enable Admin Notifications' | t('comments'),
+    instructions: 'Admins will receive an email whenever someone makes a comment on an element. Edit the content of this email through [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }),
+    id: 'notificationAdminEnabled',
+    name: 'notificationAdminEnabled',
+    on: settings.notificationAdminEnabled,
+    warning: macros.configWarning('notificationAdminEnabled', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Enable Flagged Notifications' | t('comments'),
+    instructions: 'Admins will receive an email whenever someone flags a comment. Edit the content of this email through [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }),
+    id: 'notificationFlaggedEnabled',
+    name: 'notificationFlaggedEnabled',
+    on: settings.notificationFlaggedEnabled,
+    warning: macros.configWarning('notificationFlaggedEnabled', 'comments'),
+}) }}

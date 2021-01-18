@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\models;
 
+use verbb\comments\elements\Comment;
 use verbb\comments\records\Subscribe as SubscribeRecord;
 
 use Craft;
@@ -30,6 +31,15 @@ class Subscribe extends Model
             [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to change your settings.')],
             [['ownerId'], 'required'],
         ];
+    }
+
+    public function getComment()
+    {
+        if ($this->commentId) {
+            return Comment::find()->id($this->commentId)->one();
+        }
+
+        return null;
     }
 
 }

@@ -981,7 +981,9 @@ class Comment extends Element
             }
 
             // Send admin notifications
-            Comments::$plugin->comments->sendAdminNotificationEmail($this);
+            if ($settings->notificationAdminEnabled) {
+                Comments::$plugin->comments->sendAdminNotificationEmail($this);
+            }
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved

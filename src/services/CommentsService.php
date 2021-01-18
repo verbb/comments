@@ -40,6 +40,7 @@ class CommentsService extends Component
     const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
     const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
     const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'beforeSendAdminEmail';
+    const EVENT_BEFORE_SEND_FLAG_EMAIL = 'beforeSendFlagEmail';
 
     const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
 
@@ -297,6 +298,61 @@ class CommentsService extends Component
                 Comments::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
             } catch (\Throwable $e) {
                 Comments::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
+            }
+        }
+    }
+
+    public function sendFlagNotificationEmail(Comment $comment)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        Comments::log('Prepare Flag Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            Comments::log('Cannot send flag notification: No element ' . json_encode($element));
+
+            return;
+        }
+
+        $notificationAdmins = ArrayHelper::where($settings->notificationAdmins, 'enabled');
+
+        if (!$notificationAdmins) {
+            Comments::log('Cannot send flag notification: No enabled admin emails.');
+
+            return;
+        }
+
+        foreach ($notificationAdmins as $notificationAdmin) {
+            try {
+                $mail = $this->_renderEmail('comments_flag_notification', [
+                        'element' => $element,
+                        'comment' => $comment,
+                    ])
+                    ->setTo($notificationAdmin['email']);
+
+                // Fire a 'beforeSendModeratorEmail' event
+                $event = new EmailEvent([
+                    'mail' => $mail,
+                    'user' => $notificationAdmin,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_SEND_FLAG_EMAIL, $event);
+
+                if (!$event->isValid) {
+                    Comments::log('Email blocked via event hook.');
+
+                    continue;
+                }
+
+                $mail->send();
+
+                Comments::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
+            } catch (\Throwable $e) {
+                Comments::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
     }

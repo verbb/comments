@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\models;
 
+use verbb\comments\elements\Comment;
 use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
@@ -44,6 +45,15 @@ class Vote extends Model
                 'message' => Craft::t('comments', 'You can only vote on a comment once.')
             ]
         ];
+    }
+
+    public function getComment()
+    {
+        if ($this->commentId) {
+            return Comment::find()->id($this->commentId)->one();
+        }
+
+        return null;
     }
     
 }

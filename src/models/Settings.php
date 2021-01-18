@@ -77,6 +77,8 @@ class Settings extends Model
     public $notificationModeratorEnabled = false;
     public $notificationModeratorApprovedEnabled = false;
     public $notificationAdmins = [];
+    public $notificationAdminEnabled = false;
+    public $notificationFlaggedEnabled = false;
 
     // Permissions
     public $permissions;

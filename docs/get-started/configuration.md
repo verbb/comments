@@ -66,6 +66,9 @@ return [
         'notificationSubscribeCommentEnabled' => false,
         'notificationModeratorEnabled' => false,
         'notificationModeratorApprovedEnabled' => false,
+        'notificationAdmins' => [],
+        'notificationAdminEnabled' => false,
+        'notificationFlaggedEnabled' => false,
 
         // Permissions
         'permissions' => [],
@@ -130,6 +133,9 @@ return [
 - `notificationSubscribeCommentEnabled` - Whether to notify comment authors when a reply is made.
 - `notificationModeratorEnabled` - Users can subscribe to a specific thread of comments made on an element.
 - `notificationModeratorApprovedEnabled` - Whether to notify comment authors when their comment has been approved via moderation.
+- `notificationAdmins` - Enter the email address of any administrators, used for the below settings.
+- `notificationAdminEnabled` - Admins will receive an email whenever someone makes a comment.
+- `notificationFlaggedEnabled` - Users receive an email when someone replies to their comment.
 
 - `showCustomFieldNames` - Whether custom fields should show their field names as labels.
 - `showCustomFieldInstructions` - Whether custom fields should show their instruction text underneath labels.

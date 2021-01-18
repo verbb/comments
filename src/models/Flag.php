@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\models;
 
+use verbb\comments\elements\Comment;
 use verbb\comments\records\Flag as FlagRecord;
 
 use Craft;
@@ -28,6 +29,15 @@ class Flag extends Model
             [['id'], 'number', 'integerOnly' => true],
             [['commentId'], 'required'],
         ];
+    }
+
+    public function getComment()
+    {
+        if ($this->commentId) {
+            return Comment::find()->id($this->commentId)->one();
+        }
+
+        return null;
     }
 
 }

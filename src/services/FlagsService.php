@@ -105,13 +105,21 @@ class FlagsService extends Component
 
     public function toggleFlag(FlagModel $flag, bool $runValidation = true): bool
     {
+        $settings = Comments::$plugin->getSettings();
+
         $isNewFlag = !$flag->id;
 
         if ($isNewFlag) {
-            return $this->saveFlag($flag, $runValidation);
+            $result = $this->saveFlag($flag, $runValidation);
+
+            if ($result && $settings->notificationFlaggedEnabled) {
+                Comments::$plugin->comments->sendFlagNotificationEmail($flag->getComment());
+            }
         } else {
-            return $this->deleteFlag($flag);
+            $result = $this->deleteFlag($flag);
         }
+
+        return $result;
     }
 
     public function saveFlag(FlagModel $flag, bool $runValidation = true): bool
