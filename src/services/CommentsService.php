@@ -13,6 +13,7 @@ use craft\db\Table;
 use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
+use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
@@ -25,6 +26,8 @@ use craft\models\Structure;
 use craft\web\View;
 
 use DateTime;
+
+use yii\helpers\Markdown;
 
 class CommentsService extends Component
 {
@@ -268,8 +271,7 @@ class CommentsService extends Component
 
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
-                $mail = Craft::$app->getMailer()
-                    ->composeFromKey('comments_admin_notification', [
+                $mail = $this->_renderEmail('comments_admin_notification', [
                         'element' => $element,
                         'comment' => $comment,
                     ])
@@ -345,8 +347,7 @@ class CommentsService extends Component
         }
 
         try {
-            $message = Craft::$app->getMailer()
-                ->composeFromKey('comments_author_notification', [
+            $message = $this->_renderEmail('comments_author_notification', [
                     'element' => $element,
                     'comment' => $comment,
                 ])
@@ -430,8 +431,7 @@ class CommentsService extends Component
         }
 
         try {
-            $message = Craft::$app->getMailer()
-                ->composeFromKey('comments_reply_notification', [
+            $message = $this->_renderEmail('comments_reply_notification', [
                     'element' => $element,
                     'comment' => $comment,
                 ])
@@ -494,8 +494,7 @@ class CommentsService extends Component
 
         foreach ($recipients as $key => $user) {
             try {
-                $mail = Craft::$app->getMailer()
-                    ->composeFromKey('comments_moderator_notification', [
+                $mail = $this->_renderEmail('comments_moderator_notification', [
                         'element' => $element,
                         'comment' => $comment,
                     ])
@@ -551,8 +550,7 @@ class CommentsService extends Component
         }
 
         try {
-            $message = Craft::$app->getMailer()
-                ->composeFromKey('comments_moderator_approved_notification', [
+            $message = $this->_renderEmail('comments_moderator_approved_notification', [
                     'element' => $element,
                     'comment' => $comment,
                 ])
@@ -583,17 +581,6 @@ class CommentsService extends Component
         } else {
             Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
         }
-    }
-
-    private function _getCommentAncestors($comments, $comment)
-    {
-        if ($comment->parent) {
-            $comments[] = $comment->parent;
-
-            return $this->_getCommentAncestors($comments, $comment->parent);
-        }
-
-        return $comments;
     }
 
     public function sendSubscribeNotificationEmail(Comment $comment)
@@ -668,8 +655,7 @@ class CommentsService extends Component
         		// Separate email keys for comment on comment vs comment on entry
         		$emailkey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
 
-        		$message = Craft::$app->getMailer()
-        		    ->composeFromKey($emailkey, [
+        		$message = $this->_renderEmail($emailkey, [
             			'element' => $element,
             			'comment' => $comment
         		    ])
@@ -823,6 +809,53 @@ class CommentsService extends Component
         }
 
         return true;
+    }
+
+    private function _getCommentAncestors($comments, $comment)
+    {
+        if ($comment->parent) {
+            $comments[] = $comment->parent;
+
+            return $this->_getCommentAncestors($comments, $comment->parent);
+        }
+
+        return $comments;
+    }
+
+    private function _renderEmail($key, $variables)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        $mailer = Craft::$app->getMailer();
+        $message = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
+
+        // Default to the current language
+        $language = Craft::$app->getRequest()->getIsSiteRequest() ? Craft::$app->language : Craft::$app->getSites()->getPrimarySite()->language;
+        $systemMessage = Craft::$app->getSystemMessages()->getMessage($key, $language);
+
+        $view = Craft::$app->getView();
+
+        $message->setSubject($view->renderString($systemMessage->subject, $variables, View::TEMPLATE_MODE_SITE));
+        $textBody = $view->renderString($systemMessage->body, $variables, View::TEMPLATE_MODE_SITE);
+
+        if ($settings->templateEmail) {
+            $template = $settings->templateEmail;
+            $templateMode = View::TEMPLATE_MODE_SITE;
+        } else {
+            // Default to the _special/email.html template
+            $template = '_special/email';
+            $templateMode = View::TEMPLATE_MODE_CP;
+        }
+
+        try {
+            $message->setHtmlBody($view->renderTemplate($template, array_merge($variables, [
+                'body' => Template::raw(Markdown::process($textBody)),
+            ]), $templateMode));
+        } catch (\Throwable $e) {
+            Comments::error('Error rendering email template: ' . $e->getMessage(), __METHOD__);
+        }
+
+        return $message;
     }
 
 }

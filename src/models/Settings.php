@@ -53,6 +53,7 @@ class Settings extends Model
 
     // Templates - Custom
     public $templateFolderOverride;
+    public $templateEmail;
 
     // Security
     public $enableSpamChecks = true;

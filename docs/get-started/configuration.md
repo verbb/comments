@@ -43,6 +43,7 @@ return [
 
         // Templates - Custom
         'templateFolderOverride' => '',
+        'templateEmail' => '',
 
         // Security
         'enableSpamChecks' => true,
@@ -109,6 +110,7 @@ return [
 - `outputDefaultJs` - Whether to output the default JS for the form.
 
 - `templateFolderOverride` - Provide a path to your own templates in the below folder.
+- `templateEmail` - The template Comments will use for HTML emails.
 
 - `enableSpamChecks` - Whether to enable spam checks for comments.
 - `securityMaxLength` - The maximum number of characters a single comment can have. 
