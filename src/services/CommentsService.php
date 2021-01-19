@@ -767,8 +767,6 @@ class CommentsService extends Component
         $fieldsService = Craft::$app->getFields();
 
         if (empty($data) || empty($config = reset($data))) {
-            // Delete the field layout
-            $fieldsService->deleteLayoutsByType(Comment::class);
             return;
         }
 
