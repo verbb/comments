@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.1 - 2021-01-19
+
+### Fixed
+- Fix comments’ field layout not being deleted when uninstalling the plugin.
+- Fix field layout for comments form being deleted incorrectly.
+
 ## 1.8.0 - 2021-01-18
 
 ### Added
