@@ -397,7 +397,7 @@ Comments.Comment = Comments.Base.extend({
             trashAction = this.instance.settings.trashAction;
         }
 
-        var $message = this.find(this.$element, '[data-role="wrap-content"] > [data-role="content"] > .cc-i-body > [data-role="message"]');
+        var $message = this.find(this.$element, '[data-role="wrap-content"] > [data-role="content"] > [data-role="body"] > [data-role="message"]');
 
         if (confirm(this.t('delete-confirm')) == true) {
             this.ajax(Comments.baseUrl + 'trash', {

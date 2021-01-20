@@ -5,7 +5,7 @@
         <div class="cc-i-content" data-role="content">
             {{ commentsInclude('_includes/header') }}
 
-            <div class="cc-i-body">
+            <div class="cc-i-body" data-role="body">
                 <div class="cc-i-comment" data-role="message" dir="auto" itemprop="commentText">
                     {% if comment.isFlagged() %}
                         <p>[{{ 'Comment marked as inappropriate' | t('comments') }}]</p>
