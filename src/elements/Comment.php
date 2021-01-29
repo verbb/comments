@@ -352,6 +352,9 @@ class Comment extends Element
             $comment = LitEmoji::unicodeToShortcode($comment);
         }
 
+        // Replace any 4-byte string that've been missed
+        $comment = preg_replace('%(?:\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})%xs', '', $comment);
+
         $this->comment = $comment;
     }
 
