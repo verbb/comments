@@ -9,6 +9,7 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\models\Section;
 
@@ -192,6 +193,30 @@ class CommentQuery extends ElementQuery
     {
         $this->isFlagged = $value;
         return $this;
+    }
+
+    public function populate($rows)
+    {
+        $results = parent::populate($rows);
+
+        // Store the comment IDs we're fetching, so we can use them later in render functions
+        // to limit DB queries to just this collection of comments (votes, flags.
+        // But - because we can't rely on getting child comments this way, do another query by the owner element
+        // so we can be sure we're fetching all the comments for the page.
+        $ownerId = $results[0]['ownerId'] ?? null;
+        $ownerSiteId = $results[0]['ownerSiteId'] ?? null;
+
+        if ($ownerId && $ownerSiteId) {
+            $commentIds = (new Query())
+                ->select('id')
+                ->from('{{%comments_comments}}')
+                ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId])
+                ->column();
+
+            Comments::$plugin->getRenderCache()->setCommentIds($commentIds);
+        }
+
+        return $results;
     }
 
     protected function beforePrepare(): bool

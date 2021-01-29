@@ -42,11 +42,6 @@ class VotesService extends Component
         return $vars;
     }
 
-    public function getAllVotes(): array
-    {
-        return $this->_votes()->all();
-    }
-
     public function getVoteByCommentId(int $commentId)
     {
         return $this->_votes()->firstWhere('commentId', $commentId);
@@ -55,7 +50,7 @@ class VotesService extends Component
     public function getVoteByUser(int $commentId, $userId)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->getAllVotes();
+        $votes = $this->_votes();
         $criteria = ['commentId' => $commentId];
 
         if ($userId) {
@@ -89,7 +84,7 @@ class VotesService extends Component
     public function hasDownVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->getAllVotes();
+        $votes = $this->_votes();
         $criteria = ['commentId' => $comment->id, 'downvote' => '1'];
 
         if ($userId) {
@@ -108,7 +103,7 @@ class VotesService extends Component
     public function hasUpVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->getAllVotes();
+        $votes = $this->_votes();
         $criteria = ['commentId' => $comment->id, 'upvote' => '1'];
 
         if ($userId) {
@@ -234,7 +229,15 @@ class VotesService extends Component
         if ($this->_votes === null) {
             $votes = [];
 
-            foreach ($this->_createVotesQuery()->all() as $result) {
+            $query = $this->_createVotesQuery();
+
+            // Check to see if we've set a collection of comments for rendering.
+            // We limit the votes to only the votes for these comments, rather than the entire table
+            if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
+                $query->where(['commentId' => $commentIds]);
+            }
+
+            foreach ($query->all() as $result) {
                 $votes[] = new VoteModel($result);
             }
 

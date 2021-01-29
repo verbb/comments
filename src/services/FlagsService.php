@@ -42,11 +42,6 @@ class FlagsService extends Component
         return $vars;
     }
 
-    public function getAllFlags(): array
-    {
-        return $this->_flags()->all();
-    }
-
     public function getFlagByCommentId(int $commentId)
     {
         return $this->_flags()->firstWhere('commentId', $commentId);
@@ -55,7 +50,7 @@ class FlagsService extends Component
     public function getFlagByUser(int $commentId, $userId)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->getAllFlags();
+        $flags = $this->_flags();
         $criteria = ['commentId' => $commentId];
 
         if ($userId) {
@@ -79,7 +74,7 @@ class FlagsService extends Component
     public function hasFlagged($comment, $user)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->getAllFlags();
+        $flags = $this->_flags();
         $criteria = ['commentId' => $comment->id];
 
         if ($user && $user->id) {
@@ -218,7 +213,15 @@ class FlagsService extends Component
         if ($this->_flags === null) {
             $flags = [];
 
-            foreach ($this->_createFlagsQuery()->all() as $result) {
+            $query = $this->_createFlagsQuery();
+
+            // Check to see if we've set a collection of comments for rendering.
+            // We limit the flags to only the flags for these comments, rather than the entire table
+            if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
+                $query->where(['commentId' => $commentIds]);
+            }
+
+            foreach ($query->all() as $result) {
                 $flags[] = new FlagModel($result);
             }
 
