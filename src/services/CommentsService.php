@@ -867,7 +867,7 @@ class CommentsService extends Component
 
     private function _getCommentAncestors($comments, $comment)
     {
-        if ($parent = $comment->getParent(false)) {
+        if ($parent = $comment->getParent()) {
             $comments[] = $parent;
 
             return $this->_getCommentAncestors($comments, $parent);

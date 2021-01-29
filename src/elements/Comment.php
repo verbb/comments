@@ -360,21 +360,6 @@ class Comment extends Element
         return $this->comment;
     }
 
-    public function getParent($withCache = true)
-    {
-        if ($withCache) {
-            // See if we've already processed the comment in our cache
-            $renderCache = Comments::$plugin->getRenderCache();
-            $cacheKey = $this->id ?? '';
-
-            if ($cacheKey && $cachedComment = $renderCache->getComment($cacheKey)) {
-                return $cachedComment;
-            }
-        }
-
-        return parent::getParent();
-    }
-
     public function can($property)
     {
         // See if there's a plugin setting for it
