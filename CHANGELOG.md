@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.8.2 - 2021-02-03
+
+### Changed
+- Update JS to not rely on `.cc-i-body` for message.
+- Improve Flag and Vote queries for large amount of comments/votes/flags.
+
+### Fixed
+- Fix a recursion error when trying to send subscribe email notifications.
+- Fix error with `comment.parent` not returning the correct element.
+- Fix some unsupported emoji’s included in comment text throwing errors.
+
 ## 1.8.1 - 2021-01-19
 
 ### Fixed
