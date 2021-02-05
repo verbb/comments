@@ -44,13 +44,13 @@ class FlagsService extends Component
 
     public function getFlagByCommentId(int $commentId)
     {
-        return $this->_flags()->firstWhere('commentId', $commentId);
+        return $this->_flags($commentId)->firstWhere('commentId', $commentId);
     }
 
     public function getFlagByUser(int $commentId, $userId)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->_flags();
+        $flags = $this->_flags($commentId);
         $criteria = ['commentId' => $commentId];
 
         if ($userId) {
@@ -68,13 +68,13 @@ class FlagsService extends Component
 
     public function getFlagsByCommentId(int $commentId)
     {
-        return count($this->_flags()->where('commentId', $commentId));
+        return count($this->_flags($commentId)->where('commentId', $commentId));
     }
 
     public function hasFlagged($comment, $user)
     {
         // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->_flags();
+        $flags = $this->_flags($comment->id);
         $criteria = ['commentId' => $comment->id];
 
         if ($user && $user->id) {
@@ -208,24 +208,32 @@ class FlagsService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _flags(): MemoizableArray
+    private function _flags($commentId = null)
     {
         if ($this->_flags === null) {
             $flags = [];
 
+            $memoize = true;
             $query = $this->_createFlagsQuery();
 
             // Check to see if we've set a collection of comments for rendering.
             // We limit the flags to only the flags for these comments, rather than the entire table
             if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
                 $query->where(['commentId' => $commentIds]);
+            } else if ($commentId) {
+                $query->where(['commentId' => $commentId]);
+                $memoize = false;
             }
 
             foreach ($query->all() as $result) {
                 $flags[] = new FlagModel($result);
             }
 
-            $this->_flags = new MemoizableArray($flags);
+            if ($memoize) {
+                $this->_flags = new MemoizableArray($flags);
+            } else {
+                return $flags;
+            }
         }
 
         return $this->_flags;

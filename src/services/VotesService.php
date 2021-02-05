@@ -44,13 +44,13 @@ class VotesService extends Component
 
     public function getVoteByCommentId(int $commentId)
     {
-        return $this->_votes()->firstWhere('commentId', $commentId);
+        return $this->_votes($commentId)->firstWhere('commentId', $commentId);
     }
 
     public function getVoteByUser(int $commentId, $userId)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes();
+        $votes = $this->_votes($commentId);
         $criteria = ['commentId' => $commentId];
 
         if ($userId) {
@@ -68,23 +68,23 @@ class VotesService extends Component
 
     public function getVotesByCommentId(int $commentId)
     {
-        return count($this->_votes()->where('commentId', $commentId));
+        return count($this->_votes($commentId)->where('commentId', $commentId));
     }
 
     public function getUpvotesByCommentId(int $commentId)
     {
-        return count(ArrayHelper::whereMultiple($this->_votes(), ['commentId' => $commentId, 'upvote' => '1']));
+        return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'upvote' => '1']));
     }
 
     public function getDownvotesByCommentId(int $commentId)
     {
-        return count(ArrayHelper::whereMultiple($this->_votes(), ['commentId' => $commentId, 'downvote' => '1']));
+        return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'downvote' => '1']));
     }
 
     public function hasDownVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes();
+        $votes = $this->_votes($comment->id);
         $criteria = ['commentId' => $comment->id, 'downvote' => '1'];
 
         if ($userId) {
@@ -103,7 +103,7 @@ class VotesService extends Component
     public function hasUpVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes();
+        $votes = $this->_votes($comment->id);
         $criteria = ['commentId' => $comment->id, 'upvote' => '1'];
 
         if ($userId) {
@@ -224,24 +224,32 @@ class VotesService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _votes(): MemoizableArray
+    private function _votes($commentId = null)
     {
         if ($this->_votes === null) {
             $votes = [];
 
+            $memoize = true;
             $query = $this->_createVotesQuery();
 
             // Check to see if we've set a collection of comments for rendering.
             // We limit the votes to only the votes for these comments, rather than the entire table
             if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
                 $query->where(['commentId' => $commentIds]);
+            } else if ($commentId) {
+                $query->where(['commentId' => $commentId]);
+                $memoize = false;
             }
 
             foreach ($query->all() as $result) {
                 $votes[] = new VoteModel($result);
             }
 
-            $this->_votes = new MemoizableArray($votes);
+            if ($memoize) {
+                $this->_votes = new MemoizableArray($votes);
+            } else {
+                return $votes;
+            }
         }
 
         return $this->_votes;
