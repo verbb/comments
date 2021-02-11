@@ -439,7 +439,7 @@ Comments.Comment = Comments.Base.extend({
                     this.setNotifications('notice', this.$element, xhr.notice);
                 }
             }.bind(this),
-            error: function(xhr) {
+            error: function(errors) {
                 this.setNotifications('error', this.$element, errors);
             }.bind(this)
         });
