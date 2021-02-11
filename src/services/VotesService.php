@@ -9,7 +9,6 @@ use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\Component;
-use craft\base\MemoizableArray;
 use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
@@ -29,23 +28,9 @@ class VotesService extends Component
 
     protected $sessionName = 'comments_vote';
 
-    private $_votes;
-
 
     // Public Methods
     // =========================================================================
-
-    public function __serialize()
-    {
-        $vars = get_object_vars($this);
-        unset($vars['_votes']);
-        return $vars;
-    }
-
-    public function getVoteByCommentId(int $commentId)
-    {
-        return $this->_votes($commentId)->firstWhere('commentId', $commentId);
-    }
 
     public function getVoteByUser(int $commentId, $userId)
     {
@@ -68,7 +53,7 @@ class VotesService extends Component
 
     public function getVotesByCommentId(int $commentId)
     {
-        return count($this->_votes($commentId)->where('commentId', $commentId));
+        return count($this->_votes($commentId));
     }
 
     public function getUpvotesByCommentId(int $commentId)
@@ -167,9 +152,6 @@ class VotesService extends Component
             $vote->id = $voteRecord->id;
         }
 
-        // Clear caches
-        $this->_votes = null;
-
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_SAVE_VOTE, new VoteEvent([
                 'vote' => $vote,
@@ -203,9 +185,6 @@ class VotesService extends Component
             ->delete('{{%comments_votes}}', ['id' => $vote->id])
             ->execute();
 
-        // Clear caches
-        $this->_votes = null;
-
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_VOTE, new VoteEvent([
                 'vote' => $vote,
@@ -226,33 +205,19 @@ class VotesService extends Component
 
     private function _votes($commentId = null)
     {
-        if ($this->_votes === null) {
-            $votes = [];
+        $votes = [];
 
-            $memoize = true;
-            $query = $this->_createVotesQuery();
+        $query = $this->_createVotesQuery();
 
-            // Check to see if we've set a collection of comments for rendering.
-            // We limit the votes to only the votes for these comments, rather than the entire table
-            if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
-                $query->where(['commentId' => $commentIds]);
-            } else if ($commentId) {
-                $query->where(['commentId' => $commentId]);
-                $memoize = false;
-            }
+        if ($commentId) {
+            $query->where(['commentId' => $commentId]);
+        } 
 
-            foreach ($query->all() as $result) {
-                $votes[] = new VoteModel($result);
-            }
-
-            if ($memoize) {
-                $this->_votes = new MemoizableArray($votes);
-            } else {
-                return $votes;
-            }
+        foreach ($query->all() as $result) {
+            $votes[] = new VoteModel($result);
         }
 
-        return $this->_votes;
+        return $votes;
     }
 
     private function _getSessionId()

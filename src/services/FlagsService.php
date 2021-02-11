@@ -9,7 +9,6 @@ use verbb\comments\records\Flag as FlagRecord;
 
 use Craft;
 use craft\base\Component;
-use craft\base\MemoizableArray;
 use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
@@ -29,23 +28,9 @@ class FlagsService extends Component
 
     protected $sessionName = 'comments_flag';
 
-    private $_flags;
-
 
     // Public Methods
     // =========================================================================
-
-    public function __serialize()
-    {
-        $vars = get_object_vars($this);
-        unset($vars['_flags']);
-        return $vars;
-    }
-
-    public function getFlagByCommentId(int $commentId)
-    {
-        return $this->_flags($commentId)->firstWhere('commentId', $commentId);
-    }
 
     public function getFlagByUser(int $commentId, $userId)
     {
@@ -68,7 +53,7 @@ class FlagsService extends Component
 
     public function getFlagsByCommentId(int $commentId)
     {
-        return count($this->_flags($commentId)->where('commentId', $commentId));
+        return count($this->_flags($commentId));
     }
 
     public function hasFlagged($comment, $user)
@@ -151,9 +136,6 @@ class FlagsService extends Component
             $flag->id = $flagRecord->id;
         }
 
-        // Clear caches
-        $this->_flags = null;
-
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_FLAG)) {
             $this->trigger(self::EVENT_AFTER_SAVE_FLAG, new FlagEvent([
                 'flag' => $flag,
@@ -187,9 +169,6 @@ class FlagsService extends Component
             ->delete('{{%comments_flags}}', ['id' => $flag->id])
             ->execute();
 
-        // Clear caches
-        $this->_flags = null;
-
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_FLAG)) {
             $this->trigger(self::EVENT_AFTER_DELETE_FLAG, new FlagEvent([
                 'flag' => $flag,
@@ -210,33 +189,19 @@ class FlagsService extends Component
 
     private function _flags($commentId = null)
     {
-        if ($this->_flags === null) {
-            $flags = [];
+        $flags = [];
 
-            $memoize = true;
-            $query = $this->_createFlagsQuery();
+        $query = $this->_createFlagsQuery();
 
-            // Check to see if we've set a collection of comments for rendering.
-            // We limit the flags to only the flags for these comments, rather than the entire table
-            if ($commentIds = Comments::$plugin->getRenderCache()->getCommentIds()) {
-                $query->where(['commentId' => $commentIds]);
-            } else if ($commentId) {
-                $query->where(['commentId' => $commentId]);
-                $memoize = false;
-            }
-
-            foreach ($query->all() as $result) {
-                $flags[] = new FlagModel($result);
-            }
-
-            if ($memoize) {
-                $this->_flags = new MemoizableArray($flags);
-            } else {
-                return $flags;
-            }
+        if ($commentId) {
+            $query->where(['commentId' => $commentId]);
         }
 
-        return $this->_flags;
+        foreach ($query->all() as $result) {
+            $flags[] = new FlagModel($result);
+        }
+
+        return $flags;
     }
 
     private function _getSessionId()
