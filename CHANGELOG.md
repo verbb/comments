@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.3 - 2021-02-13
+
+### Fixed
+- Fix JS error thrown when flags encountered an error.
+- Remove flags and votes memoization due to ongoing issues.
+
 ## 1.8.2 - 2021-02-03
 
 ### Changed
