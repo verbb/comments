@@ -262,7 +262,7 @@ class CommentsService extends Component
             return;
         }
 
-        $notificationAdmins = ArrayHelper::where($settings->notificationAdmins, 'enabled');
+        $notificationAdmins = $settings->getEnabledNotificationAdmins();
 
         if (!$notificationAdmins) {
             Comments::log('Cannot send admin notification: No enabled admin emails.');
@@ -317,7 +317,7 @@ class CommentsService extends Component
             return;
         }
 
-        $notificationAdmins = ArrayHelper::where($settings->notificationAdmins, 'enabled');
+        $notificationAdmins = $settings->getEnabledNotificationAdmins();
 
         if (!$notificationAdmins) {
             Comments::log('Cannot send flag notification: No enabled admin emails.');

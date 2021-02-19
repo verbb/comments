@@ -8,6 +8,7 @@ use Craft;
 use craft\base\Model;
 use craft\db\Table;
 use craft\elements\Asset;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
 class Settings extends Model
@@ -159,5 +160,12 @@ class Settings extends Model
         }
 
         return null;
+    }
+
+    public function getEnabledNotificationAdmins()
+    {
+        $notificationAdmins = $settings->notificationAdmins ?? [];
+
+        return ArrayHelper::where($notificationAdmins, 'enabled');
     }
 }
