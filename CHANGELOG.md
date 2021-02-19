@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.4 - 2021-02-19
+
+### Fixed
+- Fix an error when flagging a comment, “Enable Flagged Notifications” is checked and no admin emails are defined.
+
 ## 1.8.3 - 2021-02-13
 
 ### Fixed
