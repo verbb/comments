@@ -710,7 +710,7 @@ class CommentsService extends Component
         		// Skip for current user
         		$currentUser = Craft::$app->getUser()->getIdentity();
 
-        		if ($user->id == $currentUser->id) {
+        		if ($currentUser && $user->id == $currentUser->id) {
         			continue;
         		}
         		
