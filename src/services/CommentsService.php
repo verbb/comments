@@ -275,6 +275,7 @@ class CommentsService extends Component
                 $mail = $this->_renderEmail('comments_admin_notification', [
                         'element' => $element,
                         'comment' => $comment,
+                        'user' => $notificationAdmin,
                     ])
                     ->setTo($notificationAdmin['email']);
 
@@ -330,6 +331,7 @@ class CommentsService extends Component
                 $mail = $this->_renderEmail('comments_flag_notification', [
                         'element' => $element,
                         'comment' => $comment,
+                        'user' => $notificationAdmin,
                     ])
                     ->setTo($notificationAdmin['email']);
 
@@ -406,6 +408,7 @@ class CommentsService extends Component
             $message = $this->_renderEmail('comments_author_notification', [
                     'element' => $element,
                     'comment' => $comment,
+                    'user' => $recipient,
                 ])
                 ->setTo($recipient);
 
@@ -490,6 +493,7 @@ class CommentsService extends Component
             $message = $this->_renderEmail('comments_reply_notification', [
                     'element' => $element,
                     'comment' => $comment,
+                    'user' => $recipient,
                 ])
                 ->setTo($recipient);
 
@@ -553,6 +557,7 @@ class CommentsService extends Component
                 $mail = $this->_renderEmail('comments_moderator_notification', [
                         'element' => $element,
                         'comment' => $comment,
+                        'user' => $user,
                     ])
                     ->setTo($user);
 
@@ -609,6 +614,7 @@ class CommentsService extends Component
             $message = $this->_renderEmail('comments_moderator_approved_notification', [
                     'element' => $element,
                     'comment' => $comment,
+                    'user' => $recipient,
                 ])
                 ->setTo($recipient);
 
@@ -713,7 +719,8 @@ class CommentsService extends Component
 
         		$message = $this->_renderEmail($emailkey, [
             			'element' => $element,
-            			'comment' => $comment
+            			'comment' => $comment,
+                        'user' => $user,
         		    ])
         		    ->setTo($user);
 
@@ -738,7 +745,7 @@ class CommentsService extends Component
                     Comments::error('Unable to send email to subscriber (' . $user->email . ')');
                 }
             } catch (\Throwable $e) {
-                Comments::error('Error sending reply notification: ' . $e->getMessage());
+                Comments::error('Error sending subscribe reply notification: ' . $e->getMessage());
 
                 continue;
             }
