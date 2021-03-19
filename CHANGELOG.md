@@ -4,7 +4,7 @@
 
 ### Fixed
 - Fix all email notifications not being supplied with a `user` variable.
-- Fix an error being throw for subscriber email notifications for guests.
+- Fix an error being thrown for subscriber email notifications for guests.
 - Fix widget throwing an error when a commented-on element was deleted.
 
 ## 1.8.4 - 2021-02-19
