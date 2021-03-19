@@ -6,8 +6,13 @@
             <div class="comment-block">
                 <span class="status {{ comment.status }}"></span>
 
+                {% set title = [
+                    comment.getOwner() ?? '[Deleted element]' | t('comments'),
+                    comment.getAuthor(),
+                ] | filter %}
+
                 <a href="{{ comment.getCpEditUrl() }}">
-                    <span class="username">{{ comment.getOwner() }} - {{ comment.getAuthor() }}</span>
+                    <span class="username">{{ title | join(' - ') }}</span>
                     <small>{{ comment.dateCreated | timestamp('short') }}: {{ comment.getExcerpt(0, 100) }}</small>
                 </a>
             </div>

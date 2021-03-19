@@ -7,12 +7,12 @@
       "uuidString" : "ECE3F09A-2816-43C6-9715-3F4A30BD28C5"
     }
   ],
-  "creatorBuild" : "34000",
+  "creatorBuild" : "34081",
   "files" : {
     "\/.github" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/.github",
+      "oAP" : "\/.github",
       "oF" : 0
     },
     "\/.gitignore" : {
@@ -536,13 +536,13 @@
     "\/src\/assetbundles" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/assetbundles",
+      "oAP" : "\/src\/assetbundles",
       "oF" : 0
     },
     "\/src\/base" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/base",
+      "oAP" : "\/src\/base",
       "oF" : 0
     },
     "\/src\/Comments.php" : {
@@ -564,13 +564,13 @@
     "\/src\/controllers" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/controllers",
+      "oAP" : "\/src\/controllers",
       "oF" : 0
     },
     "\/src\/elements" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/elements",
+      "oAP" : "\/src\/elements",
       "oF" : 0
     },
     "\/src\/errors\/FlagNotFoundException.php" : {
@@ -640,7 +640,7 @@
     "\/src\/fields" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/fields",
+      "oAP" : "\/src\/fields",
       "oF" : 0
     },
     "\/src\/gql\/arguments\/CommentArguments.php" : {
@@ -694,7 +694,7 @@
     "\/src\/helpers" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/helpers",
+      "oAP" : "\/src\/helpers",
       "oF" : 0
     },
     "\/src\/icon-mask.svg" : {
@@ -728,25 +728,25 @@
     "\/src\/migrations" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/migrations",
+      "oAP" : "\/src\/migrations",
       "oF" : 0
     },
     "\/src\/models" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/models",
+      "oAP" : "\/src\/models",
       "oF" : 0
     },
     "\/src\/records" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/records",
+      "oAP" : "\/src\/records",
       "oF" : 0
     },
     "\/src\/resources\/dist" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/resources\/dist",
+      "oAP" : "\/src\/resources\/dist",
       "oF" : 0
     },
     "\/src\/resources\/src\/css\/_reset.scss" : {
@@ -827,13 +827,13 @@
     "\/src\/services" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/services",
+      "oAP" : "\/src\/services",
       "oF" : 0
     },
     "\/src\/templates" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/templates",
+      "oAP" : "\/src\/templates",
       "oF" : 0
     },
     "\/src\/translations\/de\/comments.php" : {
@@ -871,7 +871,7 @@
     "\/src\/variables" : {
       "ft" : 65536,
       "oA" : 1,
-      "oAP" : "\/build\/src\/variables",
+      "oAP" : "\/src\/variables",
       "oF" : 0
     },
     "\/src\/widgets\/Comments.php" : {
@@ -2926,21 +2926,21 @@
 
       ],
       "contentEntries" : [
-        "!(node_modules)\/**\/*.html",
-        "!(node_modules)\/**\/*.htm",
-        "!(node_modules)\/**\/*.shtml",
-        "!(node_modules)\/**\/*.xhtml",
-        "!(node_modules)\/**\/*.php",
-        "!(node_modules)\/**\/*.js",
-        "!(node_modules)\/**\/*.ts",
-        "!(node_modules)\/**\/*.coffee",
-        "!(node_modules)\/**\/*.erb",
-        "!(node_modules)\/**\/*.pug",
-        "!(node_modules)\/**\/*.jade",
-        "!(node_modules)\/**\/*.slim",
-        "!(node_modules)\/**\/*.haml",
-        "!(node_modules)\/**\/*.md",
-        "!(node_modules)\/**\/*.kit"
+        "**\/*.html",
+        "**\/*.htm",
+        "**\/*.shtml",
+        "**\/*.xhtml",
+        "**\/*.php",
+        "**\/*.js",
+        "**\/*.ts",
+        "**\/*.coffee",
+        "**\/*.erb",
+        "**\/*.pug",
+        "**\/*.jade",
+        "**\/*.slim",
+        "**\/*.haml",
+        "**\/*.md",
+        "**\/*.kit"
       ],
       "removeFontFace" : 0,
       "removeKeyframes" : 0,

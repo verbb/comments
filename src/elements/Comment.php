@@ -518,7 +518,9 @@ class Comment extends Element
             return $this->_owner;
         }
 
-        $this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
+        if ($this->ownerId) {
+            $this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
+        }
 
         if ($this->_owner) {
             $renderCache->addElement($cacheKey, $this->_owner);
