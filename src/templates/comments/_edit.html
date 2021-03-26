@@ -131,7 +131,11 @@
         {% if comment.userId and craft.users %}
             {% set user = craft.users.id(comment.userId).one() %}
 
-            <p><a class="go" href="{{ user.cpEditUrl }}">{{ user.getFriendlyName() }}</a></p>
+            {% if user %}
+                <p><a class="go" href="{{ user.cpEditUrl }}">{{ user.getFriendlyName() }}</a></p>
+            {% else %}
+                {{ '[Deleted User]' | t('comments') }}
+            {% endif %}
         {% else %}
             <p>{{ comment.name }} ({{ comment.email }})</p>
         {% endif %}
