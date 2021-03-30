@@ -129,6 +129,10 @@ class CommentsController extends Controller
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
+        $siteId = $request->getParam('siteId');
+
+        // Get the current set requested site
+        $currentSite = Craft::$app->getSites()->getSiteById($siteId);
 
         $comment = $this->_setCommentFromPost();
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
@@ -156,7 +160,7 @@ class CommentsController extends Controller
             $notice = '';
 
             if ($comment->status == Comment::STATUS_PENDING) {
-                $notice = Craft::t('comments', 'Your comment has been posted and is under review.');
+                $notice = Craft::t('comments', 'Your comment has been posted and is under review.', [], $currentSite->language);
             }
 
             return $this->asJson([
