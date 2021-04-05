@@ -19,3 +19,17 @@ If you need to re-attach the structure, for whatever reason, you can use the fol
 ```
 ./craft comments/base/resave-structure
 ```
+
+## Templates
+There's no longer separate templates for each status. Where you might have had:
+
+- `comment-approved.html`
+- `comment-pending.html`
+- `...etc`
+
+This is now handled through a single `comment.html` template.
+
+Templates received a major overhaul in Comments 1.x, and it's best to refer to the [latest templates](https://github.com/verbb/comments/blob/craft-3/src/templates/_special/comments.html). There are too many changes to list here, and the fundamental structure and implementation of the updated templates have changed too much to guide through changes.
+
+## Github
+You can always view the Craft 2 version on [Github](https://github.com/verbb/comments/blob/craft-2/comments)
