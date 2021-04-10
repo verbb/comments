@@ -114,7 +114,7 @@ class VotesService extends Component
         $votes = $this->_votes($comment->id);
         $criteria = ['commentId' => $comment->id, 'downvote' => '1'];
 
-        if ($userId) {
+        if ($user->id) {
             $criteria['userId'] = $user->id;
         } else {
             $criteria['sessionId'] = $this->_getSessionId();
@@ -133,7 +133,7 @@ class VotesService extends Component
         $votes = $this->_votes($comment->id);
         $criteria = ['commentId' => $comment->id, 'upvote' => '1'];
 
-        if ($userId) {
+        if ($user->id) {
             $criteria['userId'] = $user->id;
         } else {
             $criteria['sessionId'] = $this->_getSessionId();
