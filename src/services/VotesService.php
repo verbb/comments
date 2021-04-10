@@ -66,6 +66,48 @@ class VotesService extends Component
         return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'downvote' => '1']));
     }
 
+    public function getVotesByUserId($userId)
+    {
+        $votes = [];
+
+        $query = $this->_createVotesQuery()
+            ->where(['userId' => $userId]);
+
+        foreach ($query->all() as $result) {
+            $votes[] = new VoteModel($result);
+        }
+
+        return $votes;
+    }
+
+    public function getUpvotesByUserId($userId)
+    {
+        $votes = [];
+
+        $query = $this->_createVotesQuery()
+            ->where(['userId' => $userId, 'upvote' => 1]);
+
+        foreach ($query->all() as $result) {
+            $votes[] = new VoteModel($result);
+        }
+
+        return $votes;
+    }
+
+    public function getDownvotesByUserId($userId)
+    {
+        $votes = [];
+
+        $query = $this->_createVotesQuery()
+            ->where(['userId' => $userId, 'downvote' => 1]);
+
+        foreach ($query->all() as $result) {
+            $votes[] = new VoteModel($result);
+        }
+
+        return $votes;
+    }
+
     public function hasDownVoted($comment, $user)
     {
         // Try and fetch votes for a user, if not, use their sessionId

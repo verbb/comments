@@ -53,3 +53,12 @@ This will return an array of variables required for the inline JavaScript for Co
     });
 </script>
 ```
+
+### `craft.comments.getUserVotes(userId)`
+Returns a collection of [Vote](docs:developers/vote) objects for a provided user ID.
+
+### `craft.comments.getUserDownvotes(userId)`
+Returns a collection of downvoted [Vote](docs:developers/vote) objects for a provided user ID.
+
+### `craft.comments.getUserUpvotes(userId)`
+Returns a collection of upvoted [Vote](docs:developers/vote) objects for a provided user ID.

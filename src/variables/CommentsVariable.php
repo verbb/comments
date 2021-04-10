@@ -91,6 +91,21 @@ class CommentsVariable
         return CommentsHelper::getAvatar(Craft::$app->getUser()->getIdentity());
     }
 
+    public function getUserVotes($userId)
+    {
+        return Comments::$plugin->getVotes()->getVotesByUserId($userId);
+    }
+
+    public function getUserDownvotes($userId)
+    {
+        return Comments::$plugin->getVotes()->getDownvotesByUserId($userId);
+    }
+
+    public function getUserUpvotes($userId)
+    {
+        return Comments::$plugin->getVotes()->getUpvotesByUserId($userId);
+    }
+
 
     // Deprecated Methods
     // =========================================================================
