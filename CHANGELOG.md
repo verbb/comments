@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.6 - 2021-04-11
+
+### Added
+- Add `getUserVotes()` variable functions.
+
+### Fixed
+- Fix an error when editing a comment, for a comment from a deleted user.
+- Fix “under review” text not being translated properly.
+- Fix an error in `hasDownVoted()` and `hasUpVoted()`.
+
 ## 1.8.5 - 2021-03-20
 
 ### Fixed
