@@ -121,8 +121,6 @@ class Settings extends Model
 
     public function canComment($element)
     {
-        $settings = Comments::$plugin->getSettings();
-
         $isClosed = Comments::$plugin->getComments()->checkClosed($element);
 
         if ($isClosed) {
@@ -137,15 +135,15 @@ class Settings extends Model
 
         $currentUser = Craft::$app->getUser()->getIdentity();
 
-        if (!$currentUser && !$settings->allowGuest) {
+        if (!$currentUser && !$this->allowGuest) {
             return false;
         }
 
-        if ($settings->maxUserComments && $currentUser) {
+        if ($this->maxUserComments && $currentUser) {
             // Has the user already commented X amount of times on this element?
             $count = Comment::find()->ownerId($element->id)->userId($currentUser->id)->count();
 
-            if ($count >= $settings->maxUserComments) {
+            if ($count >= $this->maxUserComments) {
                 return false;
             }
         }
@@ -164,7 +162,7 @@ class Settings extends Model
 
     public function getEnabledNotificationAdmins()
     {
-        $notificationAdmins = $settings->notificationAdmins ?? [];
+        $notificationAdmins = $this->notificationAdmins ?? [];
 
         return ArrayHelper::where($notificationAdmins, 'enabled');
     }
