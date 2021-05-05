@@ -97,9 +97,6 @@ class Settings extends Model
     public $allowAnonymousVoting;
     public $allowAnonymousFlagging;
 
-    // TODO remove at next breakpoint
-    public $showCustomFields = false;
-
     private $_placeholderAvatar = null;
 
 

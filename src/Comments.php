@@ -384,7 +384,7 @@ class Comments extends Plugin
 
         foreach ($removedSettings as $setting) {
             if (property_exists($settings, $setting) && isset($settings->$setting)) {
-                Craft::$app->getDeprecator()->log($old, "The {$setting} config setting has been removed.");
+                // Craft::$app->getDeprecator()->log($old, "The {$setting} config setting has been removed.");
                 unset($settings[$setting]);
             }
         }
