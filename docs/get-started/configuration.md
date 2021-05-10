@@ -144,3 +144,48 @@ return [
 
 You can also manage configuration settings through the Control Panel by visiting Settings → Comments.
 
+
+### `notificationAdmins`
+Provide a nested array of emails, each with an `enabled` item.
+
+```php
+'notificationAdmins' => [
+    [
+        'email' => 'admin@site.com',
+        'enabled' => true,
+    ],
+    [
+        'email' => 'admin-alt@site.com',
+        'enabled' => true,
+    ],
+],
+```
+
+### `permissions`
+Provide a nested array of element permissions. You'll need to use the UID for your "groups" of elements - Sections for Entries, Category Groups for Categories, etc.
+
+```php
+'permissions' => [
+    'craft\elements\Asset' => [
+        // Volume UIDs
+        '33974e79-b3b6-47ec-af91-4519fe4985be',
+        'c194716f-aa74-40b6-8426-c835599cbe93',
+    ],
+
+    'craft\elements\Category' => [
+        // Category Group UIDs
+        'a27827c8-4810-433c-acb9-261b53d46281',
+        '346194f0-6da8-4f46-a20b-795631ee9a5f',
+    ],
+
+    'craft\elements\Entry' => [
+        // Section UIDs
+        'a8d4bdf1-164e-4ddc-aaad-640026b8d3bf',
+    ],
+
+    'craft\elements\User' => [
+        // User Group UIDs
+        'c23a4d8d-47f0-4e71-927c-d5897ec9c9f8',
+    ],
+],
+```
