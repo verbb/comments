@@ -1,12 +1,14 @@
 <?php
 namespace verbb\comments;
 
+use craft\events\RegisterGqlMutationsEvent;
 use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
+use verbb\comments\gql\mutations\Comment as CommentMutations;
 use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\integrations\CommentFeedMeElement;
 use verbb\comments\models\Settings;
@@ -313,11 +315,24 @@ class Comments extends Plugin
             }
         });
 
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_MUTATIONS, function(RegisterGqlMutationsEvent $event) {
+            $event->mutations = array_merge(
+                $event->mutations,
+                CommentMutations::getMutations()
+            );
+        });
+
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
             $label = Craft::t('comments', 'Comments');
 
             $event->queries[$label] = [
                 'comments:read' => ['label' => Craft::t('comments', 'View comments')],
+            ];
+
+            $event->mutations[$label] = [
+                'comments:edit' => ['label' => Craft::t('comments', 'Create comments')],
+                'comments:save' => ['label' => Craft::t('comments', 'Save comments')],
+                'comments:delete' => ['label' => Craft::t('comments', 'Delete comments')],
             ];
         });
     }
