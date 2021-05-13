@@ -144,3 +144,167 @@ Narrows the query results based on the comments’ email.
 
 #### The `comment` argument
 Narrows the query results based on the comments’ actual comment text.
+
+## Mutations
+
+### createComment
+
+Saves a new nested visitor comment.
+
+```graphql
+mutation NewComment($newParentId: ID, $ownerId: ID, $name: String, $email: String, $comment: String) {
+  saveComment(newParentId: $newParentId, ownerId: $ownerId, name: $name, email: $email, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "ownerId": 7,
+  "newParentId": 30,
+  "name": "Matt",
+  "email": "matt@pixelandtonic.com",
+  "comment": "Here’s a nested comment."
+}
+```
+
+### saveComment
+
+Edit an existing comment.
+
+```graphql
+mutation UpdateComment($id: ID, $comment: String) {
+  saveComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "comment": "I’m totally changing what I said."
+}
+```
+
+### voteComment
+
+Upvote a comment:
+
+```graphql
+mutation UpvoteComment($id: ID, $comment: String) {
+  voteComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "upvote": true
+}
+```
+
+Downvote a comment:
+
+```graphql
+mutation DownvoteComment($id: ID, $comment: String) {
+  voteComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "downvote": true
+}
+```
+
+### flagComment
+
+Flag a comment for moderation:
+
+```graphql
+mutation FlagComment($id: ID!) {
+    flagComment(id: $id) {
+        id
+        comment {
+            flags
+            upvotes
+            downvotes
+        }
+    }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34
+}
+```
+
+### subscribeComment
+
+Subscribe to a comment thread to get notifications:
+
+```graphql
+mutation SubscribeComment($ownerId: ID!) {
+    subscribeComment(ownerId: $ownerId)
+}
+```
+
+Query variables:
+
+```json
+{
+  "ownerId": 34
+}
+```
+
+### deleteComment
+
+Delete a comment:
+
+```graphql
+mutation DeleteComment($id: ID!) {
+    deleteComment(id: $id)
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34
+}
+```
