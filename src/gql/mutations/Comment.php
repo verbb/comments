@@ -3,6 +3,8 @@ namespace verbb\comments\gql\mutations;
 
 use verbb\comments\gql\arguments\mutations\Comment as CommentMutationArguments;
 use verbb\comments\gql\interfaces\CommentInterface;
+use verbb\comments\gql\interfaces\Flag;
+use verbb\comments\gql\interfaces\Vote;
 use verbb\comments\gql\resolvers\mutations\Comment as CommentMutationResolver;
 use verbb\comments\helpers\Gql as GqlHelper;
 
@@ -48,25 +50,37 @@ class Comment extends Mutation
             $mutationList['voteComment'] = [
                 'name' => 'voteComment',
                 'args' => [
-                    'id' => Type::nonNull(Type::int()),
-                    'siteId' => Type::int(),
+                    'id' => Type::nonNull(Type::id()),
+                    'siteId' => Type::id(),
                     'upvote' => Type::boolean(),
                     'downvote' => Type::boolean(),
                 ],
                 'resolve' => [$resolver, 'voteComment'],
                 'description' => 'Vote on a comment.',
-                'type' => CommentInterface::getType(),
+                'type' => Vote::getType(),
             ];
 
             $mutationList['flagComment'] = [
                 'name' => 'flagComment',
                 'args' => [
-                    'id' => Type::nonNull(Type::int()),
-                    'siteId' => Type::int(),
+                    'id' => Type::nonNull(Type::id()),
+                    'siteId' => Type::id(),
                 ],
                 'resolve' => [$resolver, 'flagComment'],
                 'description' => 'Flag a comment.',
-                'type' => CommentInterface::getType(),
+                'type' => Flag::getType(),
+            ];
+
+            $mutationList['subscribeComment'] = [
+                'name' => 'subscribeComment',
+                'args' => [
+                    'id' => Type::id(),
+                    'siteId' => Type::id(),
+                    'ownerId' => Type::nonNull(Type::id()),
+                ],
+                'resolve' => [$resolver, 'subscribeComment'],
+                'description' => 'Toggle comment thread subscription.',
+                'type' => Type::string(),
             ];
         }
 
@@ -74,8 +88,8 @@ class Comment extends Mutation
             $mutationList['deleteComment'] = [
                 'name' => 'deleteComment',
                 'args' => [
-                    'id' => Type::nonNull(Type::int()),
-                    'siteId' => Type::int(),
+                    'id' => Type::nonNull(Type::id()),
+                    'siteId' => Type::id(),
                 ],
                 'resolve' => [$resolver, 'deleteComment'],
                 'description' => 'Delete a comment.',

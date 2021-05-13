@@ -5,6 +5,9 @@ use craft\base\ElementInterface;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\models\Flag;
+use verbb\comments\models\Subscribe;
+use verbb\comments\models\Vote;
 
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
@@ -24,12 +27,14 @@ class Comment extends ElementMutationResolver
     protected $immutableAttributes = ['id', 'uid', 'userId'];
 
     /**
+     * Handles GraphQL query arguments to either create or update a comment.
+     *
      * @param             $source
-     * @param array       $arguments
+     * @param array       $arguments    GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
-     * @throws GqlException|Error
+     * @throws GqlException|Error|SiteNotFoundException
      */
     public function saveComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
@@ -73,14 +78,132 @@ class Comment extends ElementMutationResolver
         return $elementService->getElementById($comment->id, CommentElement::class);
     }
 
-    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    /**
+     * Handles GraphQL query arguments to record a comment upvote or downvote.
+     *
+     * @param             $source
+     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param             $context
+     * @param ResolveInfo $resolveInfo
+     * @return ElementInterface|null
+     */
+    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): Vote
     {
-        // TODO: follow CommentsController::actionVote()
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $commentId = $arguments['id'];
+        $upvote = isset($arguments['upvote']) && $arguments['upvote'];
+        $downvote = isset($arguments['downvote']) && $arguments['downvote'];
+
+        $userId = $currentUser->id ?? null;
+
+        $vote = Comments::$plugin->getVotes()->getVoteByUser($commentId, $userId) ?? new Vote();
+        $vote->commentId = $commentId;
+
+        if ($upvote) {
+            // Reset like no votes were taken!
+            if ($vote->downvote) {
+                $vote->downvote = null;
+                $vote->upvote = null;
+            } else {
+                $vote->downvote = null;
+                $vote->upvote = '1';
+            }
+        } else {
+            // Reset like no votes were taken!
+            if ($vote->upvote) {
+                $vote->downvote = null;
+                $vote->upvote = null;
+            } else {
+                $vote->downvote = '1';
+                $vote->upvote = null;
+            }
+        }
+
+        // Okay if no user here, although required, the model validation will pick it up
+        $vote->userId = $userId;
+
+        Comments::$plugin->getVotes()->saveVote($vote);
+
+        if ($vote->hasErrors()) {
+            $validationErrors = [];
+
+            foreach ($vote->getFirstErrors() as $attribute => $errorMessage) {
+                $validationErrors[] = $errorMessage;
+            }
+
+            throw new UserError(implode("\n", $validationErrors));
+        }
+
+        return $vote;
     }
 
+    /**
+     * Handles GraphQL query arguments to flag a comment.
+     *
+     * @param             $source
+     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param             $context
+     * @param ResolveInfo $resolveInfo
+     * @return ElementInterface|null
+     */
     public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
-        // TODO: follow CommentsController::actionFlag()
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $commentId = $arguments['id'];
+
+        $userId = $currentUser->id ?? null;
+
+        $flag = Comments::$plugin->getFlags()->getFlagByUser($commentId, $userId) ?? new Flag();
+        $flag->commentId = $commentId;
+
+        // Okay if no user here, although required, the model validation will pick it up
+        $flag->userId = $userId;
+
+        Comments::$plugin->getFlags()->toggleFlag($flag);
+
+        if ($flag->hasErrors()) {
+            $validationErrors = [];
+
+            foreach ($flag->getFirstErrors() as $attribute => $errorMessage) {
+                $validationErrors[] = $errorMessage;
+            }
+
+            throw new UserError(implode("\n", $validationErrors));
+        }
+
+        return $flag;
+    }
+
+    public function subscribeComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $commentId = $arguments['id'] ?? null;
+        $ownerId = $arguments['ownerId'];
+        $siteId = $arguments['siteId'] ?? null;
+
+        $userId = $currentUser->id ?? null;
+
+        $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId, $commentId) ?? new Subscribe();
+        $subscribe->ownerId = $ownerId;
+        $subscribe->ownerSiteId = $siteId;
+        $subscribe->commentId = $commentId;
+
+        // Okay if no user here, although required, the model validation will pick it up
+        $subscribe->userId = $userId;
+
+        Comments::$plugin->getSubscribe()->toggleSubscribe($subscribe);
+
+        if ($subscribe->hasErrors()) {
+            $validationErrors = [];
+
+            foreach ($subscribe->getFirstErrors() as $attribute => $errorMessage) {
+                $validationErrors[] = $errorMessage;
+            }
+
+            throw new UserError(implode("\n", $validationErrors));
+        }
+
+        return $subscribe->subscribed ? 'Subscribed to discussion.' : 'Unsubscribed from discussion.';
     }
 
     /**

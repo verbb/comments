@@ -6,6 +6,7 @@ use verbb\comments\elements\Comment;
 use verbb\comments\fields\CommentsField;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\gql\interfaces\CommentInterface;
+use verbb\comments\gql\interfaces\Vote;
 use verbb\comments\gql\queries\CommentQuery;
 use verbb\comments\gql\mutations\Comment as CommentMutations;
 use verbb\comments\helpers\ProjectConfigData;
