@@ -849,8 +849,8 @@ class Comment extends Element
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Craft::$app->getUser()->getIdentity();
 
-                if ($currentUser->id !== $this->author->id) {
-                    $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+                if (empty($currentUser) || $currentUser->id !== $this->author->id) {
+                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
         }
@@ -901,7 +901,7 @@ class Comment extends Element
                 $currentUser = Craft::$app->getUser()->getIdentity();
 
                 if ($currentUser->id !== $this->author->id) {
-                    $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
         }

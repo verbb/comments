@@ -46,7 +46,7 @@ return [
 	'Must be logged in to comment.' => 'Inloggen verplicht.',
 	'Name is required.' => 'Naam is vereist.',
 	'Email is required.' => 'Email is vereist.',
-	'Unable to modify another users comment.' => 'Je kan andermans reactie niet bewerken.',
+	'Unable to modify another user’s comment.' => 'Je kan andermans reactie niet bewerken.',
 	'Comment must not be blank.' => 'Reactie mag niet leeg zijn.',
 	'Comments are disabled for this element.' => 'Reacties zijn uitgeschakeld.'
 ];
