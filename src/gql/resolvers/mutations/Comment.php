@@ -19,6 +19,11 @@ use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Error\UserError;
 
+/**
+ * Implements custom mutation methods take GraphQL mutations and make stuff happen.
+ *
+ * @package verbb\comments\gql\resolvers\mutations
+ */
 class Comment extends ElementMutationResolver
 {
     use StructureMutationTrait;
@@ -27,7 +32,7 @@ class Comment extends ElementMutationResolver
     protected $immutableAttributes = ['id', 'uid', 'userId'];
 
     /**
-     * Handles GraphQL query arguments to either create or update a comment.
+     * Handles GraphQL mutation arguments to either create or update a comment.
      *
      * @param             $source
      * @param array       $arguments    GraphQL query arguments in key-value pairs
@@ -79,7 +84,7 @@ class Comment extends ElementMutationResolver
     }
 
     /**
-     * Handles GraphQL query arguments to record a comment upvote or downvote.
+     * Handles GraphQL mutation arguments to record a comment upvote or downvote.
      *
      * @param             $source
      * @param array       $arguments    GraphQL query arguments in key-value pairs
@@ -138,7 +143,7 @@ class Comment extends ElementMutationResolver
     }
 
     /**
-     * Handles GraphQL query arguments to flag a comment.
+     * Handles GraphQL mutation arguments to flag a comment.
      *
      * @param             $source
      * @param array       $arguments    GraphQL query arguments in key-value pairs
@@ -174,7 +179,16 @@ class Comment extends ElementMutationResolver
         return $flag;
     }
 
-    public function subscribeComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    /**
+     * Handles GraphQL mutation arguments to toggle comment subscription.
+     *
+     * @param             $source
+     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param             $context
+     * @param ResolveInfo $resolveInfo
+     * @return string
+     */
+    public function subscribeComment($source, array $arguments, $context, ResolveInfo $resolveInfo): string
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         $commentId = $arguments['id'] ?? null;
@@ -207,8 +221,10 @@ class Comment extends ElementMutationResolver
     }
 
     /**
+     * Handles GraphQL mutation arguments to delete a comment.
+
      * @param             $source
-     * @param array       $arguments
+     * @param array       $arguments    GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return bool
@@ -238,7 +254,7 @@ class Comment extends ElementMutationResolver
      * @throws Error
      * @throws SiteNotFoundException
      */
-    public function getCommentElement($arguments)
+    protected function getCommentElement(array $arguments): CommentElement
     {
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']);
         $this->requireSchemaAction('comments', $canIdentify ? 'save' : 'edit');
