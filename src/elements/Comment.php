@@ -879,7 +879,7 @@ class Comment extends Element
                 $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
             }
 
-            // Additionally, check for user email/name, which is compulsary for guests
+            // Additionally, check for user email/name, which is compulsory for guests
             if ($settings->guestRequireEmailName && !$this->userId) {
                 if (!$this->name) {
                     $this->addError('name', Craft::t('comments', 'Name is required.'));
@@ -895,8 +895,8 @@ class Comment extends Element
                 $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
             }
 
-            // Is this user trying to edit/save/delete a comment thats not their own?
-            // This is permisable from the CP
+            // Is this user trying to edit/save/delete a comment that’s not their own?
+            // This is permissible from the CP
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Craft::$app->getUser()->getIdentity();
 
