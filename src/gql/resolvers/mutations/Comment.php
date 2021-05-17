@@ -70,7 +70,12 @@ class Comment extends ElementMutationResolver
         $comment = $this->getCommentElement($arguments);
         $comment = $this->populateElementWithData($comment, $arguments);
 
-        if (!$comment->userId) {
+        // If we’re logged in and not editing our own comment, make sure a new one’s allowed
+        if (! empty($currentUser) && !$comment->userId && !$canIdentify) {
+            if (! $settings->canComment($comment)) {
+                throw new UserError(Craft::t('comments', 'Comment not allowed.'));
+            }
+
             $comment->userId = $currentUser->id ?? null;
         }
 
