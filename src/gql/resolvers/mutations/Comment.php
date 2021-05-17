@@ -249,9 +249,14 @@ class Comment extends ElementMutationResolver
         $commentId = $arguments['id'];
         $elementService = Craft::$app->getElements();
         $comment = $elementService->getElementById($commentId);
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
         if (!$comment) {
             return true;
+        }
+
+        if ($comment->userId !== $currentUser->id) {
+            throw new UserError(Craft::t('comments', 'You may only delete your own comments.'));
         }
 
         $this->requireSchemaAction('comments', 'delete');
