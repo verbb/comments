@@ -170,6 +170,10 @@ class Comment extends ElementMutationResolver
         $commentId = $arguments['id'];
         $userId = $currentUser->id ?? null;
 
+        if (!$settings->allowFlagging) {
+            throw new UserError(Craft::t('comments', 'Flagging is not allowed.'));
+        }
+
         if (empty($currentUser) && !$settings->allowGuestFlagging) {
             throw new UserError(Craft::t('comments', 'Must be logged in to flag comments.'));
         }

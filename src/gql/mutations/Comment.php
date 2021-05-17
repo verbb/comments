@@ -66,16 +66,18 @@ class Comment extends Mutation
                 ];
             }
 
-            $mutationList['flagComment'] = [
-                'name' => 'flagComment',
-                'args' => [
-                    'id' => Type::nonNull(Type::id()),
-                    'siteId' => Type::id(),
-                ],
-                'resolve' => [$resolver, 'flagComment'],
-                'description' => 'Flag a comment.',
-                'type' => Flag::getType(),
-            ];
+            if ($settings->allowFlagging) {
+                $mutationList['flagComment'] = [
+                    'name' => 'flagComment',
+                    'args' => [
+                        'id' => Type::nonNull(Type::id()),
+                        'siteId' => Type::id(),
+                    ],
+                    'resolve' => [$resolver, 'flagComment'],
+                    'description' => 'Flag a comment.',
+                    'type' => Flag::getType(),
+                ];
+            }
 
             $mutationList['subscribeComment'] = [
                 'name' => 'subscribeComment',
