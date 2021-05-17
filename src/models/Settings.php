@@ -93,8 +93,20 @@ class Settings extends Model
     public $showCustomFieldInstructions = false;
 
     // Deprecated
+
+    /**
+     * @deprecated in 1.4.0. Use Settings::$allowGuest instead.
+     */
     public $allowAnonymous;
+
+    /**
+     * @deprecated in 1.4.0. Use Settings::$allowGuestVoting instead.
+     */
     public $allowAnonymousVoting;
+
+    /**
+     * @deprecated in 1.4.0. Use Settings::$allowGuestFlagging instead.
+     */
     public $allowAnonymousFlagging;
 
     private $_placeholderAvatar = null;

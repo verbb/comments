@@ -6,6 +6,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\models\Flag;
+use verbb\comments\models\Settings;
 use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
@@ -35,22 +36,32 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to either create or update a comment.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array       $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      * @throws GqlException|Error|SiteNotFoundException
+     * @throws \Exception if schema does not allow the relevant action.
      */
     public function saveComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
+        /** @var Settings $settings */
+        $settings = Comments::$plugin->getSettings();
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']);
         $elementService = Craft::$app->getElements();
-        $settings = Comments::$plugin->getSettings();
 
         if ($canIdentify) {
+            // If we have an element ID, we’re trying to save an existing record
             $this->requireSchemaAction('comments', 'save');
         } else {
+            // If not, we’re saving a new one
             $this->requireSchemaAction('comments', 'edit');
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (empty($currentUser) && !$settings->allowGuest) {
+            throw new UserError(Craft::t('comments', 'Must be logged in to comment.'));
         }
 
         $comment = $this->getCommentElement($arguments);
@@ -71,13 +82,7 @@ class Comment extends ElementMutationResolver
         $comment = $this->saveElement($comment);
 
         if ($comment->hasErrors()) {
-            $validationErrors = [];
-
-            foreach ($comment->getFirstErrors() as $attribute => $errorMessage) {
-                $validationErrors[] = $errorMessage;
-            }
-
-            throw new UserError(implode("\n", $validationErrors));
+            $this->_throwErrors($comment->getFirstErrors());
         }
 
         return $elementService->getElementById($comment->id, CommentElement::class);
@@ -94,11 +99,16 @@ class Comment extends ElementMutationResolver
      */
     public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): Vote
     {
+        /** @var Settings $settings */
+        $settings = Comments::$plugin->getSettings();
         $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (empty($currentUser) && !$settings->allowGuestVoting) {
+            throw new UserError(Craft::t('comments', 'Must be logged in to vote.'));
+        }
+
         $commentId = $arguments['id'];
         $upvote = isset($arguments['upvote']) && $arguments['upvote'];
-        $downvote = isset($arguments['downvote']) && $arguments['downvote'];
-
         $userId = $currentUser->id ?? null;
 
         $vote = Comments::$plugin->getVotes()->getVoteByUser($commentId, $userId) ?? new Vote();
@@ -130,13 +140,7 @@ class Comment extends ElementMutationResolver
         Comments::$plugin->getVotes()->saveVote($vote);
 
         if ($vote->hasErrors()) {
-            $validationErrors = [];
-
-            foreach ($vote->getFirstErrors() as $attribute => $errorMessage) {
-                $validationErrors[] = $errorMessage;
-            }
-
-            throw new UserError(implode("\n", $validationErrors));
+            $this->_throwErrors($vote->getFirstErrors());
         }
 
         return $vote;
@@ -153,10 +157,15 @@ class Comment extends ElementMutationResolver
      */
     public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
+        /** @var Settings $settings */
+        $settings = Comments::$plugin->getSettings();
         $currentUser = Craft::$app->getUser()->getIdentity();
         $commentId = $arguments['id'];
-
         $userId = $currentUser->id ?? null;
+
+        if (empty($currentUser) && !$settings->allowGuestFlagging) {
+            throw new UserError(Craft::t('comments', 'Must be logged in to flag comments.'));
+        }
 
         $flag = Comments::$plugin->getFlags()->getFlagByUser($commentId, $userId) ?? new Flag();
         $flag->commentId = $commentId;
@@ -167,13 +176,7 @@ class Comment extends ElementMutationResolver
         Comments::$plugin->getFlags()->toggleFlag($flag);
 
         if ($flag->hasErrors()) {
-            $validationErrors = [];
-
-            foreach ($flag->getFirstErrors() as $attribute => $errorMessage) {
-                $validationErrors[] = $errorMessage;
-            }
-
-            throw new UserError(implode("\n", $validationErrors));
+            $this->_throwErrors($flag->getFirstErrors());
         }
 
         return $flag;
@@ -208,16 +211,12 @@ class Comment extends ElementMutationResolver
         Comments::$plugin->getSubscribe()->toggleSubscribe($subscribe);
 
         if ($subscribe->hasErrors()) {
-            $validationErrors = [];
-
-            foreach ($subscribe->getFirstErrors() as $attribute => $errorMessage) {
-                $validationErrors[] = $errorMessage;
-            }
-
-            throw new UserError(implode("\n", $validationErrors));
+            $this->_throwErrors($subscribe->getFirstErrors());
         }
 
-        return $subscribe->subscribed ? 'Subscribed to discussion.' : 'Unsubscribed from discussion.';
+        return $subscribe->subscribed ?
+            Craft::t('comments', 'Subscribed to discussion.') :
+            Craft::t('comments', 'Unsubscribed from discussion.');
     }
 
     /**
@@ -300,5 +299,21 @@ class Comment extends ElementMutationResolver
         }
 
         return $commentQuery;
+    }
+
+    /**
+     * Formats and throws validation errors.
+     *
+     * @param array $errors Key-value error array
+     */
+    private function _throwErrors(array $errors)
+    {
+        $validationErrors = [];
+
+        foreach ($errors as $attribute => $errorMessage) {
+            $validationErrors[] = $errorMessage;
+        }
+
+        throw new UserError(implode("\n", $validationErrors));
     }
 }
