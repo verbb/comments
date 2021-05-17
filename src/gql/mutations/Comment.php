@@ -1,12 +1,14 @@
 <?php
 namespace verbb\comments\gql\mutations;
 
+use verbb\comments\Comments;
 use verbb\comments\gql\arguments\mutations\Comment as CommentMutationArguments;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\interfaces\Flag;
 use verbb\comments\gql\interfaces\Vote;
 use verbb\comments\gql\resolvers\mutations\Comment as CommentMutationResolver;
 use verbb\comments\helpers\Gql as GqlHelper;
+use verbb\comments\models\Settings;
 
 use craft\gql\base\Mutation;
 use Craft;
@@ -24,6 +26,8 @@ class Comment extends Mutation
             return [];
         }
 
+        /** @var Settings $settings */
+        $settings = Comments::$plugin->getSettings();
         $mutationList = [];
         $scope = 'comments';
         $resolver = Craft::createObject(CommentMutationResolver::class);
@@ -47,18 +51,20 @@ class Comment extends Mutation
                 'type' => CommentInterface::getType(),
             ];
 
-            $mutationList['voteComment'] = [
-                'name' => 'voteComment',
-                'args' => [
-                    'id' => Type::nonNull(Type::id()),
-                    'siteId' => Type::id(),
-                    'upvote' => Type::boolean(),
-                    'downvote' => Type::boolean(),
-                ],
-                'resolve' => [$resolver, 'voteComment'],
-                'description' => 'Vote on a comment.',
-                'type' => Vote::getType(),
-            ];
+            if ($settings->allowVoting) {
+                $mutationList['voteComment'] = [
+                    'name' => 'voteComment',
+                    'args' => [
+                        'id' => Type::nonNull(Type::id()),
+                        'siteId' => Type::id(),
+                        'upvote' => Type::boolean(),
+                        'downvote' => Type::boolean(),
+                    ],
+                    'resolve' => [$resolver, 'voteComment'],
+                    'description' => 'Vote on a comment.',
+                    'type' => Vote::getType(),
+                ];
+            }
 
             $mutationList['flagComment'] = [
                 'name' => 'flagComment',

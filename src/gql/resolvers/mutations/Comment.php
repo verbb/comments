@@ -106,6 +106,10 @@ class Comment extends ElementMutationResolver
         $settings = Comments::$plugin->getSettings();
         $currentUser = Craft::$app->getUser()->getIdentity();
 
+        if (!$settings->allowVoting) {
+            throw new UserError(Craft::t('comments', 'Voting is not allowed.'));
+        }
+
         if (empty($currentUser) && !$settings->allowGuestVoting) {
             throw new UserError(Craft::t('comments', 'Must be logged in to vote.'));
         }
