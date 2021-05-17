@@ -79,17 +79,19 @@ class Comment extends Mutation
                 ];
             }
 
-            $mutationList['subscribeComment'] = [
-                'name' => 'subscribeComment',
-                'args' => [
-                    'id' => Type::id(),
-                    'siteId' => Type::id(),
-                    'ownerId' => Type::nonNull(Type::id()),
-                ],
-                'resolve' => [$resolver, 'subscribeComment'],
-                'description' => 'Toggle comment thread subscription.',
-                'type' => Type::string(),
-            ];
+            if ($settings->notificationSubscribeEnabled) {
+                $mutationList['subscribeComment'] = [
+                    'name' => 'subscribeComment',
+                    'args' => [
+                        'id' => Type::id(),
+                        'siteId' => Type::id(),
+                        'ownerId' => Type::nonNull(Type::id()),
+                    ],
+                    'resolve' => [$resolver, 'subscribeComment'],
+                    'description' => 'Toggle comment thread subscription.',
+                    'type' => Type::string(),
+                ];
+            }
         }
 
         if (GqlHelper::canSchema($scope, 'delete')) {
