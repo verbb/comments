@@ -70,6 +70,10 @@ class Comment extends ElementMutationResolver
         $comment = $this->getCommentElement($arguments);
         $comment = $this->populateElementWithData($comment, $arguments);
 
+        if (!$comment->userId) {
+            $comment->userId = $currentUser->id ?? null;
+        }
+
         // Set any new comment to be pending if requireModeration is true
         if ($settings->requireModeration) {
             $comment->status = CommentElement::STATUS_PENDING;
