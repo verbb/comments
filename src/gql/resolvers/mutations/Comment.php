@@ -61,7 +61,10 @@ class Comment extends ElementMutationResolver
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         if (empty($currentUser) && !$settings->allowGuest) {
-            throw new UserError(Craft::t('comments', 'Must be logged in to comment.'));
+            $message = ! empty($settings->guestNotice) ?
+                $settings->guestNotice :
+                Craft::t('comments', 'Must be logged in to comment.');
+            throw new UserError($message);
         }
 
         $comment = $this->getCommentElement($arguments);
