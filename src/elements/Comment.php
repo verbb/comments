@@ -955,8 +955,10 @@ class Comment extends Element
 
                 // If a reply to another comment, should we send a Notification email
                 // to the author of the original comment?
-                if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
-                    Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                if ($settings->notificationReplyEnabled) {
+                    if ($this->_hasNewParent()) {
+                        Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                    }
                 } else {
                     Comments::log('Reply Notifications disabled.');
                 }
@@ -995,8 +997,10 @@ class Comment extends Element
 
             // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
-            if ($settings->notificationReplyEnabled && $this->_hasNewParent()) {
-                Comments::$plugin->comments->sendReplyNotificationEmail($this);
+            if ($settings->notificationReplyEnabled) {
+                if ($this->_hasNewParent()) {
+                    Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                }
             } else {
                 Comments::log('Reply Notifications disabled.');
             }
