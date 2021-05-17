@@ -421,7 +421,7 @@ class Comment extends Element
             return $this->_author;
         }
 
-        // If this user is a guest, we make a temprary UserModel, which is particularly
+        // If this user is a guest, we make a temporary UserModel, which is particularly
         // used for email notifications (which require a UserModel instance)
         if ($this->isGuest()) {
             // If this wasn't a registered user...
