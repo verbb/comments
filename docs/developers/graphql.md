@@ -275,7 +275,7 @@ Query variables:
 
 ### subscribeComment
 
-Subscribe to a comment thread to get notifications:
+Subscribe to an element’s comment notifications:
 
 ```graphql
 mutation SubscribeComment($ownerId: ID!) {
@@ -283,11 +283,32 @@ mutation SubscribeComment($ownerId: ID!) {
 }
 ```
 
+Repeat to toggle on/off.
+
 Query variables:
 
 ```json
 {
   "ownerId": 34
+}
+```
+
+Subscribe to a specific comment thread, where `commentId` is the beginning of that thread:
+
+```graphql
+mutation SubscribeThread($ownerId: ID!, $commentId: ID) {
+    subscribeComment(ownerId: $ownerId, commentId: $commentId)
+}
+```
+
+Repeat to toggle on/off.
+
+Query variables:
+
+```json
+{
+  "ownerId": 34,
+  "commentId": 95
 }
 ```
 

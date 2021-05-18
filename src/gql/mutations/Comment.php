@@ -83,9 +83,9 @@ class Comment extends Mutation
                 $mutationList['subscribeComment'] = [
                     'name' => 'subscribeComment',
                     'args' => [
-                        'id' => Type::id(),
-                        'siteId' => Type::id(),
                         'ownerId' => Type::nonNull(Type::id()),
+                        'siteId' => Type::id(),
+                        'commentId' => Type::id(),
                     ],
                     'resolve' => [$resolver, 'subscribeComment'],
                     'description' => 'Toggle comment thread subscription.',

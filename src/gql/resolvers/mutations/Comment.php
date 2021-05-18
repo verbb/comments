@@ -213,12 +213,18 @@ class Comment extends ElementMutationResolver
      */
     public function subscribeComment($source, array $arguments, $context, ResolveInfo $resolveInfo): string
     {
+        /** @var Settings $settings */
+        $settings = Comments::$plugin->getSettings();
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $commentId = $arguments['id'] ?? null;
+        $commentId = $arguments['commentId'] ?? null;
         $ownerId = $arguments['ownerId'];
         $siteId = $arguments['siteId'] ?? null;
 
         $userId = $currentUser->id ?? null;
+
+        if ($this->_isThread($ownerId, $commentId) && !$settings->notificationSubscribeCommentEnabled) {
+            throw new UserError(Craft::t('comments', 'Per-comment subscriptions are not allowed.'));
+        }
 
         $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId, $commentId) ?? new Subscribe();
         $subscribe->ownerId = $ownerId;
@@ -340,5 +346,26 @@ class Comment extends ElementMutationResolver
         }
 
         throw new UserError(implode("\n", $validationErrors));
+    }
+
+    /**
+     * Returns `true` if the subscription target is a thread and not a non-comment Craft element.
+     * @param $ownerId
+     * @param $commentId
+     * @return bool
+     */
+    private function _isThread($ownerId, $commentId): bool
+    {
+        if (isset($commentId)) {
+            // Explicit comment reference
+            return true;
+        }
+
+        if ($element = Craft::$app->getElements()->getElementById($ownerId)) {
+            // Is ownerId secretly a comment element?
+            return get_class($element) === CommentElement::class;
+        }
+
+        return false;
     }
 }
