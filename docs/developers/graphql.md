@@ -145,6 +145,24 @@ Narrows the query results based on the comments’ email.
 #### The `comment` argument
 Narrows the query results based on the comments’ actual comment text.
 
+### Custom Fields
+
+If you’ve added custom fields to your Comments Form (**Comments** → **Settings** → **Comments Form** → **Form Layout**), you can query them by handle within a GraphQL fragment. If you added a `summary` Plain Text field, for example, your query might look like this:
+
+```graphql
+{
+    comments (ownerId: 2460, limit: 2, orderBy: "commentDate DESC") {
+        commentDate @formatDateTime (format: "Y-m-d")
+        name
+        email
+        comment
+        ... on Comment {
+            summary
+        }
+    }
+}
+```
+
 ## Mutations
 
 ### createComment

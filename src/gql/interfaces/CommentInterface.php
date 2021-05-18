@@ -36,9 +36,7 @@ class CommentInterface extends Structure
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all comments.',
-            'resolveType' => function(Comment $value) {
-                return $value->getGqlTypeName();
-            },
+            'resolveType' => self::class . '::resolveElementTypeName',
         ]));
 
         CommentGenerator::generateTypes();

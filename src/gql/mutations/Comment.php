@@ -3,13 +3,15 @@ namespace verbb\comments\gql\mutations;
 
 use verbb\comments\Comments;
 use verbb\comments\gql\arguments\mutations\Comment as CommentMutationArguments;
-use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\interfaces\Flag;
 use verbb\comments\gql\interfaces\Vote;
 use verbb\comments\gql\resolvers\mutations\Comment as CommentMutationResolver;
 use verbb\comments\helpers\Gql as GqlHelper;
 use verbb\comments\models\Settings;
+use verbb\comments\gql\types\generators\CommentGenerator;
+use verbb\comments\elements\Comment as CommentElement;
 
+use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\Mutation;
 use Craft;
 
@@ -32,24 +34,21 @@ class Comment extends Mutation
         $scope = 'comments';
         $resolver = Craft::createObject(CommentMutationResolver::class);
 
+
         if (GqlHelper::canSchema($scope, 'edit')) {
-            $mutationList['createComment'] = [
-                'name' => 'createComment',
-                'args' => CommentMutationArguments::getArguments(),
-                'resolve' => [$resolver, 'saveComment'],
-                'description' => 'Create a comment.',
-                'type' => CommentInterface::getType(),
-            ];
+            $mutationList['createComment'] = self::createSaveMutation(
+                'createComment',
+                'saveComment',
+                'Create a comment.'
+            );
         }
 
         if (GqlHelper::canSchema($scope, 'save')) {
-            $mutationList['saveComment'] = [
-                'name' => 'saveComment',
-                'args' => CommentMutationArguments::getArguments(),
-                'resolve' => [$resolver, 'saveComment'],
-                'description' => 'Save a comment.',
-                'type' => CommentInterface::getType(),
-            ];
+            $mutationList['saveComment'] = self::createSaveMutation(
+                'saveComment',
+                'saveComment',
+                'Save a comment.'
+            );
 
             if ($settings->allowVoting) {
                 $mutationList['voteComment'] = [
@@ -108,5 +107,40 @@ class Comment extends Mutation
         }
 
         return $mutationList;
+    }
+
+    /**
+     * Create the save mutation.
+     *
+     * @param string $mutationName   Mutation name.
+     * @param string $resolveMethod  Resolver method (also used for mutation name).
+     * @param string $description    Mutation description.
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function createSaveMutation(string $mutationName, string $resolveMethod, string $description): array
+    {
+        // Only one context
+        $context = Craft::$app->getFields()->getLayoutByType(CommentElement::class);
+        $mutationArguments = CommentMutationArguments::getArguments();
+        $generatedType = CommentGenerator::generateType(null);
+        /** @var CommentMutationResolver $resolver */
+        $resolver = Craft::createObject(CommentMutationResolver::class);
+
+        // Prepare resolver with custom fields
+        static::prepareResolver($resolver, $context->getFields());
+
+        $mutationArguments = array_merge(
+            $mutationArguments,
+            $resolver->getResolutionData(ElementMutationResolver::CONTENT_FIELD_KEY)
+        );
+
+        return [
+            'name' => $resolveMethod,
+            'description' => $description,
+            'args' => $mutationArguments,
+            'resolve' => [$resolver, $resolveMethod],
+            'type' => $generatedType,
+        ];
     }
 }
