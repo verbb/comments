@@ -28,6 +28,12 @@ class CommentQuery extends Query
                 'resolve' => CommentResolver::class . '::resolve',
                 'description' => 'This query is used to query for comments.',
             ],
+            'comment' => [
+                'type' => CommentInterface::getType(),
+                'args' => CommentArguments::getArguments(),
+                'resolve' => CommentResolver::class . '::resolveOne',
+                'description' => 'This query is used to query for a comment.',
+            ],
         ];
     }
 }
