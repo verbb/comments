@@ -956,7 +956,7 @@ class Comment extends Element
                 // If a reply to another comment, should we send a Notification email
                 // to the author of the original comment?
                 if ($settings->notificationReplyEnabled) {
-                    if ($this->_hasNewParent()) {
+                    if ($this->_isReplying()) {
                         Comments::$plugin->comments->sendReplyNotificationEmail($this);
                     }
                 } else {
@@ -998,7 +998,7 @@ class Comment extends Element
             // If a reply to another comment, should we send a Notification email
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled) {
-                if ($this->_hasNewParent()) {
+                if ($this->_isReplying()) {
                     Comments::$plugin->comments->sendReplyNotificationEmail($this);
                 }
             } else {
@@ -1199,6 +1199,11 @@ class Comment extends Element
         }
 
         return $this->_hasNewParent = $this->_checkForNewParent();
+    }
+
+    private function _isReplying(): bool
+    {
+        return (bool)$this->newParentId || (bool)$this->getParent();
     }
 
     private function _checkForNewParent(): bool
