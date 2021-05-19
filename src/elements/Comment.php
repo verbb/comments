@@ -1009,6 +1009,11 @@ class Comment extends Element
             if ($settings->notificationSubscribeAuto) {
                 $this->_saveNewSubscriber();
             }
+
+            // Check for all users subscribed to notifications
+            if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
+                Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
+            }
         }
 
         if ($this->_hasNewParent()) {
