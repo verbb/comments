@@ -7,6 +7,7 @@ use verbb\comments\fields\CommentsField;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\queries\CommentQuery;
+use verbb\comments\gql\mutations\Comment as CommentMutations;
 use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\integrations\CommentFeedMeElement;
 use verbb\comments\models\Settings;
@@ -24,6 +25,7 @@ use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterEmailMessagesEvent;
+use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -46,7 +48,6 @@ use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
 use yii\base\Event;
-use yii\web\User;
 
 use craft\feedme\events\RegisterFeedMeElementsEvent;
 use craft\feedme\services\Elements as FeedMeElements;
@@ -313,11 +314,24 @@ class Comments extends Plugin
             }
         });
 
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_MUTATIONS, function(RegisterGqlMutationsEvent $event) {
+            $event->mutations = array_merge(
+                $event->mutations,
+                CommentMutations::getMutations()
+            );
+        });
+
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
             $label = Craft::t('comments', 'Comments');
 
             $event->queries[$label] = [
                 'comments:read' => ['label' => Craft::t('comments', 'View comments')],
+            ];
+
+            $event->mutations[$label] = [
+                'comments:edit' => ['label' => Craft::t('comments', 'Create comments')],
+                'comments:save' => ['label' => Craft::t('comments', 'Save comments')],
+                'comments:delete' => ['label' => Craft::t('comments', 'Delete comments')],
             ];
         });
     }
@@ -398,11 +412,11 @@ class Comments extends Plugin
             });
         }
     }
+
     private function _registerWidgets()
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsWidget::class;
         });
     }
-
 }

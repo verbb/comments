@@ -144,3 +144,206 @@ Narrows the query results based on the comments’ email.
 
 #### The `comment` argument
 Narrows the query results based on the comments’ actual comment text.
+
+### Custom Fields
+
+If you’ve added custom fields to your Comments Form (**Comments** → **Settings** → **Comments Form** → **Form Layout**), you can query them by handle within a GraphQL fragment. If you added a `summary` Plain Text field, for example, your query might look like this:
+
+```graphql
+{
+    comments (ownerId: 2460, limit: 2, orderBy: "commentDate DESC") {
+        commentDate @formatDateTime (format: "Y-m-d")
+        name
+        email
+        comment
+        ... on Comment {
+            summary
+        }
+    }
+}
+```
+
+## Mutations
+
+### createComment
+
+Saves a new nested visitor comment.
+
+```graphql
+mutation NewComment($newParentId: ID, $ownerId: ID, $name: String, $email: String, $comment: String) {
+  saveComment(newParentId: $newParentId, ownerId: $ownerId, name: $name, email: $email, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "ownerId": 7,
+  "newParentId": 30,
+  "name": "Matt",
+  "email": "matt@pixelandtonic.com",
+  "comment": "Here’s a nested comment."
+}
+```
+
+### saveComment
+
+Edit an existing comment.
+
+```graphql
+mutation UpdateComment($id: ID, $comment: String) {
+  saveComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "comment": "I’m totally changing what I said."
+}
+```
+
+### voteComment
+
+Upvote a comment:
+
+```graphql
+mutation UpvoteComment($id: ID, $comment: String) {
+  voteComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "upvote": true
+}
+```
+
+Downvote a comment:
+
+```graphql
+mutation DownvoteComment($id: ID, $comment: String) {
+  voteComment(id: $id, comment: $comment) {
+    id
+    ownerId
+    name
+    email
+    comment
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34,
+  "downvote": true
+}
+```
+
+### flagComment
+
+Flag a comment for moderation:
+
+```graphql
+mutation FlagComment($id: ID!) {
+    flagComment(id: $id) {
+        id
+        comment {
+            flags
+            upvotes
+            downvotes
+        }
+    }
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34
+}
+```
+
+### subscribeComment
+
+Subscribe to an element’s comment notifications:
+
+```graphql
+mutation SubscribeComment($ownerId: ID!) {
+    subscribeComment(ownerId: $ownerId)
+}
+```
+
+Repeat to toggle on/off.
+
+Query variables:
+
+```json
+{
+  "ownerId": 34
+}
+```
+
+Subscribe to a specific comment thread, where `commentId` is the beginning of that thread:
+
+```graphql
+mutation SubscribeThread($ownerId: ID!, $commentId: ID) {
+    subscribeComment(ownerId: $ownerId, commentId: $commentId)
+}
+```
+
+Repeat to toggle on/off.
+
+Query variables:
+
+```json
+{
+  "ownerId": 34,
+  "commentId": 95
+}
+```
+
+### deleteComment
+
+Delete a comment:
+
+```graphql
+mutation DeleteComment($id: ID!) {
+    deleteComment(id: $id)
+}
+```
+
+Query variables:
+
+```json
+{
+  "id": 34
+}
+```

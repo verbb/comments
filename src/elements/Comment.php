@@ -421,7 +421,7 @@ class Comment extends Element
             return $this->_author;
         }
 
-        // If this user is a guest, we make a temprary UserModel, which is particularly
+        // If this user is a guest, we make a temporary UserModel, which is particularly
         // used for email notifications (which require a UserModel instance)
         if ($this->isGuest()) {
             // If this wasn't a registered user...
@@ -811,6 +811,50 @@ class Comment extends Element
             return parent::beforeValidate();
         }
 
+        // If saving via GraphQL, a valid token means we don’t have to check for form fields (honeypot, etc.)
+        if ($this->scenario === self::SCENARIO_LIVE) {
+            if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
+                $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
+            }
+
+            if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+                $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                    'limit' => $settings->securityMaxLength,
+                ]));
+            }
+
+            // Protect against Guest submissions, if turned off
+            if (!$settings->allowGuest && !$this->userId) {
+                $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
+            }
+
+            // Additionally, check for user email/name, which is compulsory for guests
+            if ($settings->guestRequireEmailName && !$this->userId) {
+                if (!$this->name) {
+                    $this->addError('name', Craft::t('comments', 'Name is required.'));
+                }
+
+                if (!$this->email) {
+                    $this->addError('email', Craft::t('comments', 'Email is required.'));
+                }
+            }
+
+            // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
+            if (!Comments::$plugin->getComments()->checkPermissions($this->owner)) {
+                $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+            }
+
+            // Is this user trying to edit/save/delete a comment that’s not their own?
+            // This is permissible from the CP
+            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+
+                if (empty($currentUser) || $currentUser->id !== $this->author->id) {
+                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
+                }
+            }
+        }
+
         // Skip for CP saving
         if ($this->scenario === self::SCENARIO_FRONT_END) {
             // Let's check for spam!
@@ -835,7 +879,7 @@ class Comment extends Element
                 $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
             }
 
-            // Additionally, check for user email/name, which is compulsary for guests
+            // Additionally, check for user email/name, which is compulsory for guests
             if ($settings->guestRequireEmailName && !$this->userId) {
                 if (!$this->name) {
                     $this->addError('name', Craft::t('comments', 'Name is required.'));
@@ -851,13 +895,13 @@ class Comment extends Element
                 $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
             }
 
-            // Is this user trying to edit/save/delete a comment thats not their own?
-            // This is permisable from the CP
+            // Is this user trying to edit/save/delete a comment that’s not their own?
+            // This is permissible from the CP
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Craft::$app->getUser()->getIdentity();
 
                 if ($currentUser->id !== $this->author->id) {
-                    $this->addError('comment', Craft::t('comments', 'Unable to modify another users comment.'));
+                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
         }
