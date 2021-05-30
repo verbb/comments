@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.7 - 2021-05-30
+
+### Added
+- Add support for GraphQL mutations. (thanks @mattstein).
+
+### Changed
+- Update reply notifications disabled warning message.
+- Remove `showCustomFields` config setting.
+
+### Fixed
+- Fix reply email notifications not working correctly, when comment moderation was enabled.
+- Fix subscriber notification emails not being sent after a moderated comment was approved.
+- Fix subscriber notification emails being sent for comments that require moderation.
+- Fix admin notifications not sending when new comments are made.
+
 ## 1.8.6 - 2021-04-11
 
 ### Added
