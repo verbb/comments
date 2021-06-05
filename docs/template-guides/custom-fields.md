@@ -2,8 +2,6 @@
 
 The form for users to enter their comments can have custom fields attached to it. This gives you the flexibility to get commenters to supply extra content, stored alongside their comment.
 
-Custom fields will not be shown automatically. Using the `showCustomFields` config setting, these fields can be automatically rendered on the comment form. Or, if you're using your own templates, you've got full control over how to output these fields. If using your own templates, you can ignore the `showCustomFields` altogether.
-
 Whilst you can add any Craft custom field to the comments form, currently Comments only supports basic fields, such as:
 - Assets
 - Checkboxes

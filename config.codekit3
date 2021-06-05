@@ -670,12 +670,44 @@
       "oAP" : "\/src\/gql\/arguments\/CommentArguments.php",
       "oF" : 0
     },
+    "\/src\/gql\/arguments\/mutations\/Comment.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/arguments\/mutations\/Comment.php",
+      "oF" : 0
+    },
     "\/src\/gql\/interfaces\/CommentInterface.php" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 2,
       "oAP" : "\/src\/gql\/interfaces\/CommentInterface.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/interfaces\/Flag.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/interfaces\/Flag.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/interfaces\/Vote.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/interfaces\/Vote.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/mutations\/Comment.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/mutations\/Comment.php",
       "oF" : 0
     },
     "\/src\/gql\/queries\/CommentQuery.php" : {
@@ -694,6 +726,14 @@
       "oAP" : "\/src\/gql\/resolvers\/CommentResolver.php",
       "oF" : 0
     },
+    "\/src\/gql\/resolvers\/mutations\/Comment.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/resolvers\/mutations\/Comment.php",
+      "oF" : 0
+    },
     "\/src\/gql\/types\/CommentType.php" : {
       "cB" : 0,
       "ft" : 8192,
@@ -702,12 +742,28 @@
       "oAP" : "\/src\/gql\/types\/CommentType.php",
       "oF" : 0
     },
+    "\/src\/gql\/types\/Flag.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/types\/Flag.php",
+      "oF" : 0
+    },
     "\/src\/gql\/types\/generators\/CommentGenerator.php" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 2,
       "oAP" : "\/src\/gql\/types\/generators\/CommentGenerator.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/types\/Vote.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/gql\/types\/Vote.php",
       "oF" : 0
     },
     "\/src\/helpers" : {
