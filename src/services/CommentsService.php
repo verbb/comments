@@ -10,6 +10,7 @@ use verbb\comments\events\EmailEvent;
 use Craft;
 use craft\base\Component;
 use craft\db\Table;
+use craft\elements\Asset;
 use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
@@ -377,7 +378,11 @@ class CommentsService extends Component
 
         // Get our recipient
         try {        
-            if ($element->getAuthor()) {
+            if (get_class($element) === Asset::class) {
+                if ($element->getUploader()) {
+                    $recipient = $element->getUploader();
+                }
+            } else if ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
         } catch(\Throwable $e) {
