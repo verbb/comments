@@ -16,7 +16,7 @@ class m180826_000000_add_comment_date_column extends Migration
         }
 
         // For existing records, backfill the new column with the existing values from dateCreated
-        $this->update('{{%comments_comments}}', ['commentDate' => new Expression('dateCreated')]);
+        $this->update('{{%comments_comments}}', ['[[commentDate]]' => new Expression('[[dateCreated]]')], ['[[commentDate]]' => null], [], false);
 
         return true;
     }
