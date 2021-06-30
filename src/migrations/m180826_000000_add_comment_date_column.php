@@ -15,8 +15,16 @@ class m180826_000000_add_comment_date_column extends Migration
             $this->addColumn('{{%comments_comments}}', 'commentDate', $this->dateTime()->after('userAgent')->notNull());
         }
 
+        $comments = (new Query())
+            ->from('{{%comments_comments}}')
+            ->all();
+
         // For existing records, backfill the new column with the existing values from dateCreated
-        $this->update('{{%comments_comments}}', ['[[commentDate]]' => new Expression('[[dateCreated]]')], ['[[commentDate]]' => null], [], false);
+        foreach ($comments as $comment) {
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%comments_comments}}', ['commentDate' => $comment['dateCreated']], ['id' => $comment['id']])
+                ->execute();
+        }
 
         return true;
     }
