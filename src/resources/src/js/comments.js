@@ -54,8 +54,8 @@ Comments.Base = Base.extend({
     serialize: function(form) {
         var formData = new FormData(form);
 
-        // Add CSRF to each request
-        formData.append(Comments.csrfTokenName, Comments.csrfToken);
+        // Set CSRF to each request, just in case
+        formData.set(Comments.csrfTokenName, Comments.csrfToken);
 
         return formData;
     },
