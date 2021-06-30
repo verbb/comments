@@ -261,6 +261,15 @@ Comments.Instance = Comments.Base.extend({
 
             this.comments[id] = new Comments.Comment(this, $comments[i]);
         }
+
+        // Update the CSRF token from the form. This plays nicely with Blitz.
+        setTimeout(function() {
+            var $csrfTokenInput = this.$baseForm.querySelector('[name="' + Comments.csrfTokenName + '"]');
+
+            if ($csrfTokenInput) {
+                Comments.csrfToken = $csrfTokenInput.value;
+            }
+        }.bind(this), 2000);
     },
 
     onSubmit: function(e) {
