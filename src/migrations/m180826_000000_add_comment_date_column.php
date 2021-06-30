@@ -12,7 +12,7 @@ class m180826_000000_add_comment_date_column extends Migration
     {   
         // First create the new column
         if (!$this->db->columnExists('{{%comments_comments}}', 'commentDate')) {
-            $this->addColumn('{{%comments_comments}}', 'commentDate', $this->dateTime()->after('userAgent')->notNull());
+            $this->addColumn('{{%comments_comments}}', 'commentDate', $this->dateTime()->null()->after('userAgent')->notNull());
         }
 
         $comments = (new Query())
