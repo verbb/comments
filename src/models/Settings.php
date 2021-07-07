@@ -92,6 +92,10 @@ class Settings extends Model
     public $showCustomFieldNames = false;
     public $showCustomFieldInstructions = false;
 
+    // CP Sorting
+    public $sortDefaultKey = 'structure';
+    public $sortDefaultDirection = 'asc';
+
     // Deprecated
 
     /**

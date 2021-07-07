@@ -130,7 +130,7 @@ class Comment extends Element
                 'label' => Craft::t('comments', 'All comments'),
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
-                'defaultSort' => ['structure', 'asc'],
+                'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
             ]
         ];
 
@@ -194,7 +194,7 @@ class Comment extends Element
                 'criteria' => [
                     'ownerType' => $element['type'],
                 ],
-                'defaultSort' => ['structure', 'asc'],
+                'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
             ];
 
             // Just do sections for the moment
@@ -209,7 +209,7 @@ class Comment extends Element
                     'criteria' => [
                         'ownerSectionId' => $element['sectionId'],
                     ],
-                    'defaultSort' => ['structure', 'asc'],
+                    'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
                 ];
             }
 
