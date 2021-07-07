@@ -124,19 +124,21 @@ class Comment extends Element
 
     protected static function defineSources(string $context = null): array
     {
+        $settings = Comments::$plugin->getSettings();
+        
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('comments', 'All comments'),
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
-                'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
+                'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
             ]
         ];
 
-        $indexSidebarLimit = Comments::$plugin->getSettings()->indexSidebarLimit;
-        $indexSidebarGroup = Comments::$plugin->getSettings()->indexSidebarGroup;
-        $indexSidebarIndividualElements = Comments::$plugin->getSettings()->indexSidebarIndividualElements;
+        $indexSidebarLimit = $settings->indexSidebarLimit;
+        $indexSidebarGroup = $settings->indexSidebarGroup;
+        $indexSidebarIndividualElements = $settings->indexSidebarIndividualElements;
 
         $query = (new Query())
             ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title', 'entries.sectionId'])
@@ -194,7 +196,7 @@ class Comment extends Element
                 'criteria' => [
                     'ownerType' => $element['type'],
                 ],
-                'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
+                'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
             ];
 
             // Just do sections for the moment
@@ -209,7 +211,7 @@ class Comment extends Element
                     'criteria' => [
                         'ownerSectionId' => $element['sectionId'],
                     ],
-                    'defaultSort' => [Comments::$plugin->getSettings()->sortDefaultKey, Comments::$plugin->getSettings()->sortDefaultDirection],
+                    'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
                 ];
             }
 

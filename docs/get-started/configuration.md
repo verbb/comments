@@ -78,8 +78,8 @@ return [
         'showCustomFieldInstructions' => false,
 
         // CP Sort
-        'sortDefaultKey' => 'commentDate',
-        'sortDefaultDirection' => 'desc',
+        'sortDefaultKey' => 'structure',
+        'sortDefaultDirection' => 'asc',
     ]
 ];
 ```
@@ -143,7 +143,7 @@ return [
 
 - `showCustomFieldNames` - Whether custom fields should show their field names as labels.
 - `showCustomFieldInstructions` - Whether custom fields should show their instruction text underneath labels.
-- `sortDefaultKey` and `sortDefaultDirection` - Changes the default sort order in the control panel. (Does not affect front-end)
+- `sortDefaultKey` and `sortDefaultDirection` - Changes the default sort order in the control panel when viewing all comments. (Does not affect the front-end).
 
 ## Control Panel
 
