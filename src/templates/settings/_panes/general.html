@@ -77,7 +77,7 @@
     label: 'Auto-close Comments' | t('comments'),
     id: 'autoCloseDays',
     name: 'autoCloseDays',
-    instructions: 'Comments can be automatically closed on elements older than the provided amount of days. Leave empty to disable.' | t('comments'),
+    instructions: 'Comments can be automatically closed on elements older than the provided amount of days. This uses the "Post Date" of an element. Leave empty to disable.' | t('comments'),
     value: settings.autoCloseDays,
     warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}

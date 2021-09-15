@@ -97,7 +97,7 @@ return [
 - `guestShowEmailName` - Whether guests should be shown fields to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
-- `autoCloseDays` - Number of days until commenting is automatically closed. 0 to disable.
+- `autoCloseDays` - Number of days until commenting is automatically closed. This uses the "Post Date" of an element. 0 to disable.
 - `maxReplyDepth` - Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
 - `maxUserComments` - Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.
 
