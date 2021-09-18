@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.8 - 2021-09-18
+
+- Add `./craft comments/base/set-structure` console command for fixing comments that have lost their original structure.
+- Update status colours to Craft standard.
+- Ensure reply and edit forms generate unique IDs, when an `id` attribute is set on the DOM element for a comment. (thanks @adrienne).
+- Fix `userAgent` column in comments not having their default set to `null`.
+- Fix incompatibility with Blitz and CSRF token refreshing.
+- Fix CSRF token being added to form submissions twice.
+- Fix Craft 2 migration and `commentDate` error.
+- Fix error when trying to send author notification emails for comments made on assets.
+- Fix `showCustomFields` deprecation warning.
+
 ## 1.8.7 - 2021-05-30
 
 ### Added
