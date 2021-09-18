@@ -2,9 +2,14 @@
 
 ## 1.8.8 - 2021-09-18
 
+### Added
 - Add `./craft comments/base/set-structure` console command for fixing comments that have lost their original structure.
+
+### Changed
 - Update status colours to Craft standard.
 - Ensure reply and edit forms generate unique IDs, when an `id` attribute is set on the DOM element for a comment. (thanks @adrienne).
+
+### Fixed
 - Fix `userAgent` column in comments not having their default set to `null`.
 - Fix incompatibility with Blitz and CSRF token refreshing.
 - Fix CSRF token being added to form submissions twice.
