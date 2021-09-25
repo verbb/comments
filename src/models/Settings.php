@@ -146,7 +146,7 @@ class Settings extends Model
             return false;
         }
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         if (!$currentUser && !$this->allowGuest) {
             return false;

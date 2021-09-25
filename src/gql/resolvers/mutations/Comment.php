@@ -1,7 +1,6 @@
 <?php
 namespace verbb\comments\gql\resolvers\mutations;
 
-use craft\base\ElementInterface;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
 use verbb\comments\elements\db\CommentQuery;
@@ -10,6 +9,7 @@ use verbb\comments\models\Settings;
 use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
+use craft\base\ElementInterface;
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
 use craft\gql\base\ElementMutationResolver;
@@ -58,7 +58,7 @@ class Comment extends ElementMutationResolver
             $this->requireSchemaAction('comments', 'edit');
         }
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         if (empty($currentUser) && !$settings->allowGuest) {
             $message = ! empty($settings->guestNotice) ?
@@ -113,7 +113,7 @@ class Comment extends ElementMutationResolver
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         if (!$settings->allowVoting) {
             throw new UserError(Craft::t('comments', 'Voting is not allowed.'));
@@ -175,7 +175,7 @@ class Comment extends ElementMutationResolver
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $commentId = $arguments['id'];
         $userId = $currentUser->id ?? null;
 
@@ -215,7 +215,7 @@ class Comment extends ElementMutationResolver
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $commentId = $arguments['commentId'] ?? null;
         $ownerId = $arguments['ownerId'];
         $siteId = $arguments['siteId'] ?? null;
@@ -260,7 +260,7 @@ class Comment extends ElementMutationResolver
         $commentId = $arguments['id'];
         $elementService = Craft::$app->getElements();
         $comment = $elementService->getElementById($commentId);
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         if (!$comment) {
             return true;

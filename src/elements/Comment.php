@@ -565,7 +565,7 @@ class Comment extends Element
 
     public function canEdit()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         // Only logged in users can edit a comment
         if (!$currentUser) {
@@ -587,7 +587,7 @@ class Comment extends Element
 
     public function canTrash()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         // Only logged in users can upvote a comment
         if (!$currentUser) {
@@ -611,7 +611,7 @@ class Comment extends Element
     {
         Craft::$app->getDeprecator()->log('trashUrl', '`trashUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/comment).');
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         // Only logged in users can upvote a comment
         if (!$currentUser) {
@@ -655,7 +655,7 @@ class Comment extends Element
 
     public function isSubscribed()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $userId = $currentUser->id ?? null;
 
         return Comments::$plugin->getSubscribe()->hasSubscribed($this->ownerId, $this->ownerSiteId, $userId, $this->id);
@@ -681,7 +681,7 @@ class Comment extends Element
 
     public function hasFlagged()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         return Comments::$plugin->getFlags()->hasFlagged($this, $currentUser);
     }
@@ -699,7 +699,7 @@ class Comment extends Element
     public function canFlag()
     {
         $settings = Comments::$plugin->getSettings();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         // If flagging is plain disabled
         if (!$settings->allowFlagging) {
@@ -779,7 +779,7 @@ class Comment extends Element
     public function canVote()
     {
         $settings = Comments::$plugin->getSettings();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         // If voting is plain disabled
         if (!$settings->allowVoting) {
@@ -849,7 +849,7 @@ class Comment extends Element
             // Is this user trying to edit/save/delete a comment that’s not their own?
             // This is permissible from the CP
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
-                $currentUser = Craft::$app->getUser()->getIdentity();
+                $currentUser = Comments::$plugin->getService()->getUser();
 
                 if (empty($currentUser) || $currentUser->id !== $this->author->id) {
                     $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
@@ -900,7 +900,7 @@ class Comment extends Element
             // Is this user trying to edit/save/delete a comment that’s not their own?
             // This is permissible from the CP
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
-                $currentUser = Craft::$app->getUser()->getIdentity();
+                $currentUser = Comments::$plugin->getService()->getUser();
 
                 if ($currentUser->id !== $this->author->id) {
                     $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
@@ -1289,7 +1289,7 @@ class Comment extends Element
 
     private function _saveNewSubscriber()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         $ownerId = $this->ownerId;
         $siteId = $this->siteId;

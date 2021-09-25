@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\models;
 
+use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\records\Vote as VoteRecord;
 
@@ -26,7 +27,7 @@ class Vote extends Model
 
     public function rules()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         if ($currentUser) {
             $targetAttribute = ['userId', 'commentId', 'upvote', 'downvote'];

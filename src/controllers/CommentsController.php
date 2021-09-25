@@ -179,7 +179,7 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
         
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
 
         $commentId = $request->getParam('commentId');
@@ -228,7 +228,7 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
 
         $upvote = $request->getParam('upvote');
@@ -330,7 +330,7 @@ class CommentsController extends Controller
 
     public function actionSubscribe()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
 
         $ownerId = $request->getParam('ownerId');
@@ -383,7 +383,7 @@ class CommentsController extends Controller
 
     private function _setCommentFromPost(): Comment
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
         $settings = Comments::$plugin->getSettings();

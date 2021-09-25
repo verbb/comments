@@ -33,7 +33,7 @@ class CommentsVariable
 
     public function isSubscribed($element, $comment = null)
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = Comments::$plugin->getService()->getUser();
         $elementId = $element->id ?? null;
         $elementSiteId = $element->siteId ?? null;
         $userId = $currentUser->id ?? null;
@@ -88,7 +88,7 @@ class CommentsVariable
 
     public function getAvatar()
     {
-        return CommentsHelper::getAvatar(Craft::$app->getUser()->getIdentity());
+        return CommentsHelper::getAvatar(Comments::$plugin->getService()->getUser());
     }
 
     public function getUserVotes($userId)
