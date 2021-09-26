@@ -10,7 +10,7 @@ return [
         "A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
-    'comments_reply_notification_heading' => 'When a comment is received:',
+    'comments_reply_notification_heading' => 'When someone replies to another comment:',
     'comments_reply_notification_subject' => 'Someone has replied to your comment on {{siteName}}.',
     'comments_reply_notification_body' => "Hi {{user.friendlyName}},\n\n" .
         "A new reply to your comment on the post \"{{ element.title }}\" has been made.\n\n" .
@@ -22,10 +22,10 @@ return [
         "A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
-    'comments_subscriber_notification_comment_heading' => 'When someone response to another comment:',
-    'comments_subscriber_notification_comment_subject' => 'Someone responded to your comment on {{ siteName }}',
+    'comments_subscriber_notification_comment_heading' => 'When someone replies to another comment they have subscribed to:',
+    'comments_subscriber_notification_comment_subject' => 'A new reply has been made on {{ element.title }}',
     'comments_subscriber_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
-        "Somebody replied on your comment on the post \"{{ element.title }}\".\n\n" .
+        "A new reply on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
     'comments_moderator_notification_comment_heading' => 'When a comment has been made, and awaits moderation:',
