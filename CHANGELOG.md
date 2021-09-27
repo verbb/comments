@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.9 - 2021-09-27
+
+### Added
+- Add support for "GraphQL Authentication" for all authenticated user functions when using GraphQL.
+- Add `emailKey` as a variable to the `comments_subscriber_notification_comment` and `comments_subscriber_notification_element` email template.
+- Update subscriber notification email defaults for replies.
+
 ## 1.8.8 - 2021-09-18
 
 ### Added
