@@ -8,6 +8,7 @@ use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
 use Craft;
+use craft\helpers\Json;
 use craft\web\Controller;
 
 use yii\web\Response;
@@ -18,7 +19,7 @@ class CommentsController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = ['save','get-js-variables'];
+    protected $allowAnonymous = ['save', 'get-js-variables'];
 
 
     // Public Methods
@@ -40,16 +41,15 @@ class CommentsController extends Controller
         return parent::beforeAction($action);
     }
 
-    // Grab the required JS variabled with a separate call
-    // This is required when loading single comments aync
-    
+    // Grab the required JS variables with a separate call
+    // This is required when loading single comments async
     public function actionGetJsVariables()
     {
         $this->requirePostRequest();      
         
         $request = Craft::$app->getRequest();
         $elementId = $request->getParam('elementId');
-        $criteria = $request->getParam('criteria') ? json_decode($request->getParam('criteria')) : [];
+        $criteria = $request->getParam('criteria') ? Json::decode($request->getParam('criteria')) : [];
         
         $id = 'cc-w-' . $elementId;       
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
