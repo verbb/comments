@@ -720,12 +720,13 @@ class CommentsService extends Component
         		}
         		
         		// Separate email keys for comment on comment vs comment on entry
-        		$emailkey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+        		$emailKey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
 
-        		$message = $this->_renderEmail($emailkey, [
+        		$message = $this->_renderEmail($emailKey, [
             			'element' => $element,
             			'comment' => $comment,
                         'user' => $user,
+                        'emailKey' => $emailKey,
         		    ])
         		    ->setTo($user);
 
