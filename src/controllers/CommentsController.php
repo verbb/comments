@@ -18,7 +18,7 @@ class CommentsController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = ['save'];
+    protected $allowAnonymous = ['save','get-js-variables'];
 
 
     // Public Methods
@@ -40,6 +40,26 @@ class CommentsController extends Controller
         return parent::beforeAction($action);
     }
 
+    // Grab the required JS variabled with a separate call
+    // This is required when loading single comments aync
+    
+    public function actionGetJsVariables()
+    {
+        $this->requirePostRequest();      
+        
+        $request = Craft::$app->getRequest();
+        $elementId = $request->getParam('elementId');
+        $criteria = $request->getParam('criteria') ? json_decode($request->getParam('criteria')) : [];
+        
+        $id = 'cc-w-' . $elementId;       
+        $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
+
+        return $this->asJson([
+            'id' => '#' . $id,
+            'settings' => $jsVariables,
+        ]);
+    } 
+    
     //
     // Control Panel
     //
