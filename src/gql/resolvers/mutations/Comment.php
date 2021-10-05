@@ -61,9 +61,8 @@ class Comment extends ElementMutationResolver
         $currentUser = Comments::$plugin->getService()->getUser();
 
         if (empty($currentUser) && !$settings->allowGuest) {
-            $message = ! empty($settings->guestNotice) ?
-                $settings->guestNotice :
-                Craft::t('comments', 'Must be logged in to comment.');
+            $message = !empty($settings->guestNotice) ? $settings->guestNotice : Craft::t('comments', 'Must be logged in to comment.');
+            
             throw new UserError($message);
         }
 
@@ -71,8 +70,8 @@ class Comment extends ElementMutationResolver
         $comment = $this->populateElementWithData($comment, $arguments);
 
         // If we’re logged in and not editing our own comment, make sure a new one’s allowed
-        if (! empty($currentUser) && !$comment->userId && !$canIdentify) {
-            if (! $settings->canComment($comment)) {
+        if (!empty($currentUser) && !$comment->userId && !$canIdentify) {
+            if (!$settings->canComment($comment->getOwner())) {
                 throw new UserError(Craft::t('comments', 'Comment not allowed.'));
             }
 
