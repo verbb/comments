@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.10 - 2021-10-06
+
+### Added
+- Add some missing NL translations. (thanks @arifje).
+- Add `comments/comments/get-js-variables` controller endpoint to fetch necessary variables for rendering JS. Useful for headless setups. (thanks @arifje).
+
+### Fixed
+- Fix an error when using GraphQL mutations and "Auto-close Comments" is enabled.
+
 ## 1.8.9 - 2021-09-27
 
 ### Added
