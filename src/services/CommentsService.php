@@ -103,7 +103,10 @@ class CommentsService extends Component
         // Prepare variables to pass to templates - important to include route params
         $routeParams = Craft::$app->getUrlManager()->getRouteParams();
 
-        $element = Craft::$app->getElements()->getElementById($elementId);
+        // Check if we're passing a siteId in
+        $siteId = $criteria['siteId'] ?? null;
+
+        $element = Craft::$app->getElements()->getElementById($elementId, null, $siteId);
 
         $query = Comment::find()
             ->ownerId($elementId)
