@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.11 - 2021-10-30
+
+### Changed
+- Now requires Craft 3.6.0+
+
+### Fixed
+- Fix not fetching the correct site-specific element when passing in the `siteId` param to the `render()` function.
+- Fix `siteId` param for comment form not respecting overridden value when setting via Twig.
+
 ## 1.8.10 - 2021-10-06
 
 ### Added
