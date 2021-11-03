@@ -175,7 +175,7 @@ class Settings extends Model
 
     public function getEnabledNotificationAdmins()
     {
-        $notificationAdmins = $this->notificationAdmins ?? [];
+        $notificationAdmins = $this->notificationAdmins ?: [];
 
         return ArrayHelper::where($notificationAdmins, 'enabled');
     }

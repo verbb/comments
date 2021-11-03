@@ -32,7 +32,7 @@
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}
                     <li>
-                        <a id="tab-{{ loop.index }}" href="#tab-{{ id }}" class="tab {% if id == selectedItem %}sel{% endif %}">
+                        <a href="#sidebar-tab-{{ id }}" class="tab {% if id == selectedItem %}sel{% endif %}">
                             {{ item.title }}
                         </a>
                     </li>
@@ -49,7 +49,7 @@
 
 {% for id, item in navItems %}
     {% if item.title is defined %}
-        <div id="tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
+        <div id="sidebar-tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
             <h2>{{ item.title }}</h2>
 
             {% namespace 'settings' %}
