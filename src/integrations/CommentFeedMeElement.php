@@ -10,8 +10,11 @@ use craft\elements\User as UserElement;
 
 use craft\feedme\base\Element;
 use craft\feedme\Plugin;
+use craft\feedme\events\FeedProcessEvent;
+use craft\feedme\services\Process;
 
 use Cake\Utility\Hash;
+use yii\base\Event;
 
 class CommentFeedMeElement extends Element
 {
@@ -44,6 +47,51 @@ class CommentFeedMeElement extends Element
 
     // Public Methods
     // =========================================================================
+
+    public function init()
+    {
+        parent::init();
+
+        Event::on(Process::class, Process::EVENT_STEP_AFTER_ELEMENT_SAVE, function(FeedProcessEvent $event) {
+            if ($event->feed['elementType'] === CommentElement::class) {
+                $this->_processNestedComments($event);
+            }
+        });
+    }
+
+    private function _processNestedComments($event)
+    {
+        // Save the imported comment as the parent, we'll need it in a sec
+        $parentId = $event->element->id;
+
+        // Check if we're mapping a node to start looking for children.
+        $childrenNode = Hash::get($event->feed, 'fieldMapping.children.node');
+
+        if (!$childrenNode) {
+            return;
+        }
+
+        // Check if there's any children data for the node we've just imported
+        $expandedData = Hash::expand($event->feedData, '/');
+        $childrenData = Hash::get($expandedData, $childrenNode, []);
+
+        foreach ($childrenData as $childData) {
+            // Prep the data, cutting the nested content to the top of the array
+            $newFeedData = Hash::flatten($childData, '/');
+
+            $processedElementIds = [];
+
+            // Directly modify the field mapping data, because we're programatically adding
+            // the `newParentId`, which cannot be mapped.
+            $event->feed['fieldMapping']['newParentId'] = [
+                'attribute' => true,
+                'default' => $parentId,
+            ];
+
+            // Trigger the import for each child
+            Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
+        }
+    }
     
     public function getGroups()
     {

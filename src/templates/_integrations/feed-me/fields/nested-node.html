@@ -1,0 +1,62 @@
+{% import '_includes/forms' as forms %}
+
+{% set nameLabel = nameLabel ?? name ?? null %}
+{% set handle = handle ?? null %}
+{% set instructions = instructions ?? null %}
+{% set instructionsHandle = instructionsHandle ?? handle ?? null %}
+
+{% set default = default ?? null %}
+{% set required = required ?? null %}
+{% set attribute = attribute ?? null %}
+{% set field = field ?? null %}
+{% set fieldClass = fieldClass ?? null %}
+
+{% set path = path ?? [handle] %}
+{% set namespacePath = path|join('][') %}
+{% set nodePath = path|join('.') ~ '.node' %}
+
+{% set namespace = 'fieldMapping[' ~ namespacePath ~ ']' %}
+{% set value = hash_get(feed.fieldMapping, nodePath) %}
+
+<tr>
+    <td class="col-field">
+        <div class="field">
+            <div class="heading">
+                <label class="{{ required ? 'required' }}">{{ nameLabel|t('site') }}</label>
+
+                {% if attribute and instructions %}
+                    <div class="instructions">
+                        <p>{{ instructions|raw }}</p>
+                    </div>
+                {% endif %}
+
+                {% if fieldClass and instructionsHandle %}
+                    <div class="instructions">
+                        <code>{{ instructionsHandle }}</code>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </td>
+
+    <td class="col-map">
+        {% set nodeOptions = [{ label: 'Don’t import' | t('feed-me'), value: 'noimport' }] %}
+
+        {% for nodeKey, nodeValue in feed.getFeedNodes().data %}
+            {% if nodeKey %}
+                {% set nodeOptions = nodeOptions | merge([{ label: nodeValue, value: nodeKey }]) %}
+            {% endif %}
+        {% endfor %}
+
+        {% namespace namespace %}
+            {{ forms.selectField({
+                name: 'node',
+                value: value,
+                options: nodeOptions,
+                class: 'selectize fullwidth',
+            }) }}
+        {% endnamespace %}
+    </td>
+
+    <td class="col-default"></td>
+</tr>
