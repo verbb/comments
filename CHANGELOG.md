@@ -1,12 +1,20 @@
 # Changelog
 
+## 1.9.0 - 2021-12-04
+
+### Fixed
+- Fix an incompatibility error with Craft 3.7.24+.
+
+### Changed
+- Now requires Craft 3.7.24+.
+
 ## 1.8.12 - 2021-12-04
 
 ### Added
 - Add `settings.commentingAvailable()`, which will provide more detailed information on why commenting is not available on an element. (thanks @adrienne).
 - Add support for importing nested child comments for Feed Me.
 
-### Fixed.
+### Fixed
 - Fix an error when "Enable Admin Notifications" was enabled, but no "Comment Administrators" were defined.
 
 ## 1.8.11 - 2021-10-30
