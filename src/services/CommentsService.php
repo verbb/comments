@@ -229,14 +229,19 @@ class CommentsService extends Component
         return true;
     }
 
-    public function checkClosed($element)
+    public function checkManuallyClosed($element)
     {
-        $settings = Comments::$plugin->getSettings();
-
-        // Has this comment been manually closed? Takes precedence
+        // Has this comment been manually closed?
         if (!$this->_checkOwnerFieldEnabled($element)) {
             return true;
         }
+
+        return false;
+    }
+
+    public function checkExpired($element)
+    {
+        $settings = Comments::$plugin->getSettings();
 
         // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
         if ($settings->autoCloseDays) {

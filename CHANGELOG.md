@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.12 - 2021-12-02
+
+### Added
+- Added a new settings function, `commentingAvailable()`, which will provide more detailed information on why commenting is not available on an element. (It can be accessed via Twig, too, if you are using custom comment templates!)
+
 ## 1.8.11 - 2021-10-30
 
 ### Changed

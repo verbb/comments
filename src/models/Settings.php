@@ -3,6 +3,7 @@ namespace verbb\comments\models;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\enums\CommentStatus;
 
 use Craft;
 use craft\base\Model;
@@ -132,24 +133,37 @@ class Settings extends Model
         return null;
     }
 
+    /* this needs to return a boolean */
     public function canComment($element)
     {
-        $isClosed = Comments::$plugin->getComments()->checkClosed($element);
+        $isAllowed = $this->commentingAvailable($element);
+        return $isAllowed['permission'];
+    }
+
+    public function commentingAvailable($element)
+    {
+        $isClosed = Comments::$plugin->getComments()->checkManuallyClosed($element);
 
         if ($isClosed) {
-            return false;
+            return CommentStatus::ManuallyClosed;
+        }
+
+        $isExpired = Comments::$plugin->getComments()->checkExpired($element);
+
+        if ($isExpired) {
+            return CommentStatus::Expired;
         }
 
         $hasPermission = Comments::$plugin->getComments()->checkPermissions($element);
 
         if (!$hasPermission) {
-            return false;
+            return CommentStatus::Unpermitted;
         }
 
         $currentUser = Comments::$plugin->getService()->getUser();
 
         if (!$currentUser && !$this->allowGuest) {
-            return false;
+            return CommentStatus::NoGuests;
         }
 
         if ($this->maxUserComments && $currentUser) {
@@ -157,11 +171,11 @@ class Settings extends Model
             $count = Comment::find()->ownerId($element->id)->userId($currentUser->id)->count();
 
             if ($count >= $this->maxUserComments) {
-                return false;
+                return CommentStatus::TooManyComments;
             }
         }
 
-        return true;
+        return CommentStatus::Allowed;
     }
 
     public function getStructureId()
