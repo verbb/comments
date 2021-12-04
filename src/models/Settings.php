@@ -137,6 +137,7 @@ class Settings extends Model
     public function canComment($element)
     {
         $isAllowed = $this->commentingAvailable($element);
+        
         return $isAllowed['permission'];
     }
 
