@@ -2,11 +2,11 @@
 
 ## 1.9.0 - 2021-12-04
 
-### Fixed
-- Fix an incompatibility error with Craft 3.7.24+.
-
 ### Changed
 - Now requires Craft 3.7.24+.
+
+### Fixed
+- Fix an incompatibility error with Craft 3.7.24+.
 
 ## 1.8.12 - 2021-12-04
 
