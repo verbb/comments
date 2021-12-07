@@ -171,6 +171,7 @@ class CommentFeedMeElement extends Element
             ->innerJoin('{{%elements_sites}} elements_sites', '[[elements_sites.elementId]] = [[elements.id]]')
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
             ->where(['=', $columnName, $value])
+            ->andWhere(['dateDeleted' => null])
             ->one();
 
         if ($result) {
