@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1 - 2021-12-31
+
+### Fixed
+- Fix Feed Me importing not taking into account trashed owners.
+
 ## 1.9.0 - 2021-12-04
 
 ### Changed

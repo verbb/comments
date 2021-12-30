@@ -592,6 +592,14 @@
       "oAP" : "\/src\/elements",
       "oF" : 0
     },
+    "\/src\/enums\/CommentStatus.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/enums\/CommentStatus.php",
+      "oF" : 0
+    },
     "\/src\/errors\/FlagNotFoundException.php" : {
       "cB" : 0,
       "ft" : 8192,
