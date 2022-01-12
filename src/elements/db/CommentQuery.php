@@ -302,6 +302,12 @@ class CommentQuery extends ElementQuery
             $this->subQuery->addGroupBy(['comments_comments.id', 'structureelements.structureId']);
         }
 
+        if ($this->_orderByFlagged()) {
+            $this->subQuery->leftJoin('{{%comments_flags}} comments_flags', '[[comments_comments.id]] = [[comments_flags.commentId]]');
+            $this->subQuery->addSelect(['comments_comments.id', 'NOT(ISNULL(comments_flags.id)) isFlagged']);
+            $this->subQuery->addGroupBy(['comments_comments.id', 'structureelements.structureId', 'comments_flags.id']);
+        }
+
         return parent::beforePrepare();
     }
 
@@ -339,6 +345,19 @@ class CommentQuery extends ElementQuery
                 return strstr($this->orderBy, 'votes');
             } else if (is_array($this->orderBy)) {
                 return isset($this->orderBy['votes']);
+            }
+        }
+
+        return false;
+    }
+
+    private function _orderByFlagged()
+    {
+        if ($this->orderBy) {
+            if (is_string($this->orderBy)) {
+                return strstr($this->orderBy, 'isFlagged');
+            } else if (is_array($this->orderBy)) {
+                return isset($this->orderBy['isFlagged']);
             }
         }
 
