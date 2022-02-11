@@ -297,15 +297,21 @@ class CommentQuery extends ElementQuery
         }
 
         if ($this->_orderByVotes()) {
-            $this->subQuery->leftJoin('{{%comments_votes}} comments_votes', '[[comments_comments.id]] = [[comments_votes.commentId]]');
-            $this->subQuery->addSelect(['comments_comments.id', '(IFNULL(SUM(comments_votes.upvote), 0) - IFNULL(SUM(comments_votes.downvote), 0)) votes']);
-            $this->subQuery->addGroupBy(['comments_comments.id', 'structureelements.structureId']);
+            $subQuery = (new Query())
+                ->select(['(IFNULL(SUM(comments_votes.upvote), 0) - IFNULL(SUM(comments_votes.downvote), 0))'])
+                ->from('{{%comments_votes}} comments_votes')
+                ->where('[[comments_votes.commentId]] = [[elements.id]]');
+
+            $this->subQuery->addSelect(['voteCount' => $subQuery]);
         }
 
         if ($this->_orderByFlagged()) {
-            $this->subQuery->leftJoin('{{%comments_flags}} comments_flags', '[[comments_comments.id]] = [[comments_flags.commentId]]');
-            $this->subQuery->addSelect(['comments_comments.id', 'NOT(ISNULL(comments_flags.id)) isFlagged']);
-            $this->subQuery->addGroupBy(['comments_comments.id', 'structureelements.structureId', 'comments_flags.id']);
+            $subQuery = (new Query())
+                ->select(['SUM(NOT(ISNULL(comments_flags.id)))'])
+                ->from('{{%comments_flags}} comments_flags')
+                ->where('[[comments_flags.commentId]] = [[elements.id]]');
+
+            $this->subQuery->addSelect(['flagCount' => $subQuery]);
         }
 
         return parent::beforePrepare();
@@ -342,9 +348,9 @@ class CommentQuery extends ElementQuery
     {
         if ($this->orderBy) {
             if (is_string($this->orderBy)) {
-                return strstr($this->orderBy, 'votes');
+                return strstr($this->orderBy, 'voteCount');
             } else if (is_array($this->orderBy)) {
-                return isset($this->orderBy['votes']);
+                return isset($this->orderBy['voteCount']);
             }
         }
 
@@ -355,9 +361,9 @@ class CommentQuery extends ElementQuery
     {
         if ($this->orderBy) {
             if (is_string($this->orderBy)) {
-                return strstr($this->orderBy, 'isFlagged');
+                return strstr($this->orderBy, 'flagCount');
             } else if (is_array($this->orderBy)) {
-                return isset($this->orderBy['isFlagged']);
+                return isset($this->orderBy['flagCount']);
             }
         }
 

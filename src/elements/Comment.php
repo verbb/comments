@@ -1102,8 +1102,8 @@ class Comment extends Element
             'comment' => ['label' => Craft::t('comments', 'Comment')],
             'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
-            'votes' => ['label' => Craft::t('comments', 'Votes')],
-            'isFlagged' => ['label' => Craft::t('comments', 'Flagged')],
+            'voteCount' => ['label' => Craft::t('comments', 'Votes')],
+            'flagCount' => ['label' => Craft::t('comments', 'Flagged')],
         ];
     }
 
@@ -1125,8 +1125,8 @@ class Comment extends Element
             'ownerId' => Craft::t('comments', 'Element'),
             'email' => Craft::t('comments', 'Email'),
             'name' => Craft::t('comments', 'Name'),
-            'votes' => Craft::t('comments', 'Votes'),
-            'isFlagged' => Craft::t('comments', 'Flagged'),
+            'voteCount' => Craft::t('comments', 'Votes'),
+            'flagCount' => Craft::t('comments', 'Flagged'),
         ];
     }
 
@@ -1144,10 +1144,10 @@ class Comment extends Element
                     return Craft::t('comments', '[Deleted element]');
                 }
             }
-            case 'votes': {
+            case 'voteCount': {
                 return $this->getVotes();
             }
-            case 'isFlagged': {
+            case 'flagCount': {
                 return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
             }
             default: {
