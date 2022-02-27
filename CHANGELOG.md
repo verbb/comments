@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.2 - 2022-02-27
+
+### Added
+- Add “Use Queue for Notifications” plugin setting (disabled by default).
+
+### Fixed
+- Fix SQL errors when ordering comments via "Votes" or "Flagged" in the control panel.
+- Fix an error when sorting comments by their "flagged" column in the control panel.
+- Fix an error when including "flagged" as a column when viewing comments in the control panel.
+
 ## 1.9.1 - 2021-12-31
 
 ### Fixed
