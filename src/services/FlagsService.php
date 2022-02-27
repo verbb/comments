@@ -93,7 +93,7 @@ class FlagsService extends Component
             $result = $this->saveFlag($flag, $runValidation);
 
             if ($result && $settings->notificationFlaggedEnabled) {
-                Comments::$plugin->comments->sendFlagNotificationEmail($flag->getComment());
+                Comments::$plugin->comments->sendNotificationEmail('flag', $flag->getComment());
             }
         } else {
             $result = $this->deleteFlag($flag);

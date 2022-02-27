@@ -6,6 +6,7 @@ use verbb\comments\assetbundles\FrontEndAsset;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\elements\Comment;
 use verbb\comments\events\EmailEvent;
+use verbb\comments\queue\jobs\SendNotification;
 
 use Craft;
 use craft\base\Component;
@@ -254,6 +255,39 @@ class CommentsService extends Component
         }
 
         return false;
+    }
+
+    public function sendNotificationEmail($type, $comment)
+    {
+        $settings = Comments::$plugin->getSettings();
+
+        if ($settings->useQueueForNotifications) {
+            Craft::$app->getQueue()->push(new SendNotification([
+                'type' => $type,
+                'commentId' => $comment->id,
+            ]));
+        } else {
+            $this->triggerNotificationEmail($type, $comment);
+        }
+    }
+
+    public function triggerNotificationEmail($type, $comment)
+    {
+        if ($type === 'admin') {
+            $this->sendAdminNotificationEmail($comment);
+        } else if ($type === 'flag') {
+            $this->sendFlagNotificationEmail($comment);
+        } else if ($type === 'author') {
+            $this->sendAuthorNotificationEmail($comment);
+        } else if ($type === 'reply') {
+            $this->sendReplyNotificationEmail($comment);
+        } else if ($type === 'moderator') {
+            $this->sendModeratorNotificationEmail($comment);
+        } else if ($type === 'moderator-approved') {
+            $this->sendModeratorApprovedNotificationEmail($comment);
+        } else if ($type === 'subscribe') {
+            $this->sendSubscribeNotificationEmail($comment);
+        }
     }
 
     public function sendAdminNotificationEmail(Comment $comment)

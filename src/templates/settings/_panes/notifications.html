@@ -2,6 +2,15 @@
 {% import 'verbb-base/_macros' as macros %}
 
 {{ forms.lightswitchField({
+    label: 'Use Queue for Notifications' | t('comments'),
+    instructions: 'Whether to use Craft‘s queue system to trigger emails. This is highly recommended to prevent slow comment submission for your users.' | t('comments'),
+    id: 'useQueueForNotifications',
+    name: 'useQueueForNotifications',
+    on: settings.useQueueForNotifications,
+    warning: macros.configWarning('useQueueForNotifications', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
     first: true,
     label: "Enable Author Notifications" | t('comments'),
     instructions: "Authors receive an email for every new comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),

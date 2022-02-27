@@ -983,7 +983,7 @@ class Comment extends Element
         if ($isNew) {
             // Should we send moderator emails?
             if ($settings->notificationModeratorEnabled && $this->status == self::STATUS_PENDING) {
-                Comments::$plugin->comments->sendModeratorNotificationEmail($this);
+                Comments::$plugin->comments->sendNotificationEmail('moderator', $this);
             } else {
                 Comments::log('Moderator Notifications disabled.');
             }
@@ -994,7 +994,7 @@ class Comment extends Element
             } else {
                 // Should we send a Notification email to the author of this comment?
                 if ($settings->notificationAuthorEnabled) {
-                    Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+                    Comments::$plugin->comments->sendNotificationEmail('author', $this);
                 } else {
                     Comments::log('Author Notifications disabled.');
                 }
@@ -1003,7 +1003,7 @@ class Comment extends Element
                 // to the author of the original comment?
                 if ($settings->notificationReplyEnabled) {
                     if ($this->_isReplying()) {
-                        Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                        Comments::$plugin->comments->sendNotificationEmail('reply', $this);
                     }
                 } else {
                     Comments::log('Reply Notifications disabled.');
@@ -1016,27 +1016,27 @@ class Comment extends Element
 
                 // Check for all users subscribed to notifications
                 if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
-                    Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
+                    Comments::$plugin->comments->sendNotificationEmail('subscribe', $this);
                 }
             }
 
             // Send admin notifications
             if ($settings->notificationAdminEnabled) {
-                Comments::$plugin->comments->sendAdminNotificationEmail($this);
+                Comments::$plugin->comments->sendNotificationEmail('admin', $this);
             }
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved
         if ($this->previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
             if ($settings->notificationModeratorApprovedEnabled) {
-                Comments::$plugin->comments->sendModeratorApprovedNotificationEmail($this);
+                Comments::$plugin->comments->sendNotificationEmail('moderator-approved', $this);
             } else {
                 Comments::log('Moderator Approved Notifications disabled.');
             }
 
             // Should we send a Notification email to the author of this comment?
             if ($settings->notificationAuthorEnabled) {
-                Comments::$plugin->comments->sendAuthorNotificationEmail($this);
+                Comments::$plugin->comments->sendNotificationEmail('author', $this);
             } else {
                 Comments::log('Author Notifications disabled.');
             }
@@ -1045,7 +1045,7 @@ class Comment extends Element
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled) {
                 if ($this->_isReplying()) {
-                    Comments::$plugin->comments->sendReplyNotificationEmail($this);
+                    Comments::$plugin->comments->sendNotificationEmail('reply', $this);
                 }
             } else {
                 Comments::log('Reply Notifications disabled.');
@@ -1058,7 +1058,7 @@ class Comment extends Element
 
             // Check for all users subscribed to notifications
             if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
-                Comments::$plugin->comments->sendSubscribeNotificationEmail($this);
+                Comments::$plugin->comments->sendNotificationEmail('subscribe', $this);
             }
         }
 
