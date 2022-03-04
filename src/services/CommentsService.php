@@ -155,7 +155,7 @@ class CommentsService extends Component
                 'edit' => Craft::t('comments', 'Edit'),
                 'save' => Craft::t('comments', 'Save'),
                 'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
-            ]
+            ],
         ], $jsSettings);
 
         return array_merge($jsVariables, $variables);

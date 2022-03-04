@@ -25,7 +25,6 @@ class FlagsService extends Component
 
     // Properties
     // =========================================================================
-
     protected string $sessionName = 'comments_flag';
 
 

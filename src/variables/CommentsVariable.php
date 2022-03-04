@@ -58,7 +58,7 @@ class CommentsVariable
     {
         $view = Craft::$app->getView();
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
-        
+
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
 

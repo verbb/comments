@@ -97,7 +97,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
     }
-    
+
     public function dropTables(): void
     {
         $this->dropTable('{{%comments_comments}}');
@@ -105,7 +105,7 @@ class Install extends Migration
         $this->dropTable('{{%comments_votes}}');
         $this->dropTable('{{%comments_subscribe}}');
     }
-    
+
     public function createIndexes(): void
     {
         $this->createIndex(null, '{{%comments_comments}}', 'id', false);
@@ -137,7 +137,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
     }
-    
+
     public function dropForeignKeys(): void
     {
         MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['id'], $this);

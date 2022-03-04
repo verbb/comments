@@ -44,8 +44,8 @@ class Vote extends Model
                 'unique',
                 'targetAttribute' => $targetAttribute,
                 'targetClass' => VoteRecord::class,
-                'message' => Craft::t('comments', 'You can only vote on a comment once.')
-            ]
+                'message' => Craft::t('comments', 'You can only vote on a comment once.'),
+            ],
         ];
     }
 
@@ -57,5 +57,5 @@ class Vote extends Model
 
         return null;
     }
-    
+
 }

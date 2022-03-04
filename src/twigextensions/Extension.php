@@ -47,7 +47,7 @@ class Extension extends AbstractExtension
             $templatePath = Comments::$plugin->getComments()->getComponentTemplatePath($template);
             $view->setTemplatesPath($templatePath);
         }
-        
+
         return twig_include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
     }
 

@@ -48,27 +48,27 @@ class Vote extends InterfaceType
             'id' => [
                 'name' => 'id',
                 'type' => Type::id(),
-                'description' => 'The ID of the vote.'
+                'description' => 'The ID of the vote.',
             ],
             'sessionId' => [
                 'name' => 'sessionId',
                 'type' => Type::id(),
-                'description' => 'The session ID from which the vote was submitted.'
+                'description' => 'The session ID from which the vote was submitted.',
             ],
             'lastIp' => [
                 'name' => 'lastIp',
                 'type' => Type::string(),
-                'description' => 'The last known IP address of the voter.'
+                'description' => 'The last known IP address of the voter.',
             ],
             'upvote' => [
                 'name' => 'upvote',
                 'type' => Type::boolean(),
-                'description' => 'Whether the vote is positive.'
+                'description' => 'Whether the vote is positive.',
             ],
             'downvote' => [
                 'name' => 'downvote',
                 'type' => Type::boolean(),
-                'description' => 'Whether the vote is negative.'
+                'description' => 'Whether the vote is negative.',
             ],
         ]), self::getName());
     }
@@ -82,12 +82,12 @@ class Vote extends InterfaceType
                 'userId' => [
                     'name' => 'userId',
                     'type' => Type::int(),
-                    'description' => 'The ID of the submitter of this vote.'
+                    'description' => 'The ID of the submitter of this vote.',
                 ],
                 'user' => [
                     'name' => 'user',
                     'type' => User::getType(),
-                    'description' => 'The vote\'s submitter.'
+                    'description' => 'The vote\'s submitter.',
                 ],
             ]);
         }
@@ -97,12 +97,12 @@ class Vote extends InterfaceType
                 'commentId' => [
                     'name' => 'commentId',
                     'type' => Type::id(),
-                    'description' => 'The ID of the comment the vote is applied to.'
+                    'description' => 'The ID of the comment the vote is applied to.',
                 ],
                 'comment' => [
                     'name' => 'comment',
                     'type' => CommentInterface::getType(),
-                    'description' => 'The comment the vote is applied to.'
+                    'description' => 'The comment the vote is applied to.',
                 ],
             ]);
         }

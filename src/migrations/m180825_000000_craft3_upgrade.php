@@ -31,14 +31,14 @@ class m180825_000000_craft3_upgrade extends Migration
         if (!MigrationHelper::doesIndexExist('{{%comments_comments}}', 'id')) {
             $this->createIndex($this->db->getIndexName('{{%comments_comments}}', 'id', false), '{{%comments_comments}}', 'id', false);
         }
-        
+
         if (!MigrationHelper::findForeignKey('{{%comments_comments}}', 'id')) {
             // Disable FK checks
             $queryBuilder = $this->db->getSchema()->getQueryBuilder();
             $this->execute($queryBuilder->checkIntegrity(false));
 
             $this->addForeignKey($this->db->getForeignKeyName('{{%comments_comments}}', 'id'), '{{%comments_comments}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
-        
+
             // Re-enable FK checks
             $this->execute($queryBuilder->checkIntegrity(true));
         }

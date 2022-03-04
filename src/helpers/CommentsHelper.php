@@ -54,7 +54,8 @@ class CommentsHelper
                 file_get_contents($gravatar);
 
                 return $gravatar;
-            } catch (Throwable $e) {}
+            } catch (Throwable $e) {
+            }
         }
 
         if ($user && $photo = $user->getPhoto()) {

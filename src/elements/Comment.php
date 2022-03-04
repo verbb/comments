@@ -47,7 +47,7 @@ class Comment extends Element
     const SCENARIO_FRONT_END = 'frontEnd';
 
 
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $ownerId = null;
@@ -109,7 +109,7 @@ class Comment extends Element
             self::STATUS_APPROVED => Craft::t('comments', 'Approved'),
             self::STATUS_PENDING => Craft::t('comments', 'Pending'),
             self::STATUS_SPAM => Craft::t('comments', 'Spam'),
-            self::STATUS_TRASHED => Craft::t('comments', 'Trashed')
+            self::STATUS_TRASHED => Craft::t('comments', 'Trashed'),
         ];
     }
 
@@ -123,10 +123,82 @@ class Comment extends Element
         return Comments::$plugin->getSettings()->getStructureId();
     }
 
+    public static function getCommentElementTitleHtml(&$context): string
+    {
+        if (!isset($context['element'])) {
+            return '';
+        }
+
+        // Only do this for a Comment ElementType
+        if ($context['element']::class === static::class) {
+            $span1 = Html::tag('span', '', ['class' => 'status ' . $context['element']->status]);
+            $span2 = Html::tag('span', Html::encode($context['element']->getAuthor()), ['class' => 'username']);
+            $small = Html::tag('small', Html::encode($context['element']->getExcerpt(0, 100)));
+            $a = Html::a($span2 . $small, $context['element']->getCpEditUrl());
+
+            $html = Html::tag('div', $span1 . $a, ['class' => 'comment-block']);
+
+            return Template::raw($html);
+        }
+
+        return '';
+    }
+
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|false|null
+    {
+        if ($handle === 'user') {
+            // Get the source element IDs
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select(['id as source', 'userId as target'])
+                ->from(['{{%comments_comments}}'])
+                ->where(['and', ['id' => $sourceElementIds], ['not', ['userId' => null]]])
+                ->all();
+
+            return [
+                'elementType' => User::class,
+                'map' => $map,
+            ];
+        }
+
+        if ($handle === 'owner') {
+            // Get the source element IDs
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select(['id as source', 'ownerId as target'])
+                ->from(['{{%comments_comments}}'])
+                ->where(['and', ['id' => $sourceElementIds], ['not', ['ownerId' => null]]])
+                ->all();
+
+            // This isn't amazing, but its benefit is pretty considerable. The thinking here is that its
+            // unlikely you'll be fetching comments across multiple different element types
+            // $elementType = Entry::class;
+            $firstElement = $sourceElements[0] ?? [];
+
+            if (!$firstElement) {
+                return null;
+            }
+
+            return [
+                'elementType' => $firstElement->getOwnerType(),
+                'map' => $map,
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return 'Comment';
+    }
+
     protected static function defineSources(string $context = null): array
     {
         $settings = Comments::$plugin->getSettings();
-        
+
         $sources = [
             '*' => [
                 'key' => '*',
@@ -134,7 +206,7 @@ class Comment extends Element
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
                 'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
-            ]
+            ],
         ];
 
         $indexSidebarLimit = $settings->indexSidebarLimit;
@@ -247,6 +319,73 @@ class Comment extends Element
 
         return $actions;
     }
+
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'comment' => ['label' => Craft::t('comments', 'Comment')],
+            'commentDate' => ['label' => Craft::t('comments', 'Date')],
+            'ownerId' => ['label' => Craft::t('comments', 'Element')],
+            'voteCount' => ['label' => Craft::t('comments', 'Votes')],
+            'flagCount' => ['label' => Craft::t('comments', 'Flagged')],
+        ];
+    }
+
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['rawComment', 'authorName', 'authorEmail'];
+    }
+
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'status' => Craft::t('comments', 'Status'),
+            'comment' => Craft::t('comments', 'Comment'),
+            [
+                'label' => Craft::t('comments', 'Date'),
+                'orderBy' => 'commentDate',
+                'attribute' => 'commentDate',
+            ],
+            'ownerId' => Craft::t('comments', 'Element'),
+            'email' => Craft::t('comments', 'Email'),
+            'name' => Craft::t('comments', 'Name'),
+            'voteCount' => Craft::t('comments', 'Votes'),
+            'flagCount' => Craft::t('comments', 'Flagged'),
+        ];
+    }
+
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
+    {
+        if ($attribute === 'user') {
+            $elementQuery->andWith('user');
+        } else if ($attribute === 'owner') {
+            $elementQuery->andWith('owner');
+        } else {
+            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
+    }
+
+    // Properties
+    // =========================================================================
+
+    public ?DateTime $commentDate = null;
+    public string $email = '';
+    public string $ipAddress = '';
+    public string $name = '';
+    public ?int $newParentId = null;
+    public ?int $ownerId = null;
+    public ?int $ownerSiteId = null;
+    public string $status = '';
+    public string $url = '';
+    public string $userAgent = '';
+
+    public ?int $userId = null;
+    private ?User $_author = null;
+    private ?bool $_hasNewParent = null;
+    private ?ElementInterface $_owner = null;
+    private mixed $_user = null;
+    private string $comment = '';
+    private string $previousStatus = '';
 
 
     // Public Methods
@@ -392,10 +531,10 @@ class Comment extends Element
     public function getExcerpt($startPos = 0, $maxLength = 100): ?string
     {
         if (strlen($this->comment) > $maxLength) {
-            $excerpt   = substr($this->comment, $startPos, $maxLength-3);
+            $excerpt = substr($this->comment, $startPos, $maxLength - 3);
             $lastSpace = strrpos($excerpt, ' ');
-            $excerpt   = substr($excerpt, 0, $lastSpace);
-            $excerpt  .= '...';
+            $excerpt = substr($excerpt, 0, $lastSpace);
+            $excerpt .= '...';
         } else {
             $excerpt = $this->comment;
         }
@@ -659,10 +798,6 @@ class Comment extends Element
         return Comments::$plugin->getSubscribe()->hasSubscribed($this->ownerId, $this->ownerSiteId, $userId, $this->id);
     }
 
-
-    // Flags
-    // =========================================================================
-
     public function flagUrl(): bool|string
     {
         Craft::$app->getDeprecator()->log('flagUrl', '`flagUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/flag).');
@@ -711,10 +846,6 @@ class Comment extends Element
 
         return true;
     }
-
-
-    // Votes
-    // =========================================================================
 
     public function downvoteUrl(): bool|string
     {
@@ -796,11 +927,6 @@ class Comment extends Element
 
         return true;
     }
-
-
-
-    // Events
-    // =========================================================================
 
     public function beforeValidate(): bool
     {
@@ -1071,153 +1197,6 @@ class Comment extends Element
         parent::afterSave($isNew);
     }
 
-
-    // Element index methods
-    // =========================================================================
-
-    public static function getCommentElementTitleHtml(&$context): string
-    {
-        if (!isset($context['element'])) {
-            return '';
-        }
-
-        // Only do this for a Comment ElementType
-        if ($context['element']::class === static::class) {
-            $span1 = Html::tag('span', '', ['class' => 'status ' . $context['element']->status]);
-            $span2 = Html::tag('span', Html::encode($context['element']->getAuthor()), ['class' => 'username']);
-            $small = Html::tag('small', Html::encode($context['element']->getExcerpt(0, 100)));
-            $a = Html::a($span2 . $small, $context['element']->getCpEditUrl());
-
-            $html = Html::tag('div', $span1 . $a, ['class' => 'comment-block']);
-            
-            return Template::raw($html);
-        }
-
-        return '';
-    }
-
-    protected static function defineTableAttributes(): array
-    {
-        return [
-            'comment' => ['label' => Craft::t('comments', 'Comment')],
-            'commentDate' => ['label' => Craft::t('comments', 'Date')],
-            'ownerId' => ['label' => Craft::t('comments', 'Element')],
-            'voteCount' => ['label' => Craft::t('comments', 'Votes')],
-            'flagCount' => ['label' => Craft::t('comments', 'Flagged')],
-        ];
-    }
-
-    protected static function defineSearchableAttributes(): array
-    {
-        return ['rawComment', 'authorName', 'authorEmail'];
-    }
-
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'status' => Craft::t('comments', 'Status'),
-            'comment' => Craft::t('comments', 'Comment'),
-            [
-                'label' => Craft::t('comments', 'Date'),
-                'orderBy' => 'commentDate',
-                'attribute' => 'commentDate'
-            ],
-            'ownerId' => Craft::t('comments', 'Element'),
-            'email' => Craft::t('comments', 'Email'),
-            'name' => Craft::t('comments', 'Name'),
-            'voteCount' => Craft::t('comments', 'Votes'),
-            'flagCount' => Craft::t('comments', 'Flagged'),
-        ];
-    }
-
-    protected function tableAttributeHtml(string $attribute): string
-    {
-        switch ($attribute) {
-            case 'ownerId': {
-                $owner = $this->getOwner();
-
-                if ($owner) {
-                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
-                    
-                    return Template::raw($a);
-                }
-
-                return Craft::t('comments', '[Deleted element]');
-            }
-            case 'voteCount': {
-                return $this->getVotes();
-            }
-            case 'flagCount': {
-                return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
-        }
-    }
-
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|false|null
-    {
-        if ($handle === 'user') {
-            // Get the source element IDs
-            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-
-            $map = (new Query())
-                ->select(['id as source', 'userId as target'])
-                ->from(['{{%comments_comments}}'])
-                ->where(['and', ['id' => $sourceElementIds], ['not', ['userId' => null]]])
-                ->all();
-
-            return [
-                'elementType' => User::class,
-                'map' => $map
-            ];
-        }
-
-        if ($handle === 'owner') {
-            // Get the source element IDs
-            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-
-            $map = (new Query())
-                ->select(['id as source', 'ownerId as target'])
-                ->from(['{{%comments_comments}}'])
-                ->where(['and', ['id' => $sourceElementIds], ['not', ['ownerId' => null]]])
-                ->all();
-
-            // This isn't amazing, but its benefit is pretty considerable. The thinking here is that its
-            // unlikely you'll be fetching comments across multiple different element types
-            // $elementType = Entry::class;
-            $firstElement = $sourceElements[0] ?? [];
-
-            if (!$firstElement) {
-                return null;
-            }
-
-            return [
-                'elementType' => $firstElement->getOwnerType(),
-                'map' => $map
-            ];
-        }
-
-        return parent::eagerLoadingMap($sourceElements, $handle);
-    }
-
-    public static function gqlTypeNameByContext(mixed $context): string
-    {
-        return 'Comment';
-    }
-
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
-    {
-        if ($attribute === 'user') {
-            $elementQuery->andWith('user');
-        } else if ($attribute === 'owner') {
-            $elementQuery->andWith('owner');
-        } else {
-            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
-    }
-
     public function getGqlTypeName(): string
     {
         return static::gqlTypeNameByContext($this);
@@ -1231,6 +1210,40 @@ class Comment extends Element
             $this->_owner = $elements[0] ?? false;
         } else {
             parent::setEagerLoadedElements($handle, $elements);
+        }
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function tableAttributeHtml(string $attribute): string
+    {
+        switch ($attribute) {
+            case 'ownerId':
+            {
+                $owner = $this->getOwner();
+
+                if ($owner) {
+                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
+
+                    return Template::raw($a);
+                }
+
+                return Craft::t('comments', '[Deleted element]');
+            }
+            case 'voteCount':
+            {
+                return $this->getVotes();
+            }
+            case 'flagCount':
+            {
+                return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
+            }
+            default:
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 

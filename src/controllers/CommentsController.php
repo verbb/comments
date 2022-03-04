@@ -31,7 +31,7 @@ class CommentsController extends Controller
 
         // Protect Voting/Flagging - only allowed when the config is set
         if ($settings->allowGuestFlagging) {
-            $this->allowAnonymous['flag'] = 1; 
+            $this->allowAnonymous['flag'] = 1;
         }
 
         if ($settings->allowGuestVoting) {
@@ -45,21 +45,21 @@ class CommentsController extends Controller
     // This is required when loading single comments async
     public function actionGetJsVariables(): Response
     {
-        $this->requirePostRequest();      
-        
+        $this->requirePostRequest();
+
         $request = Craft::$app->getRequest();
         $elementId = $request->getParam('elementId');
         $criteria = $request->getParam('criteria') ? Json::decode($request->getParam('criteria')) : [];
-        
-        $id = 'cc-w-' . $elementId;       
+
+        $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
 
         return $this->asJson([
             'id' => '#' . $id,
             'settings' => $jsVariables,
         ]);
-    } 
-    
+    }
+
     //
     // Control Panel
     //
@@ -108,7 +108,7 @@ class CommentsController extends Controller
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             $session->setError(Craft::t('comments', 'Couldn’t save comment.'));
-            
+
             Craft::$app->getUrlManager()->setRouteParams([
                 'comment' => $comment,
                 'errors' => $comment->getErrors(),
@@ -198,7 +198,7 @@ class CommentsController extends Controller
     public function actionFlag(): Response
     {
         $this->requirePostRequest();
-        
+
         $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
 
@@ -303,7 +303,7 @@ class CommentsController extends Controller
     public function actionTrash(): Response
     {
         $this->requirePostRequest();
-        
+
         $request = Craft::$app->getRequest();
 
         $comment = $this->_setCommentFromPost();
@@ -320,7 +320,7 @@ class CommentsController extends Controller
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
-                 'comment' => $comment,
+                'comment' => $comment,
                 'errors' => $comment->getErrors(),
             ]);
 
@@ -425,7 +425,7 @@ class CommentsController extends Controller
         if (!$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
         }
-        
+
         // Other handy stuff
         $comment->url = $request->getParam('url', $request->referrer);
         $comment->ipAddress = $request->getUserIP();

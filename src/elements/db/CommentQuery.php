@@ -18,7 +18,7 @@ use Exception;
 
 class CommentQuery extends ElementQuery
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?bool $withStructure = true;

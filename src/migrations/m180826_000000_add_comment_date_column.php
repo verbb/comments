@@ -8,7 +8,7 @@ use craft\db\Query;
 class m180826_000000_add_comment_date_column extends Migration
 {
     public function safeUp(): bool
-    {   
+    {
         // First create the new column
         if (!$this->db->columnExists('{{%comments_comments}}', 'commentDate')) {
             $this->addColumn('{{%comments_comments}}', 'commentDate', $this->dateTime()->null()->after('userAgent')->notNull());

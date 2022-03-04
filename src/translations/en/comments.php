@@ -73,5 +73,5 @@ return [
     'Email is required.' => 'Email is required.',
     'Unable to modify another users comment.' => 'Unable to modify another users comment.',
     'Comment must not be blank.' => 'Comment must not be blank.',
-    'Comments are disabled for this element.' => 'Comments are disabled for this element.'
+    'Comments are disabled for this element.' => 'Comments are disabled for this element.',
 ];

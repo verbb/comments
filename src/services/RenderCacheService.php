@@ -47,14 +47,14 @@ class RenderCacheService extends Component
         $this->elements[$key] = $value;
     }
 
-    public function setCommentIds($value): void
-    {
-        $this->commentIds = $value;
-    }
-
     public function getCommentIds(): array
     {
         return $this->commentIds;
+    }
+
+    public function setCommentIds($value): void
+    {
+        $this->commentIds = $value;
     }
 
 }

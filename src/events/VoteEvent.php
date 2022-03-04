@@ -10,6 +10,6 @@ class VoteEvent extends Event
     // Properties
     // =========================================================================
 
-    public Vote $vote;
     public bool $isNew = false;
+    public Vote $vote;
 }

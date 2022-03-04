@@ -10,9 +10,9 @@ class EmailEvent extends CancelableEvent
     // Properties
     // =========================================================================
 
-    public mixed $mail;
-    public mixed $user;
     public Comment $comment;
     public mixed $element;
+    public mixed $mail;
+    public mixed $user;
 
 }

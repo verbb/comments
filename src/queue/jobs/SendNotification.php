@@ -13,8 +13,8 @@ class SendNotification extends BaseJob
     // Public Properties
     // =========================================================================
 
-    public string $type;
     public int $commentId;
+    public string $type;
 
 
     // Public Methods

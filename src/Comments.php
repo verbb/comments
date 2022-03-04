@@ -57,10 +57,10 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public string $schemaVersion = '1.1.7';
-    public bool $hasCpSettings = true;
     public bool $hasCpSection = true;
-    
+    public bool $hasCpSettings = true;
+    public string $schemaVersion = '1.1.7';
+
 
     // Traits
     // =========================================================================
@@ -254,7 +254,7 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_flag_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_flag_notification_subject'),
                     'body' => Craft::t('comments', 'comments_flag_notification_body'),
-                ]
+                ],
             ]);
         });
     }
@@ -306,7 +306,7 @@ class Comments extends Plugin
 
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             $queries = CommentQuery::getQueries();
-            
+
             foreach ($queries as $key => $value) {
                 $event->queries[$key] = $value;
             }
@@ -379,7 +379,7 @@ class Comments extends Plugin
             'allowAnonymousFlagging' => 'allowGuestFlagging',
             'securityBlacklist' => 'securitySpamlist',
         ];
-        
+
         foreach ($renamedSettings as $old => $new) {
             if (property_exists($settings, $old) && isset($settings->$old)) {
                 Craft::$app->getDeprecator()->log($old, "The {$old} config setting has been renamed to {$new}.");

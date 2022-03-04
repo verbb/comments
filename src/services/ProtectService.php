@@ -62,7 +62,7 @@ class ProtectService extends Component
 
             $response = $client->post(self::VERIFY_URL, [
                 'form_params' => [
-                    'secret'   => $settings->recaptchaSecret,
+                    'secret' => $settings->recaptchaSecret,
                     'response' => $captchaResponse,
                     'remoteip' => Craft::$app->request->getRemoteIP(),
                 ],
@@ -83,21 +83,21 @@ class ProtectService extends Component
     //
 
     public function verifyJSField(): bool
-    {       
+    {
         $jsset = Craft::$app->getRequest()->getBodyParam('__JSCHK');
 
         return $jsset != '';
     }
 
     public function getJSField(): string
-    {                           
+    {
         // Create the unique token 
         $uniqueId = uniqid();
 
         // Set a hidden field with no value and use javascript to set it.
         $output = sprintf('<input type="hidden" id="__JSCHK_%s" name="__JSCHK" />', $uniqueId);
-        $output .= sprintf('<script type="text/javascript">document.getElementById("__JSCHK_%s").value = "%s";</script>', $uniqueId, $uniqueId); 
-        
+        $output .= sprintf('<script type="text/javascript">document.getElementById("__JSCHK_%s").value = "%s";</script>', $uniqueId, $uniqueId);
+
         return $output;
     }
 
@@ -111,12 +111,12 @@ class ProtectService extends Component
         $uahome = Craft::$app->getRequest()->getBodyParam('__UAHOME');
 
         // Run a user agent check
-        if ( ! $uahash || $uahash != $this->getUaHash() ) {
+        if (!$uahash || $uahash != $this->getUaHash()) {
             return false;
         }
 
         // Run originating domain check
-        if ( ! $uahome || $uahome != $this->getDomainHash() ) {
+        if (!$uahome || $uahome != $this->getDomainHash()) {
             return false;
         }
 
@@ -127,7 +127,7 @@ class ProtectService extends Component
     public function getOriginField(): string
     {
         $output = sprintf('<input type="hidden" id="__UAHOME" name="__UAHOME" value="%s" />', $this->getDomainHash());
-        $output .= sprintf('<input type="hidden" id="__UAHASH" name="__UAHASH" value="%s"/>', $this->getUaHash()); 
+        $output .= sprintf('<input type="hidden" id="__UAHASH" name="__UAHASH" value="%s"/>', $this->getUaHash());
 
         return $output;
     }
@@ -140,7 +140,7 @@ class ProtectService extends Component
     {
         // The honeypot field must be left blank
         if (Craft::$app->getRequest()->getBodyParam('beesknees')) {
-            return false;           
+            return false;
         }
 
         return true;
@@ -161,19 +161,19 @@ class ProtectService extends Component
     //
 
     public function verifyDuplicateField(): bool
-    {   
+    {
         if (Craft::$app->getSession()->get('duplicateFieldId')) {
             // If there is a valid unique token set, unset it and return true.      
-            Craft::$app->getSession()->remove('duplicateFieldId');       
+            Craft::$app->getSession()->remove('duplicateFieldId');
 
-            return true;            
+            return true;
         }
 
         return false;
     }
 
     public function getDuplicateField(): void
-    {                           
+    {
         // Create the unique token 
         $uniqueId = uniqid();
 
@@ -229,7 +229,6 @@ class ProtectService extends Component
         // }');
 
         return '';
-
         // return '<div class="g-recaptcha" data-sitekey="' . $settings->recaptchaKey . '"></div>';
     }
 

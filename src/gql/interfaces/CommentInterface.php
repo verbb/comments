@@ -54,63 +54,63 @@ class CommentInterface extends Structure
             'ownerId' => [
                 'name' => 'ownerId',
                 'type' => Type::int(),
-                'description' => 'The ID of the element that owns the comment.'
+                'description' => 'The ID of the element that owns the comment.',
             ],
             'commentDate' => [
                 'name' => 'commentDate',
                 'type' => DateTime::getType(),
-                'description' => 'The comment\'s post date.'
+                'description' => 'The comment\'s post date.',
             ],
             'comment' => [
                 'name' => 'comment',
                 'type' => Type::string(),
-                'description' => 'The actual comment text.'
+                'description' => 'The actual comment text.',
             ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
-                'description' => 'The full name for the comment\'s author.'
+                'description' => 'The full name for the comment\'s author.',
             ],
             'email' => [
                 'name' => 'email',
                 'type' => Type::string(),
-                'description' => 'The email for the comment\'s author.'
+                'description' => 'The email for the comment\'s author.',
             ],
             'url' => [
                 'name' => 'url',
                 'type' => Type::string(),
-                'description' => 'The url the comment was made on.'
+                'description' => 'The url the comment was made on.',
             ],
             'children' => [
                 'name' => 'children',
                 'args' => CommentArguments::getArguments(),
                 'type' => Type::listOf(CommentInterfaceLocal::getType()),
-                'description' => 'The comment’s children. Accepts the same arguments as the `comments` query.'
+                'description' => 'The comment’s children. Accepts the same arguments as the `comments` query.',
             ],
             'parent' => [
                 'name' => 'parent',
                 'type' => CommentInterfaceLocal::getType(),
-                'description' => 'The comment’s parent.'
+                'description' => 'The comment’s parent.',
             ],
             'votes' => [
                 'name' => 'votes',
                 'type' => Type::int(),
-                'description' => 'The number of total votes for this comment.'
+                'description' => 'The number of total votes for this comment.',
             ],
             'upvotes' => [
                 'name' => 'upvotes',
                 'type' => Type::int(),
-                'description' => 'The number of upvotes for this comment.'
+                'description' => 'The number of upvotes for this comment.',
             ],
             'downvotes' => [
                 'name' => 'downvotes',
                 'type' => Type::int(),
-                'description' => 'The number of downvotes for this comment.'
+                'description' => 'The number of downvotes for this comment.',
             ],
             'flags' => [
                 'name' => 'flags',
                 'type' => Type::int(),
-                'description' => 'The number of flags for this comment.'
+                'description' => 'The number of flags for this comment.',
             ],
         ]), self::getName());
     }
@@ -122,12 +122,12 @@ class CommentInterface extends Structure
                 'userId' => [
                     'name' => 'userId',
                     'type' => Type::int(),
-                    'description' => 'The ID of the author of this comment.'
+                    'description' => 'The ID of the author of this comment.',
                 ],
                 'user' => [
                     'name' => 'user',
                     'type' => User::getType(),
-                    'description' => 'The comment\'s author.'
+                    'description' => 'The comment\'s author.',
                 ],
             ];
         }

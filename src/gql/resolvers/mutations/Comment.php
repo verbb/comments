@@ -67,7 +67,7 @@ class Comment extends ElementMutationResolver
 
         if (empty($currentUser) && !$settings->allowGuest) {
             $message = !empty($settings->guestNotice) ? $settings->guestNotice : Craft::t('comments', 'Must be logged in to comment.');
-            
+
             throw new UserError($message);
         }
 
@@ -353,6 +353,7 @@ class Comment extends ElementMutationResolver
 
     /**
      * Returns `true` if the subscription target is a thread and not a non-comment Craft element.
+     *
      * @param $ownerId
      * @param $commentId
      * @return bool

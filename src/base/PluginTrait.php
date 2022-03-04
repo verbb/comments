@@ -25,6 +25,20 @@ trait PluginTrait
     public static Comments $plugin;
 
 
+    // Static Methods
+    // =========================================================================
+
+    public static function log($message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
+    }
+
+    public static function error($message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
+    }
+
+
     // Public Methods
     // =========================================================================
 
@@ -66,16 +80,6 @@ trait PluginTrait
     public function getVotes(): VotesService
     {
         return $this->get('votes');
-    }
-
-    public static function log($message): void
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
-    }
-
-    public static function error($message): void
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
     }
 
 

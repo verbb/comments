@@ -10,6 +10,6 @@ class SubscribeEvent extends Event
     // Properties
     // =========================================================================
 
-    public Subscribe $subscribe;
     public bool $isNew = false;
+    public Subscribe $subscribe;
 }

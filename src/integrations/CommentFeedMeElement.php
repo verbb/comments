@@ -62,40 +62,6 @@ class CommentFeedMeElement extends Element
         });
     }
 
-    private function _processNestedComments($event): void
-    {
-        // Save the imported comment as the parent, we'll need it in a sec
-        $parentId = $event->element->id;
-
-        // Check if we're mapping a node to start looking for children.
-        $childrenNode = Hash::get($event->feed, 'fieldMapping.children.node');
-
-        if (!$childrenNode) {
-            return;
-        }
-
-        // Check if there's any children data for the node we've just imported
-        $expandedData = Hash::expand($event->feedData, '/');
-        $childrenData = Hash::get($expandedData, $childrenNode, []);
-
-        foreach ($childrenData as $childData) {
-            // Prep the data, cutting the nested content to the top of the array
-            $newFeedData = Hash::flatten($childData, '/');
-
-            $processedElementIds = [];
-
-            // Directly modify the field mapping data, because we're programatically adding
-            // the `newParentId`, which cannot be mapped.
-            $event->feed['fieldMapping']['newParentId'] = [
-                'attribute' => true,
-                'default' => $parentId,
-            ];
-
-            // Trigger the import for each child
-            Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
-        }
-    }
-    
     public function getGroups(): array
     {
         return [];
@@ -106,9 +72,9 @@ class CommentFeedMeElement extends Element
         $query = CommentElement::find()
             ->anyStatus()
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
-        
+
         Craft::configure($query, $params);
-        
+
         return $query;
     }
 
@@ -232,5 +198,39 @@ class CommentFeedMeElement extends Element
         }
 
         return null;
+    }
+
+    private function _processNestedComments($event): void
+    {
+        // Save the imported comment as the parent, we'll need it in a sec
+        $parentId = $event->element->id;
+
+        // Check if we're mapping a node to start looking for children.
+        $childrenNode = Hash::get($event->feed, 'fieldMapping.children.node');
+
+        if (!$childrenNode) {
+            return;
+        }
+
+        // Check if there's any children data for the node we've just imported
+        $expandedData = Hash::expand($event->feedData, '/');
+        $childrenData = Hash::get($expandedData, $childrenNode, []);
+
+        foreach ($childrenData as $childData) {
+            // Prep the data, cutting the nested content to the top of the array
+            $newFeedData = Hash::flatten($childData, '/');
+
+            $processedElementIds = [];
+
+            // Directly modify the field mapping data, because we're programatically adding
+            // the `newParentId`, which cannot be mapped.
+            $event->feed['fieldMapping']['newParentId'] = [
+                'attribute' => true,
+                'default' => $parentId,
+            ];
+
+            // Trigger the import for each child
+            Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
+        }
     }
 }

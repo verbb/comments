@@ -8,23 +8,32 @@ use craft\base\Widget;
 
 class Comments extends Widget
 {
-    // Properties
-    // =========================================================================
-
-    public string $heading = 'All Comments';
-    public string $subheading = '';
-    public string $status = 'all';
-    public int $limit = 10;
-    public bool $showFlagged = false;
-
-
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
     {
         return Craft::t('comments', 'Comments');
     }
+
+    public static function icon(): ?string
+    {
+        return Craft::getAlias('@verbb/comments/icon-mask.svg');
+    }
+
+
+    // Properties
+    // =========================================================================
+
+    public string $heading = 'All Comments';
+    public int $limit = 10;
+    public bool $showFlagged = false;
+    public string $status = 'all';
+    public string $subheading = '';
+
+
+    // Public Methods
+    // =========================================================================
 
     public function getTitle(): ?string
     {
@@ -34,11 +43,6 @@ class Comments extends Widget
     public function getSubtitle(): ?string
     {
         return $this->subheading;
-    }
-
-    public static function icon(): ?string
-    {
-        return Craft::getAlias('@verbb/comments/icon-mask.svg');
     }
 
     public function getBodyHtml(): ?string
@@ -54,12 +58,12 @@ class Comments extends Widget
             'comments' => $comments,
         ]);
     }
-    
+
     public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('comments/_widget/settings', [
             'widget' => $this,
         ]);
     }
-    
+
 }

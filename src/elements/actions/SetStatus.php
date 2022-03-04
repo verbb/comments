@@ -21,9 +21,6 @@ class SetStatus extends ElementAction
         return Craft::t('app', 'Set Status');
     }
 
-    // Public Methods
-    // =========================================================================
-
     public function getTriggerHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('comments/_elementactions/status');
