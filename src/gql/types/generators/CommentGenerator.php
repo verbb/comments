@@ -20,7 +20,7 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
     /**
      * @inheritdoc
      */
-    public static function generateTypes($context = null): array
+    public static function generateTypes(mixed $context = null): array
     {
         // Comments have no context
         $type = static::generateType($context);
@@ -30,7 +30,7 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
     /**
      * @inheritdoc
      */
-    public static function generateType($context)
+    public static function generateType(mixed $context): mixed
     {
         $context = $context ?: Craft::$app->getFields()->getLayoutByType(Comment::class);
 

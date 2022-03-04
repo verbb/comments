@@ -2,7 +2,6 @@
 namespace verbb\comments\helpers;
 
 use craft\helpers\Gql as GqlHelper;
-use craft\models\GqlSchema;
 
 class Gql extends GqlHelper
 {

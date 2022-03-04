@@ -21,16 +21,17 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\SiteIdValidator;
 
 use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
 use Exception;
+use DateTime;
 
 class Comment extends Element
 {
@@ -49,24 +50,24 @@ class Comment extends Element
     // Public Properties
     // =========================================================================
 
-    public $ownerId;
-    public $ownerSiteId;
-    public $userId;
-    public $status;
-    public $name;
-    public $email;
-    public $url;
-    public $ipAddress;
-    public $userAgent;
-    public $commentDate;
+    public ?int $ownerId = null;
+    public ?int $ownerSiteId = null;
+    public ?int $userId = null;
+    public string $status = '';
+    public string $name = '';
+    public string $email = '';
+    public string $url = '';
+    public string $ipAddress = '';
+    public string $userAgent = '';
+    public ?DateTime $commentDate = null;
 
-    public $newParentId;
-    private $_hasNewParent;
-    private $comment;
-    private $_owner;
-    private $_author;
-    private $_user;
-    private $previousStatus;
+    public ?int $newParentId = null;
+    private ?bool $_hasNewParent = null;
+    private string $comment = '';
+    private ?ElementInterface $_owner = null;
+    private ?User $_author = null;
+    private mixed $_user = null;
+    private string $previousStatus = '';
 
 
     // Static Methods
@@ -77,7 +78,7 @@ class Comment extends Element
         return Craft::t('comments', 'Comment');
     }
 
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'comment';
     }
@@ -251,7 +252,7 @@ class Comment extends Element
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -261,7 +262,7 @@ class Comment extends Element
         }
     }
 
-    public function extraFields()
+    public function extraFields(): array
     {
         $names = parent::extraFields();
         $names[] = 'owner';
@@ -270,18 +271,18 @@ class Comment extends Element
         return $names;
     }
 
-    public function scenarios()
+    public function scenarios(): array
     {
         $scenarios = parent::scenarios();
 
         // Ths is the only way I can figure out extra scenarios to work...
-        $scenarios[self::SCENARIO_CP] = $scenarios[self::SCENARIO_CP] ?? [];
-        $scenarios[self::SCENARIO_FRONT_END] = $scenarios[self::SCENARIO_FRONT_END] ?? [];
+        $scenarios[self::SCENARIO_CP] ??= [];
+        $scenarios[self::SCENARIO_FRONT_END] ??= [];
 
         return $scenarios;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
         $rules[] = [['ownerId'], 'number', 'integerOnly' => true];
@@ -289,7 +290,7 @@ class Comment extends Element
 
         // Check for custom fields. Craft will only check this for `SCENARIO_LIVE`, and we use custom scenarios
         if ($fieldLayout = $this->getFieldLayout()) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 $attribute = 'field:' . $field->handle;
                 $isEmpty = [$this, 'isFieldEmpty:' . $field->handle];
 
@@ -318,7 +319,7 @@ class Comment extends Element
         return [$siteId];
     }
 
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         $url = UrlHelper::cpUrl('comments/' . $this->id);
 
@@ -329,12 +330,12 @@ class Comment extends Element
         return $url;
     }
 
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
 
-    public function getComment()
+    public function getComment(): ?string
     {
         $comment = $this->comment;
 
@@ -347,7 +348,7 @@ class Comment extends Element
         return $comment;
     }
 
-    public function setComment($comment)
+    public function setComment($comment): void
     {
         // Add Emoji support
         if ($comment !== null) {
@@ -360,12 +361,12 @@ class Comment extends Element
         $this->comment = $comment;
     }
 
-    public function getRawComment()
+    public function getRawComment(): ?string
     {
         return $this->comment;
     }
 
-    public function can($property)
+    public function can($property): bool
     {
         // See if there's a plugin setting for it
         if (property_exists(Comments::$plugin->getSettings(), $property)) {
@@ -373,26 +374,23 @@ class Comment extends Element
         }
 
         // Provide some helpers
-        switch ($property) {
-            case 'flag':
-                return (bool)$this->canFlag();
-            case 'vote':
-                return (bool)$this->canVote();
-            case 'reply':
-                return (bool)$this->canReply();
-            case 'edit':
-                return (bool)$this->canEdit();
-            case 'trash':
-                return (bool)$this->canTrash();
-        }
+        return match ($property) {
+            'flag' => $this->canFlag(),
+            'vote' => $this->canVote(),
+            'reply' => $this->canReply(),
+            'edit' => $this->canEdit(),
+            'trash' => $this->canTrash(),
+            default => false,
+        };
     }
 
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function getExcerpt($startPos = 0, $maxLength = 100) {
+    public function getExcerpt($startPos = 0, $maxLength = 100): ?string
+    {
         if (strlen($this->comment) > $maxLength) {
             $excerpt   = substr($this->comment, $startPos, $maxLength-3);
             $lastSpace = strrpos($excerpt, ' ');
@@ -405,18 +403,18 @@ class Comment extends Element
         return $excerpt;
     }
 
-    public function getTimeAgo()
+    public function getTimeAgo(): string
     {
-        $diff = (new \DateTime())->diff($this->commentDate);
+        $diff = (new DateTime())->diff($this->commentDate);
         return CommentsHelper::humanDurationFromInterval($diff);
     }
 
-    public function isGuest()
+    public function isGuest(): bool
     {
         return is_null($this->userId);
     }
 
-    public function getAuthor()
+    public function getAuthor(): bool|User
     {
         // Provide some caching
         if ($this->_author !== null) {
@@ -469,7 +467,7 @@ class Comment extends Element
         return $user;
     }
 
-    public function getAuthorName()
+    public function getAuthorName(): ?string
     {
         if ($author = $this->getAuthor()) {
             return $author->fullName;
@@ -478,7 +476,7 @@ class Comment extends Element
         return $this->name;
     }
 
-    public function getAuthorEmail()
+    public function getAuthorEmail(): ?string
     {
         if ($author = $this->getAuthor()) {
             return $author->email;
@@ -507,7 +505,7 @@ class Comment extends Element
         return $avatar;
     }
 
-    public function getOwner()
+    public function getOwner(): ?ElementInterface
     {
         $renderCache = Comments::$plugin->getRenderCache();
         $cacheKey = $this->ownerId;
@@ -531,25 +529,25 @@ class Comment extends Element
         return $this->_owner;
     }
 
-    public function setOwner(ElementInterface $owner = null)
+    public function setOwner(ElementInterface $owner = null): void
     {
         $this->_owner = $owner;
     }
 
-    public function getOwnerType()
+    public function getOwnerType(): string
     {
         if ($owner = $this->getOwner()) {
-            return get_class($owner);
+            return $owner::class;
         }
 
         return '';
     }
 
-    public function canReply()
+    public function canReply(): bool
     {
         $settings = Comments::$plugin->getSettings();
 
-        $canReply = (bool)$settings->canComment($this->getOwner());
+        $canReply = $settings->canComment($this->getOwner());
 
         if ($canReply && is_numeric($settings->maxReplyDepth)) {
             $maxReplyDepth = (int)$settings->maxReplyDepth;
@@ -563,69 +561,69 @@ class Comment extends Element
         return $canReply;
     }
 
-    public function canEdit()
+    public function canEdit(): bool
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
-        // Only logged in users can edit a comment
+        // Only logged-in users can edit a comment
         if (!$currentUser) {
-            return;
+            return false;
         }
 
         // We better have an author
-        if (!$this->author) {
-            return;
+        if (!$this->getAuthor()) {
+            return false;
         }
 
         // Check that user is trying to edit their own comment
-        if ($currentUser->id !== $this->author->id) {
-            return;
+        if ($currentUser->id !== $this->getAuthor()->id) {
+            return false;
         }
 
         return true;
     }
 
-    public function canTrash()
+    public function canTrash(): bool
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
         // Only logged in users can upvote a comment
         if (!$currentUser) {
-            return;
+            return false;
         }
 
         // We better have an author
-        if (!$this->author) {
-            return;
+        if (!$this->getAuthor()) {
+            return false;
         }
 
         // Check that user is trying to trash their own comment
-        if ($currentUser->id !== $this->author->id) {
-            return;
+        if ($currentUser->id !== $this->getAuthor()->id) {
+            return false;
         }
 
         return true;
     }
 
-    public function trashUrl()
+    public function trashUrl(): bool|string
     {
         Craft::$app->getDeprecator()->log('trashUrl', '`trashUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/comment).');
 
         $currentUser = Comments::$plugin->getService()->getUser();
 
-        // Only logged in users can upvote a comment
+        // Only logged-in users can upvote a comment
         if (!$currentUser) {
-            return;
+            return false;
         }
 
         // We better have an author
-        if (!$this->author) {
-            return;
+        if (!$this->getAuthor()) {
+            return false;
         }
 
         // Check that user is trying to trash their own comment
-        if ($currentUser->id !== $this->author->id) {
-            return;
+        if ($currentUser->id !== $this->getAuthor()->id) {
+            return false;
         }
 
         return UrlHelper::actionUrl('comments/comments/trash', [
@@ -633,7 +631,7 @@ class Comment extends Element
         ]);
     }
 
-    public function getUser()
+    public function getUser(): bool|User|null
     {
         if ($this->_user === null) {
             if ($this->userId === null) {
@@ -648,12 +646,12 @@ class Comment extends Element
         return $this->_user ?: null;
     }
 
-    public function setUser(User $user = null)
+    public function setUser(User $user = null): void
     {
         $this->_user = $user;
     }
 
-    public function isSubscribed()
+    public function isSubscribed(): bool
     {
         $currentUser = Comments::$plugin->getService()->getUser();
         $userId = $currentUser->id ?? null;
@@ -665,13 +663,13 @@ class Comment extends Element
     // Flags
     // =========================================================================
 
-    public function flagUrl()
+    public function flagUrl(): bool|string
     {
         Craft::$app->getDeprecator()->log('flagUrl', '`flagUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/flag).');
 
         // Check if this user can flag comments
         if (!$this->canFlag()) {
-            return;
+            return false;
         }
 
         return UrlHelper::actionUrl('comments/comments/flag', [
@@ -679,36 +677,36 @@ class Comment extends Element
         ]);
     }
 
-    public function hasFlagged()
+    public function hasFlagged(): bool
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
         return Comments::$plugin->getFlags()->hasFlagged($this, $currentUser);
     }
 
-    public function isFlagged()
+    public function isFlagged(): bool
     {
         return Comments::$plugin->getFlags()->isOverFlagThreshold($this);
     }
 
-    public function getFlags()
+    public function getFlags(): int
     {
         return Comments::$plugin->getFlags()->getFlagsByCommentId($this->id);
     }
 
-    public function canFlag()
+    public function canFlag(): bool
     {
         $settings = Comments::$plugin->getSettings();
         $currentUser = Comments::$plugin->getService()->getUser();
 
         // If flagging is plain disabled
         if (!$settings->allowFlagging) {
-            return;
+            return false;
         }
 
         // Only guests can flag if the setting is configured to do so
         if (!$currentUser && !$settings->allowGuestFlagging) {
-            return;
+            return false;
         }
 
         return true;
@@ -718,13 +716,13 @@ class Comment extends Element
     // Votes
     // =========================================================================
 
-    public function downvoteUrl()
+    public function downvoteUrl(): bool|string
     {
         Craft::$app->getDeprecator()->log('downvoteUrl', '`downvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
 
         // Check if this user can vote on comments
         if (!$this->canVote()) {
-            return;
+            return false;
         }
 
         return UrlHelper::actionUrl('comments/comments/vote', [
@@ -733,13 +731,13 @@ class Comment extends Element
         ]);
     }
 
-    public function upvoteUrl()
+    public function upvoteUrl(): bool|string
     {
         Craft::$app->getDeprecator()->log('upvoteUrl', '`upvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
 
         // Check if this user can vote on comments
         if (!$this->canVote()) {
-            return;
+            return false;
         }
 
         return UrlHelper::actionUrl('comments/comments/vote', [
@@ -748,7 +746,7 @@ class Comment extends Element
         ]);
     }
 
-    public function getVotes()
+    public function getVotes(): float|int
     {
         $upvotes = Comments::$plugin->getVotes()->getUpvotesByCommentId($this->id);
         $downvotes = Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
@@ -756,44 +754,44 @@ class Comment extends Element
         return $upvotes - $downvotes;
     }
 
-    public function isPoorlyRated()
+    public function isPoorlyRated(): bool
     {
         return Comments::$plugin->getVotes()->isOverDownvoteThreshold($this);
     }
 
-    public function getAllVotes()
+    public function getAllVotes(): int
     {
         return Comments::$plugin->getVotes()->getVotesByCommentId($this->id);
     }
 
-    public function getUpvotes()
+    public function getUpvotes(): int
     {
         return Comments::$plugin->getVotes()->getUpvotesByCommentId($this->id);
     }
 
-    public function getDownvotes()
+    public function getDownvotes(): int
     {
         return Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
     }
 
-    public function canVote()
+    public function canVote(): bool
     {
         $settings = Comments::$plugin->getSettings();
         $currentUser = Comments::$plugin->getService()->getUser();
 
         // If voting is plain disabled
         if (!$settings->allowVoting) {
-            return;
+            return false;
         }
 
         // Only guests can vote if the setting is configured to do so
         if (!$currentUser && !$settings->allowGuestVoting) {
-            return;
+            return false;
         }
 
         // Has the downvote threshold been met, and the config setting set?
         if ($settings->hideVotingForThreshold && $this->isPoorlyRated()) {
-            return;
+            return false;
         }
 
         return true;
@@ -804,7 +802,7 @@ class Comment extends Element
     // Events
     // =========================================================================
 
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -851,7 +849,7 @@ class Comment extends Element
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Comments::$plugin->getService()->getUser();
 
-                if (empty($currentUser) || $currentUser->id !== $this->author->id) {
+                if (empty($currentUser) || $currentUser->id !== $this->getAuthor()->id) {
                     $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
@@ -902,7 +900,7 @@ class Comment extends Element
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Comments::$plugin->getService()->getUser();
 
-                if ($currentUser->id !== $this->author->id) {
+                if ($currentUser->id !== $this->getAuthor()->id) {
                     $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
@@ -920,7 +918,7 @@ class Comment extends Element
     {
         if ($this->_hasNewParent()) {
             if ($this->newParentId) {
-                $parentNode = Comments::$plugin->comments->getCommentById($this->newParentId, $this->siteId);
+                $parentNode = Comments::$plugin->getComments()->getCommentById($this->newParentId, $this->siteId);
 
                 if (!$parentNode) {
                     throw new Exception('Invalid comment ID: ' . $this->newParentId);
@@ -944,7 +942,7 @@ class Comment extends Element
         return parent::beforeSave($isNew);
     }
 
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -972,7 +970,7 @@ class Comment extends Element
         $record->commentDate = $this->commentDate;
 
         if (!$this->commentDate) {
-            $record->commentDate = new \DateTime();
+            $record->commentDate = new DateTime();
         }
 
         $record->save(false);
@@ -983,7 +981,7 @@ class Comment extends Element
         if ($isNew) {
             // Should we send moderator emails?
             if ($settings->notificationModeratorEnabled && $this->status == self::STATUS_PENDING) {
-                Comments::$plugin->comments->sendNotificationEmail('moderator', $this);
+                Comments::$plugin->getComments()->sendNotificationEmail('moderator', $this);
             } else {
                 Comments::log('Moderator Notifications disabled.');
             }
@@ -994,7 +992,7 @@ class Comment extends Element
             } else {
                 // Should we send a Notification email to the author of this comment?
                 if ($settings->notificationAuthorEnabled) {
-                    Comments::$plugin->comments->sendNotificationEmail('author', $this);
+                    Comments::$plugin->getComments()->sendNotificationEmail('author', $this);
                 } else {
                     Comments::log('Author Notifications disabled.');
                 }
@@ -1003,7 +1001,7 @@ class Comment extends Element
                 // to the author of the original comment?
                 if ($settings->notificationReplyEnabled) {
                     if ($this->_isReplying()) {
-                        Comments::$plugin->comments->sendNotificationEmail('reply', $this);
+                        Comments::$plugin->getComments()->sendNotificationEmail('reply', $this);
                     }
                 } else {
                     Comments::log('Reply Notifications disabled.');
@@ -1016,27 +1014,27 @@ class Comment extends Element
 
                 // Check for all users subscribed to notifications
                 if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
-                    Comments::$plugin->comments->sendNotificationEmail('subscribe', $this);
+                    Comments::$plugin->getComments()->sendNotificationEmail('subscribe', $this);
                 }
             }
 
             // Send admin notifications
             if ($settings->notificationAdminEnabled) {
-                Comments::$plugin->comments->sendNotificationEmail('admin', $this);
+                Comments::$plugin->getComments()->sendNotificationEmail('admin', $this);
             }
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved
         if ($this->previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
             if ($settings->notificationModeratorApprovedEnabled) {
-                Comments::$plugin->comments->sendNotificationEmail('moderator-approved', $this);
+                Comments::$plugin->getComments()->sendNotificationEmail('moderator-approved', $this);
             } else {
                 Comments::log('Moderator Approved Notifications disabled.');
             }
 
             // Should we send a Notification email to the author of this comment?
             if ($settings->notificationAuthorEnabled) {
-                Comments::$plugin->comments->sendNotificationEmail('author', $this);
+                Comments::$plugin->getComments()->sendNotificationEmail('author', $this);
             } else {
                 Comments::log('Author Notifications disabled.');
             }
@@ -1045,7 +1043,7 @@ class Comment extends Element
             // to the author of the original comment?
             if ($settings->notificationReplyEnabled) {
                 if ($this->_isReplying()) {
-                    Comments::$plugin->comments->sendNotificationEmail('reply', $this);
+                    Comments::$plugin->getComments()->sendNotificationEmail('reply', $this);
                 }
             } else {
                 Comments::log('Reply Notifications disabled.');
@@ -1058,7 +1056,7 @@ class Comment extends Element
 
             // Check for all users subscribed to notifications
             if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
-                Comments::$plugin->comments->sendNotificationEmail('subscribe', $this);
+                Comments::$plugin->getComments()->sendNotificationEmail('subscribe', $this);
             }
         }
 
@@ -1077,14 +1075,14 @@ class Comment extends Element
     // Element index methods
     // =========================================================================
 
-    public static function getCommentElementTitleHtml(&$context)
+    public static function getCommentElementTitleHtml(&$context): string
     {
         if (!isset($context['element'])) {
-            return;
+            return '';
         }
 
         // Only do this for a Comment ElementType
-        if (get_class($context['element']) === static::class) {
+        if ($context['element']::class === static::class) {
             $span1 = Html::tag('span', '', ['class' => 'status ' . $context['element']->status]);
             $span2 = Html::tag('span', Html::encode($context['element']->getAuthor()), ['class' => 'username']);
             $small = Html::tag('small', Html::encode($context['element']->getExcerpt(0, 100)));
@@ -1094,6 +1092,8 @@ class Comment extends Element
             
             return Template::raw($html);
         }
+
+        return '';
     }
 
     protected static function defineTableAttributes(): array
@@ -1140,9 +1140,9 @@ class Comment extends Element
                     $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
                     
                     return Template::raw($a);
-                } else {
-                    return Craft::t('comments', '[Deleted element]');
                 }
+
+                return Craft::t('comments', '[Deleted element]');
             }
             case 'voteCount': {
                 return $this->getVotes();
@@ -1156,7 +1156,7 @@ class Comment extends Element
         }
     }
 
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|false|null
     {
         if ($handle === 'user') {
             // Get the source element IDs
@@ -1202,12 +1202,12 @@ class Comment extends Element
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         return 'Comment';
     }
 
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         if ($attribute === 'user') {
             $elementQuery->andWith('user');
@@ -1223,7 +1223,7 @@ class Comment extends Element
         return static::gqlTypeNameByContext($this);
     }
 
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'user') {
             $this->_user = $elements[0] ?? false;
@@ -1249,7 +1249,7 @@ class Comment extends Element
 
     private function _isReplying(): bool
     {
-        return (bool)$this->newParentId || (bool)$this->getParent();
+        return $this->newParentId || $this->getParent();
     }
 
     private function _checkForNewParent(): bool
@@ -1287,7 +1287,7 @@ class Comment extends Element
         return $this->newParentId != $oldParentId;
     }
 
-    private function _saveNewSubscriber()
+    private function _saveNewSubscriber(): void
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
@@ -1308,7 +1308,7 @@ class Comment extends Element
         Comments::$plugin->getSubscribe()->saveSubscribe($subscribe);
     }
 
-    private function _getCommentIsRequired()
+    private function _getCommentIsRequired(): bool
     {
         // Default to true, mostly for backward compatibility, just in case for some reason
         // the field layout element isn't found.

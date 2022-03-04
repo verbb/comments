@@ -2,28 +2,26 @@
 namespace verbb\comments\models;
 
 use verbb\comments\elements\Comment;
-use verbb\comments\records\Flag as FlagRecord;
 
-use Craft;
+use craft\base\ElementInterface;
 use craft\base\Model;
-use craft\validators\UniqueValidator;
 
 class Flag extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $id;
-    public $commentId;
-    public $userId;
-    public $sessionId;
-    public $lastIp;
+    public ?int $id = null;
+    public ?int $commentId = null;
+    public ?int $userId = null;
+    public ?int $sessionId = null;
+    public string $lastIp = '';
 
 
     // Public Methods
     // =========================================================================
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id'], 'number', 'integerOnly' => true],
@@ -31,7 +29,7 @@ class Flag extends Model
         ];
     }
 
-    public function getComment()
+    public function getComment(): ?ElementInterface
     {
         if ($this->commentId) {
             return Comment::find()->id($this->commentId)->one();

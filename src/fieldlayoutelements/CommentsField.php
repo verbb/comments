@@ -6,14 +6,12 @@ use craft\base\ElementInterface;
 use craft\fieldlayoutelements\BaseField;
 use craft\helpers\Html;
 
-use yii\base\InvalidArgumentException;
-
 class CommentsField extends BaseField
 {
     // Properties
     // =========================================================================
 
-    public $required = true;
+    public bool $required = true;
 
 
     // Public Methods
@@ -53,7 +51,7 @@ class CommentsField extends BaseField
     // Protected Methods
     // =========================================================================
 
-    public function label()
+    public function label(): ?string
     {
         if ($this->label !== null && $this->label !== '' && $this->label !== '__blank__') {
             return Html::encode(Craft::t('comments', $this->label));
@@ -62,7 +60,7 @@ class CommentsField extends BaseField
         return '__blank__';
     }
 
-    public function instructions(?craft\base\ElementInterface $element = NULL, bool $static = false): ?string
+    public function instructions(?ElementInterface $element = null, bool $static = false): ?string
     {
         if ($this->instructions !== null && $this->instructions !== '' && $this->instructions !== '__blank__') {
             return Html::encode(Craft::t('comments', $this->instructions));
@@ -71,7 +69,7 @@ class CommentsField extends BaseField
         return Craft::t('comments', 'Add a comment...');
     }
 
-    protected function inputHtml(ElementInterface $element = null, bool $static = false)
+    protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         return '';
     }

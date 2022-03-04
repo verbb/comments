@@ -7,6 +7,7 @@ use verbb\comments\elements\Comment as CommentElement;
 use Craft;
 use craft\db\Query;
 use craft\elements\User as UserElement;
+use craft\helpers\Json;
 
 use craft\feedme\base\Element;
 use craft\feedme\Plugin;
@@ -15,6 +16,8 @@ use craft\feedme\services\Process;
 
 use Cake\Utility\Hash;
 use yii\base\Event;
+use Carbon\Carbon;
+use DateTime;
 
 class CommentFeedMeElement extends Element
 {
@@ -22,24 +25,24 @@ class CommentFeedMeElement extends Element
     // =========================================================================
 
     public static $name = 'Comment';
-    public static $class = 'verbb\comments\elements\Comment';
-    public $element;
+    public static $class = CommentElement::class;
+    public $element = null;
 
 
     // Templates
     // =========================================================================
 
-    public function getGroupsTemplate()
+    public function getGroupsTemplate(): string
     {
         return 'comments/_integrations/feed-me/groups';
     }
 
-    public function getColumnTemplate()
+    public function getColumnTemplate(): string
     {
         return 'comments/_integrations/feed-me/column';
     }
 
-    public function getMappingTemplate()
+    public function getMappingTemplate(): string
     {
         return 'comments/_integrations/feed-me/map';
     }
@@ -48,18 +51,18 @@ class CommentFeedMeElement extends Element
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
-        Event::on(Process::class, Process::EVENT_STEP_AFTER_ELEMENT_SAVE, function(FeedProcessEvent $event) {
+        Event::on(Process::class, Process::EVENT_STEP_AFTER_ELEMENT_SAVE, function(FeedProcessEvent $event): void {
             if ($event->feed['elementType'] === CommentElement::class) {
                 $this->_processNestedComments($event);
             }
         });
     }
 
-    private function _processNestedComments($event)
+    private function _processNestedComments($event): void
     {
         // Save the imported comment as the parent, we'll need it in a sec
         $parentId = $event->element->id;
@@ -93,7 +96,7 @@ class CommentFeedMeElement extends Element
         }
     }
     
-    public function getGroups()
+    public function getGroups(): array
     {
         return [];
     }
@@ -109,7 +112,7 @@ class CommentFeedMeElement extends Element
         return $query;
     }
 
-    public function setModel($settings)
+    public function setModel($settings): CommentElement
     {
         $this->element = new CommentElement();
         $this->element->structureId = Comments::getInstance()->getSettings()->structureId;
@@ -136,7 +139,7 @@ class CommentFeedMeElement extends Element
         return $value;
     }
 
-    protected function parseCommentDate($feedData, $fieldInfo)
+    protected function parseCommentDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');
@@ -181,6 +184,8 @@ class CommentFeedMeElement extends Element
         if ($elementId) {
             return $elementId;
         }
+
+        return null;
     }
 
     protected function parseUserId($feedData, $fieldInfo)
@@ -218,7 +223,7 @@ class CommentFeedMeElement extends Element
             $element->email = $value;
 
             if (!Craft::$app->getElements()->saveElement($element)) {
-                Plugin::error('Comment error: Could not create author - `{e}`.', ['e' => json_encode($element->getErrors())]);
+                Plugin::error('Comment error: Could not create author - `{e}`.', ['e' => Json::encode($element->getErrors())]);
             } else {
                 Plugin::info('Author `#{id}` added.', ['id' => $element->id]);
             }

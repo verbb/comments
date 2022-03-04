@@ -9,16 +9,20 @@ use verbb\comments\models\Settings;
 use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\StructureMutationTrait;
-use Craft;
 
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Error\UserError;
+
+use yii\base\Model;
+
+use Throwable;
 
 /**
  * Implements custom mutation methods take GraphQL mutations and make stuff happen.
@@ -30,20 +34,21 @@ class Comment extends ElementMutationResolver
     use StructureMutationTrait;
 
     /* @inheritdoc */
-    protected $immutableAttributes = ['id', 'uid', 'userId'];
+    protected array $immutableAttributes = ['id', 'uid', 'userId'];
 
     /**
      * Handles GraphQL mutation arguments to either create or update a comment.
      *
      * @param             $source
-     * @param array       $arguments GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
-     * @throws GqlException|Error|SiteNotFoundException
-     * @throws \Exception if schema does not allow the relevant action.
+     * @throws Error
+     * @throws GqlException
+     * @throws SiteNotFoundException
      */
-    public function saveComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    public function saveComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?ElementInterface
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
@@ -103,12 +108,12 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to record a comment upvote or downvote.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      */
-    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): Vote
+    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?ElementInterface
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
@@ -142,11 +147,11 @@ class Comment extends ElementMutationResolver
             // Reset like no votes were taken!
             if ($vote->upvote) {
                 $vote->downvote = null;
-                $vote->upvote = null;
             } else {
                 $vote->downvote = '1';
-                $vote->upvote = null;
             }
+
+            $vote->upvote = null;
         }
 
         // Okay if no user here, although required, the model validation will pick it up
@@ -165,12 +170,12 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to flag a comment.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      */
-    public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?ElementInterface
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
@@ -205,7 +210,7 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to toggle comment subscription.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return string
@@ -246,13 +251,13 @@ class Comment extends ElementMutationResolver
 
     /**
      * Handles GraphQL mutation arguments to delete a comment.
-
+     *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function deleteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): bool
     {
@@ -279,11 +284,10 @@ class Comment extends ElementMutationResolver
      * Returns a new or existing Comment element based on the provided query parameters.
      *
      * @param array $arguments GraphQL query arguments in key-value pairs
-     * @return CommentElement
      * @throws Error
      * @throws SiteNotFoundException
      */
-    protected function getCommentElement(array $arguments): CommentElement
+    protected function getCommentElement(array $arguments): array|Model|ElementInterface
     {
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']);
         $this->requireSchemaAction('comments', $canIdentify ? 'save' : 'edit');
@@ -314,7 +318,7 @@ class Comment extends ElementMutationResolver
      * any results.
      *
      * @param CommentQuery $commentQuery
-     * @param array        $arguments     GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @return CommentQuery
      */
     protected function identifyComment(CommentQuery $commentQuery, array $arguments): CommentQuery
@@ -336,7 +340,7 @@ class Comment extends ElementMutationResolver
      *
      * @param array $errors Key-value error array
      */
-    private function _throwErrors(array $errors)
+    private function _throwErrors(array $errors): void
     {
         $validationErrors = [];
 
@@ -362,7 +366,7 @@ class Comment extends ElementMutationResolver
 
         if ($element = Craft::$app->getElements()->getElementById($ownerId)) {
             // Is ownerId secretly a comment element?
-            return get_class($element) === CommentElement::class;
+            return $element::class === CommentElement::class;
         }
 
         return false;

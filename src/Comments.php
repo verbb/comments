@@ -14,10 +14,10 @@ use verbb\comments\models\Settings;
 use verbb\comments\services\CommentsService;
 use verbb\comments\twigextensions\Extension;
 use verbb\comments\variables\CommentsVariable;
-use verbb\comments\variables\CommentsVariableBehavior;
 use verbb\comments\widgets\Comments as CommentsWidget;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\db\Table;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -57,9 +57,9 @@ class Comments extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.1.7';
-    public $hasCpSettings = true;
-    public $hasCpSection = true;
+    public string $schemaVersion = '1.1.7';
+    public bool $hasCpSettings = true;
+    public bool $hasCpSection = true;
     
 
     // Traits
@@ -71,7 +71,7 @@ class Comments extends Plugin
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -102,7 +102,7 @@ class Comments extends Plugin
     /**
      * @inheritdoc
      */
-    public function getCpNavItem()
+    public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
         $ret['label'] = Craft::t('comments', 'Comments');
@@ -110,12 +110,12 @@ class Comments extends Plugin
         return $ret;
     }
 
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
-        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
     }
 
-    public function afterInstall()
+    public function afterInstall(): void
     {
         // Comments are a Structure, which helps with hierarchy-goodness.
         // We only use a single structure for all our comments so store this at the plugin settings level
@@ -124,17 +124,15 @@ class Comments extends Plugin
         }
     }
 
-    public function beforeUninstall(): bool
+    public function beforeUninstall(): void
     {
         // Clean up structure
         if ($this->getSettings()->structureUid) {
             Craft::$app->getStructures()->deleteStructureById($this->getSettings()->getStructureId());
         }
-
-        return true;
     }
 
-    public function createAndStoreStructure()
+    public function createAndStoreStructure(): ?Structure
     {
         $structure = null;
 
@@ -174,7 +172,7 @@ class Comments extends Plugin
     // Protected Methods
     // =========================================================================
 
-    protected function createSettingsModel(): Settings
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -183,12 +181,12 @@ class Comments extends Plugin
     // Private Methods
     // =========================================================================
 
-    private function _registerTwigExtensions()
+    private function _registerTwigExtensions(): void
     {
         Craft::$app->view->registerTwigExtension(new Extension);
     }
 
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
@@ -201,7 +199,7 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerPermissions()
+    private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
             $event->permissions[Craft::t('comments', 'Comments')] = [
@@ -212,7 +210,7 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerEmailMessages()
+    private function _registerEmailMessages(): void
     {
         Event::on(SystemMessages::class, SystemMessages::EVENT_REGISTER_MESSAGES, function(RegisterEmailMessagesEvent $event) {
             $event->messages = array_merge($event->messages, [
@@ -261,28 +259,28 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerVariables()
+    private function _registerVariables(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             $event->sender->set('comments', CommentsVariable::class);
         });
     }
 
-    private function _registerFieldTypes()
+    private function _registerFieldTypes(): void
     {
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsField::class;
         });
     }
 
-    private function _registerElementTypes()
+    private function _registerElementTypes(): void
     {
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Comment::class;
         });
     }
 
-    private function _registerCraftEventListeners()
+    private function _registerCraftEventListeners(): void
     {
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
@@ -300,7 +298,7 @@ class Comments extends Plugin
         }
     }
 
-    private function _registerGraphQl()
+    private function _registerGraphQl(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
             $event->types[] = CommentInterface::class;
@@ -336,7 +334,7 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerProjectConfigEventListeners()
+    private function _registerProjectConfigEventListeners(): void
     {
         $projectConfigService = Craft::$app->getProjectConfig();
         $service = $this->getComments();
@@ -355,20 +353,18 @@ class Comments extends Plugin
         });
     }
 
-    private function _defineFieldLayoutElements()
+    private function _defineFieldLayoutElements(): void
     {
-        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
             $fieldLayout = $e->sender;
 
-            switch ($fieldLayout->type) {
-                case Comment::class:
-                    $e->fields[] = CommentsFieldLayoutElement::class;
-                    break;
+            if ($fieldLayout->type == Comment::class) {
+                $e->fields[] = CommentsFieldLayoutElement::class;
             }
         });
     }
 
-    private function _checkDeprecations()
+    private function _checkDeprecations(): void
     {
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             return;
@@ -404,7 +400,7 @@ class Comments extends Plugin
         }
     }
 
-    private function _registerFeedMeSupport()
+    private function _registerFeedMeSupport(): void
     {
         if (class_exists(FeedMeElements::class)) {
             Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $e) {
@@ -413,7 +409,7 @@ class Comments extends Plugin
         }
     }
 
-    private function _registerWidgets()
+    private function _registerWidgets(): void
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsWidget::class;

@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\events;
 
+use verbb\comments\models\Subscribe;
+
 use yii\base\Event;
 
 class SubscribeEvent extends Event
@@ -8,7 +10,6 @@ class SubscribeEvent extends Event
     // Properties
     // =========================================================================
 
-    public $subscribe;
-
-    public $isNew = false;
+    public Subscribe $subscribe;
+    public bool $isNew = false;
 }

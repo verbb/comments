@@ -1,14 +1,13 @@
 <?php
 namespace verbb\comments\migrations;
 
+use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 
-use yii\db\Expression;
-
 class m180826_000000_add_comment_date_column extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {   
         // First create the new column
         if (!$this->db->columnExists('{{%comments_comments}}', 'commentDate')) {
@@ -29,7 +28,7 @@ class m180826_000000_add_comment_date_column extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m180826_000000_add_comment_date_column cannot be reverted.\n";
 

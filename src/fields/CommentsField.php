@@ -27,15 +27,15 @@ class CommentsField extends Field
     // Properties
     // =========================================================================
 
-    public $columnType = Schema::TYPE_TEXT;
-    public $commentEnabled = true;
-    public $default = true;
+    public string $columnType = Schema::TYPE_TEXT;
+    public bool $commentEnabled = true;
+    public bool $default = true;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         $id = Craft::$app->getView()->formatInputId($this->handle);
         $nameSpacedId = Craft::$app->getView()->namespaceInputId($id);
@@ -48,7 +48,7 @@ class CommentsField extends Field
         ]);
     }
 
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplateMacro('_includes/forms', 'lightswitchField', [[
             'label' => Craft::t('app', 'Default Value'),
@@ -58,7 +58,7 @@ class CommentsField extends Field
         ]]);
     }
 
-    public function normalizeValue($value, ElementInterface $element = null)
+    public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
         if ($value === null) {
             return ['commentEnabled' => $this->default];

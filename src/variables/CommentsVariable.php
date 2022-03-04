@@ -2,36 +2,38 @@
 namespace verbb\comments\variables;
 
 use verbb\comments\Comments;
-use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\helpers\CommentsHelper;
 
 use Craft;
+use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Template;
+
+use Twig\Markup;
 
 class CommentsVariable
 {
     // Public Methods
     // =========================================================================
 
-    public function fetch($criteria = null): CommentQuery
+    public function fetch($criteria = null): ElementQueryInterface
     {
         return Comments::$plugin->getComments()->fetch($criteria);
     }
 
-    public function render($elementId, $criteria = [], $jsSettings = [])
+    public function render($elementId, $criteria = [], $jsSettings = []): Markup
     {
         return Comments::$plugin->getComments()->render($elementId, $criteria, $jsSettings);
     }
 
-    public function protect()
+    public function protect(): Markup
     {
         $fields = Comments::$plugin->getProtect()->getFields();
         return Template::raw($fields);
     }
 
-    public function isSubscribed($element, $comment = null)
+    public function isSubscribed($element, $comment = null): bool
     {
         $currentUser = Comments::$plugin->getService()->getUser();
         $elementId = $element->id ?? null;
@@ -42,7 +44,7 @@ class CommentsVariable
         return Comments::$plugin->getSubscribe()->hasSubscribed($elementId, $elementSiteId, $userId, $commentId);
     }
 
-    public function renderCss($elementId, $attributes = [])
+    public function renderCss($elementId, $attributes = []): Markup
     {
         $view = Craft::$app->getView();
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/css/comments.css', true);
@@ -52,7 +54,7 @@ class CommentsVariable
         return Template::raw($output);
     }
 
-    public function renderJs($elementId, $criteria = [], $loadInline = true, $attributes = [])
+    public function renderJs($elementId, $criteria = [], $loadInline = true, $attributes = []): Markup
     {
         $view = Craft::$app->getView();
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
@@ -75,7 +77,7 @@ class CommentsVariable
         return Template::raw(implode(PHP_EOL, $output));
     }
 
-    public function getJsVariables($elementId, $criteria = [])
+    public function getJsVariables($elementId, $criteria = []): array
     {
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
@@ -86,22 +88,22 @@ class CommentsVariable
         ];
     }
 
-    public function getAvatar()
+    public function getAvatar(): string
     {
         return CommentsHelper::getAvatar(Comments::$plugin->getService()->getUser());
     }
 
-    public function getUserVotes($userId)
+    public function getUserVotes($userId): array
     {
         return Comments::$plugin->getVotes()->getVotesByUserId($userId);
     }
 
-    public function getUserDownvotes($userId)
+    public function getUserDownvotes($userId): array
     {
         return Comments::$plugin->getVotes()->getDownvotesByUserId($userId);
     }
 
-    public function getUserUpvotes($userId)
+    public function getUserUpvotes($userId): array
     {
         return Comments::$plugin->getVotes()->getUpvotesByUserId($userId);
     }
@@ -110,14 +112,14 @@ class CommentsVariable
     // Deprecated Methods
     // =========================================================================
 
-    public function all($criteria = null): CommentQuery
+    public function all($criteria = null): ElementQueryInterface
     {
         Craft::$app->getDeprecator()->log('craft.comments.all()', '`craft.comments.all()` has been deprecated. Use `craft.comments.fetch()` instead.');
 
         return $this->fetch($criteria);
     }
 
-    public function form($elementId, $criteria = [])
+    public function form($elementId, $criteria = []): Markup
     {
         Craft::$app->getDeprecator()->log('craft.comments.form()', '`craft.comments.form()` has been deprecated. Use `craft.comments.render()` instead.');
 

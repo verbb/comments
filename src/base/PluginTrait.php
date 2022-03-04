@@ -12,7 +12,6 @@ use verbb\comments\services\SubscribeService;
 use verbb\comments\services\VotesService;
 
 use Craft;
-use craft\log\FileTarget;
 
 use yii\log\Logger;
 
@@ -20,61 +19,61 @@ use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
-    // Static Properties
+    // Properties
     // =========================================================================
 
-    public static $plugin;
+    public static Comments $plugin;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getComments()
+    public function getComments(): CommentsService
     {
         return $this->get('comments');
     }
 
-    public function getFlags()
+    public function getFlags(): FlagsService
     {
         return $this->get('flags');
     }
 
-    public function getProtect()
+    public function getProtect(): ProtectService
     {
         return $this->get('protect');
     }
 
-    public function getRenderCache()
+    public function getRenderCache(): RenderCacheService
     {
         return $this->get('renderCache');
     }
 
-    public function getSecurity()
+    public function getSecurity(): SecurityService
     {
         return $this->get('security');
     }
 
-    public function getService()
+    public function getService(): Service
     {
         return $this->get('service');
     }
 
-    public function getSubscribe()
+    public function getSubscribe(): SubscribeService
     {
         return $this->get('subscribe');
     }
 
-    public function getVotes()
+    public function getVotes(): VotesService
     {
         return $this->get('votes');
     }
 
-    public static function log($message)
+    public static function log($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
     }
 
-    public static function error($message)
+    public static function error($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
     }
@@ -83,7 +82,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents()
+    private function _setPluginComponents(): void
     {
         $this->setComponents([
             'comments' => CommentsService::class,
@@ -99,7 +98,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging()
+    private function _setLogging(): void
     {
         BaseHelper::setFileLogging('comments');
     }

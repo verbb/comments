@@ -1,13 +1,12 @@
 <?php
 namespace verbb\comments\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
 
 class m180825_000000_craft3_upgrade extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         // Rename table
         if ($this->db->tableExists('{{%comments}}') && !$this->db->tableExists('{{%comments_comments}}')) {
@@ -47,7 +46,7 @@ class m180825_000000_craft3_upgrade extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m180825_000000_craft3_upgrade cannot be reverted.\n";
 

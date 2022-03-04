@@ -4,14 +4,12 @@ namespace verbb\comments\twigextensions;
 use verbb\comments\Comments;
 
 use Craft;
-use craft\web\View;
 
-use Twig_Extension;
-use Twig_SimpleFunction;
-use Twig_SimpleFilter;
-use Twig_Environment;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+use Twig\Environment;
 
-class Extension extends Twig_Extension
+class Extension extends AbstractExtension
 {
     // Public Methods
     // =========================================================================
@@ -24,12 +22,12 @@ class Extension extends Twig_Extension
     public function getFunctions(): array
     {
         return [
-            new Twig_SimpleFunction('commentsInclude', [$this, 'commentsInclude'], ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
-            new Twig_SimpleFunction('commentsSiteInclude', [$this, 'commentsSiteInclude'], ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
+            new TwigFunction('commentsInclude', [$this, 'commentsInclude'], ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
+            new TwigFunction('commentsSiteInclude', [$this, 'commentsSiteInclude'], ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
         ];
     }
 
-    public function commentsInclude(Twig_Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false)
+    public function commentsInclude(Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false): string
     {
         $view = $context['view'];
 
@@ -53,7 +51,7 @@ class Extension extends Twig_Extension
         return twig_include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
     }
 
-    public function commentsSiteInclude(Twig_Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false)
+    public function commentsSiteInclude(Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false): string
     {
         $view = $context['view'];
 

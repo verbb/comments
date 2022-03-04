@@ -2,29 +2,28 @@
 namespace verbb\comments\models;
 
 use verbb\comments\elements\Comment;
-use verbb\comments\records\Subscribe as SubscribeRecord;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\base\Model;
-use craft\validators\UniqueValidator;
 
 class Subscribe extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $id;
-    public $ownerId;
-    public $ownerSiteId;
-    public $userId;
-    public $commentId;
-    public $subscribed;
+    public ?int $id = null;
+    public ?int $ownerId = null;
+    public ?int $ownerSiteId = null;
+    public ?int $userId = null;
+    public ?int $commentId = null;
+    public bool $subscribed = false;
 
 
     // Public Methods
     // =========================================================================
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id'], 'number', 'integerOnly' => true],
@@ -33,7 +32,7 @@ class Subscribe extends Model
         ];
     }
 
-    public function getComment()
+    public function getComment(): ?ElementInterface
     {
         if ($this->commentId) {
             return Comment::find()->id($this->commentId)->one();

@@ -3,15 +3,16 @@ namespace verbb\comments\controllers;
 
 use verbb\comments\Comments;
 
-use Craft;
 use craft\web\Controller;
+
+use yii\web\Response;
 
 class BaseController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function actionSettings()
+    public function actionSettings(): Response
     {
         $settings = Comments::$plugin->getSettings();
 

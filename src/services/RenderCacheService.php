@@ -1,21 +1,17 @@
 <?php
 namespace verbb\comments\services;
 
-use verbb\comments\Comments;
-
-use Craft;
 use craft\base\Component;
-use craft\db\Query;
 
 class RenderCacheService extends Component
 {
     // Properties
     // =========================================================================
 
-    public $avatars = [];
-    public $comments = [];
-    public $elements = [];
-    public $commentIds = [];
+    public array $avatars = [];
+    public array $comments = [];
+    public array $elements = [];
+    public array $commentIds = [];
 
 
     // Public Methods
@@ -26,7 +22,7 @@ class RenderCacheService extends Component
         return $this->avatars[$key] ?? null;
     }
 
-    public function addAvatar($key, $value)
+    public function addAvatar($key, $value): void
     {
         $this->avatars[$key] = $value;
     }
@@ -36,7 +32,7 @@ class RenderCacheService extends Component
         return $this->comments[$key] ?? null;
     }
 
-    public function addComment($key, $value)
+    public function addComment($key, $value): void
     {
         $this->comments[$key] = $value;
     }
@@ -46,17 +42,17 @@ class RenderCacheService extends Component
         return $this->elements[$key] ?? null;
     }
 
-    public function addElement($key, $value)
+    public function addElement($key, $value): void
     {
         $this->elements[$key] = $value;
     }
 
-    public function setCommentIds($value)
+    public function setCommentIds($value): void
     {
         $this->commentIds = $value;
     }
 
-    public function getCommentIds()
+    public function getCommentIds(): array
     {
         return $this->commentIds;
     }

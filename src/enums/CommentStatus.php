@@ -2,8 +2,8 @@
 namespace verbb\comments\enums;
 
 /**
- * The CommentStatus class is an abstract class that defines all of the possible states for commenting on an element.
- * (There is one 'available' case and several different 'unavailable' cases.)
+ * The CommentStatus class is an abstract class that defines all the possible states for commenting on an element.
+ * (There is one 'available' case and several 'unavailable' cases.)
  * 
  * This class is a poor man's version of an enum copied from P&T's basic pattern in Craft CMS, 
  * since PHP does not have support for native enumerations.

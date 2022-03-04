@@ -25,7 +25,7 @@ class SubscribeService extends Component
     // Public Methods
     // =========================================================================
 
-    public function getAllSubscribers($ownerId, $ownerSiteId, $commentId)
+    public function getAllSubscribers($ownerId, $ownerSiteId, $commentId): array
     {
         $items = [];
 
@@ -41,7 +41,7 @@ class SubscribeService extends Component
         return $items;
     }
 
-    public function getSubscribe($ownerId, $ownerSiteId, $userId, $commentId = null)
+    public function getSubscribe($ownerId, $ownerSiteId, $userId, $commentId = null): ?SubscribeModel
     {
         $result = $this->_createSubscribeQuery()
             ->where(['ownerId' => $ownerId, 'ownerSiteId' => $ownerSiteId, 'userId' => $userId, 'commentId' => $commentId])
@@ -50,7 +50,7 @@ class SubscribeService extends Component
         return $result ? new SubscribeModel($result) : null;
     }
 
-    public function hasSubscribed($ownerId, $ownerSiteId, $userId, $commentId = null)
+    public function hasSubscribed($ownerId, $ownerSiteId, $userId, $commentId = null): bool
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -66,10 +66,12 @@ class SubscribeService extends Component
 
         if ($hasSubscribed) {
             return (bool)$hasSubscribed['subscribed'];
-        } else if ($commentId && $settings->notificationSubscribeDefault) {
-            // If not specifically subscribed, check if we're checking against a comment. 
-            // If its the own users' they're automatically subscribed to replies on their own comments
-            $comment = Comments::$plugin->comments->getCommentById($commentId, $ownerSiteId);
+        }
+
+        if ($commentId && $settings->notificationSubscribeDefault) {
+            // If not specifically subscribed, check if we're checking against a comment.
+            // If it's the own users' they're automatically subscribed to replies on their own comments
+            $comment = Comments::$plugin->getComments()->getCommentById($commentId, $ownerSiteId);
 
             if ($comment && $comment->userId == $userId) {
                 return true;
@@ -89,7 +91,7 @@ class SubscribeService extends Component
         // we're toggling on our own comment, and if so, we're unsubscribing, because by default
         // you subscribe to your own comment thread.
         if (is_null($subscribe->subscribed) && $subscribe->commentId && $settings->notificationSubscribeDefault) {
-            $comment = Comments::$plugin->comments->getCommentById($subscribe->commentId, $subscribe->ownerSiteId);
+            $comment = Comments::$plugin->getComments()->getCommentById($subscribe->commentId, $subscribe->ownerSiteId);
 
             if ($comment && $comment->userId == $subscribe->userId) {
                 $subscribed = false;
@@ -128,7 +130,7 @@ class SubscribeService extends Component
         // Save the record
         $subscribeRecord->save(false);
 
-        // Now that we have a ID, save it on the model
+        // Now that we have an ID, save it on the model
         if ($isNewSubscribe) {
             $subscribe->id = $subscribeRecord->id;
         }

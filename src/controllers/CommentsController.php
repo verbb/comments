@@ -11,21 +11,21 @@ use Craft;
 use craft\helpers\Json;
 use craft\web\Controller;
 
-use yii\web\Response;
 use yii\base\Exception;
+use yii\web\Response;
 
 class CommentsController extends Controller
 {
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = ['save', 'get-js-variables'];
+    protected array|bool|int $allowAnonymous = ['save', 'get-js-variables'];
 
 
     // Public Methods
     // =========================================================================
 
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -43,7 +43,7 @@ class CommentsController extends Controller
 
     // Grab the required JS variables with a separate call
     // This is required when loading single comments async
-    public function actionGetJsVariables()
+    public function actionGetJsVariables(): Response
     {
         $this->requirePostRequest();      
         
@@ -64,7 +64,7 @@ class CommentsController extends Controller
     // Control Panel
     //
 
-    public function actionEditComment($commentId, string $siteHandle = null, Comment $comment = null)
+    public function actionEditComment($commentId, string $siteHandle = null, Comment $comment = null): Response
     {
         if (!$siteHandle) {
             $siteHandle = Craft::$app->getSites()->getCurrentSite()->handle;
@@ -88,7 +88,7 @@ class CommentsController extends Controller
         ]);
     }
 
-    public function actionSaveComment()
+    public function actionSaveComment(): ?Response
     {
         $this->requirePostRequest();
 
@@ -99,7 +99,7 @@ class CommentsController extends Controller
         $siteId = $request->getParam('siteId');
 
         // Ensure we only set a selection of attributes from the CP
-        $comment = Comments::$plugin->comments->getCommentById($commentId, $siteId);
+        $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
         $comment->status = $request->getParam('status', $comment->status);
         $comment->comment = $request->getParam('comment', $comment->comment);
 
@@ -122,7 +122,7 @@ class CommentsController extends Controller
         return $this->redirectToPostedUrl($comment);
     }
 
-    public function actionDeleteComment()
+    public function actionDeleteComment(): Response
     {
         $this->requirePostRequest();
 
@@ -144,7 +144,7 @@ class CommentsController extends Controller
     // Comments Front-End
     //
 
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -195,7 +195,7 @@ class CommentsController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    public function actionFlag()
+    public function actionFlag(): Response
     {
         $this->requirePostRequest();
         
@@ -244,7 +244,7 @@ class CommentsController extends Controller
         return $this->redirect($request->referrer);
     }
 
-    public function actionVote()
+    public function actionVote(): Response
     {
         $this->requirePostRequest();
 
@@ -262,22 +262,12 @@ class CommentsController extends Controller
 
         if ($upvote) {
             // Reset like no votes were taken!
-            if ($vote->downvote) {
-                $vote->downvote = null;
-                $vote->upvote = null;
-            } else {
-                $vote->downvote = null;
-                $vote->upvote = '1';
-            }
+            $vote->downvote = null;
+            $vote->upvote = ($vote->downvote) ? null : '1';
         } else {
             // Reset like no votes were taken!
-            if ($vote->upvote) {
-                $vote->downvote = null;
-                $vote->upvote = null;
-            } else {
-                $vote->downvote = '1';
-                $vote->upvote = null;
-            }
+            $vote->downvote = ($vote->upvote) ? null : '1';
+            $vote->upvote = null;
         }
 
         // Okay if no user here, although required, the model validation will pick it up
@@ -310,7 +300,7 @@ class CommentsController extends Controller
         return $this->redirect($request->referrer);
     }
 
-    public function actionTrash()
+    public function actionTrash(): Response
     {
         $this->requirePostRequest();
         
@@ -348,7 +338,7 @@ class CommentsController extends Controller
         return $this->redirect($request->referrer);
     }
 
-    public function actionSubscribe()
+    public function actionSubscribe(): Response
     {
         $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
@@ -413,7 +403,7 @@ class CommentsController extends Controller
         $siteId = $request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
 
         if ($commentId) {
-            $comment = Comments::$plugin->comments->getCommentById($commentId, $siteId);
+            $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
 
             if (!$comment) {
                 throw new Exception(Craft::t('comments', 'No comment with the ID “{id}”', ['id' => $commentId]));

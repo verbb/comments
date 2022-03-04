@@ -1,19 +1,11 @@
 <?php
 namespace verbb\comments\migrations;
 
-use verbb\comments\elements\Comment;
-
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use craft\helpers\MigrationHelper;
-
-use yii\db\Expression;
 
 class m190918_000000_add_subscribe extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if (!$this->db->tableExists('{{%comments_subscribe}}')) {
             $this->createTable('{{%comments_subscribe}}', [
@@ -28,9 +20,11 @@ class m190918_000000_add_subscribe extends Migration
                 'uid' => $this->uid(),
             ]);
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m190918_000000_add_subscribe cannot be reverted.\n";
 

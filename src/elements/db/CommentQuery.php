@@ -9,40 +9,43 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\models\Section;
+use craft\models\Site;
+
+use DateTime;
+use Exception;
 
 class CommentQuery extends ElementQuery
 {
     // Public Properties
     // =========================================================================
 
-    public $withStructure = true;
+    public ?bool $withStructure = true;
 
-    public $ownerId;
-    public $ownerSiteId;
-    public $userId;
-    public $status;
-    public $name;
-    public $email;
-    public $comment;
-    public $url;
-    public $ipAddress;
-    public $userAgent;
-    public $commentDate;
+    public ?int $ownerId = null;
+    public ?int $ownerSiteId = null;
+    public ?int $userId = null;
+    public string $name = '';
+    public string $email = '';
+    public string $comment = '';
+    public string $url = '';
+    public string $ipAddress = '';
+    public string $userAgent = '';
+    public ?DateTime $commentDate = null;
+    public array|string|null $status = '';
 
-    public $parentId;
-    public $ownerType;
-    public $ownerSectionId;
-    public $ownerSection;
-    public $isFlagged;
+    public ?int $parentId = null;
+    public string $ownerType = '';
+    public ?int $ownerSectionId = null;
+    public string $ownerSection = '';
+    public ?bool $isFlagged = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function __construct($elementType, array $config = [])
+    public function __construct(string $elementType, array $config = [])
     {
         // Default status
         if (!isset($config['status'])) {
@@ -63,31 +66,31 @@ class CommentQuery extends ElementQuery
         }
     }
 
-    public function ownerType($value)
+    public function ownerType($value): static
     {
         $this->ownerType = $value;
         return $this;
     }
 
-    public function owner(ElementInterface $owner)
+    public function owner(ElementInterface $owner): static
     {
         $this->ownerId = $owner->id;
         $this->siteId = $owner->siteId;
         return $this;
     }
 
-    public function ownerId($value)
+    public function ownerId($value): static
     {
         $this->ownerId = $value;
         return $this;
     }
 
-    public function ownerSiteId($value)
+    public function ownerSiteId($value): static
     {
         $this->ownerSiteId = $value;
 
         if ($value && strtolower($value) !== ':empty:') {
-            // A block will never exist in a site that is different than its ownerSiteId,
+            // A block will never exist in a site that is different from its ownerSiteId,
             // so let's set the siteId param here too.
             $this->siteId = (int)$value;
         }
@@ -95,7 +98,7 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
-    public function ownerSite($value)
+    public function ownerSite($value): static
     {
         if ($value instanceof Site) {
             $this->ownerSiteId($value->id);
@@ -112,13 +115,13 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
-    public function ownerSectionId($value)
+    public function ownerSectionId($value): static
     {
         $this->ownerSectionId = $value;
         return $this;
     }
 
-    public function ownerSection($value)
+    public function ownerSection(mixed $value): static
     {
         if ($value instanceof Section) {
             $this->ownerSectionId = $value->id;
@@ -135,74 +138,68 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
-    public function userId($value)
+    public function userId($value): static
     {
         $this->userId = $value;
         return $this;
     }
 
-    public function status($value)
-    {
-        $this->status = $value;
-        return $this;
-    }
-
-    public function name($value)
+    public function name($value): static
     {
         $this->name = $value;
         return $this;
     }
 
-    public function email($value)
+    public function email($value): static
     {
         $this->email = $value;
         return $this;
     }
 
-    public function comment($value)
+    public function comment($value): static
     {
         $this->comment = $value;
         return $this;
     }
 
-    public function url($value)
+    public function url($value): static
     {
         $this->url = $value;
         return $this;
     }
 
-    public function ipAddress($value)
+    public function ipAddress($value): static
     {
         $this->ipAddress = $value;
         return $this;
     }
 
-    public function userAgent($value)
+    public function userAgent($value): static
     {
         $this->userAgent = $value;
         return $this;
     }
 
-    public function commentDate($value)
+    public function commentDate($value): static
     {
         $this->commentDate = $value;
         return $this;
     }
 
-    public function isFlagged($value)
+    public function isFlagged($value): static
     {
         $this->isFlagged = $value;
         return $this;
     }
 
-    public function populate($rows)
+    public function populate($rows): array
     {
         $results = parent::populate($rows);
 
         // Store the comment IDs we're fetching, so we can use them later in render functions
         // to limit DB queries to just this collection of comments (votes, flags.
-        // But - because we can't rely on getting child comments this way, do another query by the owner element
-        // so we can be sure we're fetching all the comments for the page.
+        // But - because we can't rely on getting child comments this way, do another query by the owner
+        // element, so we can be sure we're fetching all the comments for the page.
         $ownerId = $results[0]['ownerId'] ?? null;
         $ownerSiteId = $results[0]['ownerSiteId'] ?? null;
 
@@ -317,39 +314,36 @@ class CommentQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
-        switch ($status) {
-            case Comment::STATUS_APPROVED:
-                return [
-                    'comments_comments.status' => Comment::STATUS_APPROVED,
-                ];
-            case Comment::STATUS_PENDING:
-                return [
-                    'comments_comments.status' => Comment::STATUS_PENDING,
-                ];
-            case Comment::STATUS_SPAM:
-                return [
-                    'comments_comments.status' => Comment::STATUS_SPAM,
-                ];
-            case Comment::STATUS_TRASHED:
-                return [
-                    'comments_comments.status' => Comment::STATUS_TRASHED,
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Comment::STATUS_APPROVED => [
+                'comments_comments.status' => Comment::STATUS_APPROVED,
+            ],
+            Comment::STATUS_PENDING => [
+                'comments_comments.status' => Comment::STATUS_PENDING,
+            ],
+            Comment::STATUS_SPAM => [
+                'comments_comments.status' => Comment::STATUS_SPAM,
+            ],
+            Comment::STATUS_TRASHED => [
+                'comments_comments.status' => Comment::STATUS_TRASHED,
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     // Private Methods
     // =========================================================================
 
-    private function _orderByVotes()
+    private function _orderByVotes(): bool|string
     {
         if ($this->orderBy) {
             if (is_string($this->orderBy)) {
                 return strstr($this->orderBy, 'voteCount');
-            } else if (is_array($this->orderBy)) {
+            }
+
+            if (is_array($this->orderBy)) {
                 return isset($this->orderBy['voteCount']);
             }
         }
@@ -357,12 +351,14 @@ class CommentQuery extends ElementQuery
         return false;
     }
 
-    private function _orderByFlagged()
+    private function _orderByFlagged(): bool|string
     {
         if ($this->orderBy) {
             if (is_string($this->orderBy)) {
                 return strstr($this->orderBy, 'flagCount');
-            } else if (is_array($this->orderBy)) {
+            }
+
+            if (is_array($this->orderBy)) {
                 return isset($this->orderBy['flagCount']);
             }
         }

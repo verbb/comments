@@ -26,7 +26,7 @@ class FlagsService extends Component
     // Properties
     // =========================================================================
 
-    protected $sessionName = 'comments_flag';
+    protected string $sessionName = 'comments_flag';
 
 
     // Public Methods
@@ -51,12 +51,12 @@ class FlagsService extends Component
         return null;
     }
 
-    public function getFlagsByCommentId(int $commentId)
+    public function getFlagsByCommentId(int $commentId): int
     {
         return count($this->_flags($commentId));
     }
 
-    public function hasFlagged($comment, $user)
+    public function hasFlagged($comment, $user): bool
     {
         // Try and fetch flags for a user, if not, use their sessionId
         $flags = $this->_flags($comment->id);
@@ -71,16 +71,12 @@ class FlagsService extends Component
         return (bool)ArrayHelper::whereMultiple($flags, $criteria);
     }
 
-    public function isOverFlagThreshold($comment)
+    public function isOverFlagThreshold($comment): bool
     {
         $threshold = Comments::$plugin->getSettings()->flaggedCommentLimit;
         $flags = $this->getFlagsByCommentId($comment->id);
 
-        if ($flags >= $threshold) {
-            return true;
-        }
-
-        return false;
+        return $flags >= $threshold;
     }
 
     public function toggleFlag(FlagModel $flag, bool $runValidation = true): bool
@@ -93,7 +89,7 @@ class FlagsService extends Component
             $result = $this->saveFlag($flag, $runValidation);
 
             if ($result && $settings->notificationFlaggedEnabled) {
-                Comments::$plugin->comments->sendNotificationEmail('flag', $flag->getComment());
+                Comments::$plugin->getComments()->sendNotificationEmail('flag', $flag->getComment());
             }
         } else {
             $result = $this->deleteFlag($flag);
@@ -131,7 +127,7 @@ class FlagsService extends Component
         // Save the record
         $flagRecord->save(false);
 
-        // Now that we have a ID, save it on the model
+        // Now that we have an ID, save it on the model
         if ($isNewFlag) {
             $flag->id = $flagRecord->id;
         }
@@ -187,7 +183,7 @@ class FlagsService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _flags($commentId = null)
+    private function _flags($commentId = null): array
     {
         $flags = [];
 

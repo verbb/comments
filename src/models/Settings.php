@@ -6,122 +6,145 @@ use verbb\comments\elements\Comment;
 use verbb\comments\enums\CommentStatus;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\base\Model;
 use craft\db\Table;
 use craft\elements\Asset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\DateTimeHelper;
 
 class Settings extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $structureUid;
-    public $closed;
-    public $indexSidebarLimit = 25;
-    public $indexSidebarGroup = true;
-    public $indexSidebarIndividualElements = false;
-    public $defaultQueryStatus = [Comment::STATUS_APPROVED];
+    public string $structureUid = '';
+    public bool $closed = false;
+    public int $indexSidebarLimit = 25;
+    public bool $indexSidebarGroup = true;
+    public bool $indexSidebarIndividualElements = false;
+    public array $defaultQueryStatus = [Comment::STATUS_APPROVED];
 
     // General
-    public $allowGuest = false;
-    public $guestNotice = '';
-    public $guestRequireEmailName = true;
-    public $guestShowEmailName = true;
-    public $requireModeration = true;
-    public $moderatorUserGroup;
-    public $autoCloseDays = '';
-    public $maxReplyDepth;
-    public $maxUserComments;
+    public bool $allowGuest = false;
+    public string $guestNotice = '';
+    public bool $guestRequireEmailName = true;
+    public bool $guestShowEmailName = true;
+    public bool $requireModeration = true;
+    public string $moderatorUserGroup = '';
+    public ?int $autoCloseDays = null;
+    public ?int $maxReplyDepth = null;
+    public ?int $maxUserComments = null;
 
     // Voting
-    public $allowVoting = true;
-    public $allowGuestVoting = false;
-    public $downvoteCommentLimit = 5;
-    public $hideVotingForThreshold = false;
+    public bool $allowVoting = true;
+    public bool $allowGuestVoting = false;
+    public int $downvoteCommentLimit = 5;
+    public bool $hideVotingForThreshold = false;
 
     // Flagging
-    public $allowFlagging = true;
-    public $allowGuestFlagging = false;
-    public $flaggedCommentLimit = 5;
+    public bool $allowFlagging = true;
+    public bool $allowGuestFlagging = false;
+    public int $flaggedCommentLimit = 5;
 
     // Templates - Default
-    public $showAvatar = true;
-    public $placeholderAvatar;
-    public $enableGravatar = false;
-    public $showTimeAgo = true;
-    public $outputDefaultCss = true;
-    public $outputDefaultJs = true;
+    public bool $showAvatar = true;
+    public ElementInterface|null|string $placeholderAvatar = '';
+    public bool $enableGravatar = false;
+    public bool $showTimeAgo = true;
+    public bool $outputDefaultCss = true;
+    public bool $outputDefaultJs = true;
 
     // Templates - Custom
-    public $templateFolderOverride;
-    public $templateEmail;
+    public string $templateFolderOverride = '';
+    public string $templateEmail = '';
 
     // Security
-    public $enableSpamChecks = true;
-    public $securityMaxLength;
-    public $securityFlooding;
-    public $securityModeration;
-    public $securitySpamlist;
-    public $securityBanned;
-    public $securityMatchExact = false;
-    public $recaptchaEnabled = false;
-    public $recaptchaKey;
-    public $recaptchaSecret;
+    public bool $enableSpamChecks = true;
+    public string $securityMaxLength = '';
+    public string $securityFlooding = '';
+    public string $securityModeration = '';
+    public string $securitySpamlist = '';
+    public string $securityBanned = '';
+    public bool $securityMatchExact = false;
+    public bool $recaptchaEnabled = false;
+    public string $recaptchaKey = '';
+    public string $recaptchaSecret = '';
 
     // Notifications
-    public $notificationAuthorEnabled = true;
-    public $notificationReplyEnabled = true;
-    public $notificationSubscribeAuto = false;
-    public $notificationSubscribeDefault = true;
-    public $notificationSubscribeEnabled = false;
-    public $notificationSubscribeCommentEnabled = false;
-    public $notificationModeratorEnabled = false;
-    public $notificationModeratorApprovedEnabled = false;
-    public $notificationAdmins = [];
-    public $notificationAdminEnabled = false;
-    public $notificationFlaggedEnabled = false;
-    public $useQueueForNotifications = false;
+    public bool $notificationAuthorEnabled = true;
+    public bool $notificationReplyEnabled = true;
+    public bool $notificationSubscribeAuto = false;
+    public bool $notificationSubscribeDefault = true;
+    public bool $notificationSubscribeEnabled = false;
+    public bool $notificationSubscribeCommentEnabled = false;
+    public bool $notificationModeratorEnabled = false;
+    public bool $notificationModeratorApprovedEnabled = false;
+    public array $notificationAdmins = [];
+    public bool $notificationAdminEnabled = false;
+    public bool $notificationFlaggedEnabled = false;
+    public bool $useQueueForNotifications = false;
 
     // Permissions
-    public $permissions;
+    public array $permissions = [];
 
     // Users
-    public $users;
+    public array $users = [];
 
     // Custom Fields
-    public $showCustomFieldNames = false;
-    public $showCustomFieldInstructions = false;
+    public bool $showCustomFieldNames = false;
+    public bool $showCustomFieldInstructions = false;
 
     // CP Sorting
-    public $sortDefaultKey = 'structure';
-    public $sortDefaultDirection = 'asc';
+    public string $sortDefaultKey = 'structure';
+    public string $sortDefaultDirection = 'asc';
 
     // Deprecated
 
     /**
      * @deprecated in 1.4.0. Use Settings::$allowGuest instead.
      */
-    public $allowAnonymous;
+    public ?bool $allowAnonymous = false;
 
     /**
      * @deprecated in 1.4.0. Use Settings::$allowGuestVoting instead.
      */
-    public $allowAnonymousVoting;
+    public ?bool $allowAnonymousVoting = false;
 
     /**
      * @deprecated in 1.4.0. Use Settings::$allowGuestFlagging instead.
      */
-    public $allowAnonymousFlagging;
+    public ?bool $allowAnonymousFlagging = false;
 
-    private $_placeholderAvatar = null;
+    private ?ElementInterface $_placeholderAvatar = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getPlaceholderAvatar()
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        // Typecast some settings
+        $integers = ['autoCloseDays', 'maxReplyDepth', 'maxUserComments'];
+        $arrays = ['notificationAdmins'];
+
+        foreach ($integers as $integer) {
+            if (isset($values[$integer])) {
+                $values[$integer] = (int)$values[$integer];
+            }
+        }
+
+        foreach ($arrays as $array) {
+            if (isset($values[$array]) && !is_array($values[$array])) {
+                $values[$array] = [$values[$array]];
+            }
+        }
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
+    public function getPlaceholderAvatar(): ?ElementInterface
     {
         if ($this->_placeholderAvatar !== null) {
             return $this->_placeholderAvatar;
@@ -134,15 +157,14 @@ class Settings extends Model
         return null;
     }
 
-    /* this needs to return a boolean */
-    public function canComment($element)
+    public function canComment($element): bool
     {
         $isAllowed = $this->commentingAvailable($element);
         
         return $isAllowed['permission'];
     }
 
-    public function commentingAvailable($element)
+    public function commentingAvailable($element): array
     {
         $isClosed = Comments::$plugin->getComments()->checkManuallyClosed($element);
 
@@ -180,7 +202,7 @@ class Settings extends Model
         return CommentStatus::Allowed;
     }
 
-    public function getStructureId()
+    public function getStructureId(): ?int
     {
         if ($this->structureUid) {
             return Db::idByUid(Table::STRUCTURES, $this->structureUid);
@@ -189,7 +211,7 @@ class Settings extends Model
         return null;
     }
 
-    public function getEnabledNotificationAdmins()
+    public function getEnabledNotificationAdmins(): array
     {
         $notificationAdmins = $this->notificationAdmins ?: [];
 

@@ -1,31 +1,25 @@
 <?php
 namespace verbb\comments\migrations;
 
-use verbb\comments\elements\Comment;
-
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 use craft\db\Table;
 use craft\elements\Entry;
 use craft\elements\Category;
 use craft\elements\Asset;
 use craft\elements\User;
 use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
-
-use yii\db\Expression;
 
 class m200106_000000_fix_project_config extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         // Don't make the same config changes twice
         $projectConfig = Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.comments.schemaVersion', true);
         
         if (version_compare($schemaVersion, '1.1.2', '>=')) {
-            return;
+            return true;
         }
 
         // Swap from ID to UID
@@ -79,7 +73,7 @@ class m200106_000000_fix_project_config extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200106_000000_fix_project_config cannot be reverted.\n";
 

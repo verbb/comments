@@ -6,14 +6,12 @@ use verbb\comments\helpers\Gql as GqlHelper;
 
 use craft\gql\base\ElementResolver;
 
-use GraphQL\Type\Definition\ResolveInfo;
-
 class CommentResolver extends ElementResolver
 {
     // Public Methods
     // =========================================================================
 
-    public static function prepareQuery($source, array $arguments, $fieldName = null)
+    public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
     {
         if ($source === null) {
             $query = Comment::find();

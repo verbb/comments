@@ -17,6 +17,8 @@ use Craft;
 
 use GraphQL\Type\Definition\Type;
 
+use yii\base\InvalidConfigException;
+
 class Comment extends Mutation
 {
     // Public Methods
@@ -116,7 +118,7 @@ class Comment extends Mutation
      * @param string $resolveMethod  Resolver method (also used for mutation name).
      * @param string $description    Mutation description.
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public static function createSaveMutation(string $mutationName, string $resolveMethod, string $description): array
     {

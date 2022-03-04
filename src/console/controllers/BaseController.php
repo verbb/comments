@@ -9,14 +9,13 @@ use craft\console\Controller;
 use craft\helpers\Console;
 
 use yii\console\ExitCode;
-use yii\web\Response;
 
 class BaseController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function actionResaveStructure()
+    public function actionResaveStructure(): int
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -29,7 +28,7 @@ class BaseController extends Controller
         return ExitCode::OK;
     }
 
-    public function actionSetStructure($structureUid = null)
+    public function actionSetStructure($structureUid = null): int
     {
         if (!$structureUid) {
             $this->stderr('Structure UID not provided.' . PHP_EOL, Console::FG_RED);

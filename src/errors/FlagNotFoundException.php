@@ -5,7 +5,10 @@ use yii\base\Exception;
 
 class FlagNotFoundException extends Exception
 {
-    public function getName()
+    // Public Methods
+    // =========================================================================
+
+    public function getName(): string
     {
         return 'Flag not found';
     }

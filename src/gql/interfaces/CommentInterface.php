@@ -1,7 +1,6 @@
 <?php
 namespace verbb\comments\gql\interfaces;
 
-use verbb\comments\elements\Comment;
 use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;

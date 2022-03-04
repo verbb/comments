@@ -2,13 +2,10 @@
 namespace verbb\comments\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-
-use yii\db\Expression;
 
 class m190123_000000_fix_comment_date_column extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if ($this->db->columnExists('{{%comments_flags}}', 'commentDate')) {
             $this->dropColumn('{{%comments_flags}}', 'commentDate');
@@ -21,7 +18,7 @@ class m190123_000000_fix_comment_date_column extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m190123_000000_fix_comment_date_column cannot be reverted.\n";
 

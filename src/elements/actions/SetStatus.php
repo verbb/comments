@@ -2,7 +2,6 @@
 namespace verbb\comments\elements\actions;
 
 use Craft;
-use craft\base\Element;
 use craft\base\ElementAction;
 use craft\elements\db\ElementQueryInterface;
 
@@ -11,7 +10,8 @@ class SetStatus extends ElementAction
     // Properties
     // =========================================================================
 
-    public $status;
+    public string $status = '';
+
 
     // Public Methods
     // =========================================================================
@@ -24,7 +24,7 @@ class SetStatus extends ElementAction
     // Public Methods
     // =========================================================================
 
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('comments/_elementactions/status');
     }
@@ -63,12 +63,10 @@ class SetStatus extends ElementAction
 
         if ($failCount !== 0) {
             $this->setMessage(Craft::t('comments', 'Status updated, with some failures due to validation errors.'));
+        } else if (count($elements) === 1) {
+            $this->setMessage(Craft::t('comments', 'Status updated.'));
         } else {
-            if (count($elements) === 1) {
-                $this->setMessage(Craft::t('comments', 'Status updated.'));
-            } else {
-                $this->setMessage(Craft::t('comments', 'Statuses updated.'));
-            }
+            $this->setMessage(Craft::t('comments', 'Statuses updated.'));
         }
 
         return true;

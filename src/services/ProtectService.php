@@ -5,7 +5,7 @@ use verbb\comments\Comments;
 
 use Craft;
 use craft\base\Component;
-use craft\web\View;
+use craft\helpers\Json;
 
 use GuzzleHttp\Client;
 
@@ -21,25 +21,21 @@ class ProtectService extends Component
     // Public Methods
     // =========================================================================
 
-    public function getFields()
+    public function getFields(): string
     {
-        $fields = $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
-
-        return $fields;
+        return $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
     }
 
-    public function verifyFields()
+    public function verifyFields(): bool
     {
-        $checks = $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField() && $this->verifyRecaptcha();
-
-        return $checks;
+        return $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField() && $this->verifyRecaptcha();
     }
 
     //
     // reCAPTCHA
     //
 
-    public function getRecaptcha()
+    public function getRecaptcha(): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -51,7 +47,7 @@ class ProtectService extends Component
         }
     }
 
-    public function verifyRecaptcha()
+    public function verifyRecaptcha(): bool
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -72,7 +68,7 @@ class ProtectService extends Component
                 ],
             ]);
 
-            $result = json_decode((string)$response->getBody(), true);
+            $result = Json::decode((string)$response->getBody(), true);
 
             if (!$result['success']) {
                 return false;
@@ -86,18 +82,14 @@ class ProtectService extends Component
     // Javascript Method
     //
 
-    public function verifyJSField()
+    public function verifyJSField(): bool
     {       
         $jsset = Craft::$app->getRequest()->getBodyParam('__JSCHK');
- 
-        if (strlen($jsset) > 0) {   
-            return true;            
-        }
 
-        return false;
+        return $jsset != '';
     }
 
-    public function getJSField()
+    public function getJSField(): string
     {                           
         // Create the unique token 
         $uniqueId = uniqid();
@@ -113,7 +105,7 @@ class ProtectService extends Component
     // Origin Method
     //
 
-    public function verifyOriginField()
+    public function verifyOriginField(): bool
     {
         $uahash = Craft::$app->getRequest()->getBodyParam('__UAHASH');
         $uahome = Craft::$app->getRequest()->getBodyParam('__UAHOME');
@@ -132,7 +124,7 @@ class ProtectService extends Component
         return true;
     }
 
-    public function getOriginField()
+    public function getOriginField(): string
     {
         $output = sprintf('<input type="hidden" id="__UAHOME" name="__UAHOME" value="%s" />', $this->getDomainHash());
         $output .= sprintf('<input type="hidden" id="__UAHASH" name="__UAHASH" value="%s"/>', $this->getUaHash()); 
@@ -144,7 +136,7 @@ class ProtectService extends Component
     // Honeypot Method
     //
 
-    public function verifyHoneypotField()
+    public function verifyHoneypotField(): bool
     {
         // The honeypot field must be left blank
         if (Craft::$app->getRequest()->getBodyParam('beesknees')) {
@@ -154,12 +146,12 @@ class ProtectService extends Component
         return true;
     }
 
-    public function getHoneypotField()
+    public function getHoneypotField(): string
     {
-        $output = sprintf('<div id="beesknees_wrapper" style="display:none;">');
-        $output .= sprintf('<label>Leave this field blank</label>');
-        $output .= sprintf('<input type="text" id="beesknees" name="beesknees" style="display:none;" />');
-        $output .= sprintf('</div>');
+        $output = '<div id="beesknees_wrapper" style="display:none;">';
+        $output .= '<label>Leave this field blank</label>';
+        $output .= '<input type="text" id="beesknees" name="beesknees" style="display:none;" />';
+        $output .= '</div>';
 
         return $output;
     }
@@ -168,7 +160,7 @@ class ProtectService extends Component
     // Duplicate Method
     //
 
-    public function verifyDuplicateField()
+    public function verifyDuplicateField(): bool
     {   
         if (Craft::$app->getSession()->get('duplicateFieldId')) {
             // If there is a valid unique token set, unset it and return true.      
@@ -180,7 +172,7 @@ class ProtectService extends Component
         return false;
     }
 
-    public function getDuplicateField()
+    public function getDuplicateField(): void
     {                           
         // Create the unique token 
         $uniqueId = uniqid();
@@ -193,28 +185,24 @@ class ProtectService extends Component
     // Time Method
     //
 
-    public function verifyTimeField()
+    public function verifyTimeField(): bool
     {
         $time = time();
         $posted = (int)Craft::$app->getRequest()->getBodyParam('__UATIME', time());
 
-        // Time operations must be done after values have been properly assigned and casted
+        // Time operations must be done after values have been properly assigned and cast
         $diff = ($time - $posted);
         $min = 5;
 
-        if ($diff > $min) {
-            return true;
-        }
-
-        return false;
+        return $diff > $min;
     }
 
-    public function getTimeField()
+    public function getTimeField(): string
     {
         return sprintf('<input type="hidden" id="__UATIME" name="__UATIME" value="%s" />', time());
     }
 
-    public function getCaptchaHtml()
+    public function getCaptchaHtml(): string
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -250,19 +238,19 @@ class ProtectService extends Component
     // Protected Methods
     // =========================================================================
 
-    protected function getDomainHash()
+    protected function getDomainHash(): string
     {
         $domain = Craft::$app->getRequest()->getHostInfo();
 
         return $this->getHash($domain);
     }
 
-    protected function getUaHash()
+    protected function getUaHash(): string
     {
         return $this->getHash(Craft::$app->getRequest()->getUserAgent());
     }
 
-    protected function getHash($str)
+    protected function getHash($str): string
     {
         return md5(sha1($str));
     }

@@ -4,9 +4,7 @@ namespace verbb\comments\services;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 
-use Craft;
 use craft\base\Component;
-use craft\helpers\StringHelper;
 
 use DateTime;
 
@@ -15,7 +13,7 @@ class SecurityService extends Component
     // Public Methods
     // =========================================================================
 
-    public function checkSecurityPolicy(Comment $comment)
+    public function checkSecurityPolicy(Comment $comment): bool
     {
         $settings = Comments::$plugin->getSettings();
         
@@ -59,7 +57,7 @@ class SecurityService extends Component
         return true;
     }
 
-    public function checkCommentLength(Comment $comment)
+    public function checkCommentLength(Comment $comment): bool
     {
         $settings = Comments::$plugin->getSettings();
         
@@ -82,7 +80,7 @@ class SecurityService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _findInElementContent($comment, $setting)
+    private function _findInElementContent($comment, $setting): bool
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -116,15 +114,15 @@ class SecurityService extends Component
                         if (preg_match('/\b' . $value . '\b/', $attr)) {
                             return true;
                         }
-                    } else {
-                        if (stristr($attr, $value)) {
-                            // Found a match - that's all folks!
-                            return true;
-                        }
+                    } else if (stripos($attr, $value) !== false) {
+                        // Found a match - that's all folks!
+                        return true;
                     }
                 }
             }
         }
+
+        return false;
     }
 
 }

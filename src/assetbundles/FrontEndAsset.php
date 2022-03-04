@@ -3,7 +3,6 @@ namespace verbb\comments\assetbundles;
 
 use verbb\comments\Comments;
 
-use Craft;
 use craft\web\AssetBundle;
 
 class FrontEndAsset extends AssetBundle
@@ -11,7 +10,7 @@ class FrontEndAsset extends AssetBundle
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $settings = Comments::$plugin->getSettings();
 

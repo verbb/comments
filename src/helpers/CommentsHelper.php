@@ -4,13 +4,9 @@ namespace verbb\comments\helpers;
 use verbb\comments\Comments;
 
 use Craft;
-use craft\helpers\FileHelper;
-use craft\i18n\Locale;
 
 use DateInterval;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeZone;
+use Throwable;
 
 class CommentsHelper
 {
@@ -46,7 +42,7 @@ class CommentsHelper
         return '';
     }
 
-    public static function getAvatar($user = null)
+    public static function getAvatar($user = null): string
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -58,14 +54,12 @@ class CommentsHelper
                 file_get_contents($gravatar);
 
                 return $gravatar;
-            } catch (\Throwable $e) {}
+            } catch (Throwable $e) {}
         }
 
-        if ($user) {
-            if ($photo = $user->getPhoto()) {
-                if (self::_assetExists($photo)) {
-                    return $photo;
-                }
+        if ($user && $photo = $user->getPhoto()) {
+            if (self::_assetExists($photo)) {
+                return $photo;
             }
         }
 
@@ -75,7 +69,7 @@ class CommentsHelper
             }
         }
 
-        return null;
+        return '';
     }
 
 

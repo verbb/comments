@@ -7,25 +7,26 @@ use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\Model;
+use craft\base\ElementInterface;
 
 class Vote extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $id;
-    public $commentId;
-    public $userId;
-    public $sessionId;
-    public $lastIp;
-    public $upvote;
-    public $downvote;
+    public ?int $id = null;
+    public ?int $commentId = null;
+    public ?int $userId = null;
+    public string $sessionId = '';
+    public string $lastIp = '';
+    public ?int $upvote = null;
+    public ?int $downvote = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function rules()
+    public function rules(): array
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
@@ -48,7 +49,7 @@ class Vote extends Model
         ];
     }
 
-    public function getComment()
+    public function getComment(): ?ElementInterface
     {
         if ($this->commentId) {
             return Comment::find()->id($this->commentId)->one();

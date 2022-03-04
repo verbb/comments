@@ -11,11 +11,11 @@ class Comments extends Widget
     // Properties
     // =========================================================================
 
-    public $heading = 'All Comments';
-    public $subheading = '';
-    public $status = 'all';
-    public $limit = 10;
-    public $showFlagged = null;
+    public string $heading = 'All Comments';
+    public string $subheading = '';
+    public string $status = 'all';
+    public int $limit = 10;
+    public bool $showFlagged = false;
 
 
     // Public Methods
@@ -26,22 +26,22 @@ class Comments extends Widget
         return Craft::t('comments', 'Comments');
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->heading;
     }
 
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->subheading;
     }
 
-    public static function icon()
+    public static function icon(): ?string
     {
         return Craft::getAlias('@verbb/comments/icon-mask.svg');
     }
 
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $comments = Comment::find()
             ->status($this->status)
@@ -55,7 +55,7 @@ class Comments extends Widget
         ]);
     }
     
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('comments/_widget/settings', [
             'widget' => $this,

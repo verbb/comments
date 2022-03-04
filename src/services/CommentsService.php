@@ -3,24 +3,23 @@ namespace verbb\comments\services;
 
 use verbb\comments\Comments;
 use verbb\comments\assetbundles\FrontEndAsset;
-use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\elements\Comment;
 use verbb\comments\events\EmailEvent;
+use verbb\comments\fields\CommentsField;
 use verbb\comments\queue\jobs\SendNotification;
 
 use Craft;
 use craft\base\Component;
+use craft\base\ElementInterface;
 use craft\db\Table;
 use craft\elements\Asset;
 use craft\elements\User;
+use craft\elements\db\ElementQueryInterface;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
-use craft\helpers\App;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
-use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -30,6 +29,8 @@ use craft\web\View;
 use DateTime;
 
 use yii\helpers\Markdown;
+use Throwable;
+use Twig\Markup;
 
 class CommentsService extends Component
 {
@@ -50,12 +51,12 @@ class CommentsService extends Component
     // Public Methods
     // =========================================================================
 
-    public function getCommentById(int $id, $siteId = null)
+    public function getCommentById(int $id, $siteId = null): ?ElementInterface
     {
         return Craft::$app->getElements()->getElementById($id, Comment::class, $siteId);
     }
 
-    public function fetch($criteria = null): CommentQuery
+    public function fetch($criteria = null): ElementQueryInterface
     {
         $query = Comment::find();
 
@@ -66,7 +67,7 @@ class CommentsService extends Component
         return $query;
     }
 
-    public function render($elementId, $criteria = [], $jsSettings = [])
+    public function render($elementId, $criteria = [], $jsSettings = []): Markup
     {
         $settings = Comments::$plugin->getSettings();
         $view = Craft::$app->getView();
@@ -89,7 +90,7 @@ class CommentsService extends Component
             $view->registerJs('window.addEventListener("load", function () { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            '); });', $view::POS_END);
+                '); });', $view::POS_END);
         }
 
         $view->setTemplatesPath($oldTemplatesPath);
@@ -97,7 +98,7 @@ class CommentsService extends Component
         return Template::raw($formHtml);
     }
 
-    public function getRenderVariables($id, $elementId, $criteria = [])
+    public function getRenderVariables($id, $elementId, $criteria = []): ?array
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -132,7 +133,7 @@ class CommentsService extends Component
         ]);
     }
 
-    public function getRenderJsVariables($id, $elementId, $criteria = [], $jsSettings = [])
+    public function getRenderJsVariables($id, $elementId, $criteria = [], $jsSettings = []): array
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -160,14 +161,14 @@ class CommentsService extends Component
         return array_merge($jsVariables, $variables);
     }
 
-    public function renderComment($comment)
+    public function renderComment($comment): string
     {
         $settings = Comments::$plugin->getSettings();
         $view = Craft::$app->getView();
 
         // Only approved comments can be rendered
         if ($comment->status != Comment::STATUS_APPROVED) {
-            return;
+            return '';
         }
 
         $templatePath = $this->getComponentTemplatePath('_includes/comment');
@@ -190,7 +191,7 @@ class CommentsService extends Component
     }
 
     // Checks is there are sufficient permissions for commenting on this element
-    public function checkPermissions($element)
+    public function checkPermissions($element): bool
     {
         // Get the global permissions settings
         $permissions = Comments::$plugin->getSettings()->permissions;
@@ -202,35 +203,33 @@ class CommentsService extends Component
         $elementType = get_class($element);
 
         // Do we even have any settings setup? By default - anything can be commented on
-        if ($permissions) {
-            if (isset($permissions[$elementType])) {
-                // All are set to enabled
-                if ($permissions[$elementType] === '*') {
-                    return true;
-                }
+        if ($permissions && isset($permissions[$elementType])) {
+            // All are set to enabled
+            if ($permissions[$elementType] === '*') {
+                return true;
+            }
 
-                // None are selected
-                if (!is_array($permissions[$elementType])) {
-                    return false;
-                }
+            // None are selected
+            if (!is_array($permissions[$elementType])) {
+                return false;
+            }
 
-                // Check for various elements
-                if ($elementType == 'craft\elements\Entry') {
-                    $uid = $element->section->uid;
-                } else {
-                    $uid = $element->group->uid;
-                }
+            // Check for various elements
+            if ($elementType == 'craft\elements\Entry') {
+                $uid = $element->section->uid;
+            } else {
+                $uid = $element->group->uid;
+            }
 
-                if (!in_array($uid, $permissions[$elementType])) {
-                    return false;
-                }
+            if (!in_array($uid, $permissions[$elementType])) {
+                return false;
             }
         }
 
         return true;
     }
 
-    public function checkManuallyClosed($element)
+    public function checkManuallyClosed($element): bool
     {
         // Has this comment been manually closed?
         if (!$this->_checkOwnerFieldEnabled($element)) {
@@ -240,11 +239,11 @@ class CommentsService extends Component
         return false;
     }
 
-    public function checkExpired($element)
+    public function checkExpired($element): bool
     {
         $settings = Comments::$plugin->getSettings();
 
-        // Has this element's publish date exceeded the set auto-close limit? Does it even have a auto-close limit?
+        // Has this element's publish date exceeded the set auto-close limit? Does it even have an auto-close limit?
         if ($settings->autoCloseDays) {
             $now = new DateTime('now');
             $interval = $now->diff($element->postDate);
@@ -257,7 +256,7 @@ class CommentsService extends Component
         return false;
     }
 
-    public function sendNotificationEmail($type, $comment)
+    public function sendNotificationEmail($type, $comment): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -271,7 +270,7 @@ class CommentsService extends Component
         }
     }
 
-    public function triggerNotificationEmail($type, $comment)
+    public function triggerNotificationEmail($type, $comment): void
     {
         if ($type === 'admin') {
             $this->sendAdminNotificationEmail($comment);
@@ -290,7 +289,7 @@ class CommentsService extends Component
         }
     }
 
-    public function sendAdminNotificationEmail(Comment $comment)
+    public function sendAdminNotificationEmail(Comment $comment): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -300,7 +299,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send admin notification: No element ' . json_encode($element));
+            Comments::log('Cannot send admin notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -316,10 +315,10 @@ class CommentsService extends Component
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
                 $mail = $this->_renderEmail('comments_admin_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $notificationAdmin,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $notificationAdmin,
+                ])
                     ->setTo($notificationAdmin['email']);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -340,13 +339,13 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
     }
 
-    public function sendFlagNotificationEmail(Comment $comment)
+    public function sendFlagNotificationEmail(Comment $comment): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -356,7 +355,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send flag notification: No element ' . json_encode($element));
+            Comments::log('Cannot send flag notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -372,10 +371,10 @@ class CommentsService extends Component
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
                 $mail = $this->_renderEmail('comments_flag_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $notificationAdmin,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $notificationAdmin,
+                ])
                     ->setTo($notificationAdmin['email']);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -396,13 +395,13 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
     }
 
-    public function sendAuthorNotificationEmail(Comment $comment)
+    public function sendAuthorNotificationEmail(Comment $comment): void
     {
         $recipient = null;
         $emailSent = null;
@@ -413,13 +412,13 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send element author notification: No element ' . json_encode($element));
+            Comments::log('Cannot send element author notification: No element ' . Json::encode($element));
 
             return;
         }
 
         // Get our recipient
-        try {        
+        try {
             if (get_class($element) === Asset::class) {
                 if ($element->getUploader()) {
                     $recipient = $element->getUploader();
@@ -427,12 +426,12 @@ class CommentsService extends Component
             } else if ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
-        } catch(\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
         if (!$recipient) {
-            Comments::log('Cannot send element author notification: No recipient ' . json_encode($recipient));
+            Comments::log('Cannot send element author notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
@@ -453,10 +452,10 @@ class CommentsService extends Component
 
         try {
             $message = $this->_renderEmail('comments_author_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendAuthorEmail' event
@@ -475,7 +474,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending element author notification: ' . $e->getMessage());
         }
 
@@ -486,7 +485,7 @@ class CommentsService extends Component
         }
     }
 
-    public function sendReplyNotificationEmail(Comment $comment)
+    public function sendReplyNotificationEmail(Comment $comment): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -499,7 +498,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send reply notification: No element ' . json_encode($element));
+            Comments::log('Cannot send reply notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -508,7 +507,7 @@ class CommentsService extends Component
         $parentComment = $comment->getParent();
 
         if (!$parentComment) {
-            Comments::log('Cannot send reply notification: No parent comment ' . json_encode($parentComment));
+            Comments::log('Cannot send reply notification: No parent comment ' . Json::encode($parentComment));
 
             return;
         }
@@ -517,7 +516,7 @@ class CommentsService extends Component
         $recipient = $parentComment->getAuthor();
 
         if (!$recipient) {
-            Comments::log('Cannot send reply notification: No recipient ' . json_encode($recipient));
+            Comments::log('Cannot send reply notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
@@ -538,10 +537,10 @@ class CommentsService extends Component
 
         try {
             $message = $this->_renderEmail('comments_reply_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendReplyEmail' event
@@ -560,7 +559,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending reply notification: ' . $e->getMessage());
         }
 
@@ -571,7 +570,7 @@ class CommentsService extends Component
         }
     }
 
-    public function sendModeratorNotificationEmail(Comment $comment)
+    public function sendModeratorNotificationEmail(Comment $comment): void
     {
         $settings = Comments::$plugin->getSettings();
 
@@ -584,7 +583,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send moderator notification: No element ' . json_encode($element));
+            Comments::log('Cannot send moderator notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -602,10 +601,10 @@ class CommentsService extends Component
         foreach ($recipients as $key => $user) {
             try {
                 $mail = $this->_renderEmail('comments_moderator_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $user,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                ])
                     ->setTo($user);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -626,13 +625,13 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to moderator (' . $user->email . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
             }
         }
     }
 
-    public function sendModeratorApprovedNotificationEmail(Comment $comment)
+    public function sendModeratorApprovedNotificationEmail(Comment $comment): void
     {
         $recipient = null;
         $emailSent = null;
@@ -643,7 +642,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send comment author notification: No element ' . json_encode($element));
+            Comments::log('Cannot send comment author notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -652,17 +651,17 @@ class CommentsService extends Component
         $recipient = $comment->getAuthor();
 
         if (!$recipient) {
-            Comments::log('Cannot send comment author notification: No recipient ' . json_encode($recipient));
+            Comments::log('Cannot send comment author notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
 
         try {
             $message = $this->_renderEmail('comments_moderator_approved_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendModeratorApprovedEmail' event
@@ -681,7 +680,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending comment author notification: ' . $e->getMessage());
         }
 
@@ -692,7 +691,7 @@ class CommentsService extends Component
         }
     }
 
-    public function sendSubscribeNotificationEmail(Comment $comment)
+    public function sendSubscribeNotificationEmail(Comment $comment): void
     {
         $recipients = null;
         // $emailSent = null;
@@ -703,7 +702,7 @@ class CommentsService extends Component
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send subscribe notification: No element ' . json_encode($element));
+            Comments::log('Cannot send subscribe notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -753,24 +752,24 @@ class CommentsService extends Component
 
                     continue;
                 }
-                
-        		// Skip for current user
-        		$currentUser = Comments::$plugin->getService()->getUser();
 
-        		if ($currentUser && $user->id == $currentUser->id) {
-        			continue;
-        		}
-        		
-        		// Separate email keys for comment on comment vs comment on entry
-        		$emailKey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+                // Skip for current user
+                $currentUser = Comments::$plugin->getService()->getUser();
 
-        		$message = $this->_renderEmail($emailKey, [
-            			'element' => $element,
-            			'comment' => $comment,
-                        'user' => $user,
-                        'emailKey' => $emailKey,
-        		    ])
-        		    ->setTo($user);
+                if ($currentUser && $user->id == $currentUser->id) {
+                    continue;
+                }
+
+                // Separate email keys for comment on comment vs comment on entry
+                $emailKey = ($commentAncestors && count($commentAncestors) > 0) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+
+                $message = $this->_renderEmail($emailKey, [
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                    'emailKey' => $emailKey,
+                ])
+                    ->setTo($user);
 
                 // Fire a 'beforeSendSubscribeEmail' event
                 $event = new EmailEvent([
@@ -792,7 +791,7 @@ class CommentsService extends Component
                 } else {
                     Comments::error('Unable to send email to subscriber (' . $user->email . ')');
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Error sending subscribe reply notification: ' . $e->getMessage());
 
                 continue;
@@ -800,7 +799,7 @@ class CommentsService extends Component
         }
     }
 
-    public function handleChangedPluginStructure(ConfigEvent $event)
+    public function handleChangedPluginStructure(ConfigEvent $event): void
     {
         $data = $event->newValue;
 
@@ -809,12 +808,12 @@ class CommentsService extends Component
         if ($structureUid) {
             $structuresService = Craft::$app->getStructures();
             $structure = $structuresService->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
-            
+
             $structuresService->saveStructure($structure);
         }
     }
 
-    public function handleChangedFieldLayout(ConfigEvent $event)
+    public function handleChangedFieldLayout(ConfigEvent $event): void
     {
         $data = $event->newValue;
 
@@ -833,9 +832,8 @@ class CommentsService extends Component
         $fieldsService->saveLayout($layout);
     }
 
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
-        /** @var Field $field */
         $field = $event->field;
         $fieldUid = $field->uid;
 
@@ -854,26 +852,26 @@ class CommentsService extends Component
         }
     }
 
-    public function handleDeletedFieldLayout(ConfigEvent $event)
+    public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Comment::class);
     }
 
-    public function saveFieldLayout()
+    public function saveFieldLayout(): void
     {
-        $projectConfig = Craft::$app->getProjectConfig();
-        $fieldLayoutUid = StringHelper::UUID();
+        // $projectConfig = Craft::$app->getProjectConfig();
+        // $fieldLayoutUid = StringHelper::UUID();
 
-        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
-        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
+        // $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
+        // $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
 
-        if ($layoutData) {
-            $fieldLayoutUid = array_keys($layoutData)[0];
-        }
+        // if ($layoutData) {
+        //     $fieldLayoutUid = array_keys($layoutData)[0];
+        // }
 
-        $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
+        // $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
 
-        $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
+        // $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
     }
 
     public function getComponentTemplatePath(string $component): string
@@ -903,13 +901,13 @@ class CommentsService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _checkOwnerFieldEnabled($element)
+    private function _checkOwnerFieldEnabled($element): bool
     {
         if ($element) {
             foreach ($element->getFieldValues() as $key => $value) {
                 $field = Craft::$app->getFields()->getFieldByHandle($key);
 
-                if ($field && get_class($field) === 'verbb\comments\fields\CommentsField') {
+                if ($field && $field instanceof CommentsField) {
                     if (isset($value['commentEnabled']) && !$value['commentEnabled']) {
                         return false;
                     }
@@ -960,8 +958,8 @@ class CommentsService extends Component
             $message->setHtmlBody($view->renderTemplate($template, array_merge($variables, [
                 'body' => Template::raw(Markdown::process($textBody)),
             ]), $templateMode));
-        } catch (\Throwable $e) {
-            Comments::error('Error rendering email template: ' . $e->getMessage(), __METHOD__);
+        } catch (Throwable $e) {
+            Comments::error('Error rendering email template: ' . $e->getMessage());
         }
 
         return $message;

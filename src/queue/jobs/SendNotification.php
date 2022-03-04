@@ -4,16 +4,17 @@ namespace verbb\comments\queue\jobs;
 use verbb\comments\Comments;
 
 use Craft;
-use craft\helpers\Json;
 use craft\queue\BaseJob;
+
+use Exception;
 
 class SendNotification extends BaseJob
 {
     // Public Properties
     // =========================================================================
 
-    public $type;
-    public $commentId;
+    public string $type;
+    public int $commentId;
 
 
     // Public Methods
@@ -22,7 +23,7 @@ class SendNotification extends BaseJob
     /**
      * @inheritDoc
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return Craft::t('comments', 'Sending comment notification.');
     }
@@ -30,14 +31,14 @@ class SendNotification extends BaseJob
     /**
      * @inheritDoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $this->setProgress($queue, 0);
 
         $comment = Comments::$plugin->getComments()->getCommentById($this->commentId);
 
         if (!$comment) {
-            throw new \Exception('Unable to find comment: ' . $this->commentId . '.');
+            throw new Exception('Unable to find comment: ' . $this->commentId . '.');
         }
 
         Comments::$plugin->getComments()->triggerNotificationEmail($this->type, $comment);

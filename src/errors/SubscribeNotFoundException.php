@@ -5,7 +5,10 @@ use yii\base\Exception;
 
 class SubscribeNotFoundException extends Exception
 {
-    public function getName()
+    // Public Methods
+    // =========================================================================
+
+    public function getName(): string
     {
         return 'Subscribe not found';
     }

@@ -23,7 +23,7 @@ class Vote extends InterfaceType
             return $type;
         }
 
-        $type = GqlEntityRegistry::createEntity(self::getName(), new InterfaceType([
+        return GqlEntityRegistry::createEntity(self::getName(), new InterfaceType([
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all comment votes.',
@@ -35,8 +35,6 @@ class Vote extends InterfaceType
                 ]));
             },
         ]));
-
-        return $type;
     }
 
     public static function getName(): string

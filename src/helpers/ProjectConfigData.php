@@ -5,8 +5,6 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 
 use Craft;
-use craft\db\Query;
-use craft\helpers\Json;
 use craft\models\Structure;
 
 class ProjectConfigData

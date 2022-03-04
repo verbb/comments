@@ -29,7 +29,7 @@
             {% endfor %}
         {% elseif element == 'craft\\elements\\User' %}
             {% if CraftEdition != CraftSolo %}
-                {% if craft.userGroups %}
+                {% if craft.app.userGroups %}
                     {% for group in craft.app.userGroups.getAllGroups() %}
                         {% set elementOptions = [{ value: group.uid, label: group.name | e }] | merge(elementOptions) %}
                     {% endfor %}

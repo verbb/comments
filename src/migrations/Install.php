@@ -13,7 +13,7 @@ class Install extends Migration
     // Public Methods
     // =========================================================================
 
-    public function safeUp()
+    public function safeUp(): bool
     {
         $this->createTables();
         $this->createIndexes();
@@ -30,7 +30,7 @@ class Install extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->dropForeignKeys();
         $this->dropTables();
@@ -41,7 +41,7 @@ class Install extends Migration
         return true;
     }
 
-    public function createTables()
+    public function createTables(): void
     {
         $this->createTable('{{%comments_comments}}', [
             'id' => $this->primaryKey(),
@@ -98,7 +98,7 @@ class Install extends Migration
         ]);
     }
     
-    public function dropTables()
+    public function dropTables(): void
     {
         $this->dropTable('{{%comments_comments}}');
         $this->dropTable('{{%comments_flags}}');
@@ -106,7 +106,7 @@ class Install extends Migration
         $this->dropTable('{{%comments_subscribe}}');
     }
     
-    public function createIndexes()
+    public function createIndexes(): void
     {
         $this->createIndex(null, '{{%comments_comments}}', 'id', false);
         $this->createIndex(null, '{{%comments_comments}}', 'ownerId', false);
@@ -122,7 +122,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%comments_subscribe}}', 'commentId', false);
     }
 
-    public function addForeignKeys()
+    public function addForeignKeys(): void
     {
         $this->addForeignKey(null, '{{%comments_comments}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%comments_comments}}', 'ownerId', '{{%elements}}', 'id', 'SET NULL', null);
@@ -138,7 +138,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%comments_subscribe}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
     }
     
-    public function dropForeignKeys()
+    public function dropForeignKeys(): void
     {
         MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['id'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerId'], $this);
@@ -154,7 +154,7 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
     }
 
-    public function dropProjectConfig()
+    public function dropProjectConfig(): void
     {
         Craft::$app->projectConfig->remove('comments');
     }

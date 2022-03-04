@@ -26,7 +26,7 @@ class VotesService extends Component
     // Properties
     // =========================================================================
 
-    protected $sessionName = 'comments_vote';
+    protected string $sessionName = 'comments_vote';
 
 
     // Public Methods
@@ -51,22 +51,22 @@ class VotesService extends Component
         return null;
     }
 
-    public function getVotesByCommentId(int $commentId)
+    public function getVotesByCommentId(int $commentId): int
     {
         return count($this->_votes($commentId));
     }
 
-    public function getUpvotesByCommentId(int $commentId)
+    public function getUpvotesByCommentId(int $commentId): int
     {
         return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'upvote' => '1']));
     }
 
-    public function getDownvotesByCommentId(int $commentId)
+    public function getDownvotesByCommentId(int $commentId): int
     {
         return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'downvote' => '1']));
     }
 
-    public function getVotesByUserId($userId)
+    public function getVotesByUserId($userId): array
     {
         $votes = [];
 
@@ -80,7 +80,7 @@ class VotesService extends Component
         return $votes;
     }
 
-    public function getUpvotesByUserId($userId)
+    public function getUpvotesByUserId($userId): array
     {
         $votes = [];
 
@@ -94,7 +94,7 @@ class VotesService extends Component
         return $votes;
     }
 
-    public function getDownvotesByUserId($userId)
+    public function getDownvotesByUserId($userId): array
     {
         $votes = [];
 
@@ -108,7 +108,7 @@ class VotesService extends Component
         return $votes;
     }
 
-    public function hasDownVoted($comment, $user)
+    public function hasDownVoted($comment, $user): bool
     {
         // Try and fetch votes for a user, if not, use their sessionId
         $votes = $this->_votes($comment->id);
@@ -121,13 +121,13 @@ class VotesService extends Component
         }
 
         if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            return (bool)reset($items);
+            return reset($items);
         }
 
         return false;
     }
 
-    public function hasUpVoted($comment, $user)
+    public function hasUpVoted($comment, $user): bool
     {
         // Try and fetch votes for a user, if not, use their sessionId
         $votes = $this->_votes($comment->id);
@@ -140,22 +140,18 @@ class VotesService extends Component
         }
 
         if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            return (bool)reset($items);
+            return reset($items);
         }
 
         return false;
     }
 
-    public function isOverDownvoteThreshold($comment)
+    public function isOverDownvoteThreshold($comment): bool
     {
         $threshold = Comments::$plugin->getSettings()->downvoteCommentLimit;
         $downvotes = $this->getDownvotesByCommentId($comment->id);
 
-        if ($downvotes >= $threshold) {
-            return true;
-        }
-
-        return false;
+        return $downvotes >= $threshold;
     }
 
     public function saveVote(VoteModel $vote, bool $runValidation = true): bool
@@ -189,7 +185,7 @@ class VotesService extends Component
         // Save the record
         $voteRecord->save(false);
 
-        // Now that we have a ID, save it on the model
+        // Now that we have an ID, save it on the model
         if ($isNewVote) {
             $vote->id = $voteRecord->id;
         }
@@ -245,7 +241,7 @@ class VotesService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _votes($commentId = null)
+    private function _votes($commentId = null): array
     {
         $votes = [];
 
