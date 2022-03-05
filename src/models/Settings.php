@@ -100,23 +100,6 @@ class Settings extends Model
     public string $sortDefaultKey = 'structure';
     public string $sortDefaultDirection = 'asc';
 
-    // Deprecated
-
-    /**
-     * @deprecated in 1.4.0. Use Settings::$allowGuest instead.
-     */
-    public ?bool $allowAnonymous = false;
-
-    /**
-     * @deprecated in 1.4.0. Use Settings::$allowGuestVoting instead.
-     */
-    public ?bool $allowAnonymousVoting = false;
-
-    /**
-     * @deprecated in 1.4.0. Use Settings::$allowGuestFlagging instead.
-     */
-    public ?bool $allowAnonymousFlagging = false;
-
     private ?ElementInterface $_placeholderAvatar = null;
 
 
