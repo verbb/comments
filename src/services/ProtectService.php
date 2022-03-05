@@ -95,8 +95,8 @@ class ProtectService extends Component
         $uniqueId = uniqid();
 
         // Set a hidden field with no value and use javascript to set it.
-        $output = sprintf('<input type="hidden" id="__JSCHK_%s" name="__JSCHK" />', $uniqueId);
-        $output .= sprintf('<script type="text/javascript">document.getElementById("__JSCHK_%s").value = "%s";</script>', $uniqueId, $uniqueId);
+        $output = '<input type="hidden" id="__JSCHK_' . $uniqueId . '" name="__JSCHK" />';
+        $output .= '<script type="text/javascript">document.getElementById("__JSCHK_' . $uniqueId . '").value = "' . $uniqueId . '";</script>';
 
         return $output;
     }
@@ -126,8 +126,8 @@ class ProtectService extends Component
 
     public function getOriginField(): string
     {
-        $output = sprintf('<input type="hidden" id="__UAHOME" name="__UAHOME" value="%s" />', $this->getDomainHash());
-        $output .= sprintf('<input type="hidden" id="__UAHASH" name="__UAHASH" value="%s"/>', $this->getUaHash());
+        $output = '<input type="hidden" id="__UAHOME" name="__UAHOME" value="' . $this->getDomainHash() . '" />';
+        $output .= '<input type="hidden" id="__UAHASH" name="__UAHASH" value="' . $this->getUaHash() . '"/>';
 
         return $output;
     }
@@ -178,7 +178,7 @@ class ProtectService extends Component
         $uniqueId = uniqid();
 
         // Create session variable
-        Craft::$app->getSession()->add('duplicateFieldId', $uniqueId);
+        Craft::$app->getSession()->set('duplicateFieldId', $uniqueId);
     }
 
     //

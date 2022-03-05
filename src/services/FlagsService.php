@@ -141,17 +141,6 @@ class FlagsService extends Component
         return true;
     }
 
-    public function deleteFlagById(int $flagId): bool
-    {
-        $flag = $this->getFlagById($flagId);
-
-        if (!$flag) {
-            return false;
-        }
-
-        return $this->deleteFlag($flag);
-    }
-
     public function deleteFlag(FlagModel $flag): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_FLAG)) {

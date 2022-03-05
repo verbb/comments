@@ -145,17 +145,6 @@ class SubscribeService extends Component
         return true;
     }
 
-    public function deleteSubscribeById(int $subscribeId): bool
-    {
-        $subscribe = $this->getSubscribeById($subscribeId);
-
-        if (!$subscribe) {
-            return false;
-        }
-
-        return $this->deleteSubscribe($subscribe);
-    }
-
     public function deleteSubscribe(SubscribeModel $subscribe): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_SUBSCRIBE)) {

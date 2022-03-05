@@ -199,17 +199,6 @@ class VotesService extends Component
         return true;
     }
 
-    public function deleteVoteById(int $voteId): bool
-    {
-        $vote = $this->getVoteById($voteId);
-
-        if (!$vote) {
-            return false;
-        }
-
-        return $this->deleteVote($vote);
-    }
-
     public function deleteVote(VoteModel $vote): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_VOTE)) {

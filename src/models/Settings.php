@@ -12,7 +12,6 @@ use craft\db\Table;
 use craft\elements\Asset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\helpers\DateTimeHelper;
 
 class Settings extends Model
 {
