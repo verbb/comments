@@ -18,7 +18,7 @@ class Settings extends Model
     // Public Properties
     // =========================================================================
 
-    public string $structureUid = '';
+    public ?string $structureUid = null;
     public bool $closed = false;
     public int $indexSidebarLimit = 25;
     public bool $indexSidebarGroup = true;
@@ -27,11 +27,11 @@ class Settings extends Model
 
     // General
     public bool $allowGuest = false;
-    public string $guestNotice = '';
+    public ?string $guestNotice = null;
     public bool $guestRequireEmailName = true;
     public bool $guestShowEmailName = true;
     public bool $requireModeration = true;
-    public string $moderatorUserGroup = '';
+    public ?string $moderatorUserGroup = null;
     public mixed $autoCloseDays = null;
     public mixed $maxReplyDepth = null;
     public mixed $maxUserComments = null;
@@ -49,27 +49,27 @@ class Settings extends Model
 
     // Templates - Default
     public bool $showAvatar = true;
-    public ElementInterface|null|string $placeholderAvatar = '';
+    public ElementInterface|null|string $placeholderAvatar = null;
     public bool $enableGravatar = false;
     public bool $showTimeAgo = true;
     public bool $outputDefaultCss = true;
     public bool $outputDefaultJs = true;
 
     // Templates - Custom
-    public string $templateFolderOverride = '';
-    public string $templateEmail = '';
+    public ?string $templateFolderOverride = null;
+    public ?string $templateEmail = null;
 
     // Security
     public bool $enableSpamChecks = true;
-    public string $securityMaxLength = '';
-    public string $securityFlooding = '';
-    public string $securityModeration = '';
-    public string $securitySpamlist = '';
-    public string $securityBanned = '';
+    public ?string $securityMaxLength = null;
+    public ?string $securityFlooding = null;
+    public ?string $securityModeration = null;
+    public ?string $securitySpamlist = null;
+    public ?string $securityBanned = null;
     public bool $securityMatchExact = false;
     public bool $recaptchaEnabled = false;
-    public string $recaptchaKey = '';
-    public string $recaptchaSecret = '';
+    public ?string $recaptchaKey = '=null';
+    public ?string $recaptchaSecret = null;
 
     // Notifications
     public bool $notificationAuthorEnabled = true;
@@ -105,18 +105,16 @@ class Settings extends Model
     // Public Methods
     // =========================================================================
 
-    public function setAttributes($values, $safeOnly = true): void
+    public function __construct($config = [])
     {
-        // Typecast some settings
-        $arrays = ['notificationAdmins'];
-
-        foreach ($arrays as $array) {
-            if (isset($values[$array]) && !is_array($values[$array])) {
-                $values[$array] = [$values[$array]];
+        // Config normalization
+        if (array_key_exists('notificationAdmins', $config)) {
+            if (!is_array($config['notificationAdmins'])) {
+                $config['notificationAdmins'] = [];
             }
         }
 
-        parent::setAttributes($values, $safeOnly);
+        parent::__construct($config);
     }
 
     public function getPlaceholderAvatar(): ?ElementInterface

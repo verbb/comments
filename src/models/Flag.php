@@ -15,7 +15,7 @@ class Flag extends Model
     public ?int $commentId = null;
     public ?int $userId = null;
     public ?int $sessionId = null;
-    public string $lastIp = '';
+    public ?string $lastIp = null;
 
 
     // Public Methods

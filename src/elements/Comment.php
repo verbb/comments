@@ -346,24 +346,24 @@ class Comment extends Element
     // Properties
     // =========================================================================
 
-    public mixed $ownerId = null;
-    public mixed $ownerSiteId = null;
-    public mixed $userId = null;
-    public string $status = '';
-    public string $name = '';
-    public string $email = '';
-    public string $url = '';
-    public string $ipAddress = '';
-    public string $userAgent = '';
+    public ?int $ownerId = null;
+    public ?int $ownerSiteId = null;
+    public ?int $userId = null;
+    public ?string $status = null;
+    public ?string $name = null;
+    public ?string $email = null;
+    public ?string $url = null;
+    public ?string $ipAddress = null;
+    public ?string $userAgent = null;
     public ?DateTime $commentDate = null;
 
-    public mixed $newParentId = null;
+    public ?int $newParentId = null;
     private ?bool $_hasNewParent = null;
-    private string $comment = '';
+    private ?string $comment = null;
     private ?ElementInterface $_owner = null;
     private ?User $_author = null;
     private mixed $_user = null;
-    private string $previousStatus = '';
+    private ?string $previousStatus = null;
 
 
     // Public Methods

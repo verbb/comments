@@ -26,20 +26,20 @@ class CommentQuery extends ElementQuery
     public mixed $ownerId = null;
     public mixed $ownerSiteId = null;
     public mixed $userId = null;
-    public string $name = '';
-    public string $email = '';
-    public string $comment = '';
-    public string $url = '';
-    public string $ipAddress = '';
-    public string $userAgent = '';
-    public ?DateTime $commentDate = null;
-    public array|string|null $status = '';
+    public mixed $name = null;
+    public mixed $email = null;
+    public mixed $comment = null;
+    public mixed $url = null;
+    public mixed $ipAddress = null;
+    public mixed $userAgent = null;
+    public mixed $commentDate = null;
+    public array|string|null $status = null;
 
     public mixed $parentId = null;
-    public string $ownerType = '';
+    public mixed $ownerType = null;
     public mixed $ownerSectionId = null;
-    public string $ownerSection = '';
-    public ?bool $isFlagged = null;
+    public mixed $ownerSection = null;
+    public mixed $isFlagged = null;
 
 
     // Public Methods
