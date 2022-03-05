@@ -57,9 +57,9 @@ return [
     //
 
     'Your name' => 'Your name',
-    'Your email' => 'Email',
-    'Add a comment...' => 'Write a comment',
-    'Post comment' => 'Submit',
+    'Your email' => 'Your email',
+    'Add a comment...' => 'Add a comment...',
+    'Post comment' => 'Post comment',
 
     //
     // Validation

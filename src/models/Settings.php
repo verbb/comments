@@ -33,9 +33,9 @@ class Settings extends Model
     public bool $guestShowEmailName = true;
     public bool $requireModeration = true;
     public string $moderatorUserGroup = '';
-    public ?int $autoCloseDays = null;
-    public ?int $maxReplyDepth = null;
-    public ?int $maxUserComments = null;
+    public mixed $autoCloseDays = null;
+    public mixed $maxReplyDepth = null;
+    public mixed $maxUserComments = null;
 
     // Voting
     public bool $allowVoting = true;
@@ -126,14 +126,7 @@ class Settings extends Model
     public function setAttributes($values, $safeOnly = true): void
     {
         // Typecast some settings
-        $integers = ['autoCloseDays', 'maxReplyDepth', 'maxUserComments'];
         $arrays = ['notificationAdmins'];
-
-        foreach ($integers as $integer) {
-            if (isset($values[$integer])) {
-                $values[$integer] = (int)$values[$integer];
-            }
-        }
 
         foreach ($arrays as $array) {
             if (isset($values[$array]) && !is_array($values[$array])) {
@@ -206,6 +199,13 @@ class Settings extends Model
     {
         if ($this->structureUid) {
             return Db::idByUid(Table::STRUCTURES, $this->structureUid);
+        }
+
+        // Create the structure if it doesn't exist
+        if ($structure = Comments::$plugin->createAndStoreStructure()) {
+            $this->structureUid = $structure->uid;
+
+            return $structure->id;
         }
 
         return null;

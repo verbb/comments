@@ -292,7 +292,7 @@ class Comments extends Plugin
                         Db::insert(Table::FIELDLAYOUTS, ['type' => Comment::class]);
                     }
 
-                    $this->getComments()->saveFieldLayout();
+                    Comments::$plugin->getComments()->saveFieldLayout();
                 }
             });
         }

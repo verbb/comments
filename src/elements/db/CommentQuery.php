@@ -23,9 +23,9 @@ class CommentQuery extends ElementQuery
 
     public ?bool $withStructure = true;
 
-    public ?int $ownerId = null;
-    public ?int $ownerSiteId = null;
-    public ?int $userId = null;
+    public mixed $ownerId = null;
+    public mixed $ownerSiteId = null;
+    public mixed $userId = null;
     public string $name = '';
     public string $email = '';
     public string $comment = '';
@@ -35,9 +35,9 @@ class CommentQuery extends ElementQuery
     public ?DateTime $commentDate = null;
     public array|string|null $status = '';
 
-    public ?int $parentId = null;
+    public mixed $parentId = null;
     public string $ownerType = '';
-    public ?int $ownerSectionId = null;
+    public mixed $ownerSectionId = null;
     public string $ownerSection = '';
     public ?bool $isFlagged = null;
 
@@ -216,6 +216,10 @@ class CommentQuery extends ElementQuery
         return $results;
     }
 
+
+    // Protected Methods
+    // =========================================================================
+
     protected function beforePrepare(): bool
     {
         $this->joinElementTable('comments_comments');
@@ -332,6 +336,7 @@ class CommentQuery extends ElementQuery
             default => parent::statusCondition($status),
         };
     }
+
 
     // Private Methods
     // =========================================================================

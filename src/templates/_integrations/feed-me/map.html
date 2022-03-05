@@ -135,7 +135,7 @@
             <th>{{ 'Default Value'|t('feed-me') }}</th>
         </thead>
         <tbody>
-            {% for field in tab.getFields() %}
+            {% for field in tab.getCustomFields() %}
                 {% set fieldClass = craft.feedme.fields.getRegisteredField(className(field)) %}
                 {% set template = fieldClass.getMappingTemplate() %}
 
@@ -153,7 +153,7 @@
 <p>{{ "Select the fields you want to use to check for existing elements. When selected, Feed Me will look for existing elements that match the fields provided below and either update, or skip depending on your choice of Import Strategy."|t('feed-me') }}</p>
 
 {% for tab in tabs %}
-    {% for field in tab.getFields() %}
+    {% for field in tab.getCustomFields() %}
         {% set fields = fields | merge([{ name: field.name, handle: field.handle, type: className(field) }]) %}
     {% endfor %}
 {% endfor %}

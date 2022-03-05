@@ -4,6 +4,7 @@ namespace verbb\comments\fields;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\helpers\Cp;
 use craft\helpers\Json;
 
 use yii\db\Schema;
@@ -50,13 +51,11 @@ class CommentsField extends Field
 
     public function getSettingsHtml(): ?string
     {
-        return Craft::$app->getView()->renderTemplateMacro('_includes/forms', 'lightswitchField', [
-            [
-                'label' => Craft::t('app', 'Default Value'),
-                'id' => 'default',
-                'name' => 'default',
-                'on' => $this->default,
-            ],
+        return Cp::lightswitchFieldHtml([
+            'label' => Craft::t('app', 'Default Value'),
+            'id' => 'default',
+            'name' => 'default',
+            'on' => $this->default,
         ]);
     }
 

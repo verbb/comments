@@ -47,29 +47,6 @@ class Comment extends Element
     const SCENARIO_FRONT_END = 'frontEnd';
 
 
-    // Properties
-    // =========================================================================
-
-    public ?int $ownerId = null;
-    public ?int $ownerSiteId = null;
-    public ?int $userId = null;
-    public string $status = '';
-    public string $name = '';
-    public string $email = '';
-    public string $url = '';
-    public string $ipAddress = '';
-    public string $userAgent = '';
-    public ?DateTime $commentDate = null;
-
-    public ?int $newParentId = null;
-    private ?bool $_hasNewParent = null;
-    private string $comment = '';
-    private ?ElementInterface $_owner = null;
-    private ?User $_author = null;
-    private mixed $_user = null;
-    private string $previousStatus = '';
-
-
     // Static Methods
     // =========================================================================
 
@@ -118,7 +95,7 @@ class Comment extends Element
         return new CommentQuery(static::class);
     }
 
-    public static function getStructureId()
+    public static function getStructureId(): int
     {
         return Comments::$plugin->getSettings()->getStructureId();
     }
@@ -365,26 +342,27 @@ class Comment extends Element
         }
     }
 
+
     // Properties
     // =========================================================================
 
-    public ?DateTime $commentDate = null;
-    public string $email = '';
-    public string $ipAddress = '';
-    public string $name = '';
-    public ?int $newParentId = null;
-    public ?int $ownerId = null;
-    public ?int $ownerSiteId = null;
+    public mixed $ownerId = null;
+    public mixed $ownerSiteId = null;
+    public mixed $userId = null;
     public string $status = '';
+    public string $name = '';
+    public string $email = '';
     public string $url = '';
+    public string $ipAddress = '';
     public string $userAgent = '';
+    public ?DateTime $commentDate = null;
 
-    public ?int $userId = null;
-    private ?User $_author = null;
+    public mixed $newParentId = null;
     private ?bool $_hasNewParent = null;
-    private ?ElementInterface $_owner = null;
-    private mixed $_user = null;
     private string $comment = '';
+    private ?ElementInterface $_owner = null;
+    private ?User $_author = null;
+    private mixed $_user = null;
     private string $previousStatus = '';
 
 

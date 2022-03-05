@@ -58,16 +58,13 @@
     <hr>
 
     {% set fieldLayout = craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment') %}
+    {% set customFields = fieldLayout.getCustomFields() %}
 
-    {% if fieldLayout.getTabs() | length %}
-        {% for tab in fieldLayout.getTabs() %}
-            <div id="tab{{ loop.index }}">
-                {% include "_includes/fields" with {
-                    fields: tab.getFields(),
-                    element: comment,
-                } only %}
-            </div>
-        {% endfor %}
+    {% if customFields | length %}
+        {% include '_includes/fields' with {
+            fields: customFields,
+            element: comment,
+        } %}
 
         <hr>
     {% endif %}

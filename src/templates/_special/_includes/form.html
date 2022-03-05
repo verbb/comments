@@ -2,7 +2,7 @@
 
 {% set containsFileInput = false %}
 
-{% for field in fieldLayout.getFields() %}
+{% for field in fieldLayout.getCustomFields() %}
     {% if className(field) == 'craft\\fields\\Assets' %}
         {% set containsFileInput = true %}
     {% endif %}

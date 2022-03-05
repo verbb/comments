@@ -20,6 +20,7 @@ use craft\events\FieldEvent;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -859,19 +860,19 @@ class CommentsService extends Component
 
     public function saveFieldLayout(): void
     {
-        // $projectConfig = Craft::$app->getProjectConfig();
-        // $fieldLayoutUid = StringHelper::UUID();
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldLayoutUid = StringHelper::UUID();
 
-        // $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
-        // $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
+        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
 
-        // if ($layoutData) {
-        //     $fieldLayoutUid = array_keys($layoutData)[0];
-        // }
+        if ($layoutData) {
+            $fieldLayoutUid = array_keys($layoutData)[0];
+        }
 
-        // $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
+        $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
 
-        // $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
+        $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
     }
 
     public function getComponentTemplatePath(string $component): string
