@@ -11,7 +11,7 @@ use craft\base\ElementInterface;
 
 class Vote extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $id = null;

@@ -10,6 +10,9 @@ namespace verbb\comments\enums;
  */
 abstract class CommentStatus
 {
+    // Constants
+    // =========================================================================
+
     const Allowed = ['permission' => true, 'reason' => 'Allowed'];
     const Expired = ['permission' => false, 'reason' => 'Expired'];
     const ManuallyClosed = ['permission' => false, 'reason' => 'ManuallyClosed'];

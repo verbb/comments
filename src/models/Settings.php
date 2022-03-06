@@ -15,7 +15,7 @@ use craft\helpers\Db;
 
 class Settings extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?string $structureUid = null;

@@ -54,7 +54,7 @@ use craft\feedme\services\Elements as FeedMeElements;
 
 class Comments extends Plugin
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public bool $hasCpSection = true;

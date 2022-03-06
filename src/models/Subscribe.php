@@ -9,7 +9,7 @@ use craft\base\Model;
 
 class Subscribe extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $id = null;

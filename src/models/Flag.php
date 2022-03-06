@@ -8,7 +8,7 @@ use craft\base\Model;
 
 class Flag extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $id = null;

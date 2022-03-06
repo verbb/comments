@@ -10,7 +10,7 @@ use Exception;
 
 class SendNotification extends BaseJob
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public int $commentId;

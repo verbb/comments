@@ -5,7 +5,7 @@ use craft\helpers\Gql as GqlHelper;
 
 class Gql extends GqlHelper
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function canQueryComments($schema = null): bool

@@ -7,6 +7,9 @@ use craft\gql\base\ObjectType;
 
 class Vote extends ObjectType
 {
+    // Public Methods
+    // =========================================================================
+
     public function __construct(array $config)
     {
         $config['interfaces'] = [
@@ -15,6 +18,10 @@ class Vote extends ObjectType
 
         parent::__construct($config);
     }
+
+
+    // Protected Methods
+    // =========================================================================
 
     protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {

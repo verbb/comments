@@ -11,7 +11,7 @@ use yii\db\Schema;
 
 class CommentsField extends Field
 {
-    // Static
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string

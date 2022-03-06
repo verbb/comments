@@ -8,6 +8,9 @@ use GraphQL\Type\Definition\Type;
 
 class Comment extends ElementMutationArguments
 {
+    // Static Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

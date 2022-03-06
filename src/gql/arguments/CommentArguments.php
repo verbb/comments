@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 
 class CommentArguments extends StructureElementArguments
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function getArguments(): array

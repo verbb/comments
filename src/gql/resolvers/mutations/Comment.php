@@ -31,10 +31,21 @@ use Throwable;
  */
 class Comment extends ElementMutationResolver
 {
+    // Traits
+    // =========================================================================
+
     use StructureMutationTrait;
+
+
+    // Properties
+    // =========================================================================
 
     /* @inheritdoc */
     protected array $immutableAttributes = ['id', 'uid', 'userId'];
+
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * Handles GraphQL mutation arguments to either create or update a comment.
@@ -280,6 +291,10 @@ class Comment extends ElementMutationResolver
         return true;
     }
 
+
+    // Protected Methods
+    // =========================================================================
+
     /**
      * Returns a new or existing Comment element based on the provided query parameters.
      *
@@ -334,6 +349,10 @@ class Comment extends ElementMutationResolver
 
         return $commentQuery;
     }
+
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * Formats and throws validation errors.

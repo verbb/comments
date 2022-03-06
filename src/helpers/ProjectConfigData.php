@@ -9,6 +9,9 @@ use craft\models\Structure;
 
 class ProjectConfigData
 {
+    // Static Methods
+    // =========================================================================
+
     public static function rebuildProjectConfig(): array
     {
         $output = [];

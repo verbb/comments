@@ -14,7 +14,7 @@ use GraphQL\Type\Definition\Type;
 
 class Vote extends InterfaceType
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function getType($fields = null): Type

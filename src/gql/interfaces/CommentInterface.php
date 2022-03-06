@@ -17,7 +17,7 @@ use GraphQL\Type\Definition\Type;
 
 class CommentInterface extends Structure
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function getTypeGenerator(): string

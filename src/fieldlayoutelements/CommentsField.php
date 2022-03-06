@@ -47,10 +47,6 @@ class CommentsField extends BaseField
         return false;
     }
 
-
-    // Protected Methods
-    // =========================================================================
-
     public function label(): ?string
     {
         if ($this->label !== null && $this->label !== '' && $this->label !== '__blank__') {
@@ -68,6 +64,10 @@ class CommentsField extends BaseField
 
         return Craft::t('comments', 'Add a comment...');
     }
+
+
+    // Protected Methods
+    // =========================================================================
 
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {

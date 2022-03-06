@@ -21,7 +21,7 @@ use yii\base\InvalidConfigException;
 
 class Comment extends Mutation
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function getMutations(): array

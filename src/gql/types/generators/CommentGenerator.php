@@ -14,7 +14,7 @@ use Craft;
 
 class CommentGenerator extends Generator implements GeneratorInterface, SingleGeneratorInterface
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     /**

@@ -10,7 +10,7 @@ use Throwable;
 
 class CommentsHelper
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function humanDurationFromInterval(DateInterval $dateInterval): string
