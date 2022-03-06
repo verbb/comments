@@ -16,10 +16,10 @@ class SubscribeService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_SUBSCRIBE = 'beforeSaveSubscribe';
-    const EVENT_AFTER_SAVE_SUBSCRIBE = 'afterSaveSubscribe';
-    const EVENT_BEFORE_DELETE_SUBSCRIBE = 'beforeDeleteSubscribe';
-    const EVENT_AFTER_DELETE_SUBSCRIBE = 'afterDeleteSubscribe';
+    public const EVENT_BEFORE_SAVE_SUBSCRIBE = 'beforeSaveSubscribe';
+    public const EVENT_AFTER_SAVE_SUBSCRIBE = 'afterSaveSubscribe';
+    public const EVENT_BEFORE_DELETE_SUBSCRIBE = 'beforeDeleteSubscribe';
+    public const EVENT_AFTER_DELETE_SUBSCRIBE = 'afterDeleteSubscribe';
 
 
     // Public Methods

@@ -38,15 +38,15 @@ class CommentsService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SEND_AUTHOR_EMAIL = 'beforeSendAuthorEmail';
-    const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
-    const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
-    const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
-    const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
-    const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'beforeSendAdminEmail';
-    const EVENT_BEFORE_SEND_FLAG_EMAIL = 'beforeSendFlagEmail';
+    public const EVENT_BEFORE_SEND_AUTHOR_EMAIL = 'beforeSendAuthorEmail';
+    public const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
+    public const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
+    public const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
+    public const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
+    public const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'beforeSendAdminEmail';
+    public const EVENT_BEFORE_SEND_FLAG_EMAIL = 'beforeSendFlagEmail';
 
-    const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
+    public const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
 
 
     // Public Methods

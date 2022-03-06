@@ -13,11 +13,11 @@ abstract class CommentStatus
     // Constants
     // =========================================================================
 
-    const Allowed = ['permission' => true, 'reason' => 'Allowed'];
-    const Expired = ['permission' => false, 'reason' => 'Expired'];
-    const ManuallyClosed = ['permission' => false, 'reason' => 'ManuallyClosed'];
-    const NoGuests = ['permission' => false, 'reason' => 'NoGuests'];
-    const TooManyComments = ['permission' => false, 'reason' => 'TooManyComments'];
-    const Unpermitted = ['permission' => false, 'reason' => 'Unpermitted'];
-    const UserBanned = ['permission' => false, 'reason' => 'UserBanned'];
+    public const Allowed = ['permission' => true, 'reason' => 'Allowed'];
+    public const Expired = ['permission' => false, 'reason' => 'Expired'];
+    public const ManuallyClosed = ['permission' => false, 'reason' => 'ManuallyClosed'];
+    public const NoGuests = ['permission' => false, 'reason' => 'NoGuests'];
+    public const TooManyComments = ['permission' => false, 'reason' => 'TooManyComments'];
+    public const Unpermitted = ['permission' => false, 'reason' => 'Unpermitted'];
+    public const UserBanned = ['permission' => false, 'reason' => 'UserBanned'];
 }

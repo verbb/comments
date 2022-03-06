@@ -17,10 +17,10 @@ class FlagsService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_FLAG = 'beforeSaveFlag';
-    const EVENT_AFTER_SAVE_FLAG = 'afterSaveFlag';
-    const EVENT_BEFORE_DELETE_FLAG = 'beforeDeleteFlag';
-    const EVENT_AFTER_DELETE_FLAG = 'afterDeleteFlag';
+    public const EVENT_BEFORE_SAVE_FLAG = 'beforeSaveFlag';
+    public const EVENT_AFTER_SAVE_FLAG = 'afterSaveFlag';
+    public const EVENT_BEFORE_DELETE_FLAG = 'beforeDeleteFlag';
+    public const EVENT_AFTER_DELETE_FLAG = 'afterDeleteFlag';
 
 
     // Properties

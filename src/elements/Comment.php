@@ -38,13 +38,13 @@ class Comment extends Element
     // Constants
     // =========================================================================
 
-    const STATUS_APPROVED = 'approved';
-    const STATUS_PENDING = 'pending';
-    const STATUS_SPAM = 'spam';
-    const STATUS_TRASHED = 'trashed';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_SPAM = 'spam';
+    public const STATUS_TRASHED = 'trashed';
 
-    const SCENARIO_CP = 'cp';
-    const SCENARIO_FRONT_END = 'frontEnd';
+    public const SCENARIO_CP = 'cp';
+    public const SCENARIO_FRONT_END = 'frontEnd';
 
 
     // Static Methods

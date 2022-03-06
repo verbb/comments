@@ -14,8 +14,8 @@ class ProtectService extends Component
     // Constants
     // =========================================================================
 
-    const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
-    const API_URL = 'https://www.google.com/recaptcha/api.js';
+    public const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    public const API_URL = 'https://www.google.com/recaptcha/api.js';
 
 
     // Public Methods

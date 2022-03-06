@@ -17,10 +17,10 @@ class VotesService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_VOTE = 'beforeSaveVote';
-    const EVENT_AFTER_SAVE_VOTE = 'afterSaveVote';
-    const EVENT_BEFORE_DELETE_VOTE = 'beforeDeleteVote';
-    const EVENT_AFTER_DELETE_VOTE = 'afterDeleteVote';
+    public const EVENT_BEFORE_SAVE_VOTE = 'beforeSaveVote';
+    public const EVENT_AFTER_SAVE_VOTE = 'afterSaveVote';
+    public const EVENT_BEFORE_DELETE_VOTE = 'beforeDeleteVote';
+    public const EVENT_AFTER_DELETE_VOTE = 'afterDeleteVote';
 
 
     // Properties
