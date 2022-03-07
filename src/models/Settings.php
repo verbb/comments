@@ -12,6 +12,7 @@ use craft\db\Table;
 use craft\elements\Asset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\Json;
 
 class Settings extends Model
 {
@@ -105,16 +106,20 @@ class Settings extends Model
     // Public Methods
     // =========================================================================
 
-    public function __construct($config = [])
+    public function setAttributes($values, $safeOnly = true): void
     {
         // Config normalization
-        if (array_key_exists('notificationAdmins', $config)) {
-            if (!is_array($config['notificationAdmins'])) {
-                $config['notificationAdmins'] = [];
+        if (array_key_exists('notificationAdmins', $values)) {
+            if (is_string($values['notificationAdmins'])) {
+                $values['notificationAdmins'] = Json::decodeIfJson($values['notificationAdmins']);
+            }
+
+            if (!is_array($values['notificationAdmins'])) {
+                $values['notificationAdmins'] = [];
             }
         }
 
-        parent::__construct($config);
+        parent::setAttributes($values, $safeOnly);
     }
 
     public function getPlaceholderAvatar(): ?Asset
