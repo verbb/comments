@@ -259,7 +259,7 @@ class VotesService extends Component
         return $sessionId;
     }
 
-    private function _getVoteRecordById(int $voteId = null): VoteRecord
+    private function _getVoteRecordById(int $voteId = null): ?VoteRecord
     {
         if ($voteId !== null) {
             $voteRecord = VoteRecord::findOne($voteId);

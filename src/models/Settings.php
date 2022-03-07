@@ -49,7 +49,7 @@ class Settings extends Model
 
     // Templates - Default
     public bool $showAvatar = true;
-    public ElementInterface|null|string $placeholderAvatar = null;
+    public Asset|null|string $placeholderAvatar = null;
     public bool $enableGravatar = false;
     public bool $showTimeAgo = true;
     public bool $outputDefaultCss = true;
@@ -99,7 +99,7 @@ class Settings extends Model
     public string $sortDefaultKey = 'structure';
     public string $sortDefaultDirection = 'asc';
 
-    private ?ElementInterface $_placeholderAvatar = null;
+    private ?Asset $_placeholderAvatar = null;
 
 
     // Public Methods
@@ -117,13 +117,14 @@ class Settings extends Model
         parent::__construct($config);
     }
 
-    public function getPlaceholderAvatar(): ?ElementInterface
+    public function getPlaceholderAvatar(): ?Asset
     {
         if ($this->_placeholderAvatar !== null) {
             return $this->_placeholderAvatar;
         }
 
         if ($this->placeholderAvatar && isset($this->placeholderAvatar[0])) {
+            /* @noinspection PhpIncompatibleReturnTypeInspection */
             return $this->_placeholderAvatar = Craft::$app->getElements()->getElementById($this->placeholderAvatar[0], Asset::class);
         }
 

@@ -32,7 +32,7 @@ class Subscribe extends Model
         ];
     }
 
-    public function getComment(): ?ElementInterface
+    public function getComment(): ?Comment
     {
         if ($this->commentId) {
             return Comment::find()->id($this->commentId)->one();

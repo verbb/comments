@@ -201,7 +201,7 @@ class FlagsService extends Component
         return $sessionId;
     }
 
-    private function _getFlagRecordById(int $flagId = null): FlagRecord
+    private function _getFlagRecordById(int $flagId = null): ?FlagRecord
     {
         if ($flagId !== null) {
             $flagRecord = FlagRecord::findOne($flagId);

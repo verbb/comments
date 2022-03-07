@@ -3,6 +3,7 @@ namespace verbb\comments\variables;
 
 use verbb\comments\Comments;
 use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\elements\db\CommentQuery;
 
 use Craft;
 use craft\elements\db\ElementQueryInterface;
@@ -17,7 +18,7 @@ class CommentsVariable
     // Public Methods
     // =========================================================================
 
-    public function fetch($criteria = null): ElementQueryInterface
+    public function fetch($criteria = null): CommentQuery
     {
         return Comments::$plugin->getComments()->fetch($criteria);
     }
@@ -112,7 +113,7 @@ class CommentsVariable
     // Deprecated Methods
     // =========================================================================
 
-    public function all($criteria = null): ElementQueryInterface
+    public function all($criteria = null): CommentQuery
     {
         Craft::$app->getDeprecator()->log('craft.comments.all()', '`craft.comments.all()` has been deprecated. Use `craft.comments.fetch()` instead.');
 

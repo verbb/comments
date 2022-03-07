@@ -4,6 +4,7 @@ namespace verbb\comments\services;
 use verbb\comments\Comments;
 use verbb\comments\assetbundles\FrontEndAsset;
 use verbb\comments\elements\Comment;
+use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\events\EmailEvent;
 use verbb\comments\fields\CommentsField;
 use verbb\comments\queue\jobs\SendNotification;
@@ -30,7 +31,9 @@ use craft\web\View;
 use DateTime;
 
 use yii\helpers\Markdown;
+
 use Throwable;
+
 use Twig\Markup;
 
 class CommentsService extends Component
@@ -52,12 +55,13 @@ class CommentsService extends Component
     // Public Methods
     // =========================================================================
 
-    public function getCommentById(int $id, $siteId = null): ?ElementInterface
+    public function getCommentById(int $id, $siteId = null): ?Comment
     {
+        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, Comment::class, $siteId);
     }
 
-    public function fetch($criteria = null): ElementQueryInterface
+    public function fetch($criteria = null): CommentQuery
     {
         $query = Comment::find();
 

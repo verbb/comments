@@ -90,7 +90,7 @@ class Comment extends Element
         ];
     }
 
-    public static function find(): ElementQueryInterface
+    public static function find(): CommentQuery
     {
         return new CommentQuery(static::class);
     }

@@ -170,7 +170,7 @@ class SubscribeService extends Component
     // Private Methods
     // =========================================================================
 
-    private function _getSubscribeRecordById(int $subscribeId = null): SubscribeRecord
+    private function _getSubscribeRecordById(int $subscribeId = null): ?SubscribeRecord
     {
         if ($subscribeId !== null) {
             $subscribeRecord = SubscribeRecord::findOne($subscribeId);
