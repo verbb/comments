@@ -202,10 +202,13 @@ class Comments extends Plugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $event->permissions[Craft::t('comments', 'Comments')] = [
-                'commentsEdit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
-                'commentsTrash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
-                'commentsDelete' => ['label' => Craft::t('comments', 'Delete comments')],
+            $event->permissions[] = [
+                'heading' => Craft::t('comments', 'Comments'),
+                'permissions' => [
+                    'comments-edit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
+                    'comments-trash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
+                    'comments-delete' => ['label' => Craft::t('comments', 'Delete comments')],
+                ],
             ];
         });
     }
