@@ -421,13 +421,6 @@ class Comment extends Element
         return $rules;
     }
 
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'commentDate';
-        return $attributes;
-    }
-
     public function getSupportedSites(): array
     {
         // Only support the site the comment is being made on

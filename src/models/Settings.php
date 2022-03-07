@@ -106,22 +106,6 @@ class Settings extends Model
     // Public Methods
     // =========================================================================
 
-    public function setAttributes($values, $safeOnly = true): void
-    {
-        // Config normalization
-        if (array_key_exists('notificationAdmins', $values)) {
-            if (is_string($values['notificationAdmins'])) {
-                $values['notificationAdmins'] = Json::decodeIfJson($values['notificationAdmins']);
-            }
-
-            if (!is_array($values['notificationAdmins'])) {
-                $values['notificationAdmins'] = [];
-            }
-        }
-
-        parent::setAttributes($values, $safeOnly);
-    }
-
     public function getPlaceholderAvatar(): ?Asset
     {
         if ($this->_placeholderAvatar !== null) {
