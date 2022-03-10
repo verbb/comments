@@ -5,12 +5,12 @@ use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;
 
+use Craft;
 use craft\gql\interfaces\elements\User;
 use craft\gql\interfaces\Structure;
 use craft\gql\types\DateTime;
-use craft\gql\TypeManager;
 use craft\gql\GqlEntityRegistry;
-use craft\helpers\Gql;
+use craft\helpers\Gql as GqlHelper;
 
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
@@ -50,7 +50,7 @@ class CommentInterface extends Structure
 
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), self::getConditionalFields(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), self::getConditionalFields(), [
             'ownerId' => [
                 'name' => 'ownerId',
                 'type' => Type::int(),
@@ -117,7 +117,7 @@ class CommentInterface extends Structure
 
     protected static function getConditionalFields(): array
     {
-        if (Gql::canQueryUsers()) {
+        if (GqlHelper::canQueryUsers()) {
             return [
                 'userId' => [
                     'name' => 'userId',

@@ -311,7 +311,7 @@ class Comment extends ElementMutationResolver
         if ($canIdentify) {
             $siteId = $arguments['siteId'] ?? Craft::$app->getSites()->getPrimarySite()->id;
             $commentQuery = $elementService->createElementQuery(CommentElement::class)
-                ->anyStatus()
+                ->status(null)
                 ->siteId($siteId);
             $commentQuery = $this->identifyComment($commentQuery, $arguments);
             $comment = $commentQuery->one();

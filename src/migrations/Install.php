@@ -5,7 +5,7 @@ use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
+use craft\helpers\Db;
 use craft\records\FieldLayout;
 
 class Install extends Migration
@@ -140,18 +140,18 @@ class Install extends Migration
 
     public function dropForeignKeys(): void
     {
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['id'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerSiteId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_comments}}', ['userId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_flags}}', ['commentId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_flags}}', ['userId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_votes}}', ['commentId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_votes}}', ['userId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['id'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerSiteId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['userId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['commentId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['userId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['commentId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['userId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
     }
 
     public function dropProjectConfig(): void

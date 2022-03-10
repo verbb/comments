@@ -5,12 +5,11 @@ use verbb\comments\elements\Comment;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\types\CommentType;
 
+use Craft;
 use craft\gql\GqlEntityRegistry;
-use craft\gql\TypeManager;
 use craft\gql\base\Generator;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\base\SingleGeneratorInterface;
-use Craft;
 
 class CommentGenerator extends Generator implements GeneratorInterface, SingleGeneratorInterface
 {
@@ -37,7 +36,7 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
         $typeName = Comment::gqlTypeNameByContext(null);
         $contentFieldGqlTypes = self::getContentFields($context);
 
-        $commentFields = TypeManager::prepareFieldDefinitions(array_merge(
+        $commentFields = Craft::$app->getGql()->prepareFieldDefinitions(array_merge(
             CommentInterface::getFieldDefinitions(),
             $contentFieldGqlTypes
         ), $typeName);

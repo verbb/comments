@@ -2,7 +2,7 @@
 namespace verbb\comments\migrations;
 
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
+use craft\helpers\Db;
 
 class m180825_000000_craft3_upgrade extends Migration
 {
@@ -10,7 +10,7 @@ class m180825_000000_craft3_upgrade extends Migration
     {
         // Rename table
         if ($this->db->tableExists('{{%comments}}') && !$this->db->tableExists('{{%comments_comments}}')) {
-            MigrationHelper::renameTable('{{%comments}}', '{{%comments_comments}}', $this);
+            Db::renameTable('{{%comments}}', '{{%comments_comments}}', $this);
         }
 
         // Cleanup columns
@@ -24,15 +24,15 @@ class m180825_000000_craft3_upgrade extends Migration
 
         // Rename elementId to ownerId
         if ($this->db->columnExists('{{%comments_comments}}', 'elementId') && !$this->db->columnExists('{{%comments_comments}}', 'ownerId')) {
-            MigrationHelper::renameColumn('{{%comments_comments}}', 'elementId', 'ownerId', $this);
+            Db::renameColumn('{{%comments_comments}}', 'elementId', 'ownerId', $this);
         }
 
         // Add correct foreign key to id (which is an element after all)
-        if (!MigrationHelper::doesIndexExist('{{%comments_comments}}', 'id')) {
+        if (!Db::doesIndexExist('{{%comments_comments}}', 'id')) {
             $this->createIndex($this->db->getIndexName('{{%comments_comments}}', 'id', false), '{{%comments_comments}}', 'id', false);
         }
 
-        if (!MigrationHelper::findForeignKey('{{%comments_comments}}', 'id')) {
+        if (!Db::findForeignKey('{{%comments_comments}}', 'id')) {
             // Disable FK checks
             $queryBuilder = $this->db->getSchema()->getQueryBuilder();
             $this->execute($queryBuilder->checkIntegrity(false));

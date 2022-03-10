@@ -3,7 +3,7 @@ namespace verbb\comments\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
+use craft\helpers\Db;
 
 class m190301_100000_add_ownerSiteId extends Migration
 {
@@ -13,7 +13,7 @@ class m190301_100000_add_ownerSiteId extends Migration
             $this->addColumn('{{%comments_comments}}', 'ownerSiteId', $this->integer()->after('ownerId'));
         }
 
-        if (!MigrationHelper::doesForeignKeyExist('{{%comments_comments}}', 'ownerSiteId')) {
+        if (!Db::doesForeignKeyExist('{{%comments_comments}}', 'ownerSiteId')) {
             $this->addForeignKey(null, '{{%comments_comments}}', 'ownerSiteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         }
 

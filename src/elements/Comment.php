@@ -1264,7 +1264,7 @@ class Comment extends Element
         $oldParentQuery->ancestorDist(1);
         $oldParentQuery->status(null);
         $oldParentQuery->siteId($this->siteId);
-        $oldParentQuery->anyStatus();
+        $oldParentQuery->status(null);
         $oldParentQuery->select('elements.id');
         $oldParentId = $oldParentQuery->scalar();
 

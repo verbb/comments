@@ -5,6 +5,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use craft\helpers\Json;
 
 use yii\db\Schema;
@@ -38,8 +39,7 @@ class CommentsField extends Field
 
     public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
-        $id = Craft::$app->getView()->formatInputId($this->handle);
-        $nameSpacedId = Craft::$app->getView()->namespaceInputId($id);
+        $id = Html::id($this->handle);
 
         return Craft::$app->getView()->renderTemplate('comments/_field/input', [
             'id' => $id,

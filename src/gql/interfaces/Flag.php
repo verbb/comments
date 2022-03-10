@@ -4,10 +4,10 @@ namespace verbb\comments\gql\interfaces;
 use verbb\comments\helpers\Gql as GqlHelper;
 use verbb\comments\gql\types\Flag as FlagType;
 
+use Craft;
 use craft\gql\interfaces\elements\User;
-use craft\gql\TypeManager;
 use craft\gql\GqlEntityRegistry;
-use craft\helpers\Gql;
+use craft\helpers\Gql as CraftGqlHelper;
 
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
@@ -44,7 +44,7 @@ class Flag extends InterfaceType
 
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions(array_merge(self::getConditionalFields(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(self::getConditionalFields(), [
             'id' => [
                 'name' => 'id',
                 'type' => Type::id(),
@@ -67,7 +67,7 @@ class Flag extends InterfaceType
     {
         $conditionalFields = [];
 
-        if (Gql::canQueryUsers()) {
+        if (CraftGqlHelper::canQueryUsers()) {
             $conditionalFields = array_merge($conditionalFields, [
                 'userId' => [
                     'name' => 'userId',

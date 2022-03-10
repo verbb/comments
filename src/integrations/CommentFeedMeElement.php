@@ -70,7 +70,7 @@ class CommentFeedMeElement extends Element
     public function getQuery($settings, $params = [])
     {
         $query = CommentElement::find()
-            ->anyStatus()
+            ->status(null)
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
 
         Craft::configure($query, $params);
