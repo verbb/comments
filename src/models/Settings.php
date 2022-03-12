@@ -50,7 +50,7 @@ class Settings extends Model
 
     // Templates - Default
     public bool $showAvatar = true;
-    public Asset|null|string $placeholderAvatar = null;
+    public mixed $placeholderAvatar = null;
     public bool $enableGravatar = false;
     public bool $showTimeAgo = true;
     public bool $outputDefaultCss = true;
