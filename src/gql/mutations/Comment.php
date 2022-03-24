@@ -130,7 +130,7 @@ class Comment extends Mutation
         $resolver = Craft::createObject(CommentMutationResolver::class);
 
         // Prepare resolver with custom fields
-        static::prepareResolver($resolver, $context->getFields());
+        static::prepareResolver($resolver, $context->getCustomFields());
 
         $mutationArguments = array_merge(
             $mutationArguments,
