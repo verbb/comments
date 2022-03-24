@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0-beta.2 - 2022-03-24
+
+### Changed
+- Now requires Comments `1.9.2` in order to update from Craft 3.
+
+### Fixed
+- Fix an error with GraphQL.
+- Fix typing for `placeholderAvatar` plugin setting.
+
 ## 2.0.0-beta.1 - 2022-03-10
 
 ### Changed
