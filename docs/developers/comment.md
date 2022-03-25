@@ -20,8 +20,6 @@ Attribute | Description
 `ipAddress` | Commenters IP Address.
 `userAgent` | Commenters User Agent.
 `comment` | The comment text.
-`flags` | A collection of [Flag](docs:developers/flag) objects for this comment.
-`votes` | A collection of [Vote](docs:developers/vote) objects for this comment.
 
 ## Methods
 
@@ -32,6 +30,11 @@ Method | Description
 `getExcerpt(start, length)` | Returns an excerpt of the comment. You can also supply parameters to control length.
 `hasFlagged()` | Whether the user has already flagged a comment.
 `isFlagged()` | If a comment receives more than a certain amount of flags, `isFlagged` will be true. This limit is configurable through the plugin settings.
+`getFlags()` | Returns the number of flags made on this comment.
+`getVotes()` | Returns the resulting number of votes made on this comment. This will be the result of upvotes subtracting downvotes.
+`getAllVotes()` | Returns the number of votes made on this comment. This will count upvotes and downvotes.
+`getUpvotes()` | Returns the number of upvotes made on this comment.
+`getDownvotes()` | Returns the number of upvotes made on this comment.
 `isPoorlyRated()` | If a comment receives more than a certain amount of downvotes, `isPoorlyRated` will be true. This limit is configurable through the plugin settings.
 
 ## Permission Methods
