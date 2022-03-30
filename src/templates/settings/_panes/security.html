@@ -27,6 +27,27 @@
         value: settings.recaptchaSecret,
         warning: macros.configWarning('recaptchaSecret', 'comments'),
     }) }}
+
+    {{ forms.selectField({
+        label: 'Minimum Score' | t('comments'),
+        instructions: 'Enter the minimum score needed to pass the reCAPTCHA test.' | t('comments'),
+        name: 'recaptchaMinScore',
+        value: settings.recaptchaMinScore ?? '0.5',
+        options: {
+            '0.0': '0.0',
+            '0.1': '0.1',
+            '0.2': '0.2',
+            '0.3': '0.3',
+            '0.4': '0.4',
+            '0.5': '0.5',
+            '0.6': '0.6',
+            '0.7': '0.7',
+            '0.8': '0.8',
+            '0.9': '0.9',
+            '1.0': '1.0',
+        },
+        warning: macros.configWarning('minScore', 'comments'),
+    }) }}
 </div>
 
 <hr>

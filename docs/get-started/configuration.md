@@ -56,6 +56,7 @@ return [
         'recaptchaEnabled' => false,
         'recaptchaKey' => '',
         'recaptchaSecret' => '',
+        'recaptchaMinScore' => 0.5,
 
         // Notifications
         'notificationAuthorEnabled' => true,
@@ -126,8 +127,9 @@ return [
 - `securitySpamlist` - A collection of words that if entered mark comments as spam.
 - `securityBanned` - A collection of words that if entered mark comments as trashed.
 - `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (eg. ‘craft’ will not match ‘crafty’).
-- `recaptchaKey` - The required key for ReCAPTCHA.
-- `recaptchaSecret` - The required secret for ReCAPTCHA.
+- `recaptchaKey` - The required key for reCAPTCHA.
+- `recaptchaSecret` - The required secret for reCAPTCHA.
+- `recaptchaMinScore` - The minimum "score" value returned from reCAPTCHA to rate the comment as spam.
 
 - `notificationAuthorEnabled` - Whether to notify element authors when a comment is made.
 - `notificationReplyEnabled` - Whether to notify comment authors when a reply is made.

@@ -69,6 +69,7 @@ class Settings extends Model
     public $recaptchaEnabled = false;
     public $recaptchaKey;
     public $recaptchaSecret;
+    public $recaptchaMinScore = 0.5;
 
     // Notifications
     public $notificationAuthorEnabled = true;
