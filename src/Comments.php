@@ -80,7 +80,6 @@ class Comments extends Plugin
 
         $this->_setPluginComponents();
         $this->_setLogging();
-        $this->_registerCpRoutes();
         $this->_registerTwigExtensions();
         $this->_registerPermissions();
         $this->_registerEmailMessages();
@@ -89,15 +88,18 @@ class Comments extends Plugin
         $this->_registerElementTypes();
         $this->_registerGraphQl();
         $this->_registerCraftEventListeners();
-        $this->_defineFieldLayoutElements();
         $this->_registerProjectConfigEventListeners();
         $this->_checkDeprecations();
         $this->_registerFeedMeSupport();
-        $this->_registerWidgets();
 
-        // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
-        // modify the Title column for the element index table - we want something special.
-        Craft::$app->view->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
+        $request = Craft::$app->getRequest();
+
+        if ($request->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+            $this->_registerWidgets();
+            $this->_defineFieldLayoutElements();
+            $this->_registerTemplateHooks();
+        }
     }
 
     /**
@@ -418,5 +420,12 @@ class Comments extends Plugin
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsWidget::class;
         });
+    }
+
+    private function _registerTemplateHooks(): void
+    {
+        // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
+        // modify the Title column for the element index table - we want something special.
+        Craft::$app->getView()->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
     }
 }
