@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User as UserElement;
 use craft\helpers\Json;
@@ -24,9 +25,10 @@ class CommentFeedMeElement extends Element
     // Properties
     // =========================================================================
 
-    public static $name = 'Comment';
-    public static $class = CommentElement::class;
-    public $element = null;
+    public static string $name = 'Comment';
+    public static string $class = CommentElement::class;
+
+    public ?ElementInterface $element = null;
 
 
     // Templates
@@ -67,7 +69,7 @@ class CommentFeedMeElement extends Element
         return [];
     }
 
-    public function getQuery($settings, $params = [])
+    public function getQuery($settings, array $params = []): mixed
     {
         $query = CommentElement::find()
             ->status(null)
@@ -78,7 +80,7 @@ class CommentFeedMeElement extends Element
         return $query;
     }
 
-    public function setModel($settings): CommentElement
+    public function setModel($settings): \craft\base\Element
     {
         $this->element = new CommentElement();
         $this->element->structureId = Comments::getInstance()->getSettings()->structureId;
@@ -105,7 +107,7 @@ class CommentFeedMeElement extends Element
         return $value;
     }
 
-    protected function parseCommentDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
+    protected function parseCommentDate($feedData, $fieldInfo): ?DateTime
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');
@@ -113,7 +115,7 @@ class CommentFeedMeElement extends Element
         return $this->parseDateAttribute($value, $formatting);
     }
 
-    protected function parseOwnerId($feedData, $fieldInfo)
+    protected function parseOwnerId($feedData, $fieldInfo): ?int
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $match = Hash::get($fieldInfo, 'options.match');
@@ -154,7 +156,7 @@ class CommentFeedMeElement extends Element
         return null;
     }
 
-    protected function parseUserId($feedData, $fieldInfo)
+    protected function parseUserId($feedData, $fieldInfo): ?int
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $match = Hash::get($fieldInfo, 'options.match');
