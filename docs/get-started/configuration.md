@@ -1,6 +1,7 @@
 # Configuration
+Create a `comments.php` file under your `/config` directory with the following options available to you. You can also use multi-environment options to change these per environment.
 
-Create an `comments.php` file under your `/config` directory with the following options available to you. You can also use multi-environment options to change these per environment.
+The below shows the defaults already used by Comments, so you don't need to add these options unless you want to modify the values.
 
 ```php
 <?php
@@ -86,7 +87,6 @@ return [
 ```
 
 ### Configuration options
-
 - `indexSidebarLimit` - Set a limit for the number of elements in the comments index sidebar in the control panel.
 - `indexSidebarGroup` - Whether to group elements in the comments index sidebar in the control panel.
 - `indexSidebarIndividualElements` - Whether to show individual elements in the comments index sidebar in the control panel.
@@ -148,9 +148,7 @@ return [
 - `sortDefaultKey` and `sortDefaultDirection` - Changes the default sort order in the control panel when viewing all comments. (Does not affect the front-end).
 
 ## Control Panel
-
 You can also manage configuration settings through the Control Panel by visiting Settings → Comments.
-
 
 ### `notificationAdmins`
 Provide a nested array of emails, each with an `enabled` item.

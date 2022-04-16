@@ -5,7 +5,8 @@
         "children": [
             "get-started/installation-setup",
             "get-started/requirements",
-            "get-started/configuration"
+            "get-started/configuration",
+            "get-started/upgrade-from-v0"
         ]
     },
     {
@@ -44,14 +45,6 @@
             "developers/vote",
             "developers/events",
             "developers/graphql"
-        ]
-    },
-    {
-        "title": "Support",
-        "collapsable": false,
-        "children": [
-            "support/get-support",
-            "support/upgrade-from-v0"
         ]
     }
 ]
