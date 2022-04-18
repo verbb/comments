@@ -32,7 +32,7 @@ Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(Event $e) {
 ## Flag related events
 
 ### The `beforeSaveFlag` event
-Plugins can get notified before an flag is saved
+Plugins can get notified before a flag is saved
 
 ```php
 use verbb\comments\events\FlagEvent;
@@ -87,7 +87,7 @@ Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $e) {
 ## Vote related events
 
 ### The `beforeSaveVote` event
-Plugins can get notified before an vote is saved
+Plugins can get notified before a vote is saved
 
 ```php
 use verbb\comments\events\VoteEvent;
@@ -113,7 +113,7 @@ Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $e) {
 ```
 
 ### The `beforeDeleteVote` event
-Plugins can get notified before an vote is deleted
+Plugins can get notified before a vote is deleted
 
 ```php
 use verbb\comments\events\VoteEvent;
@@ -213,7 +213,7 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_E
 ```
 
 ### The `beforeSendAdminEmail` event
-Plugins can get notified before the admin's email is sent
+Plugins can get notified before the admin email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;

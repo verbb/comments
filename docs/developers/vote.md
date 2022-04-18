@@ -1,5 +1,5 @@
 # Vote
-Users can vote on a comment, which they may agree, or disagree with. Note that only logged in users should be able to vote on a comment.
+Users can vote on a comment, which they may agree, or disagree with. Note that only logged-in users should be able to vote on a comment.
 
 ## Attributes
 

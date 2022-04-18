@@ -71,7 +71,7 @@ Narrows the query results to only elements that match a search query.
 Narrows the query results to elements that relate to *any* of the provided element IDs. This argument is ignored, if `relatedToAll` is also used.
 
 ### The `relatedToAll` argument
-Narrows the query results to elements that relate to *all* of the provided element IDs. Using this argument will cause `relatedTo` argument to be ignored.
+Narrows the query results to elements that relate to *all* the provided element IDs. Using this argument will cause `relatedTo` argument to be ignored.
 
 ### The `fixedOrder` argument
 Causes the query results to be returned in the order specified by the `id` argument.

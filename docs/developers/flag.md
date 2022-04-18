@@ -1,5 +1,5 @@
 # Flag
-Users can flag a comment as inappropriate. Note that only logged in users should be able to flag a comment.
+Users can flag a comment as inappropriate. Note that only logged-in users should be able to flag a comment.
 
 ## Attributes
 

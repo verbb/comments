@@ -24,7 +24,7 @@ See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-q
 
 We can display comments for a given user by doing the following:
 
-1. Create an comment query with `craft.comments.fetch()`.
+1. Create a comment query with `craft.comments.fetch()`.
 2. Set the [userId](#userId), [limit](#limit) and [status](#status) parameters on it.
 3. Fetch all comments with `.all()` and output.
 4. Loop through the comments using a [for](https://twig.symfony.com/doc/2.x/tags/for.html) tag to output the contents.

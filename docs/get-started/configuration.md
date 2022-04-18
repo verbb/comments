@@ -99,7 +99,7 @@ return [
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
 - `autoCloseDays` - Number of days until commenting is automatically closed. This uses the "Post Date" of an element. 0 to disable.
-- `maxReplyDepth` - Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
+- `maxReplyDepth` - Set the number of levels (depth) replies for comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
 - `maxUserComments` - Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.
 
 - `allowVoting` - Whether to allow voting.
@@ -126,7 +126,7 @@ return [
 - `securityModeration` - A collection of words that if entered require comments to be moderated.
 - `securitySpamlist` - A collection of words that if entered mark comments as spam.
 - `securityBanned` - A collection of words that if entered mark comments as trashed.
-- `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (eg. ‘craft’ will not match ‘crafty’).
+- `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (e.g. ‘craft’ will not match ‘crafty’).
 - `recaptchaKey` - The required key for reCAPTCHA.
 - `recaptchaSecret` - The required secret for reCAPTCHA.
 - `recaptchaMinScore` - The minimum "score" value returned from reCAPTCHA to rate the comment as spam.

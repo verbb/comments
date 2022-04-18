@@ -4,7 +4,7 @@ If you'd prefer to make your own templates for listing comments - go right ahead
 
 To override the `craft.comments.render()` tag templates, first create a folder in your Craft templates folder. For example, let's say you create the folder `templates/_comments`. Go to Settings → Comments → Custom Templates, and enter `_comments` in the **Template folder override** field provided, and hit Save.
 
-If you navigate to the front-end of your site, to the template that outputs `craft.comments.render()`, you'll notice no immediate difference or errors. This is because Comments will look for template overrides in your provided folder, but if no template files are provided, it'll fallback to the default templates. This is particularly useful, as you aren't reqiured to override **all** templates.
+If you navigate to the front-end of your site, to the template that outputs `craft.comments.render()`, you'll notice no immediate difference or errors. This is because Comments will look for template overrides in your provided folder, but if no template files are provided, it'll fall back to the default templates. This is particularly useful, as you aren't required to override **all** templates.
 
 To get started, it's worth taking the time to understand the structure of how Comments' templates go together.
 
@@ -33,11 +33,11 @@ We're using the `.html` extension here for clarity. You can use `.twig` or whate
 Let's start with the top-level `comments.html` template.
 
 :::tip
-Check out the raw templates on [Comment's Github](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) - they'll be the most up to date.
+Check out the raw templates on [Comment's GitHub](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) - they'll be the most up to date.
 :::
 
 ## Comments Templates
-The main template loaded when `craft.comments.render()` is called, is the `comments.html` template. To override the comments template, provide a file named `comments.html`. This template in turn includes many partials, which you can override individually. See [Overriding Partials](#overriding-partials)
+The main template loaded when `craft.comments.render()` is called, is the `comments.html` template. To override the comments' template, provide a file named `comments.html`. This template in turn includes many partials, which you can override individually. See [Overriding Partials](#overriding-partials)
 
 ### Available Template Variables
 Comments templates have access to the following variables:
@@ -50,7 +50,7 @@ Variable | Description
 `settings` | The plugin settings.
 
 ## Comment Form Templates
-The template that handles the user-input when making a comment, and caters for both logged-in users, and guest users. There are some required fields and settings that you must include however. Below is the bare-minimum form implementation with all required fields:
+The template that handles the user-input when making a comment, and caters for both logged-in users, and guest users. There are some required fields and settings that you must include, however. Below is the bare-minimum form implementation with all required fields:
 
 ```twig
 <form method="post" role="form" method="post" accept-charset="UTF-8">
@@ -98,7 +98,7 @@ You can also save custom fields to comments, but you'll be required to do your o
 ```
 
 ## Overriding Partials
-You'll have noticed in our preview of the templates directory, the inclusion of an `_includes` and `form-fields` directory. This houses partial templates that are used throughout the templates. This helps not only with re-use, but keeps things modular, which has a flow-on effect when you want to override _just_ a partial.
+You'll have noticed in our preview of the templates' directory, the inclusion of an `_includes` and `form-fields` directory. This houses partial templates that are used throughout the templates. This helps not only with re-use, but keeps things modular, which has a flow-on effect when you want to override _just_ a partial.
 
 The `comments.html` file sets up the comments and comments form, but also includes other partials like `_includes/comment.html` and `_includes/form.html`. Rather than overriding the `comments.html` file just to alter any one of these partials, you can override just the partial.
 
@@ -107,10 +107,10 @@ For example, let's say we want to override just the comment form, not the list o
 What this means in practice is a much more easily maintainable collection of custom template overrides for your project, where you don't need to duplicate all of Comment's own templates and keep them up to date.
 
 ### How it Works
-Comments' templates use a custom Twig function like `{{ commentsInclude('_includes/comment') }}`. This is in contrast to what you might be used to in your own templates, something like `{% include '_includes/comment' %}`. The drawback with this latter approach is how Comments resolves the template partial. Using `{% include %}` it will expect to find the template partial relative to the template file you're including it from. Instead, `commentsInclude()` will resolve the template partial to either your overrides folder, or Comments' default templates.
+Comments' templates use a custom Twig function like `{{ commentsInclude('_includes/comment') }}`. This is in contrast to what you might be used to in your own templates, something like `{% include '_includes/comment' %}`. The drawback with this latter approach is how Comments resolves the template partial. Using `{% include %}` it will expect to find the template partial relative to the template file you're including it from. Instead, `commentsInclude()` will resolve the template partial to either your overrides' folder, or Comments' default templates.
 
 ### Examples
-Let's take a look at some example use-cases for overriding partial templates. For all these examples, we'll assume you have a folder in your templates directory setup as `templates/_comments`.
+Let's take a look at some example use-cases for overriding partial templates. For all these examples, we'll assume you have a folder in your templates' directory setup as `templates/_comments`.
 
 #### Override comments
 You might want to add a wrapper `<div>` element, change element classes, or roll your own complete templates. In this instance create a `comments.html` file in your `_comments` folder and build your template(s). You can continue to use any of the default template partials using the `formieInclude` Twig function, or implement your own.
@@ -127,4 +127,4 @@ You might like to modify _just_ the template used for an Assets custom field for
 ## Non-JavaScript Examples
 We've put together an example using no JavaScript, for a more traditional approach. You'll also likely want to turn off `Output default JS` in the plugin settings.
 
-View these example templates via [Github](https://github.com/verbb/comments/tree/craft-3/examples).
+View these example templates via [GitHub](https://github.com/verbb/comments/tree/craft-3/examples).
