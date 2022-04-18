@@ -10,7 +10,7 @@ While the CSS and JS are an additional 7.3kb minified (2.3kb gzip), and 10.5kb m
 {{ craft.comments.render(entry.id) }}
 ```
 
-### Parameters
+## Parameters
 
 - `elementId` _(int)_ - The ID of the element to fetch comments on. Required.
 - `query` _(object)_ - Modify the [Comment Query](docs:getting-elements/comment-queries) used by the template. Optional

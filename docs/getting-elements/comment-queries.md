@@ -436,7 +436,7 @@ $comments = \verbb\comments\elements\Comment::find()
 
 
 
-## `hasDescendants`
+### `hasDescendants`
 
 Narrows the query results based on whether the comments have any descendants.
 

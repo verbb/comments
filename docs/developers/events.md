@@ -1,11 +1,9 @@
 # Events
-
 Events can be used to extend the functionality of Comments.
 
 ## Comment related events
 
 ### The `beforeSaveComment` event
-
 Plugins can get notified before a comment is saved. Event handlers can prevent the comment from getting sent by setting `$event->isValid` to false.
 
 ```php
@@ -19,7 +17,6 @@ Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(Event $e) {
 ```
 
 ### The `afterSaveComment` event
-
 Plugins can get notified after a comment has been saved
 
 ```php
@@ -35,7 +32,6 @@ Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(Event $e) {
 ## Flag related events
 
 ### The `beforeSaveFlag` event
-
 Plugins can get notified before an flag is saved
 
 ```php
@@ -49,7 +45,6 @@ Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $e) {
 ```
 
 ### The `afterSaveFlag` event
-
 Plugins can get notified after a flag has been saved
 
 ```php
@@ -63,7 +58,6 @@ Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $e) {
 ```
 
 ### The `beforeDeleteFlag` event
-
 Plugins can get notified before an flag is deleted
 
 ```php
@@ -77,7 +71,6 @@ Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $e) 
 ```
 
 ### The `afterDeleteFlag` event
-
 Plugins can get notified after a flag has been deleted
 
 ```php
@@ -94,7 +87,6 @@ Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $e) {
 ## Vote related events
 
 ### The `beforeSaveVote` event
-
 Plugins can get notified before an vote is saved
 
 ```php
@@ -108,7 +100,6 @@ Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $e) {
 ```
 
 ### The `afterSaveVote` event
-
 Plugins can get notified after a vote has been saved
 
 ```php
@@ -122,7 +113,6 @@ Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $e) {
 ```
 
 ### The `beforeDeleteVote` event
-
 Plugins can get notified before an vote is deleted
 
 ```php
@@ -136,7 +126,6 @@ Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $e) 
 ```
 
 ### The `afterDeleteVote` event
-
 Plugins can get notified after a vote has been deleted
 
 ```php
@@ -154,7 +143,6 @@ Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $e) {
 ## Notification related events
 
 ### The `beforeSendAuthorEmail` event
-
 Plugins can get notified before the author's email is sent
 
 ```php
@@ -169,7 +157,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAI
 ```
 
 ### The `beforeSendReplyEmail` event
-
 Plugins can get notified before a reply email is sent
 
 ```php
@@ -184,7 +171,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL
 ```
 
 ### The `beforeSendModeratorEmail` event
-
 Plugins can get notified before each moderator's email is sent
 
 ```php
@@ -199,7 +185,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_E
 ```
 
 ### The `beforeSendModeratorApprovedEmail` event
-
 Plugins can get notified before the moderator approved email is sent
 
 ```php
@@ -214,7 +199,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_A
 ```
 
 ### The `beforeSendSubscribeEmail` event
-
 Plugins can get notified before a subscribed element's email is sent. This is the email that is sent to all subscribers of an element, when a comment is made.
 
 ```php
@@ -229,7 +213,6 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_E
 ```
 
 ### The `beforeSendAdminEmail` event
-
 Plugins can get notified before the admin's email is sent
 
 ```php

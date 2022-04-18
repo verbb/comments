@@ -1,5 +1,4 @@
 # Comment
-
 Whenever you're dealing with a comment in your template, you're actually working with a `Comment` object.
 
 ## Attributes

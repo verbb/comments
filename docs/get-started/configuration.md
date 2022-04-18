@@ -86,7 +86,7 @@ return [
 ];
 ```
 
-### Configuration options
+## Configuration options
 - `indexSidebarLimit` - Set a limit for the number of elements in the comments index sidebar in the control panel.
 - `indexSidebarGroup` - Whether to group elements in the comments index sidebar in the control panel.
 - `indexSidebarIndividualElements` - Whether to show individual elements in the comments index sidebar in the control panel.
