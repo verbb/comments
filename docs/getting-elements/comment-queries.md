@@ -3,12 +3,12 @@
 You can fetch comments in your templates or PHP code using **comment queries**.
 
 :::code
-```twig
+```twig Twig
 {# Create a new comment query #}
 {% set myQuery = craft.comments.fetch() %}
 ```
 
-```php
+```php PHP
 // Create a new comment query
 $myQuery = \verbb\comments\elements\Comment::find();
 ```
