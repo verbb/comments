@@ -111,7 +111,7 @@
     <tbody>
         {% for field in fields %}
             {% set template = field.type ?? 'default' %}
-            {% set variables = field|merge({ feed: feed, feedData: feedData, attribute: true }) %}
+            {% set variables = field | merge({ feed: feed, feedData: feedData, attribute: true }) %}
 
             {% include [
                 'comments/_integrations/feed-me/fields/' ~ template,

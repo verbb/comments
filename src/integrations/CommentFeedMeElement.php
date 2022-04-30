@@ -116,6 +116,17 @@ class CommentFeedMeElement extends Element
         return $this->parseDateAttribute($value, $formatting);
     }
 
+    protected function parseParentId($feedData, $fieldInfo): ?int
+    {
+        $value = $this->fetchSimpleValue($feedData, $fieldInfo);
+
+        // In Craft 4, we need to explicitly call `setParentId()`, as it's no longer a property
+        // only available as a setter method.
+        $this->element->setParentId($value);
+
+        return $value;
+    }
+
     protected function parseOwnerId($feedData, $fieldInfo): ?int
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
@@ -226,8 +237,8 @@ class CommentFeedMeElement extends Element
             $processedElementIds = [];
 
             // Directly modify the field mapping data, because we're programatically adding
-            // the `newParentId`, which cannot be mapped.
-            $event->feed['fieldMapping']['newParentId'] = [
+            // the `parentId`, which cannot be mapped.
+            $event->feed['fieldMapping']['parentId'] = [
                 'attribute' => true,
                 'default' => $parentId,
             ];
