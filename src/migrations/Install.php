@@ -43,6 +43,7 @@ class Install extends Migration
 
     public function createTables(): void
     {
+        $this->archiveTableIfExists('{{%comments_comments}}');
         $this->createTable('{{%comments_comments}}', [
             'id' => $this->primaryKey(),
             'ownerId' => $this->integer(),
@@ -61,6 +62,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%comments_flags}}');
         $this->createTable('{{%comments_flags}}', [
             'id' => $this->primaryKey(),
             'commentId' => $this->integer(),
@@ -72,6 +74,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%comments_votes}}');
         $this->createTable('{{%comments_votes}}', [
             'id' => $this->primaryKey(),
             'commentId' => $this->integer(),
@@ -85,6 +88,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%comments_subscribe}}');
         $this->createTable('{{%comments_subscribe}}', [
             'id' => $this->primaryKey(),
             'ownerId' => $this->integer(),
