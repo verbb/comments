@@ -10,12 +10,11 @@ use verbb\comments\services\SecurityService;
 use verbb\comments\services\Service;
 use verbb\comments\services\SubscribeService;
 use verbb\comments\services\VotesService;
+use verbb\base\BaseHelper;
 
 use Craft;
 
 use yii\log\Logger;
-
-use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
@@ -28,13 +27,17 @@ trait PluginTrait
     // Static Methods
     // =========================================================================
 
-    public static function log($message): void
+    public static function log(string $message, array $params = []): void
     {
+        $message = Craft::t('comments', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
     }
 
-    public static function error($message): void
+    public static function error(string $message, array $params = []): void
     {
+        $message = Craft::t('comments', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
     }
 
@@ -86,7 +89,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents(): void
+    private function _registerComponents(): void
     {
         $this->setComponents([
             'comments' => CommentsService::class,
@@ -102,7 +105,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging(): void
+    private function _registerLogTarget(): void
     {
         BaseHelper::setFileLogging('comments');
     }
