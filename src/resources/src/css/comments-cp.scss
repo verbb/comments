@@ -42,13 +42,14 @@
 }
 
 .elements .tableview .toggle {
-    top: 5px;
+    top: 8px;
 }
 
 .comments-widget .comment-block,
 .content-pane .elements .comment-block {
     position: relative;
     margin-left: 5px;
+    font-weight: 400;
 
     .status {
         position: absolute;
