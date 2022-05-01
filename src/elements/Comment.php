@@ -720,32 +720,6 @@ class Comment extends Element
         return true;
     }
 
-    public function trashUrl(): bool|string
-    {
-        Craft::$app->getDeprecator()->log('trashUrl', '`trashUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/comment).');
-
-        $currentUser = Comments::$plugin->getService()->getUser();
-
-        // Only logged-in users can upvote a comment
-        if (!$currentUser) {
-            return false;
-        }
-
-        // We better have an author
-        if (!$this->getAuthor()) {
-            return false;
-        }
-
-        // Check that user is trying to trash their own comment
-        if ($currentUser->id !== $this->getAuthor()->id) {
-            return false;
-        }
-
-        return UrlHelper::actionUrl('comments/comments/trash', [
-            'commentId' => $this->id,
-        ]);
-    }
-
     public function getUser(): bool|User|null
     {
         if ($this->_user === null) {
@@ -772,20 +746,6 @@ class Comment extends Element
         $userId = $currentUser->id ?? null;
 
         return Comments::$plugin->getSubscribe()->hasSubscribed($this->ownerId, $this->ownerSiteId, $userId, $this->id);
-    }
-
-    public function flagUrl(): bool|string
-    {
-        Craft::$app->getDeprecator()->log('flagUrl', '`flagUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/flag).');
-
-        // Check if this user can flag comments
-        if (!$this->canFlag()) {
-            return false;
-        }
-
-        return UrlHelper::actionUrl('comments/comments/flag', [
-            'commentId' => $this->id,
-        ]);
     }
 
     public function hasFlagged(): bool
@@ -821,36 +781,6 @@ class Comment extends Element
         }
 
         return true;
-    }
-
-    public function downvoteUrl(): bool|string
-    {
-        Craft::$app->getDeprecator()->log('downvoteUrl', '`downvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
-
-        // Check if this user can vote on comments
-        if (!$this->canVote()) {
-            return false;
-        }
-
-        return UrlHelper::actionUrl('comments/comments/vote', [
-            'commentId' => $this->id,
-            'downvote' => true,
-        ]);
-    }
-
-    public function upvoteUrl(): bool|string
-    {
-        Craft::$app->getDeprecator()->log('upvoteUrl', '`upvoteUrl` has been deprecated. Use POST form instead, refer to [docs](https://verbb.io/craft-plugins/comments/docs/developers/vote).');
-
-        // Check if this user can vote on comments
-        if (!$this->canVote()) {
-            return false;
-        }
-
-        return UrlHelper::actionUrl('comments/comments/vote', [
-            'commentId' => $this->id,
-            'upvote' => true,
-        ]);
     }
 
     public function getVotes(): float|int
