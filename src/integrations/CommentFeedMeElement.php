@@ -29,7 +29,7 @@ class CommentFeedMeElement extends Element
     public static string $name = 'Comment';
     public static string $class = CommentElement::class;
 
-    public ?ElementInterface $element = null;
+    public $element = null;
 
 
     // Templates
