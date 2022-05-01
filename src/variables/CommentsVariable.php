@@ -109,22 +109,4 @@ class CommentsVariable
         return Comments::$plugin->getVotes()->getUpvotesByUserId($userId);
     }
 
-
-    // Deprecated Methods
-    // =========================================================================
-
-    public function all($criteria = null): CommentQuery
-    {
-        Craft::$app->getDeprecator()->log('craft.comments.all()', '`craft.comments.all()` has been deprecated. Use `craft.comments.fetch()` instead.');
-
-        return $this->fetch($criteria);
-    }
-
-    public function form($elementId, $criteria = []): Markup
-    {
-        Craft::$app->getDeprecator()->log('craft.comments.form()', '`craft.comments.form()` has been deprecated. Use `craft.comments.render()` instead.');
-
-        return $this->render($elementId, $criteria);
-    }
-
 }
