@@ -81,7 +81,6 @@ class Comments extends Plugin
         $this->_registerComponents();
         $this->_registerLogTarget();
         $this->_registerTwigExtensions();
-        $this->_registerPermissions();
         $this->_registerEmailMessages();
         $this->_registerVariables();
         $this->_registerFieldTypes();
@@ -92,13 +91,15 @@ class Comments extends Plugin
         $this->_checkDeprecations();
         $this->_registerFeedMeSupport();
 
-        $request = Craft::$app->getRequest();
-
-        if ($request->getIsCpRequest()) {
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
-            $this->_defineFieldLayoutElements();
+            $this->_registerFieldLayoutListener();
             $this->_registerTemplateHooks();
+        }
+
+        if (Craft::$app->getEdition() === Craft::Pro) {
+            $this->_registerPermissions();
         }
     }
 
@@ -359,7 +360,7 @@ class Comments extends Plugin
         });
     }
 
-    private function _defineFieldLayoutElements(): void
+    private function _registerFieldLayoutListener(): void
     {
         Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
             $fieldLayout = $e->sender;
