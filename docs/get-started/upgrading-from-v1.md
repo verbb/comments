@@ -13,3 +13,15 @@ Old | What to do instead
 | `verbb\comments\services\SecurityService` | `verbb\comments\services\Security`
 | `verbb\comments\services\SubscribeService` | `verbb\comments\services\Subscribe`
 | `verbb\comments\services\VotesService` | `verbb\comments\services\Votes`
+
+## Removed Methods
+The following methods have been removed.
+
+Old | What to do instead
+--- | ---
+| `Comment::trashUrl` | Use [form](https://verbb.io/craft-plugins/comments/docs/developers/comment) instead
+| `Comment::flagUrl` | Use [form](https://verbb.io/craft-plugins/comments/docs/developers/comment) instead
+| `Comment::downvoteUrl` | Use [form](https://verbb.io/craft-plugins/comments/docs/developers/comment) instead
+| `Comment::upvoteUrl` | Use [form](https://verbb.io/craft-plugins/comments/docs/developers/comment) instead
+| `craft.comments.all()` | Use `craft.comments.fetch()` instead.
+| `craft.comments.form()` | Use `craft.comments.render()` instead.
