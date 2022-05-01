@@ -40,7 +40,7 @@ Plugins can get notified before an flag is saved
 
 ```php
 use verbb\comments\events\FlagEvent;
-use verbb\comments\services\FlagsService as Flags;
+use verbb\comments\services\Flags;
 use yii\base\Event;
 
 Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $e) {
@@ -54,7 +54,7 @@ Plugins can get notified after a flag has been saved
 
 ```php
 use verbb\comments\events\FlagEvent;
-use verbb\comments\services\FlagsService as Flags;
+use verbb\comments\services\Flags;
 use yii\base\Event;
 
 Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $e) {
@@ -68,7 +68,7 @@ Plugins can get notified before an flag is deleted
 
 ```php
 use verbb\comments\events\FlagEvent;
-use verbb\comments\services\FlagsService as Flags;
+use verbb\comments\services\Flags;
 use yii\base\Event;
 
 Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $e) {
@@ -82,7 +82,7 @@ Plugins can get notified after a flag has been deleted
 
 ```php
 use verbb\comments\events\FlagEvent;
-use verbb\comments\services\FlagsService as Flags;
+use verbb\comments\services\Flags;
 use yii\base\Event;
 
 Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $e) {
@@ -99,7 +99,7 @@ Plugins can get notified before an vote is saved
 
 ```php
 use verbb\comments\events\VoteEvent;
-use verbb\comments\services\VotesService as Votes;
+use verbb\comments\services\Votes;
 use yii\base\Event;
 
 Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $e) {
@@ -113,7 +113,7 @@ Plugins can get notified after a vote has been saved
 
 ```php
 use verbb\comments\events\VoteEvent;
-use verbb\comments\services\VotesService as Votes;
+use verbb\comments\services\Votes;
 use yii\base\Event;
 
 Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $e) {
@@ -127,7 +127,7 @@ Plugins can get notified before an vote is deleted
 
 ```php
 use verbb\comments\events\VoteEvent;
-use verbb\comments\services\VotesService as Votes;
+use verbb\comments\services\Votes;
 use yii\base\Event;
 
 Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $e) {
@@ -141,7 +141,7 @@ Plugins can get notified after a vote has been deleted
 
 ```php
 use verbb\comments\events\VoteEvent;
-use verbb\comments\services\VotesService as Votes;
+use verbb\comments\services\Votes;
 use yii\base\Event;
 
 Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $e) {
@@ -159,7 +159,7 @@ Plugins can get notified before the author's email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $e) {
@@ -174,7 +174,7 @@ Plugins can get notified before a reply email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL, function(EmailEvent $e) {
@@ -189,7 +189,7 @@ Plugins can get notified before each moderator's email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $e) {
@@ -204,7 +204,7 @@ Plugins can get notified before the moderator approved email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, function(EmailEvent $e) {
@@ -219,7 +219,7 @@ Plugins can get notified before a subscribed element's email is sent. This is th
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, function(EmailEvent $e) {
@@ -234,7 +234,7 @@ Plugins can get notified before the admin's email is sent
 
 ```php
 use verbb\comments\events\EmailEvent;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use yii\base\Event;
 
 Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function(EmailEvent $e) {

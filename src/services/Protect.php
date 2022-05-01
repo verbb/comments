@@ -9,7 +9,7 @@ use craft\helpers\Json;
 
 use GuzzleHttp\Client;
 
-class ProtectService extends Component
+class Protect extends Component
 {
     // Constants
     // =========================================================================

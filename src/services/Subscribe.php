@@ -11,7 +11,7 @@ use Craft;
 use craft\base\Component;
 use craft\db\Query;
 
-class SubscribeService extends Component
+class Subscribe extends Component
 {
     // Constants
     // =========================================================================

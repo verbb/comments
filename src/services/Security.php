@@ -8,7 +8,7 @@ use craft\base\Component;
 
 use DateTime;
 
-class SecurityService extends Component
+class Security extends Component
 {
     // Public Methods
     // =========================================================================

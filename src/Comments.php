@@ -11,7 +11,7 @@ use verbb\comments\gql\mutations\Comment as CommentMutations;
 use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\integrations\CommentFeedMeElement;
 use verbb\comments\models\Settings;
-use verbb\comments\services\CommentsService;
+use verbb\comments\services\Comments as CommentsService;
 use verbb\comments\twigextensions\Extension;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\widgets\Comments as CommentsWidget;

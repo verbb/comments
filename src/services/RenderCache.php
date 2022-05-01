@@ -3,7 +3,7 @@ namespace verbb\comments\services;
 
 use craft\base\Component;
 
-class RenderCacheService extends Component
+class RenderCache extends Component
 {
     // Properties
     // =========================================================================

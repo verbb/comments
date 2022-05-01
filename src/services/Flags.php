@@ -12,7 +12,7 @@ use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
-class FlagsService extends Component
+class Flags extends Component
 {
     // Constants
     // =========================================================================

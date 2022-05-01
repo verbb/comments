@@ -12,7 +12,7 @@ use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\db\Query;
 
-class VotesService extends Component
+class Votes extends Component
 {
     // Constants
     // =========================================================================

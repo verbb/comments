@@ -36,7 +36,7 @@ use Throwable;
 
 use Twig\Markup;
 
-class CommentsService extends Component
+class Comments extends Component
 {
     // Constants
     // =========================================================================

@@ -2,14 +2,14 @@
 namespace verbb\comments\base;
 
 use verbb\comments\Comments;
-use verbb\comments\services\CommentsService;
-use verbb\comments\services\FlagsService;
-use verbb\comments\services\ProtectService;
-use verbb\comments\services\RenderCacheService;
-use verbb\comments\services\SecurityService;
+use verbb\comments\services\Comments as CommentsService;
+use verbb\comments\services\Flags;
+use verbb\comments\services\Protect;
+use verbb\comments\services\RenderCache;
+use verbb\comments\services\Security;
 use verbb\comments\services\Service;
-use verbb\comments\services\SubscribeService;
-use verbb\comments\services\VotesService;
+use verbb\comments\services\Subscribe;
+use verbb\comments\services\Votes;
 use verbb\base\BaseHelper;
 
 use Craft;
@@ -50,22 +50,22 @@ trait PluginTrait
         return $this->get('comments');
     }
 
-    public function getFlags(): FlagsService
+    public function getFlags(): Flags
     {
         return $this->get('flags');
     }
 
-    public function getProtect(): ProtectService
+    public function getProtect(): Protect
     {
         return $this->get('protect');
     }
 
-    public function getRenderCache(): RenderCacheService
+    public function getRenderCache(): RenderCache
     {
         return $this->get('renderCache');
     }
 
-    public function getSecurity(): SecurityService
+    public function getSecurity(): Security
     {
         return $this->get('security');
     }
@@ -75,12 +75,12 @@ trait PluginTrait
         return $this->get('service');
     }
 
-    public function getSubscribe(): SubscribeService
+    public function getSubscribe(): Subscribe
     {
         return $this->get('subscribe');
     }
 
-    public function getVotes(): VotesService
+    public function getVotes(): Votes
     {
         return $this->get('votes');
     }
@@ -93,13 +93,13 @@ trait PluginTrait
     {
         $this->setComponents([
             'comments' => CommentsService::class,
-            'flags' => FlagsService::class,
-            'protect' => ProtectService::class,
-            'renderCache' => RenderCacheService::class,
-            'security' => SecurityService::class,
+            'flags' => Flags::class,
+            'protect' => Protect::class,
+            'renderCache' => RenderCache::class,
+            'security' => Security::class,
             'service' => Service::class,
-            'subscribe' => SubscribeService::class,
-            'votes' => VotesService::class,
+            'subscribe' => Subscribe::class,
+            'votes' => Votes::class,
         ]);
 
         BaseHelper::registerModule();
