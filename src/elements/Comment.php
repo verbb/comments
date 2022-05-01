@@ -30,6 +30,7 @@ use craft\validators\SiteIdValidator;
 use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
+use Throwable;
 use Exception;
 use DateTime;
 
@@ -216,66 +217,70 @@ class Comment extends Element
         }
 
         foreach ($commentedElements as $element) {
-            $elementGroupPrefix = '';
-            $displayName = $element['type']::pluralDisplayName();
+            try {
+                $elementGroupPrefix = '';
+                $displayName = $element['type']::pluralDisplayName();
 
-            switch ($element['type']) {
-                case Entry::class:
-                    $elementGroupPrefix = 'section';
-                    break;
-                case Category::class:
-                    $elementGroupPrefix = 'categorygroup';
-                    break;
-                case Asset::class:
-                    $elementGroupPrefix = 'volume';
-                    break;
-                case User::class:
-                    $elementGroupPrefix = 'usergroup';
-                    break;
-            }
+                switch ($element['type']) {
+                    case Entry::class:
+                        $elementGroupPrefix = 'section';
+                        break;
+                    case Category::class:
+                        $elementGroupPrefix = 'categorygroup';
+                        break;
+                    case Asset::class:
+                        $elementGroupPrefix = 'volume';
+                        break;
+                    case User::class:
+                        $elementGroupPrefix = 'usergroup';
+                        break;
+                }
 
-            $key = 'type:' . $element['type'];
+                $key = 'type:' . $element['type'];
 
-            $sources[$key] = ['heading' => $displayName];
+                $sources[$key] = ['heading' => $displayName];
 
-            $sources[$key . ':all'] = [
-                'key' => $key . ':all',
-                'label' => Craft::t('comments', 'All {elements}', ['elements' => $displayName]),
-                'structureId' => self::getStructureId(),
-                'structureEditable' => false,
-                'criteria' => [
-                    'ownerType' => $element['type'],
-                ],
-                'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
-            ];
-
-            // Just do sections for the moment
-            if ($indexSidebarGroup && $elementGroupPrefix == 'section' && $element['sectionId']) {
-                $section = $sectionsById[$element['sectionId']] ?? '';
-
-                $sources[$elementGroupPrefix . ':' . $element['sectionId']] = [
-                    'key' => $elementGroupPrefix . ':' . $element['sectionId'],
-                    'label' => $section->name ?? '',
+                $sources[$key . ':all'] = [
+                    'key' => $key . ':all',
+                    'label' => Craft::t('comments', 'All {elements}', ['elements' => $displayName]),
                     'structureId' => self::getStructureId(),
                     'structureEditable' => false,
                     'criteria' => [
-                        'ownerSectionId' => $element['sectionId'],
+                        'ownerType' => $element['type'],
                     ],
                     'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
                 ];
-            }
 
-            if ($indexSidebarIndividualElements) {
-                $sources['elements:' . $element['ownerId']] = [
-                    'key' => 'elements:' . $element['ownerId'],
-                    'label' => $element['title'],
-                    'structureId' => self::getStructureId(),
-                    'structureEditable' => false,
-                    'criteria' => [
-                        'ownerId' => $element['ownerId'],
-                    ],
-                    'defaultSort' => ['structure', 'asc'],
-                ];
+                // Just do sections for the moment
+                if ($indexSidebarGroup && $elementGroupPrefix == 'section' && $element['sectionId']) {
+                    $section = $sectionsById[$element['sectionId']] ?? '';
+
+                    $sources[$elementGroupPrefix . ':' . $element['sectionId']] = [
+                        'key' => $elementGroupPrefix . ':' . $element['sectionId'],
+                        'label' => $section->name ?? '',
+                        'structureId' => self::getStructureId(),
+                        'structureEditable' => false,
+                        'criteria' => [
+                            'ownerSectionId' => $element['sectionId'],
+                        ],
+                        'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
+                    ];
+                }
+
+                if ($indexSidebarIndividualElements) {
+                    $sources['elements:' . $element['ownerId']] = [
+                        'key' => 'elements:' . $element['ownerId'],
+                        'label' => $element['title'],
+                        'structureId' => self::getStructureId(),
+                        'structureEditable' => false,
+                        'criteria' => [
+                            'ownerId' => $element['ownerId'],
+                        ],
+                        'defaultSort' => ['structure', 'asc'],
+                    ];
+                }
+            } catch (Throwable $e) {
+                continue;
             }
         }
 
