@@ -20,6 +20,10 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\db\Table;
+use craft\console\Application as ConsoleApplication;
+use craft\console\Controller as ConsoleController;
+use craft\console\controllers\ResaveController;
+use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
@@ -96,6 +100,10 @@ class Comments extends Plugin
             $this->_registerWidgets();
             $this->_registerFieldLayoutListener();
             $this->_registerTemplateHooks();
+        }
+
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->_registerResaveCommand();
         }
 
         if (Craft::$app->getEdition() === Craft::Pro) {
@@ -420,6 +428,25 @@ class Comments extends Plugin
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = CommentsWidget::class;
+        });
+    }
+
+    private function _registerResaveCommand(): void
+    {
+        if (!Craft::$app instanceof ConsoleApplication) {
+            return;
+        }
+
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
+            $e->actions['comments-comments'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $query = Comment::find();
+                    return $controller->resaveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Comments comments.',
+            ];
         });
     }
 
