@@ -1,7 +1,7 @@
 <?php
 namespace verbb\comments\services;
 
-use verbb\comments\Comments;
+use verbb\comments\Comments as CommentsPlugin;
 use verbb\comments\assetbundles\FrontEndAsset;
 use verbb\comments\elements\Comment;
 use verbb\comments\elements\db\CommentQuery;
@@ -74,7 +74,7 @@ class Comments extends Component
 
     public function render($elementId, $criteria = [], $jsSettings = []): Markup
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
         $view = Craft::$app->getView();
 
         $oldTemplatesPath = $view->getTemplatesPath();
@@ -105,7 +105,7 @@ class Comments extends Component
 
     public function getRenderVariables($id, $elementId, $criteria = []): ?array
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         // Prepare variables to pass to templates - important to include route params
         $routeParams = Craft::$app->getUrlManager()->getRouteParams();
@@ -140,7 +140,7 @@ class Comments extends Component
 
     public function getRenderJsVariables($id, $elementId, $criteria = [], $jsSettings = []): array
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         // Normalise the action URL
         $actionUrl = trim(UrlHelper::actionUrl(), '/');
@@ -168,7 +168,7 @@ class Comments extends Component
 
     public function renderComment($comment): string
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
         $view = Craft::$app->getView();
 
         // Only approved comments can be rendered
@@ -199,7 +199,7 @@ class Comments extends Component
     public function checkPermissions($element): bool
     {
         // Get the global permissions settings
-        $permissions = Comments::$plugin->getSettings()->permissions;
+        $permissions = CommentsPlugin::$plugin->getSettings()->permissions;
 
         if (!$element) {
             return false;
@@ -246,7 +246,7 @@ class Comments extends Component
 
     public function checkExpired($element): bool
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         // Has this element's publish date exceeded the set auto-close limit? Does it even have an auto-close limit?
         if ($settings->autoCloseDays) {
@@ -263,7 +263,7 @@ class Comments extends Component
 
     public function sendNotificationEmail($type, $comment): void
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         if ($settings->useQueueForNotifications) {
             Craft::$app->getQueue()->push(new SendNotification([
@@ -296,15 +296,15 @@ class Comments extends Component
 
     public function sendAdminNotificationEmail(Comment $comment): void
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
-        Comments::log('Prepare Admin Notifications.');
+        CommentsPlugin::log('Prepare Admin Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send admin notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send admin notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -312,7 +312,7 @@ class Comments extends Component
         $notificationAdmins = $settings->getEnabledNotificationAdmins();
 
         if (!$notificationAdmins) {
-            Comments::log('Cannot send admin notification: No enabled admin emails.');
+            CommentsPlugin::log('Cannot send admin notification: No enabled admin emails.');
 
             return;
         }
@@ -336,31 +336,31 @@ class Comments extends Component
                 $this->trigger(self::EVENT_BEFORE_SEND_ADMIN_EMAIL, $event);
 
                 if (!$event->isValid) {
-                    Comments::log('Email blocked via event hook.');
+                    CommentsPlugin::log('Email blocked via event hook.');
 
                     continue;
                 }
 
                 $mail->send();
 
-                Comments::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
+                CommentsPlugin::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
-                Comments::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
     }
 
     public function sendFlagNotificationEmail(Comment $comment): void
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
-        Comments::log('Prepare Flag Notifications.');
+        CommentsPlugin::log('Prepare Flag Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send flag notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send flag notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -368,7 +368,7 @@ class Comments extends Component
         $notificationAdmins = $settings->getEnabledNotificationAdmins();
 
         if (!$notificationAdmins) {
-            Comments::log('Cannot send flag notification: No enabled admin emails.');
+            CommentsPlugin::log('Cannot send flag notification: No enabled admin emails.');
 
             return;
         }
@@ -392,16 +392,16 @@ class Comments extends Component
                 $this->trigger(self::EVENT_BEFORE_SEND_FLAG_EMAIL, $event);
 
                 if (!$event->isValid) {
-                    Comments::log('Email blocked via event hook.');
+                    CommentsPlugin::log('Email blocked via event hook.');
 
                     continue;
                 }
 
                 $mail->send();
 
-                Comments::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
+                CommentsPlugin::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
-                Comments::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
     }
@@ -411,13 +411,13 @@ class Comments extends Component
         $recipient = null;
         $emailSent = null;
 
-        Comments::log('Prepare Author Notifications.');
+        CommentsPlugin::log('Prepare Author Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send element author notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send element author notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -432,25 +432,25 @@ class Comments extends Component
                 $recipient = $element->getAuthor();
             }
         } catch (Throwable $e) {
-            Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
+            CommentsPlugin::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
         if (!$recipient) {
-            Comments::log('Cannot send element author notification: No recipient ' . Json::encode($recipient));
+            CommentsPlugin::log('Cannot send element author notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
 
         // If the author and commenter are the same user - don't send
         if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
-            Comments::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+            CommentsPlugin::log('Cannot send element author notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
 
             return;
         }
 
         // If the author and commenter have the same email - don't send
         if ($comment->email === $recipient->email) {
-            Comments::log('Cannot send element author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
+            CommentsPlugin::log('Cannot send element author notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
@@ -473,37 +473,37 @@ class Comments extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_AUTHOR_EMAIL, $event);
 
             if (!$event->isValid) {
-                Comments::log('Email blocked via event hook.');
+                CommentsPlugin::log('Email blocked via event hook.');
 
                 return;
             }
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            Comments::error('Error sending element author notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending element author notification: ' . $e->getMessage());
         }
 
         if ($emailSent) {
-            Comments::log('Email sent successfully to element author (' . $recipient->email . ')');
+            CommentsPlugin::log('Email sent successfully to element author (' . $recipient->email . ')');
         } else {
-            Comments::error('Unable to send email to element author (' . $recipient->email . ')');
+            CommentsPlugin::error('Unable to send email to element author (' . $recipient->email . ')');
         }
     }
 
     public function sendReplyNotificationEmail(Comment $comment): void
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         $recipient = null;
         $emailSent = null;
 
-        Comments::log('Prepare Reply Notifications.');
+        CommentsPlugin::log('Prepare Reply Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send reply notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send reply notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -512,7 +512,7 @@ class Comments extends Component
         $parentComment = $comment->getParent();
 
         if (!$parentComment) {
-            Comments::log('Cannot send reply notification: No parent comment ' . Json::encode($parentComment));
+            CommentsPlugin::log('Cannot send reply notification: No parent comment ' . Json::encode($parentComment));
 
             return;
         }
@@ -521,21 +521,21 @@ class Comments extends Component
         $recipient = $parentComment->getAuthor();
 
         if (!$recipient) {
-            Comments::log('Cannot send reply notification: No recipient ' . Json::encode($recipient));
+            CommentsPlugin::log('Cannot send reply notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
 
         // If the author and commenter are the same user - don't send
         if ($comment->userId && $recipient->id && $comment->userId === $recipient->id) {
-            Comments::log('Cannot send reply notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
+            CommentsPlugin::log('Cannot send reply notification: Commenter #' . $comment->userId . ' same as author #' . $recipient->id . '.');
 
             return;
         }
 
         // If the author and commenter have the same email - don't send
         if ($comment->email === $recipient->email) {
-            Comments::log('Cannot send reply notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
+            CommentsPlugin::log('Cannot send reply notification: Commenter ' . $comment->email . ' has same email as author ' . $recipient->email . '.');
 
             return;
         }
@@ -558,44 +558,44 @@ class Comments extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_REPLY_EMAIL, $event);
 
             if (!$event->isValid) {
-                Comments::log('Email blocked via event hook.');
+                CommentsPlugin::log('Email blocked via event hook.');
 
                 return;
             }
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            Comments::error('Error sending reply notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending reply notification: ' . $e->getMessage());
         }
 
         if ($emailSent) {
-            Comments::log('Email sent successfully comment author (' . $recipient->email . ')');
+            CommentsPlugin::log('Email sent successfully comment author (' . $recipient->email . ')');
         } else {
-            Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
+            CommentsPlugin::error('Unable to send email to comment author (' . $recipient->email . ')');
         }
     }
 
     public function sendModeratorNotificationEmail(Comment $comment): void
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         $recipient = null;
         $emailSent = null;
 
-        Comments::log('Prepare Moderator Notifications.');
+        CommentsPlugin::log('Prepare Moderator Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send moderator notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send moderator notification: No element ' . Json::encode($element));
 
             return;
         }
 
         // Get our recipients - they're a user group
         if (!$settings->moderatorUserGroup) {
-            Comments::log('Cannot send moderator notification: No moderator group set.');
+            CommentsPlugin::log('Cannot send moderator notification: No moderator group set.');
 
             return;
         }
@@ -622,16 +622,16 @@ class Comments extends Component
                 $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, $event);
 
                 if (!$event->isValid) {
-                    Comments::log('Email blocked via event hook.');
+                    CommentsPlugin::log('Email blocked via event hook.');
 
                     continue;
                 }
 
                 $mail->send();
 
-                Comments::log('Email sent successfully to moderator (' . $user->email . ')');
+                CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
             } catch (Throwable $e) {
-                Comments::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
             }
         }
     }
@@ -641,13 +641,13 @@ class Comments extends Component
         $recipient = null;
         $emailSent = null;
 
-        Comments::log('Prepare Moderator Approved Notifications.');
+        CommentsPlugin::log('Prepare Moderator Approved Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send comment author notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send comment author notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -656,7 +656,7 @@ class Comments extends Component
         $recipient = $comment->getAuthor();
 
         if (!$recipient) {
-            Comments::log('Cannot send comment author notification: No recipient ' . Json::encode($recipient));
+            CommentsPlugin::log('Cannot send comment author notification: No recipient ' . Json::encode($recipient));
 
             return;
         }
@@ -679,20 +679,20 @@ class Comments extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $event);
 
             if (!$event->isValid) {
-                Comments::log('Email blocked via event hook.');
+                CommentsPlugin::log('Email blocked via event hook.');
 
                 return;
             }
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            Comments::error('Error sending comment author notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending comment author notification: ' . $e->getMessage());
         }
 
         if ($emailSent) {
-            Comments::log('Email sent successfully to comment author (' . $recipient->email . ')');
+            CommentsPlugin::log('Email sent successfully to comment author (' . $recipient->email . ')');
         } else {
-            Comments::error('Unable to send email to comment author (' . $recipient->email . ')');
+            CommentsPlugin::error('Unable to send email to comment author (' . $recipient->email . ')');
         }
     }
 
@@ -701,13 +701,13 @@ class Comments extends Component
         $recipients = null;
         // $emailSent = null;
 
-        Comments::log('Prepare Subscribe Notifications.');
+        CommentsPlugin::log('Prepare Subscribe Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            Comments::log('Cannot send subscribe notification: No element ' . Json::encode($element));
+            CommentsPlugin::log('Cannot send subscribe notification: No element ' . Json::encode($element));
 
             return;
         }
@@ -715,7 +715,7 @@ class Comments extends Component
         $subscribedUserIds = [];
 
         // Get all users subscribed to this element, generally.
-        $elementSubscribers = Comments::$plugin->getSubscribe()->getAllSubscribers($element->id, $element->siteId, null);
+        $elementSubscribers = CommentsPlugin::$plugin->getSubscribe()->getAllSubscribers($element->id, $element->siteId, null);
 
         foreach ($elementSubscribers as $elementSubscriber) {
             $subscribedUserIds[] = $elementSubscriber->userId;
@@ -732,7 +732,7 @@ class Comments extends Component
                 continue;
             }
 
-            $hasSubscribed = Comments::$plugin->getSubscribe()->hasSubscribed($element->id, $element->siteId, $ancestor->userId, $ancestor->id);
+            $hasSubscribed = CommentsPlugin::$plugin->getSubscribe()->hasSubscribed($element->id, $element->siteId, $ancestor->userId, $ancestor->id);
 
             if ($hasSubscribed) {
                 $subscribedUserIds[] = $ancestor->userId;
@@ -743,7 +743,7 @@ class Comments extends Component
         $subscribedUserIds = array_unique($subscribedUserIds);
 
         if (!$subscribedUserIds) {
-            Comments::log('No users subscribed to this element.');
+            CommentsPlugin::log('No users subscribed to this element.');
 
             return;
         }
@@ -753,13 +753,13 @@ class Comments extends Component
                 $user = Craft::$app->getElements()->getElementById($subscribedUserId, User::class);
 
                 if (!$user) {
-                    Comments::log('Unable to find user with ID: ' . $subscribedUserId);
+                    CommentsPlugin::log('Unable to find user with ID: ' . $subscribedUserId);
 
                     continue;
                 }
 
                 // Skip for current user
-                $currentUser = Comments::$plugin->getService()->getUser();
+                $currentUser = CommentsPlugin::$plugin->getService()->getUser();
 
                 if ($currentUser && $user->id == $currentUser->id) {
                     continue;
@@ -786,18 +786,18 @@ class Comments extends Component
                 $this->trigger(self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, $event);
 
                 if (!$event->isValid) {
-                    Comments::log('Email blocked via event hook.');
+                    CommentsPlugin::log('Email blocked via event hook.');
 
                     continue;
                 }
 
                 if ($message->send()) {
-                    Comments::log('Email sent successfully to subscriber (' . $user->email . ')');
+                    CommentsPlugin::log('Email sent successfully to subscriber (' . $user->email . ')');
                 } else {
-                    Comments::error('Unable to send email to subscriber (' . $user->email . ')');
+                    CommentsPlugin::error('Unable to send email to subscriber (' . $user->email . ')');
                 }
             } catch (Throwable $e) {
-                Comments::error('Error sending subscribe reply notification: ' . $e->getMessage());
+                CommentsPlugin::error('Error sending subscribe reply notification: ' . $e->getMessage());
 
                 continue;
             }
@@ -881,7 +881,7 @@ class Comments extends Component
 
     public function getComponentTemplatePath(string $component): string
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         $view = Craft::$app->getView();
         $oldTemplatePath = $view->getTemplatesPath();
@@ -936,7 +936,7 @@ class Comments extends Component
 
     private function _renderEmail($key, $variables)
     {
-        $settings = Comments::$plugin->getSettings();
+        $settings = CommentsPlugin::$plugin->getSettings();
 
         $mailer = Craft::$app->getMailer();
         $message = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
@@ -964,7 +964,7 @@ class Comments extends Component
                 'body' => Template::raw(Markdown::process($textBody)),
             ]), $templateMode));
         } catch (Throwable $e) {
-            Comments::error('Error rendering email template: ' . $e->getMessage());
+            CommentsPlugin::error('Error rendering email template: ' . $e->getMessage());
         }
 
         return $message;
