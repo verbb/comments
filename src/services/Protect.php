@@ -6,6 +6,7 @@ use verbb\comments\Comments;
 use Craft;
 use craft\base\Component;
 use craft\helpers\Json;
+use craft\web\View;
 
 use GuzzleHttp\Client;
 
@@ -54,11 +55,12 @@ class Protect extends Component
         if ($settings->recaptchaEnabled) {
             $captchaResponse = Craft::$app->getRequest()->getParam('g-recaptcha-response');
 
-            if (!$captchaResponse) {
+            // Protect against invalid data being sent. No need to log, likely malicious
+            if (!$captchaResponse || !is_string($captchaResponse)) {
                 return false;
             }
 
-            $client = new Client();
+            $client = Craft::createGuzzleClient();
 
             $response = $client->post(self::VERIFY_URL, [
                 'form_params' => [
@@ -70,9 +72,11 @@ class Protect extends Component
 
             $result = Json::decode((string)$response->getBody(), true);
 
-            if (!$result['success']) {
-                return false;
+            if (isset($result['score'])) {
+                return ($result['score'] >= $settings->recaptchaMinScore);
             }
+
+            return $result['success'] ?? false;
         }
 
         return true;

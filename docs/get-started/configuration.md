@@ -1,6 +1,7 @@
 # Configuration
+Create a `comments.php` file under your `/config` directory with the following options available to you. You can also use multi-environment options to change these per environment.
 
-Create an `comments.php` file under your `/config` directory with the following options available to you. You can also use multi-environment options to change these per environment.
+The below shows the defaults already used by Comments, so you don't need to add these options unless you want to modify the values.
 
 ```php
 <?php
@@ -56,6 +57,7 @@ return [
         'recaptchaEnabled' => false,
         'recaptchaKey' => '',
         'recaptchaSecret' => '',
+        'recaptchaMinScore' => 0.5,
 
         // Notifications
         'notificationAuthorEnabled' => true,
@@ -84,8 +86,7 @@ return [
 ];
 ```
 
-### Configuration options
-
+## Configuration options
 - `indexSidebarLimit` - Set a limit for the number of elements in the comments index sidebar in the control panel.
 - `indexSidebarGroup` - Whether to group elements in the comments index sidebar in the control panel.
 - `indexSidebarIndividualElements` - Whether to show individual elements in the comments index sidebar in the control panel.
@@ -98,7 +99,7 @@ return [
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
 - `autoCloseDays` - Number of days until commenting is automatically closed. This uses the "Post Date" of an element. 0 to disable.
-- `maxReplyDepth` - Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
+- `maxReplyDepth` - Set the number of levels (depth) replies for comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
 - `maxUserComments` - Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.
 
 - `allowVoting` - Whether to allow voting.
@@ -125,9 +126,10 @@ return [
 - `securityModeration` - A collection of words that if entered require comments to be moderated.
 - `securitySpamlist` - A collection of words that if entered mark comments as spam.
 - `securityBanned` - A collection of words that if entered mark comments as trashed.
-- `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (eg. ‘craft’ will not match ‘crafty’).
-- `recaptchaKey` - The required key for ReCAPTCHA.
-- `recaptchaSecret` - The required secret for ReCAPTCHA.
+- `securityMatchExact` - Whether to enable exact keyword matching. With this turned on, it will no longer match words within other words (e.g. ‘craft’ will not match ‘crafty’).
+- `recaptchaKey` - The required key for reCAPTCHA.
+- `recaptchaSecret` - The required secret for reCAPTCHA.
+- `recaptchaMinScore` - The minimum "score" value returned from reCAPTCHA to rate the comment as spam.
 
 - `notificationAuthorEnabled` - Whether to notify element authors when a comment is made.
 - `notificationReplyEnabled` - Whether to notify comment authors when a reply is made.
@@ -146,9 +148,7 @@ return [
 - `sortDefaultKey` and `sortDefaultDirection` - Changes the default sort order in the control panel when viewing all comments. (Does not affect the front-end).
 
 ## Control Panel
-
 You can also manage configuration settings through the Control Panel by visiting Settings → Comments.
-
 
 ### `notificationAdmins`
 Provide a nested array of emails, each with an `enabled` item.

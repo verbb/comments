@@ -1,15 +1,12 @@
 # Anti Spam
-
-The Comments plugin provides some protection against spam bots filling out your comment forms. By including the `{{ craft.comments.protect() }}` call in your form template, you'll be protected from the below methods.
+The Comments plugin provides some protection against spam-bots filling out your comment forms. By including the `{{ craft.comments.protect() }}` call in your form template, you'll be protected from the below methods.
 
 ## reCAPTCHA
-
 Arguably the best spam-protection service out there from Google, [reCAPTCHA v3](https://www.google.com/recaptcha) can protect your comments from spam-submission. Best of all, being an invisible CAPTCHA field means your users don't have to do anything - it just works.
 
 Turn this on by enabling the `Enable reCAPTCHA` setting in the plugin settings, and fill in your `Site Key` and `Secret Key`. To create these keys, head to the [reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin).
 
 ## Additional Protection
-
 Instead of, or in addition to reCAPTCHA, there are 3 main methods below that are incorporated into Comments.
 
 **Prevent non-browser form submissions**
@@ -18,7 +15,7 @@ This method ensures that your form is submitted from your website and not from a
 
 **Users must have JavaScript enabled**
 
-Often, when robots access your website programatically, they do not have Javascript enabled. The Javascript spam protection method tests if a user submitting your form has Javascript enabled in their browser and rejects the submission if they do not.
+Often, when robots access your website programmatically, they do not have Javascript enabled. The Javascript spam protection method tests if a user submitting your form has Javascript enabled in their browser and rejects the submission if they do not.
 
 **Prevent against robots who auto-fill all of your form fields**
 

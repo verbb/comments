@@ -1,8 +1,7 @@
 # Vote
+Users can vote on a comment, which they may agree, or disagree with. Note that only logged-in users should be able to vote on a comment.
 
-Users can vote on a comment, which they may agree, or disagree with. Note that only logged in users should be able to vote on a comment.
-
-### Attributes
+## Attributes
 
 Attribute | Description
 --- | ---
@@ -13,7 +12,6 @@ Attribute | Description
 `downvote` | If this vote was recorded as an downvote.
 
 ## Up-vote a comment
-
 You can upvote a comment using a POST request to an action controller, and the following template code. You must supply a `commentId`, `siteId` and `upvote` in your form.
 
 ```twig
@@ -29,7 +27,6 @@ You can upvote a comment using a POST request to an action controller, and the f
 ```
 
 ## Down-vote a comment
-
 You can downvote a comment using a POST request to an action controller, and the following template code. You must supply a `commentId`, `siteId` and `downvote` in your form.
 
 ```twig

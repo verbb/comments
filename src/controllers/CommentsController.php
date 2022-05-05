@@ -151,8 +151,11 @@ class CommentsController extends Controller
         $request = Craft::$app->getRequest();
         $siteId = $request->getParam('siteId');
 
-        // Get the current set requested site
-        $currentSite = Craft::$app->getSites()->getSiteById($siteId);
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+
+        if ($siteId) {
+            $currentSite = Craft::$app->getSites()->getSiteById($siteId);
+        }
 
         $comment = $this->_setCommentFromPost();
         $comment->setScenario(Comment::SCENARIO_FRONT_END);

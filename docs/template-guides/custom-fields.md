@@ -13,7 +13,7 @@ Whilst you can add any Craft custom field to the comments form, currently Commen
 - Radio Buttons
 - URL
 
-If you want to support any additional custom fields, or your own, you'll need to write your own templates for them. Check out the check out the [source code](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) for existing field templates as a start.
+If you want to support any additional custom fields, or your own, you'll need to write your own templates for them. Check out the [source code](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) for existing field templates as a start.
 
 ## Customising
 If you choose to use your own templates, you can output custom fields any manner of ways. To fetch the custom fields you've defined for Comments, you can use the following:
@@ -31,7 +31,7 @@ If you choose to use your own templates, you can output custom fields any manner
 
 From the above, you have access to a `field` variable, which is a [Field](https://docs.craftcms.com/api/v3/craft-base-field.html) model. Take note of the `name` attribute for inputs, which is the only required template portion you need to adhere to. These must be formatted like `fields[myFieldHandle]` in order for values to be saved to the comment element. Otherwise, you have complete control over everything else.
 
-Another example might be you want to just include some of the custom field you've added to Comments, rather than all of them. In this instance, you need to take note of the field handles for the fields you want to include.
+Another example might be you want to just include some custom fields you've added to Comments, rather than all of them. In this instance, you need to take note of the field handles for the fields you want to include.
 
 ```twig
 <input type="file" name="fields[myFieldHandle][]" multiple>
