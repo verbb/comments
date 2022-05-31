@@ -64,7 +64,7 @@ Possible values include:
 | a [DateTime](http://php.net/class.datetime) object | that were posted after the date represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments posted this month #}
 {% set firstDayOfMonth = date('first day of this month') %}
 
@@ -73,7 +73,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments posted this month
 $firstDayOfMonth = new \DateTime('first day of this month');
 
@@ -90,7 +90,7 @@ $comments = \verbb\comments\elements\Comment::find()
 Narrows the query results to only comments that are up to a certain distance away from the comment specified by [ancestorOf](#ancestorof).
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments above this one #}
 {% set comments = craft.comments.fetch()
     .ancestorOf(comment)
@@ -98,7 +98,7 @@ Narrows the query results to only comments that are up to a certain distance awa
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments above this one
 $comments = \verbb\comments\elements\Comment::find()
     ->ancestorOf($comment)
@@ -121,14 +121,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | above the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments above this one #}
 {% set comments = craft.comments.fetch()
     .ancestorOf(comment)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments above this one
 $comments = \verbb\comments\elements\Comment::find()
     ->ancestorOf($comment)
@@ -147,14 +147,14 @@ This can be combined with [ancestorDist](#ancestordist) if you want to limit how
 Clears out the [status()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all comments, regardless of status #}
 {% set comments = craft.comments.fetch()
     .anyStatus()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all comments, regardless of status
 $comments = \verbb\comments\elements\Comment::find()
     ->anyStatus()
@@ -169,14 +169,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Causes the query to return matching comments as arrays of data, rather than [Comment](docs:developers/comment) objects.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments as arrays #}
 {% set comments = craft.comments.fetch()
     .asArray()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments as arrays
 $comments = \verbb\comments\elements\Comment::find()
     ->asArray()
@@ -198,7 +198,7 @@ Possible values include:
 | a [DateTime](http://php.net/class.datetime) object | that were posted before the date represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments posted before this month #}
 {% set firstDayOfMonth = date('first day of this month') %}
 
@@ -207,7 +207,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments posted before this month
 $firstDayOfMonth = new \DateTime('first day of this month');
 
@@ -232,7 +232,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments created last month #}
 {% set start = date('first day of last month') | atom %}
 {% set end = date('first day of this month') | atom %}
@@ -242,7 +242,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments created last month
 $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
@@ -268,7 +268,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments created last month #}
 {% set start = date('first day of last month') | atom %}
 {% set end = date('first day of this month') | atom %}
@@ -278,7 +278,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments created last month
 $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
@@ -304,7 +304,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were updated between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments updated in the last week #}
 {% set lastWeek = date('1 week ago')|atom %}
 
@@ -313,7 +313,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments updated in the last week
 $lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
 
@@ -330,7 +330,7 @@ $comments = \verbb\comments\elements\Comment::find()
 Narrows the query results to only comments that are up to a certain distance away from the comment specified by [descendantOf](#descendantof).
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments below this one #}
 {% set comments = craft.comments.fetch()
     .descendantOf(comment)
@@ -338,7 +338,7 @@ Narrows the query results to only comments that are up to a certain distance awa
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments below this one
 $comments = \verbb\comments\elements\Comment::find()
     ->descendantOf($comment)
@@ -361,14 +361,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | below the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments below this one #}
 {% set comments = craft.comments.fetch()
     .descendantOf(comment)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments below this one
 $comments = \verbb\comments\elements\Comment::find()
     ->descendantOf($comment)
@@ -395,14 +395,14 @@ Possible values include:
 | `'*@bar.baz'` | with an email that ends with `@bar.baz`.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments from users with a .co.uk domain on their email address #}
 {% set comments = craft.comments.fetch()
     .email('*.co.uk')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments from users with a .co.uk domain on their email address
 $comments = \verbb\comments\elements\Comment::find()
     ->email('*.co.uk')
@@ -417,7 +417,7 @@ $comments = \verbb\comments\elements\Comment::find()
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments in a specific order #}
 {% set comments = craft.comments.fetch()
     .id([1, 2, 3, 4, 5])
@@ -425,7 +425,7 @@ Causes the query results to be returned in the order specified by [id](#id).
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments in a specific order
 $comments = \verbb\comments\elements\Comment::find()
     ->id([1, 2, 3, 4, 5])
@@ -443,14 +443,14 @@ Narrows the query results based on whether the comments have any descendants.
 (This has the opposite effect of calling [leaves](#leaves).)
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments that have descendants #}
 {% set comments = craft.comments.fetch()
     .hasDescendants()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments that have descendants
 $comments = \verbb\comments\elements\Comment::find()
     ->hasDescendants()
@@ -474,14 +474,14 @@ Possible values include:
 | `['not', 1, 2]` | not with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the comment by its ID #}
 {% set comment = craft.comments.fetch()
     .id(1)
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the comment by its ID
 $comment = \verbb\comments\elements\Comment::find()
     ->id(1)
@@ -500,14 +500,14 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 Causes the query results to be returned in reverse order.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments in reverse #}
 {% set comments = craft.comments.fetch()
     .inReverse()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments in reverse
 $comments = \verbb\comments\elements\Comment::find()
     ->inReverse()
@@ -522,14 +522,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Narrows the query results based on whether the comments have been flagged.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments that are flagged #}
 {% set comments = craft.comments.fetch()
     .isFlagged(true)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments that are flagged
 $comments = \verbb\comments\elements\Comment::find()
     ->isFlagged(true)
@@ -546,14 +546,14 @@ Narrows the query results based on whether the comments are “leaves” (commen
 (This has the opposite effect of calling [hasDescendants](#hasdescendants).)
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments that have no descendants #}
 {% set comments = craft.comments.fetch()
     .leaves()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments that have no descendants
 $comments = \verbb\comments\elements\Comment::find()
     ->leaves()
@@ -578,14 +578,14 @@ Possible values include:
 | `['not', 1, 2]` | not with level of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments positioned at level 3 or above #}
 {% set comments = craft.comments.fetch()
     .level('>= 3')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments positioned at level 3 or above
 $comments = \verbb\comments\elements\Comment::find()
     ->level('>= 3')
@@ -600,14 +600,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Determines the number of comments that should be returned.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch up to 10 comments  #}
 {% set comments = craft.comments.fetch()
     .limit(10)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch up to 10 comments
 $comments = \verbb\comments\elements\Comment::find()
     ->limit(10)
@@ -629,14 +629,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | after the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the next comment #}
 {% set comment = craft.comments.fetch()
     .nextSiblingOf(comment)
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the next comment
 $comment = \verbb\comments\elements\Comment::find()
     ->nextSiblingOf($comment)
@@ -651,14 +651,14 @@ $comment = \verbb\comments\elements\Comment::find()
 Determines how many comments should be skipped in the results.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all comments except for the first 3 #}
 {% set comments = craft.comments.fetch()
     .offset(3)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all comments except for the first 3
 $comments = \verbb\comments\elements\Comment::find()
     ->offset(3)
@@ -673,14 +673,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Determines the order that the comments should be returned in. You can also use `votes` to order by the total number of votes.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all comments in order of date created #}
 {% set comments = craft.comments.fetch()
     .orderBy('elements.dateCreated asc')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all comments in order of date created
 $comments = \verbb\comments\elements\Comment::find()
     ->orderBy('elements.dateCreated asc')
@@ -695,14 +695,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Sets the [ownerId](#ownerid) and [siteId](#siteid) parameters based on a given element.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments created for this entry #}
 {% set comments = craft.comments.fetch()
     .owner(entry)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments created for this entry
 $comments = \verbb\comments\elements\Comment::find()
     ->owner($entry)
@@ -726,14 +726,14 @@ Possible values include:
 | `['not', 1, 2]` | not created for an element with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments created for an element with an ID of 1 #}
 {% set comments = craft.comments.fetch()
     .ownerId(1)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments created for an element with an ID of 1
 $comments = \verbb\comments\elements\Comment::find()
     ->ownerId(1)
@@ -748,14 +748,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Return comments for a specific entry section.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments for specific entry section #}
 {% set comments = craft.comments.fetch()
     .section(['news', 'blog'])
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments for specific entry section
 $comments = \verbb\comments\elements\Comment::find()
     ->section(['news', 'blog'])
@@ -770,14 +770,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Return comments for a specific entry sectionId.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments for specific entry section #}
 {% set comments = craft.comments.fetch()
     .sectionId(22)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments for specific entry section
 $comments = \verbb\comments\elements\Comment::find()
     ->section(22)
@@ -792,14 +792,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Return comments for a specific owner type - for instance, just for [Entries](https://docs.craftcms.com/api/v3/craft-elements-comment.html). Requires the full namespaced element class.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments for specific element type #}
 {% set comments = craft.comments.fetch()
     .ownerType('craft\\elements\\Entry')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments for specific element type
 $comments = \verbb\comments\elements\Comment::find()
     ->ownerType(craft\elements\Entry::class)
@@ -821,14 +821,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | after the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments after this one #}
 {% set comments = craft.comments.fetch()
     .positionedAfter(comment)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments after this one
 $comments = \verbb\comments\elements\Comment::find()
     ->positionedAfter($comment)
@@ -850,14 +850,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | before the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments before this one #}
 {% set comments = craft.comments.fetch()
     .positionedBefore(comment)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments before this one
 $comments = \verbb\comments\elements\Comment::find()
     ->positionedBefore($comment)
@@ -879,14 +879,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | before the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the previous comment #}
 {% set comment = craft.comments.fetch()
     .prevSiblingOf(comment)
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the previous comment
 $comment = \verbb\comments\elements\Comment::find()
     ->prevSiblingOf($comment)
@@ -903,7 +903,7 @@ Narrows the query results to only comments that match a search query.
 See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Get the search query from the 'q' query string param #}
 {% set searchQuery = craft.request.getQueryParam('q') %}
 
@@ -913,7 +913,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
     .all() %}
 ```
 
-```php
+```php PHP
 // Get the search query from the 'q' query string param
 $searchQuery = \Craft::$app->request->getQueryParam('q');
 
@@ -938,14 +938,14 @@ Possible values include:
 | a [Comment](docs:developers/comment) object | beside the comment represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch comments beside this one #}
 {% set comments = craft.comments.fetch()
     .siblingOf(comment)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch comments beside this one
 $comments = \verbb\comments\elements\Comment::find()
     ->siblingOf($comment)
@@ -970,14 +970,14 @@ Possible values include:
 | `['approved', 'pending']` | that are approved or pending.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch pending comments #}
 {% set comments = {twig-function}
     .status('pending')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch pending comments
 $comments = \verbb\comments\elements\Comment::find()
     ->status('pending')
@@ -992,14 +992,14 @@ $comments = \verbb\comments\elements\Comment::find()
 Narrows the query results based on the comments’ UIDs.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the comment by its UID #}
 {% set comment = craft.comments.fetch()
     .uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the comment by its UID
 $comment = \verbb\comments\elements\Comment::find()
     ->uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
@@ -1023,14 +1023,14 @@ Possible values include:
 | `['not', 1, 2]` | not with a user with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the current user's comments #}
 {% set comments = craft.comments.fetch()
     .userId(currentUser.id)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch the current user's comments
 $user = Craft::$app->user->getIdentity();
 
