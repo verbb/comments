@@ -867,6 +867,11 @@ class Comments extends Component
         $projectConfig = Craft::$app->getProjectConfig();
         $fieldLayoutUid = StringHelper::UUID();
 
+        // Protect against this being called with no settings data
+        if (!Craft::$app->getRequest()->getBodyParam('settings.fieldLayout')) {
+            return;
+        }
+
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
         $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
 
