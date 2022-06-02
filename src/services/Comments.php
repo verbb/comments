@@ -7,6 +7,7 @@ use verbb\comments\elements\Comment;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\events\EmailEvent;
 use verbb\comments\fields\CommentsField;
+use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldElement;
 use verbb\comments\queue\jobs\SendNotification;
 
 use Craft;
@@ -25,6 +26,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\FieldLayoutTab;
 use craft\models\Structure;
 use craft\web\View;
 
@@ -867,21 +869,38 @@ class Comments extends Component
         $projectConfig = Craft::$app->getProjectConfig();
         $fieldLayoutUid = StringHelper::UUID();
 
-        // Protect against this being called with no settings data
-        if (!Craft::$app->getRequest()->getBodyParam('settings.fieldLayout')) {
-            return;
-        }
-
-        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
+        $fieldLayout = null;
         $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
 
-        if ($layoutData) {
-            $fieldLayoutUid = array_keys($layoutData)[0];
+        // If no config data create one from scratch
+        $config = Craft::$app->getRequest()->getBodyParam('settings.fieldLayout');        
+
+        if ($config) {
+            $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
+        } else if (!$layoutData) {
+            $fieldLayout = new FieldLayout();
+
+            $tab1 = new FieldLayoutTab(['name' => 'Comment Form']);
+            $tab1->setLayout($fieldLayout);
+
+            $tab1->setElements([
+                Craft::createObject([
+                    'class' => CommentsFieldElement::class,
+                ]),
+            ]);
+
+            $fieldLayout->setTabs([$tab1]);
         }
 
-        $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
+        if ($fieldLayout) {
+            if ($layoutData) {
+                $fieldLayoutUid = array_keys($layoutData)[0];
+            }
 
-        $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
+            $configData = [$fieldLayoutUid => $fieldLayout->getConfig()];
+
+            $projectConfig->set(self::CONFIG_FIELDLAYOUT_KEY, $configData);
+        }
     }
 
     public function getComponentTemplatePath(string $component): string
