@@ -148,9 +148,10 @@ class Comments extends Component
         $actionUrl = trim(UrlHelper::actionUrl(), '/');
         $actionUrl = UrlHelper::rootRelativeUrl($actionUrl);
 
-        $variables = $this->getRenderVariables($id, $elementId, $criteria);
+        // Get the render variables we use for Twig, but rip out only what we need.
+        $variables = $this->getRenderVariables($id, $elementId, $criteria, $jsSettings);
 
-        $jsVariables = array_merge([
+        return [
             'baseUrl' => $actionUrl,
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
@@ -163,9 +164,11 @@ class Comments extends Component
                 'save' => Craft::t('comments', 'Save'),
                 'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
             ],
-        ], $jsSettings);
-
-        return array_merge($jsVariables, $variables);
+            'element' => [
+                'id' => $variables['element']['id'] ?? '',
+                'siteId' => $variables['element']['siteId'] ?? '',
+            ],
+        ];
     }
 
     public function renderComment($comment): string

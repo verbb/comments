@@ -7,10 +7,11 @@ Events can be used to extend the functionality of Comments.
 Plugins can get notified before a comment is saved. Event handlers can prevent the comment from getting sent by setting `$event->isValid` to false.
 
 ```php
+use craft\events\ModelEvent;
 use verbb\comments\elements\Comment;
 use yii\base\Event;
 
-Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(Event $e) {
+Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(ModelEvent $e) {
     $comment = $event->sender;
     $event->isValid = false;
 });
@@ -20,10 +21,11 @@ Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(Event $e) {
 Plugins can get notified after a comment has been saved
 
 ```php
+use craft\events\ModelEvent;
 use verbb\comments\elements\Comment;
 use yii\base\Event;
 
-Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(Event $e) {
+Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(ModelEvent $e) {
     $comment = $event->sender;
 });
 ```
