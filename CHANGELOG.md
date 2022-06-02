@@ -6,7 +6,6 @@
 - Add resave console command for elements.
 - Add checks for registering events for performance.
 - Add `archiveTableIfExists()` to install migration.
-- Add `Minimum Score` plugin setting for reCAPTCHA.
 
 ### Changed
 - Now requires PHP `8.0.2+`.
@@ -21,11 +20,20 @@
 - Un-bold title for comments in comments index.
 - Fix an error when permissions exist for a no-longer-available element group.
 - Fix setting a parent comment not working for Feed Me, due to `setParent()` changes.
-- Fix an error saving a comment when the current site can’t be determined.
 
 ### Removed
 - Removed `craft.comments.all()` and `craft.comments.form()`.
 - Removed `Comment::trashUrl`, `Comment::flagUrl`, `Comment::downvoteUrl`, `Comment::upvoteUrl`.
+
+## 1.9.3 - 2022-06-02
+
+### Added
+- Add `Minimum Score` plugin setting for reCAPTCHA.
+
+### Fixed
+- Fix JS render variables being way too large.
+- Fix an error saving a comment when the current site can’t be determined.
+- Fix replies not showing in the correct order (latest first).
 
 ## 1.9.2 - 2022-02-27
 
