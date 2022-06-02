@@ -144,18 +144,18 @@ class Install extends Migration
 
     public function dropForeignKeys(): void
     {
-        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['id'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerSiteId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['userId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['commentId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['userId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['commentId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['userId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId'], $this);
-        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId'], $this);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['id']);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerId']);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['ownerSiteId']);
+        Db::dropForeignKeyIfExists('{{%comments_comments}}', ['userId']);
+        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['commentId']);
+        Db::dropForeignKeyIfExists('{{%comments_flags}}', ['userId']);
+        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['commentId']);
+        Db::dropForeignKeyIfExists('{{%comments_votes}}', ['userId']);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerId']);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['ownerSiteId']);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['userId']);
+        Db::dropForeignKeyIfExists('{{%comments_subscribe}}', ['commentId']);
     }
 
     public function dropProjectConfig(): void
