@@ -69,8 +69,8 @@ class Settings extends Model
     public ?string $securityBanned = null;
     public bool $securityMatchExact = false;
     public bool $recaptchaEnabled = false;
-    public ?string $recaptchaKey = '=null';
-    public ?string $recaptchaSecret;
+    public ?string $recaptchaKey = null;
+    public ?string $recaptchaSecret = null;
     public float $recaptchaMinScore = 0.5;
 
     // Notifications
