@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.3 - 2022-06-02
+
+### Added
+- Add `Minimum Score` plugin setting for reCAPTCHA.
+
+### Fixed
+- Fix JS render variables being way too large.
+- Fix an error saving a comment when the current site can’t be determined.
+- Fix replies not showing in the correct order (latest first).
+
 ## 1.9.2 - 2022-02-27
 
 ### Added
