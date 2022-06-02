@@ -1,19 +1,31 @@
 # Changelog
 
-## 2.0.0-beta.2 - 2022-03-24
+## 2.0.0 - 2022-06-02
+
+### Added
+- Add resave console command for elements.
+- Add checks for registering events for performance.
+- Add `archiveTableIfExists()` to install migration.
+- Add `Minimum Score` plugin setting for reCAPTCHA.
 
 ### Changed
+- Now requires PHP `8.0.2+`.
+- Now requires Craft `4.0.0+`.
 - Now requires Comments `1.9.2` in order to update from Craft 3.
+- Rename service classes.
+- Rename base plugin methods.
 
 ### Fixed
 - Fix an error with GraphQL.
 - Fix typing for `placeholderAvatar` plugin setting.
+- Un-bold title for comments in comments index.
+- Fix an error when permissions exist for a no-longer-available element group.
+- Fix setting a parent comment not working for Feed Me, due to `setParent()` changes.
+- Fix an error saving a comment when the current site can’t be determined.
 
-## 2.0.0-beta.1 - 2022-03-10
-
-### Changed
-- Now requires PHP `^8.0.2`.
-- Now requires Craft `^4.0.0-beta.1`.
+### Removed
+- Removed `craft.comments.all()` and `craft.comments.form()`.
+- Removed `Comment::trashUrl`, `Comment::flagUrl`, `Comment::downvoteUrl`, `Comment::upvoteUrl`.
 
 ## 1.9.2 - 2022-02-27
 

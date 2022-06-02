@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "A Craft CMS plugin for managing comments directly within the CMS.",
     "type": "craft-plugin",
-    "version": "2.0.0-beta.2",
+    "version": "2.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -26,8 +26,8 @@
     ],
     "require": {
         "php": "^8.0.2",
-        "craftcms/cms": "^4.0.0-beta.1",
-        "verbb/base": "^2.0.0-beta",
+        "craftcms/cms": "^4.0.0",
+        "verbb/base": "^2.0.0",
         "theiconic/name-parser": "^1.0"
     },
     "autoload": {
