@@ -9,16 +9,19 @@ use verbb\comments\models\Settings;
 use verbb\comments\models\Subscribe;
 use verbb\comments\models\Vote;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\StructureMutationTrait;
-use Craft;
 
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Error\UserError;
+
+use Throwable;
+use Exception;
 
 /**
  * Implements custom mutation methods take GraphQL mutations and make stuff happen.
@@ -41,7 +44,7 @@ class Comment extends ElementMutationResolver
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      * @throws GqlException|Error|SiteNotFoundException
-     * @throws \Exception if schema does not allow the relevant action.
+     * @throws Exception if schema does not allow the relevant action.
      */
     public function saveComment($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
@@ -252,7 +255,7 @@ class Comment extends ElementMutationResolver
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function deleteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): bool
     {

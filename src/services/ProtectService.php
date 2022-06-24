@@ -24,16 +24,12 @@ class ProtectService extends Component
 
     public function getFields()
     {
-        $fields = $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
-
-        return $fields;
+        return $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
     }
 
     public function verifyFields()
     {
-        $checks = $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField() && $this->verifyRecaptcha();
-
-        return $checks;
+        return $this->verifyOriginField() && $this->verifyHoneypotField() && $this->verifyJSField() && $this->verifyRecaptcha();
     }
 
     //
@@ -160,10 +156,10 @@ class ProtectService extends Component
 
     public function getHoneypotField()
     {
-        $output = sprintf('<div id="beesknees_wrapper" style="display:none;">');
-        $output .= sprintf('<label>Leave this field blank</label>');
-        $output .= sprintf('<input type="text" id="beesknees" name="beesknees" style="display:none;" />');
-        $output .= sprintf('</div>');
+        $output = '<div id="beesknees_wrapper" style="display:none;">';
+        $output .= '<label>Leave this field blank</label>';
+        $output .= '<input type="text" id="beesknees" name="beesknees" style="display:none;" />';
+        $output .= '</div>';
 
         return $output;
     }

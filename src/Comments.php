@@ -360,10 +360,8 @@ class Comments extends Plugin
         Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
             $fieldLayout = $e->sender;
 
-            switch ($fieldLayout->type) {
-                case Comment::class:
-                    $e->fields[] = CommentsFieldLayoutElement::class;
-                    break;
+            if ($fieldLayout->type == Comment::class) {
+                $e->fields[] = CommentsFieldLayoutElement::class;
             }
         });
     }

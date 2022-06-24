@@ -7,6 +7,8 @@ use Craft;
 use craft\helpers\Json;
 use craft\queue\BaseJob;
 
+use Exception;
+
 class SendNotification extends BaseJob
 {
     // Public Properties
@@ -37,7 +39,7 @@ class SendNotification extends BaseJob
         $comment = Comments::$plugin->getComments()->getCommentById($this->commentId);
 
         if (!$comment) {
-            throw new \Exception('Unable to find comment: ' . $this->commentId . '.');
+            throw new Exception('Unable to find comment: ' . $this->commentId . '.');
         }
 
         Comments::$plugin->getComments()->triggerNotificationEmail($this->type, $comment);

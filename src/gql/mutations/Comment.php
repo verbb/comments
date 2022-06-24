@@ -11,11 +11,13 @@ use verbb\comments\models\Settings;
 use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\elements\Comment as CommentElement;
 
+use Craft;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\Mutation;
-use Craft;
 
 use GraphQL\Type\Definition\Type;
+
+use yii\base\InvalidConfigException;
 
 class Comment extends Mutation
 {
@@ -116,7 +118,7 @@ class Comment extends Mutation
      * @param string $resolveMethod Resolver method (also used for mutation name).
      * @param string $description Mutation description.
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public static function createSaveMutation(string $mutationName, string $resolveMethod, string $description): array
     {

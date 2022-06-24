@@ -28,6 +28,7 @@ use craft\models\Structure;
 use craft\web\View;
 
 use DateTime;
+use Throwable;
 
 use yii\helpers\Markdown;
 
@@ -343,7 +344,7 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
@@ -399,7 +400,7 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
             }
         }
@@ -430,7 +431,7 @@ class CommentsService extends Component
             } else if ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
@@ -478,7 +479,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending element author notification: ' . $e->getMessage());
         }
 
@@ -563,7 +564,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending reply notification: ' . $e->getMessage());
         }
 
@@ -629,7 +630,7 @@ class CommentsService extends Component
                 $mail->send();
 
                 Comments::log('Email sent successfully to moderator (' . $user->email . ')');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
             }
         }
@@ -684,7 +685,7 @@ class CommentsService extends Component
             }
 
             $emailSent = $message->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error sending comment author notification: ' . $e->getMessage());
         }
 
@@ -795,7 +796,7 @@ class CommentsService extends Component
                 } else {
                     Comments::error('Unable to send email to subscriber (' . $user->email . ')');
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Comments::error('Error sending subscribe reply notification: ' . $e->getMessage());
 
                 continue;
@@ -963,7 +964,7 @@ class CommentsService extends Component
             $message->setHtmlBody($view->renderTemplate($template, array_merge($variables, [
                 'body' => Template::raw(Markdown::process($textBody)),
             ]), $templateMode));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Comments::error('Error rendering email template: ' . $e->getMessage(), __METHOD__);
         }
 

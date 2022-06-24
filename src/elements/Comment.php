@@ -31,6 +31,7 @@ use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
 use Exception;
+use DateTime;
 
 class Comment extends Element
 {
@@ -408,7 +409,7 @@ class Comment extends Element
 
     public function getTimeAgo()
     {
-        $diff = (new \DateTime())->diff($this->commentDate);
+        $diff = (new DateTime())->diff($this->commentDate);
         return CommentsHelper::humanDurationFromInterval($diff);
     }
 
@@ -973,7 +974,7 @@ class Comment extends Element
         $record->commentDate = $this->commentDate;
 
         if (!$this->commentDate) {
-            $record->commentDate = new \DateTime();
+            $record->commentDate = new DateTime();
         }
 
         $record->save(false);
