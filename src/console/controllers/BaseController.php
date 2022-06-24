@@ -33,7 +33,7 @@ class BaseController extends Controller
     {
         if (!$structureUid) {
             $this->stderr('Structure UID not provided.' . PHP_EOL, Console::FG_RED);
-            
+
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
@@ -41,7 +41,7 @@ class BaseController extends Controller
 
         if (!$structure) {
             $this->stderr("Structure with UID $structureUid does not exist." . PHP_EOL, Console::FG_RED);
-            
+
             return ExitCode::UNSPECIFIED_ERROR;
         }
 

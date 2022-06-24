@@ -112,9 +112,9 @@ class Comment extends Mutation
     /**
      * Create the save mutation.
      *
-     * @param string $mutationName   Mutation name.
-     * @param string $resolveMethod  Resolver method (also used for mutation name).
-     * @param string $description    Mutation description.
+     * @param string $mutationName Mutation name.
+     * @param string $resolveMethod Resolver method (also used for mutation name).
+     * @param string $description Mutation description.
      * @return array
      * @throws \yii\base\InvalidConfigException
      */

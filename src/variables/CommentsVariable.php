@@ -56,7 +56,7 @@ class CommentsVariable
     {
         $view = Craft::$app->getView();
         $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
-        
+
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
 
@@ -67,7 +67,7 @@ class CommentsVariable
             $jsString = 'window.addEventListener("load", function() { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            '); });';
+                '); });';
 
             $output[] = Html::script($jsString, ['type' => 'text/javascript']);
         }

@@ -92,7 +92,7 @@ class CommentFeedMeElement extends Element
             Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
         }
     }
-    
+
     public function getGroups()
     {
         return [];
@@ -103,9 +103,9 @@ class CommentFeedMeElement extends Element
         $query = CommentElement::find()
             ->anyStatus()
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
-        
+
         Craft::configure($query, $params);
-        
+
         return $query;
     }
 

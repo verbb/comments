@@ -89,7 +89,7 @@ class CommentsService extends Component
             $view->registerJs('window.addEventListener("load", function () { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            '); });', $view::POS_END);
+                '); });', $view::POS_END);
         }
 
         $view->setTemplatesPath($oldTemplatesPath);
@@ -319,10 +319,10 @@ class CommentsService extends Component
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
                 $mail = $this->_renderEmail('comments_admin_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $notificationAdmin,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $notificationAdmin,
+                ])
                     ->setTo($notificationAdmin['email']);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -375,10 +375,10 @@ class CommentsService extends Component
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
                 $mail = $this->_renderEmail('comments_flag_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $notificationAdmin,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $notificationAdmin,
+                ])
                     ->setTo($notificationAdmin['email']);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -422,7 +422,7 @@ class CommentsService extends Component
         }
 
         // Get our recipient
-        try {        
+        try {
             if (get_class($element) === Asset::class) {
                 if ($element->getUploader()) {
                     $recipient = $element->getUploader();
@@ -430,7 +430,7 @@ class CommentsService extends Component
             } else if ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
-        } catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             Comments::log('Not sending element author notification, no author found: ' . $e->getMessage());
         }
 
@@ -456,10 +456,10 @@ class CommentsService extends Component
 
         try {
             $message = $this->_renderEmail('comments_author_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendAuthorEmail' event
@@ -541,10 +541,10 @@ class CommentsService extends Component
 
         try {
             $message = $this->_renderEmail('comments_reply_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendReplyEmail' event
@@ -605,10 +605,10 @@ class CommentsService extends Component
         foreach ($recipients as $key => $user) {
             try {
                 $mail = $this->_renderEmail('comments_moderator_notification', [
-                        'element' => $element,
-                        'comment' => $comment,
-                        'user' => $user,
-                    ])
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                ])
                     ->setTo($user);
 
                 // Fire a 'beforeSendModeratorEmail' event
@@ -662,10 +662,10 @@ class CommentsService extends Component
 
         try {
             $message = $this->_renderEmail('comments_moderator_approved_notification', [
-                    'element' => $element,
-                    'comment' => $comment,
-                    'user' => $recipient,
-                ])
+                'element' => $element,
+                'comment' => $comment,
+                'user' => $recipient,
+            ])
                 ->setTo($recipient);
 
             // Fire a 'beforeSendModeratorApprovedEmail' event
@@ -756,24 +756,24 @@ class CommentsService extends Component
 
                     continue;
                 }
-                
-        		// Skip for current user
-        		$currentUser = Comments::$plugin->getService()->getUser();
 
-        		if ($currentUser && $user->id == $currentUser->id) {
-        			continue;
-        		}
-        		
-        		// Separate email keys for comment on comment vs comment on entry
-        		$emailKey = ( $commentAncestors && count($commentAncestors) > 0 ) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+                // Skip for current user
+                $currentUser = Comments::$plugin->getService()->getUser();
 
-        		$message = $this->_renderEmail($emailKey, [
-            			'element' => $element,
-            			'comment' => $comment,
-                        'user' => $user,
-                        'emailKey' => $emailKey,
-        		    ])
-        		    ->setTo($user);
+                if ($currentUser && $user->id == $currentUser->id) {
+                    continue;
+                }
+
+                // Separate email keys for comment on comment vs comment on entry
+                $emailKey = ($commentAncestors && count($commentAncestors) > 0) ? 'comments_subscriber_notification_comment' : 'comments_subscriber_notification_element';
+
+                $message = $this->_renderEmail($emailKey, [
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                    'emailKey' => $emailKey,
+                ])
+                    ->setTo($user);
 
                 // Fire a 'beforeSendSubscribeEmail' event
                 $event = new EmailEvent([
@@ -812,7 +812,7 @@ class CommentsService extends Component
         if ($structureUid) {
             $structuresService = Craft::$app->getStructures();
             $structure = $structuresService->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
-            
+
             $structuresService->saveStructure($structure);
         }
     }

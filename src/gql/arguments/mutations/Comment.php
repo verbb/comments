@@ -17,7 +17,7 @@ class Comment extends ElementMutationArguments
             'ownerId' => [
                 'name' => 'ownerId',
                 'type' => Type::id(),
-                'description' => 'The ID of the element that owns the comment.'
+                'description' => 'The ID of the element that owns the comment.',
             ],
             'siteId' => [
                 'name' => 'siteId',
@@ -37,22 +37,22 @@ class Comment extends ElementMutationArguments
             'commentDate' => [
                 'name' => 'commentDate',
                 'type' => DateTime::getType(),
-                'description' => 'The comment\'s post date.'
+                'description' => 'The comment\'s post date.',
             ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
-                'description' => 'The full name for the comment\'s author.'
+                'description' => 'The full name for the comment\'s author.',
             ],
             'email' => [
                 'name' => 'email',
                 'type' => Type::string(),
-                'description' => 'The email for the comment\'s author.'
+                'description' => 'The email for the comment\'s author.',
             ],
             'comment' => [
                 'name' => 'comment',
                 'type' => Type::string(),
-                'description' => 'The actual comment text.'
+                'description' => 'The actual comment text.',
             ],
         ]);
     }

@@ -62,7 +62,7 @@ class CommentsField extends BaseField
         return '__blank__';
     }
 
-    public function instructions(?craft\base\ElementInterface $element = NULL, bool $static = false): ?string
+    public function instructions(?craft\base\ElementInterface $element = null, bool $static = false): ?string
     {
         if ($this->instructions !== null && $this->instructions !== '' && $this->instructions !== '__blank__') {
             return Html::encode(Craft::t('comments', $this->instructions));

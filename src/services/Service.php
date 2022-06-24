@@ -21,6 +21,6 @@ class Service extends Component
         }
 
         return Craft::$app->getUser()->getIdentity();
-    } 
+    }
 
 }

@@ -50,12 +50,14 @@ class CommentsField extends Field
 
     public function getSettingsHtml()
     {
-        return Craft::$app->getView()->renderTemplateMacro('_includes/forms', 'lightswitchField', [[
-            'label' => Craft::t('app', 'Default Value'),
-            'id' => 'default',
-            'name' => 'default',
-            'on' => $this->default,
-        ]]);
+        return Craft::$app->getView()->renderTemplateMacro('_includes/forms', 'lightswitchField', [
+            [
+                'label' => Craft::t('app', 'Default Value'),
+                'id' => 'default',
+                'name' => 'default',
+                'on' => $this->default,
+            ],
+        ]);
     }
 
     public function normalizeValue($value, ElementInterface $element = null)

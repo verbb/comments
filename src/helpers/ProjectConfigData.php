@@ -20,8 +20,8 @@ class ProjectConfigData
         if ($commentFieldLayout->uid) {
             $output['comments'] = [
                 'fieldLayouts' => [
-                    $commentFieldLayout->uid => $commentFieldLayout->getConfig()
-                ]
+                    $commentFieldLayout->uid => $commentFieldLayout->getConfig(),
+                ],
             ];
         }
 
@@ -32,7 +32,7 @@ class ProjectConfigData
         if ($structureUid) {
             $structuresService = Craft::$app->getStructures();
             $structure = $structuresService->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
-            
+
             $structuresService->saveStructure($structure);
         }
 

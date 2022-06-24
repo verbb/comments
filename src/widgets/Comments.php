@@ -54,12 +54,12 @@ class Comments extends Widget
             'comments' => $comments,
         ]);
     }
-    
+
     public function getSettingsHtml()
     {
         return Craft::$app->getView()->renderTemplate('comments/_widget/settings', [
             'widget' => $this,
         ]);
     }
-    
+
 }

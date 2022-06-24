@@ -108,7 +108,7 @@ class Comment extends Element
             self::STATUS_APPROVED => Craft::t('comments', 'Approved'),
             self::STATUS_PENDING => Craft::t('comments', 'Pending'),
             self::STATUS_SPAM => Craft::t('comments', 'Spam'),
-            self::STATUS_TRASHED => Craft::t('comments', 'Trashed')
+            self::STATUS_TRASHED => Craft::t('comments', 'Trashed'),
         ];
     }
 
@@ -125,7 +125,7 @@ class Comment extends Element
     protected static function defineSources(string $context = null): array
     {
         $settings = Comments::$plugin->getSettings();
-        
+
         $sources = [
             '*' => [
                 'key' => '*',
@@ -133,7 +133,7 @@ class Comment extends Element
                 'structureId' => self::getStructureId(),
                 'structureEditable' => false,
                 'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
-            ]
+            ],
         ];
 
         $indexSidebarLimit = $settings->indexSidebarLimit;
@@ -392,12 +392,13 @@ class Comment extends Element
         return $this->status;
     }
 
-    public function getExcerpt($startPos = 0, $maxLength = 100) {
+    public function getExcerpt($startPos = 0, $maxLength = 100)
+    {
         if (strlen($this->comment) > $maxLength) {
-            $excerpt   = substr($this->comment, $startPos, $maxLength-3);
+            $excerpt = substr($this->comment, $startPos, $maxLength - 3);
             $lastSpace = strrpos($excerpt, ' ');
-            $excerpt   = substr($excerpt, 0, $lastSpace);
-            $excerpt  .= '...';
+            $excerpt = substr($excerpt, 0, $lastSpace);
+            $excerpt .= '...';
         } else {
             $excerpt = $this->comment;
         }
@@ -1091,7 +1092,7 @@ class Comment extends Element
             $a = Html::a($span2 . $small, $context['element']->getCpEditUrl());
 
             $html = Html::tag('div', $span1 . $a, ['class' => 'comment-block']);
-            
+
             return Template::raw($html);
         }
     }
@@ -1120,7 +1121,7 @@ class Comment extends Element
             [
                 'label' => Craft::t('comments', 'Date'),
                 'orderBy' => 'commentDate',
-                'attribute' => 'commentDate'
+                'attribute' => 'commentDate',
             ],
             'ownerId' => Craft::t('comments', 'Element'),
             'email' => Craft::t('comments', 'Email'),
@@ -1138,7 +1139,7 @@ class Comment extends Element
 
                 if ($owner) {
                     $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
-                    
+
                     return Template::raw($a);
                 } else {
                     return Craft::t('comments', '[Deleted element]');
@@ -1170,7 +1171,7 @@ class Comment extends Element
 
             return [
                 'elementType' => User::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -1195,7 +1196,7 @@ class Comment extends Element
 
             return [
                 'elementType' => $firstElement->getOwnerType(),
-                'map' => $map
+                'map' => $map,
             ];
         }
 

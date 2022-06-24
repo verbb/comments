@@ -23,7 +23,7 @@ class m200106_000000_fix_project_config extends Migration
         // Don't make the same config changes twice
         $projectConfig = Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.comments.schemaVersion', true);
-        
+
         if (version_compare($schemaVersion, '1.1.2', '>=')) {
             return;
         }

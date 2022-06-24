@@ -96,7 +96,7 @@ class Comments extends Plugin
 
         // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
         // modify the Title column for the element index table - we want something special.
-        Craft::$app->view->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
+        Craft::$app->getView()->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
     }
 
     /**
@@ -185,7 +185,7 @@ class Comments extends Plugin
 
     private function _registerTwigExtensions()
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        Craft::$app->getView()->registerTwigExtension(new Extension);
     }
 
     private function _registerCpRoutes()

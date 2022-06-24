@@ -253,7 +253,7 @@ class VotesService extends Component
 
         if ($commentId) {
             $query->where(['commentId' => $commentId]);
-        } 
+        }
 
         foreach ($query->all() as $result) {
             $votes[] = new VoteModel($result);

@@ -17,7 +17,7 @@ class m200511_000000_resave_plugin_settings extends Migration
         // Don't make the same config changes twice
         $projectConfig = Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.comments.schemaVersion', true);
-        
+
         if (version_compare($schemaVersion, '1.1.5', '>=')) {
             return;
         }

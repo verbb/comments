@@ -45,7 +45,7 @@ class ProtectService extends Component
         $settings = Comments::$plugin->getSettings();
 
         if ($settings->recaptchaEnabled) {
-            Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, [
+            Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, [
                 'defer' => 'defer',
                 'async' => 'async',
             ]);
@@ -70,7 +70,7 @@ class ProtectService extends Component
                 'form_params' => [
                     'secret' => $settings->recaptchaSecret,
                     'response' => $captchaResponse,
-                    'remoteip' => Craft::$app->request->getRemoteIP(),
+                    'remoteip' => Craft::$app->getRequest()->getRemoteIP(),
                 ],
             ]);
 
@@ -226,15 +226,15 @@ class ProtectService extends Component
             return '';
         }
 
-        Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, ['defer' => 'defer', 'async' => 'async']);
+        Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, ['defer' => 'defer', 'async' => 'async']);
 
-        // Craft::$app->view->registerJs('grecaptcha.ready(function() {
+        // Craft::$app->getView()->registerJs('grecaptcha.ready(function() {
         //     grecaptcha.execute(' . $settings->recaptchaKey . ', {action: "homepage"}).then(function(token) {
 
         //     });
         // });', View::POS_END);
 
-        // Craft::$app->view->registerCss('#g-recaptcha-response {
+        // Craft::$app->getView()->registerCss('#g-recaptcha-response {
         //     display: block !important;
         //     position: absolute;
         //     margin: -78px 0 0 0 !important;

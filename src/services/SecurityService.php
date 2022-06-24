@@ -18,12 +18,12 @@ class SecurityService extends Component
     public function checkSecurityPolicy(Comment $comment)
     {
         $settings = Comments::$plugin->getSettings();
-        
+
         // Check for content where a comment should be marked as pending.
         if ($this->_findInElementContent($comment, $settings->securityModeration)) {
             $comment->status = Comment::STATUS_PENDING;
         }
-        
+
         // Check for content where a comment should be marked as spam.
         if ($this->_findInElementContent($comment, $settings->securitySpamlist)) {
             $comment->status = Comment::STATUS_SPAM;
@@ -62,7 +62,7 @@ class SecurityService extends Component
     public function checkCommentLength(Comment $comment)
     {
         $settings = Comments::$plugin->getSettings();
-        
+
         // Check if max comment length is set.
         if ($settings->securityMaxLength) {
             // Check if the input is a positive integer
@@ -96,7 +96,7 @@ class SecurityService extends Component
         // add the comment too, it's not included in the attributes
         $comment = ["comment" => $comment->comment];
         $mergedAttributes = array_merge($attributes, $comment);
-        
+
         foreach ($mergedAttributes as $attr) {
             if (!is_string($attr)) {
                 continue;

@@ -36,7 +36,7 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to either create or update a comment.
      *
      * @param             $source
-     * @param array       $arguments GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
@@ -62,7 +62,7 @@ class Comment extends ElementMutationResolver
 
         if (empty($currentUser) && !$settings->allowGuest) {
             $message = !empty($settings->guestNotice) ? $settings->guestNotice : Craft::t('comments', 'Must be logged in to comment.');
-            
+
             throw new UserError($message);
         }
 
@@ -103,7 +103,7 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to record a comment upvote or downvote.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
@@ -165,7 +165,7 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to flag a comment.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
@@ -205,7 +205,7 @@ class Comment extends ElementMutationResolver
      * Handles GraphQL mutation arguments to toggle comment subscription.
      *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return string
@@ -246,9 +246,9 @@ class Comment extends ElementMutationResolver
 
     /**
      * Handles GraphQL mutation arguments to delete a comment.
-
+     *
      * @param             $source
-     * @param array       $arguments    GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @param             $context
      * @param ResolveInfo $resolveInfo
      * @return bool
@@ -314,7 +314,7 @@ class Comment extends ElementMutationResolver
      * any results.
      *
      * @param CommentQuery $commentQuery
-     * @param array        $arguments     GraphQL query arguments in key-value pairs
+     * @param array $arguments GraphQL query arguments in key-value pairs
      * @return CommentQuery
      */
     protected function identifyComment(CommentQuery $commentQuery, array $arguments): CommentQuery
@@ -349,6 +349,7 @@ class Comment extends ElementMutationResolver
 
     /**
      * Returns `true` if the subscription target is a thread and not a non-comment Craft element.
+     *
      * @param $ownerId
      * @param $commentId
      * @return bool
