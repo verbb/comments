@@ -13,7 +13,7 @@
     {% set title = 'Comments ' ~ tabs[selectedTab].label %}
 {% endif %}
 
-{% set content %}
+{% block content %}
     {% block blockContent %}
 
     {% endblock %}
@@ -41,4 +41,4 @@
             </a>
         </div>
     </div>
-{% endset %}
+{% endblock %}
