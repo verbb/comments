@@ -59,7 +59,7 @@ class CommentInterface extends Structure
             'commentDate' => [
                 'name' => 'commentDate',
                 'type' => DateTime::getType(),
-                'description' => 'The comment\'s post date.',
+                'description' => 'The comment‘s post date.',
             ],
             'comment' => [
                 'name' => 'comment',
@@ -69,12 +69,12 @@ class CommentInterface extends Structure
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
-                'description' => 'The full name for the comment\'s author.',
+                'description' => 'The full name for the comment‘s author.',
             ],
             'email' => [
                 'name' => 'email',
                 'type' => Type::string(),
-                'description' => 'The email for the comment\'s author.',
+                'description' => 'The email for the comment‘s author.',
             ],
             'url' => [
                 'name' => 'url',
@@ -127,7 +127,7 @@ class CommentInterface extends Structure
                 'user' => [
                     'name' => 'user',
                     'type' => User::getType(),
-                    'description' => 'The comment\'s author.',
+                    'description' => 'The comment‘s author.',
                 ],
             ];
         }

@@ -87,7 +87,7 @@ class Vote extends InterfaceType
                 'user' => [
                     'name' => 'user',
                     'type' => User::getType(),
-                    'description' => 'The vote\'s submitter.',
+                    'description' => 'The vote‘s submitter.',
                 ],
             ]);
         }
