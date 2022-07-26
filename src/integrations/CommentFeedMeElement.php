@@ -8,6 +8,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User as UserElement;
+use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 
 use craft\feedme\Plugin;
@@ -144,8 +145,8 @@ class CommentFeedMeElement extends Element
         // the content table.
         $columnName = $match;
 
-        if (Craft::$app->getFields()->getFieldByHandle($match)) {
-            $columnName = Craft::$app->getFields()->oldFieldColumnPrefix . $match;
+        if ($field = Craft::$app->getFields()->getFieldByHandle($match)) {
+            $columnName = ElementHelper::fieldColumnFromField($field);
         }
 
         $result = (new Query())
