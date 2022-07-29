@@ -41,7 +41,7 @@ class ProtectService extends Component
         $settings = Comments::$plugin->getSettings();
 
         if ($settings->recaptchaEnabled) {
-            Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, [
+            Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), [
                 'defer' => 'defer',
                 'async' => 'async',
             ]);
@@ -64,7 +64,7 @@ class ProtectService extends Component
 
             $response = $client->post(self::VERIFY_URL, [
                 'form_params' => [
-                    'secret' => $settings->recaptchaSecret,
+                    'secret' => $settings->getRecaptchaSecret(),
                     'response' => $captchaResponse,
                     'remoteip' => Craft::$app->getRequest()->getRemoteIP(),
                 ],
@@ -222,10 +222,10 @@ class ProtectService extends Component
             return '';
         }
 
-        Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, ['defer' => 'defer', 'async' => 'async']);
+        Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), ['defer' => 'defer', 'async' => 'async']);
 
         // Craft::$app->getView()->registerJs('grecaptcha.ready(function() {
-        //     grecaptcha.execute(' . $settings->recaptchaKey . ', {action: "homepage"}).then(function(token) {
+        //     grecaptcha.execute(' . $settings->getRecaptchaKey() . ', {action: "homepage"}).then(function(token) {
 
         //     });
         // });', View::POS_END);
@@ -242,7 +242,7 @@ class ProtectService extends Component
 
         return '';
 
-        // return '<div class="g-recaptcha" data-sitekey="' . $settings->recaptchaKey . '"></div>';
+        // return '<div class="g-recaptcha" data-sitekey="' . $settings->getRecaptchaKey() . '"></div>';
     }
 
 

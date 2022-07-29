@@ -9,6 +9,7 @@ use Craft;
 use craft\base\Model;
 use craft\db\Table;
 use craft\elements\Asset;
+use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
@@ -195,5 +196,15 @@ class Settings extends Model
         $notificationAdmins = $this->notificationAdmins ?: [];
 
         return ArrayHelper::where($notificationAdmins, 'enabled');
+    }
+
+    public function getRecaptchaKey()
+    {
+        return App::parseEnv($this->recaptchaKey);
+    }
+
+    public function getRecaptchaSecret()
+    {
+        return App::parseEnv($this->recaptchaSecret);
     }
 }
