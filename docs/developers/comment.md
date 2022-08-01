@@ -9,8 +9,8 @@ Attribute | Description
 `ownerId` | The element ID this comment was made on (Entry, Asset, etc).
 `ownerSiteId` | The element site ID this comment was made on (Entry, Asset, etc).
 `owner` | The element this comment was made on (Entry, Asset, etc).
-`userId` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) ID for the author of a comment.
-`author` | [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the author of a comment. For guest, this will still return a new User, with their email, first/last name attributes populated.
+`userId` | [User](https://docs.craftcms.com/api/v4/craft-elements-user.html) ID for the author of a comment.
+`author` | [User](https://docs.craftcms.com/api/v4/craft-elements-user.html) for the author of a comment. For guest, this will still return a new User, with their email, first/last name attributes populated.
 `parent` | Comment object of any parent. Only applicable when replying to another comment. For new comments, this will be null.
 `status` | The status of this comment. Available values are `approved`, `pending`, `spam`, `trashed`.
 `name` | Name of the commenter. Guest users only.

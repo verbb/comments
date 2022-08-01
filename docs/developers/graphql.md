@@ -1,5 +1,5 @@
 # GraphQL
-Comments supports accessing [Comment](docs:developers/comment) objects via GraphQL. Be sure to read about [Craft's GraphQL support](https://docs.craftcms.com/v3/graphql.html).
+Comments supports accessing [Comment](docs:developers/comment) objects via GraphQL. Be sure to read about [Craft's GraphQL support](https://craftcms.com/docs/4.x/graphql.html).
 
 ## Comments
 

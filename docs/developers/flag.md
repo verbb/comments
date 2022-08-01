@@ -7,7 +7,7 @@ Attribute | Description
 --- | ---
 `id` | ID of the flag.
 `comment` | The [Comment](docs:developers/comment) this flag was made on.
-`user` | The [User](https://docs.craftcms.com/api/v3/craft-elements-user.html) for the user who made this flag.
+`user` | The [User](https://docs.craftcms.com/api/v4/craft-elements-user.html) for the user who made this flag.
 
 ## Flagging a comment
 

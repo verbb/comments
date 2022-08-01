@@ -9,7 +9,7 @@ If you navigate to the front-end of your site, to the template that outputs `cra
 To get started, it's worth taking the time to understand the structure of how Comments' templates go together.
 
 :::tip
-We're using the `.html` extension here for clarity. You can use `.twig` or whatever you have set in your [defaultTemplateExtensions](https://docs.craftcms.com/v3/config/config-settings.html#defaulttemplateextensions) for the actual files.
+We're using the `.html` extension here for clarity. You can use `.twig` or whatever you have set in your [defaultTemplateExtensions](https://craftcms.com/docs/4.x/config/config-settings.html#defaulttemplateextensions) for the actual files.
 :::
 
 - `comments.html`

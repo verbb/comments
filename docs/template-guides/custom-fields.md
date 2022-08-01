@@ -29,7 +29,7 @@ If you choose to use your own templates, you can output custom fields any manner
 
 ```
 
-From the above, you have access to a `field` variable, which is a [Field](https://docs.craftcms.com/api/v3/craft-base-field.html) model. Take note of the `name` attribute for inputs, which is the only required template portion you need to adhere to. These must be formatted like `fields[myFieldHandle]` in order for values to be saved to the comment element. Otherwise, you have complete control over everything else.
+From the above, you have access to a `field` variable, which is a [Field](https://docs.craftcms.com/api/v4/craft-base-field.html) model. Take note of the `name` attribute for inputs, which is the only required template portion you need to adhere to. These must be formatted like `fields[myFieldHandle]` in order for values to be saved to the comment element. Otherwise, you have complete control over everything else.
 
 Another example might be you want to just include some custom fields you've added to Comments, rather than all of them. In this instance, you need to take note of the field handles for the fields you want to include.
 
