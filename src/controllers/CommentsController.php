@@ -12,6 +12,7 @@ use craft\helpers\Json;
 use craft\web\Controller;
 
 use yii\base\Exception;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class CommentsController extends Controller
@@ -74,6 +75,10 @@ class CommentsController extends Controller
 
         if (!$comment) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $site->id);
+        }
+
+        if (!$comment) {
+            throw new NotFoundHttpException('Comment not found.');
         }
 
         $comment->setScenario(Comment::SCENARIO_CP);
