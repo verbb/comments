@@ -1,5 +1,7 @@
 {% extends '_layouts/elementindex' %}
 
+{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+
 {% set elementType = 'verbb\\comments\\elements\\Comment' %}
 {% set selectedTab = 'comments' %}
 {% set showStatusMenu = true %}
