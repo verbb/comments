@@ -436,13 +436,7 @@ class Comment extends Element
 
     public function getCpEditUrl(): ?string
     {
-        $url = UrlHelper::cpUrl('comments/' . $this->id);
-
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
-        }
-
-        return $url;
+        return UrlHelper::cpUrl('comments/' . $this->id);
     }
 
     public function getFieldLayout(): ?FieldLayout
