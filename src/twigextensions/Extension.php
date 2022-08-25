@@ -32,6 +32,7 @@ class Extension extends Twig_Extension
     public function commentsInclude(Twig_Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false)
     {
         $view = $context['view'];
+        $oldTemplatePath = $view->getTemplatesPath();
 
         $settings = Comments::$plugin->getSettings();
 
@@ -50,7 +51,11 @@ class Extension extends Twig_Extension
             $view->setTemplatesPath($templatePath);
         }
 
-        return twig_include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
+        $template = twig_include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
+
+        $view->setTemplatesPath($oldTemplatePath);
+
+        return $template;
     }
 
     public function commentsSiteInclude(Twig_Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false)
