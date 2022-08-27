@@ -79,6 +79,6 @@ class CommentsHelper
 
     private static function _assetExists($asset)
     {
-        return $asset->getVolume()->fileExists($asset->getPath());
+        return $asset->getVolume()->getFs()->fileExists($asset->getPath());
     }
 }
