@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.1 - 2022-08-27
+
+### Added
+- Added missing English Translations.
+
+### Fixed
+- Fix an error when viewing comments with an avatar image.
+- Fix formatting for comments element index.
+- Fix lack of proper error when trying to edit an invalid comment in the control panel.
+- Fix the CP edit URL for comments to now no longer include the site ID.
+- Fix an error when importing comments via Feed Me in some instances.
+- Fix an error when uninstalling.
+- Fix being unable to view comments in the control panel.
+
 ## 2.0.0 - 2022-06-02
 
 ### Added
