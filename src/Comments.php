@@ -441,8 +441,8 @@ class Comments extends Plugin
             $e->actions['comments-comments'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    $query = Comment::find();
-                    return $controller->resaveElements($query);
+
+                    return $controller->resaveElements(Comment::class);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Comments comments.',
