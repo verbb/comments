@@ -37,13 +37,6 @@ class Comment extends ElementMutationResolver
     use StructureMutationTrait;
 
 
-    // Properties
-    // =========================================================================
-
-    /* @inheritdoc */
-    protected array $immutableAttributes = ['id', 'uid', 'userId'];
-
-
     // Public Methods
     // =========================================================================
 
