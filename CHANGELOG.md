@@ -2,7 +2,11 @@
 
 ## 2.0.2 - 2022-09-17
 
+### Added
+- Add support for setting ReCAPTCHA API keys via .env variables.
+
 ### Fixed
+- Fix template path not resetting when calling `commentsInclude()`.
 - Fix an error when trying to edit a comment from the element index.
 - Fix element index arrow for comment elements.
 - Fix element action for setting status.
