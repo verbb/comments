@@ -2,7 +2,7 @@
 namespace verbb\comments\elements;
 
 use verbb\comments\Comments;
-use verbb\comments\elements\actions\SetStatus;
+use verbb\comments\elements\actions\SetCommentStatus;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\CommentsHelper;
@@ -289,15 +289,43 @@ class Comment extends Element
 
     protected static function defineActions(string $source = null): array
     {
-        $actions = [];
+        $elementsService = Craft::$app->getElements();
 
-        $actions[] = Craft::$app->getElements()->createAction([
+        $actions = parent::defineActions($source);
+
+        $actions[] = $elementsService->createAction([
             'type' => Delete::class,
             'confirmationMessage' => Craft::t('comments', 'Are you sure you want to delete the selected comments?'),
             'successMessage' => Craft::t('comments', 'Comments deleted.'),
         ]);
 
-        $actions[] = SetStatus::class;
+        $statuses = [
+            [
+                'id' => self::STATUS_APPROVED,
+                'name' => Craft::t('comments', 'Approved'),
+                'color' => 'approved',
+            ],
+            [
+                'id' => self::STATUS_PENDING,
+                'name' => Craft::t('comments', 'Pending'),
+                'color' => 'pending',
+            ],
+            [
+                'id' => self::STATUS_SPAM,
+                'name' => Craft::t('comments', 'Spam'),
+                'color' => 'spam',
+            ],
+            [
+                'id' => self::STATUS_TRASHED,
+                'name' => Craft::t('comments', 'Trashed'),
+                'color' => 'trashed',
+            ],
+        ];
+
+        $actions[] = $elementsService->createAction([
+            'type' => SetCommentStatus::class,
+            'statuses' => $statuses,
+        ]);
 
         return $actions;
     }
