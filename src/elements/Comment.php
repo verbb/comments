@@ -454,6 +454,11 @@ class Comment extends Element
         return $rules;
     }
 
+    public function canView(User $user): bool
+    {
+        return true;
+    }
+
     public function canSave(User $user): bool
     {
         if (parent::canSave($user)) {
