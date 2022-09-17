@@ -49,6 +49,14 @@
 - Removed `craft.comments.all()` and `craft.comments.form()`.
 - Removed `Comment::trashUrl`, `Comment::flagUrl`, `Comment::downvoteUrl`, `Comment::upvoteUrl`.
 
+## 1.9.4 - 2022-09-17
+
+### Added
+- Add support for setting ReCAPTCHA API keys via .env variables.
+
+### Fixed
+- Fix template path not resetting when calling `commentsInclude()`.
+
 ## 1.9.3 - 2022-06-02
 
 ### Added

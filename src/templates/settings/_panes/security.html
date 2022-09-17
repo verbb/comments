@@ -12,18 +12,20 @@
 }) }}
 
 <div id="recaptcha-fields" class="field {{ not settings.recaptchaEnabled ? 'hidden' }}">
-    {{ forms.textField({
+    {{ forms.autosuggestField({
         label: 'reCAPTCHA Site Key' | t('comments'),
         name: 'recaptchaKey',
         required: true,
+        suggestEnvVars: true,
         value: settings.recaptchaKey,
         warning: macros.configWarning('recaptchaKey', 'comments'),
     }) }}
 
-    {{ forms.textField({
+    {{ forms.autosuggestField({
         label: 'reCAPTCHA Secret Key' | t('comments'),
         name: 'recaptchaSecret',
         required: true,
+        suggestEnvVars: true,
         value: settings.recaptchaSecret,
         warning: macros.configWarning('recaptchaSecret', 'comments'),
     }) }}

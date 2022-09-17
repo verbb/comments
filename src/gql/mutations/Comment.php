@@ -11,9 +11,9 @@ use verbb\comments\models\Settings;
 use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\elements\Comment as CommentElement;
 
+use Craft;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\Mutation;
-use Craft;
 
 use GraphQL\Type\Definition\Type;
 

@@ -31,6 +31,7 @@ use craft\models\Structure;
 use craft\web\View;
 
 use DateTime;
+use Throwable;
 
 use yii\helpers\Markdown;
 
@@ -156,7 +157,7 @@ class Comments extends Component
             'csrfTokenName' => Craft::$app->getConfig()->getGeneral()->csrfTokenName,
             'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
             'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
-            'recaptchaKey' => $settings->recaptchaKey,
+            'recaptchaKey' => $settings->getRecaptchaKey(),
             'translations' => [
                 'reply' => Craft::t('comments', 'Reply'),
                 'close' => Craft::t('comments', 'Close'),

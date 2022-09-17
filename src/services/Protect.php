@@ -41,7 +41,7 @@ class Protect extends Component
         $settings = Comments::$plugin->getSettings();
 
         if ($settings->recaptchaEnabled) {
-            Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, [
+            Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), [
                 'defer' => 'defer',
                 'async' => 'async',
             ]);
@@ -64,9 +64,9 @@ class Protect extends Component
 
             $response = $client->post(self::VERIFY_URL, [
                 'form_params' => [
-                    'secret' => $settings->recaptchaSecret,
+                    'secret' => $settings->getRecaptchaSecret(),
                     'response' => $captchaResponse,
-                    'remoteip' => Craft::$app->request->getRemoteIP(),
+                    'remoteip' => Craft::$app->getRequest()->getRemoteIP(),
                 ],
             ]);
 
@@ -214,15 +214,15 @@ class Protect extends Component
             return '';
         }
 
-        Craft::$app->view->registerJsFile(self::API_URL . '?render=' . $settings->recaptchaKey, ['defer' => 'defer', 'async' => 'async']);
+        Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), ['defer' => 'defer', 'async' => 'async']);
 
-        // Craft::$app->view->registerJs('grecaptcha.ready(function() {
-        //     grecaptcha.execute(' . $settings->recaptchaKey . ', {action: "homepage"}).then(function(token) {
+        // Craft::$app->getView()->registerJs('grecaptcha.ready(function() {
+        //     grecaptcha.execute(' . $settings->getRecaptchaKey() . ', {action: "homepage"}).then(function(token) {
 
         //     });
         // });', View::POS_END);
 
-        // Craft::$app->view->registerCss('#g-recaptcha-response {
+        // Craft::$app->getView()->registerCss('#g-recaptcha-response {
         //     display: block !important;
         //     position: absolute;
         //     margin: -78px 0 0 0 !important;
@@ -233,7 +233,7 @@ class Protect extends Component
         // }');
 
         return '';
-        // return '<div class="g-recaptcha" data-sitekey="' . $settings->recaptchaKey . '"></div>';
+        // return '<div class="g-recaptcha" data-sitekey="' . $settings->getRecaptchaKey() . '"></div>';
     }
 
 

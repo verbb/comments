@@ -70,7 +70,7 @@ class CommentsVariable
             $jsString = 'window.addEventListener("load", function() { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            '); });';
+                '); });';
 
             $output[] = Html::script($jsString, ['type' => 'text/javascript']);
         }
