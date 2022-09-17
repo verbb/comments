@@ -99,6 +99,7 @@ class CommentsController extends Controller
 
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
+        $currentUser = Comments::$plugin->getService()->getUser();
 
         $commentId = $request->getParam('commentId');
         $siteId = $request->getParam('siteId');
@@ -110,6 +111,15 @@ class CommentsController extends Controller
 
         $comment->setFieldValuesFromRequest('fields');
         $comment->setScenario(Comment::SCENARIO_CP);
+
+        // Is this another user’s comment?
+        if ($comment->id && $comment->userId != $currentUser->id) {
+            $this->requirePermission('comments-edit');
+
+            if ($comment->status === Comment::STATUS_TRASHED) {
+                $this->requirePermission('comments-trash');
+            }
+        }
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             $session->setError(Craft::t('comments', 'Couldn’t save comment.'));

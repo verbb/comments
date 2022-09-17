@@ -426,6 +426,24 @@ class Comment extends Element
         return $rules;
     }
 
+    public function canSave(User $user): bool
+    {
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        return ($this->userId === $user->id || $user->can('comments-edit'));
+    }
+
+    public function canDelete(User $user): bool
+    {
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        return ($this->userId === $user->id || $user->can('comments-delete'));
+    }
+
     public function getSupportedSites(): array
     {
         // Only support the site the comment is being made on
