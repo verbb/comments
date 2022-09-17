@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2.1 - 2022-09-17
+
+### Fixed
+- Fix a fatal PHP error introduced in `2.0.2`.
+
 ## 2.0.2 - 2022-09-17
 
 ### Added
