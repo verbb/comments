@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.2 - 2022-09-17
+
+### Fixed
+- Fix an error when trying to edit a comment from the element index.
+- Fix element index arrow for comment elements.
+- Fix element action for setting status.
+- Fix lack of permission support for managing other user’s comments.
+- Fix being unable to set `id`, `uid` or `userId` for GraphQL mutations.
+- Fix an error running `resave` console commands.
+
 ## 2.0.1 - 2022-08-27
 
 ### Added
