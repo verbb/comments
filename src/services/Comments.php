@@ -35,8 +35,6 @@ use Throwable;
 
 use yii\helpers\Markdown;
 
-use Throwable;
-
 use Twig\Markup;
 
 class Comments extends Component
