@@ -54,9 +54,6 @@ This query is used to query for [Comment](docs:developers/comment) objects. You 
 | `unique`| `Boolean` | Determines whether only elements with unique IDs should be returned by the query.
 | `preferSites`| `[QueryArgument]` | Determines which site should be selected when querying multi-site elements.
 | `enabledForSite`| `Boolean` | Narrows the query results based on whether the elements are enabled in the site they’re being queried in, per the `site` argument.
-| `title`| `[String]` | Narrows the query results based on the elements’ titles.
-| `slug`| `[String]` | Narrows the query results based on the elements’ slugs.
-| `uri`| `[String]` | Narrows the query results based on the elements’ URIs.
 | `search`| `String` | Narrows the query results to only elements that match a search query.
 | `relatedTo`| `[QueryArgument]` | Narrows the query results to elements that relate to the provided element IDs. This argument is ignored, if `relatedToAll` is also used.
 | `relatedToAssets`| `[AssetCriteriaInput]` | Narrows the query results to elements that relate to an asset list defined with this argument.
@@ -65,7 +62,6 @@ This query is used to query for [Comment](docs:developers/comment) objects. You 
 | `relatedToCategories`| `[CategoryCriteriaInput]` | Narrows the query results to elements that relate to a category list defined with this argument.
 | `relatedToTags`| `[TagCriteriaInput]` | Narrows the query results to elements that relate to a tag list defined with this argument.
 | `relatedToAll`| `[QueryArgument]` | Narrows the query results to elements that relate to *all* of the provided element IDs. Using this argument will cause `relatedTo` argument to be ignored. **This argument is deprecated.** `relatedTo: ["and", ...ids]` should be used instead.
-| `ref`| `[String]` | Narrows the query results based on a reference string.
 | `fixedOrder`| `Boolean` | Causes the query results to be returned in the order specified by the `id` argument.
 | `inReverse`| `Boolean` | Causes the query results to be returned in reverse order.
 | `dateCreated`| `[String]` | Narrows the query results based on the elements’ creation dates.
