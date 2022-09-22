@@ -5,10 +5,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Before you send through your support request, please ensure you have taken these steps first:
+        Before you send through your question, please ensure you have taken these steps first:
         
           ✅ I‘ve searched the [documentation](https://verbb.io/craft-plugins/comments/docs).
           ✅ I‘ve searched open and closed issues.
+          ✅ This is not a bug report, just a general question.
 
   - type: textarea
     id: question
