@@ -1,5 +1,5 @@
-name: Support Request
-description: Ask a question about this plugin.
+name: Question
+description: Ask a question about this plugin. DO NOT use this to submit bug reports.
 labels: 'question'
 body:
   - type: markdown
