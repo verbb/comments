@@ -1043,3 +1043,19 @@ $comments = \verbb\comments\elements\Comment::find()
 
 
 <!-- END PARAMS -->
+
+
+## Ordering
+You can also include custom ordering by votes and flags.
+
+```twig
+{% set topComments = craft.comments.fetch()
+    .orderBy('voteCount DESC')
+    .all() 
+%}
+
+{% set flaggedComments = craft.comments.fetch()
+    .orderBy('flagCount DESC')
+    .all() 
+%}
+```
