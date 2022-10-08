@@ -15,7 +15,7 @@
                 {% set avatar = craft.comments.getAvatar() %}
 
                 {% if avatar %}
-                    {% if avatar is iterable %}
+                    {% if avatar is instance of('craft\\elements\\Asset') %}
                         <img src="{{ avatar.url({ width: 64, height: 64, mode: 'fit' }) }}" />
                     {% else %}
                         <img src="{{ avatar }}" />

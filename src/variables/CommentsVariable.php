@@ -6,6 +6,7 @@ use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\elements\db\CommentQuery;
 
 use Craft;
+use craft\elements\Asset;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -89,7 +90,7 @@ class CommentsVariable
         ];
     }
 
-    public function getAvatar(): string
+    public function getAvatar(): string|Asset
     {
         return CommentsHelper::getAvatar(Comments::$plugin->getService()->getUser());
     }
