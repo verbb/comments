@@ -4,6 +4,7 @@ namespace verbb\comments\helpers;
 use verbb\comments\Comments;
 
 use Craft;
+use craft\elements\Asset;
 
 use DateInterval;
 use Throwable;
@@ -42,7 +43,7 @@ class CommentsHelper
         return '';
     }
 
-    public static function getAvatar($user = null): string
+    public static function getAvatar($user = null): string|Asset
     {
         $settings = Comments::$plugin->getSettings();
 
