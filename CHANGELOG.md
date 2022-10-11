@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 - 2022-10-12
+
+### Fixed
+- Fix an error when upvoting immediately after downvoting.
+- Fix avatars not working for logged-in users.
+
 ## 2.0.2.1 - 2022-09-17
 
 ### Fixed
