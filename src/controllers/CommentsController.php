@@ -280,11 +280,11 @@ class CommentsController extends Controller
 
         if ($upvote) {
             // Reset like no votes were taken!
+            $vote->upvote = ($vote->downvote) ? null : 1;
             $vote->downvote = null;
-            $vote->upvote = ($vote->downvote) ? null : '1';
         } else {
             // Reset like no votes were taken!
-            $vote->downvote = ($vote->upvote) ? null : '1';
+            $vote->downvote = ($vote->upvote) ? null : 1;
             $vote->upvote = null;
         }
 
