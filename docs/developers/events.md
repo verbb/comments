@@ -11,7 +11,7 @@ use craft\events\ModelEvent;
 use verbb\comments\elements\Comment;
 use yii\base\Event;
 
-Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(ModelEvent $e) {
+Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(ModelEvent $event) {
     $comment = $event->sender;
     $event->isValid = false;
 });
@@ -25,7 +25,7 @@ use craft\events\ModelEvent;
 use verbb\comments\elements\Comment;
 use yii\base\Event;
 
-Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(ModelEvent $e) {
+Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(ModelEvent $event) {
     $comment = $event->sender;
 });
 ```
@@ -41,7 +41,7 @@ use verbb\comments\events\FlagEvent;
 use verbb\comments\services\FlagsService as Flags;
 use yii\base\Event;
 
-Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $e) {
+Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $event) {
     // Do something
 });
 ```
@@ -54,7 +54,7 @@ use verbb\comments\events\FlagEvent;
 use verbb\comments\services\FlagsService as Flags;
 use yii\base\Event;
 
-Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $e) {
+Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $event) {
     // Do something
 });
 ```
@@ -67,7 +67,7 @@ use verbb\comments\events\FlagEvent;
 use verbb\comments\services\FlagsService as Flags;
 use yii\base\Event;
 
-Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $e) {
+Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $event) {
     // Do something
 });
 ```
@@ -80,7 +80,7 @@ use verbb\comments\events\FlagEvent;
 use verbb\comments\services\FlagsService as Flags;
 use yii\base\Event;
 
-Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $e) {
+Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $event) {
     // Do something
 });
 ```
@@ -96,7 +96,7 @@ use verbb\comments\events\VoteEvent;
 use verbb\comments\services\VotesService as Votes;
 use yii\base\Event;
 
-Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $e) {
+Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $event) {
     // Do something
 });
 ```
@@ -109,7 +109,7 @@ use verbb\comments\events\VoteEvent;
 use verbb\comments\services\VotesService as Votes;
 use yii\base\Event;
 
-Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $e) {
+Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $event) {
     // Do something
 });
 ```
@@ -122,7 +122,7 @@ use verbb\comments\events\VoteEvent;
 use verbb\comments\services\VotesService as Votes;
 use yii\base\Event;
 
-Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $e) {
+Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $event) {
     // Do something
 });
 ```
@@ -135,7 +135,7 @@ use verbb\comments\events\VoteEvent;
 use verbb\comments\services\VotesService as Votes;
 use yii\base\Event;
 
-Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $e) {
+Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $event) {
     // Do something
 });
 ```
@@ -152,9 +152,9 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
 
@@ -166,9 +166,9 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
 
@@ -180,9 +180,9 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
 
@@ -194,9 +194,9 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
 
@@ -208,9 +208,9 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
 
@@ -222,8 +222,8 @@ use verbb\comments\events\EmailEvent;
 use verbb\comments\services\CommentsService;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function(EmailEvent $e) {
+Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function(EmailEvent $event) {
     // Prevent sending
-    $e->isValid = false;
+    $event->isValid = false;
 });
 ```
