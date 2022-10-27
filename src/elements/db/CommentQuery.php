@@ -35,7 +35,6 @@ class CommentQuery extends ElementQuery
     public $parentId;
     public $ownerType;
     public $ownerSectionId;
-    public $ownerSection;
     public $isFlagged;
 
 
@@ -291,8 +290,8 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('ownerElements.type', $this->ownerType));
         }
 
-        if ($this->ownerSection) {
-            $this->subQuery->innerJoin('{{%elements}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
+        if ($this->ownerSectionId) {
+            $this->subQuery->innerJoin('{{%entries}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
             $this->subQuery->andWhere(Db::parseParam('ownerElements.sectionId', $this->ownerSectionId));
         }
 
