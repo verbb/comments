@@ -4,7 +4,10 @@ namespace verbb\comments\gql\resolvers;
 use verbb\comments\elements\Comment;
 use verbb\comments\helpers\Gql as GqlHelper;
 
+use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
+
+use Illuminate\Support\Collection;
 
 class CommentResolver extends ElementResolver
 {
@@ -19,7 +22,7 @@ class CommentResolver extends ElementResolver
             $query = $source->$fieldName;
         }
 
-        if (is_array($query)) {
+        if (!$query instanceof ElementQuery) {
             return $query;
         }
 
@@ -28,7 +31,7 @@ class CommentResolver extends ElementResolver
         }
 
         if (!GqlHelper::canQueryComments()) {
-            return [];
+            return Collection::empty();
         }
 
         return $query;
