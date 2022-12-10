@@ -972,7 +972,7 @@ Possible values include:
 ::: code
 ```twig Twig
 {# Fetch pending comments #}
-{% set comments = {twig-function}
+{% set comments = craft.comments.fetch()
     .status('pending')
     .all() %}
 ```
