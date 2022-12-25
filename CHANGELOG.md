@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.4 - 2022-12-25
+
+### Changed
+- Improve dutch translations. (thanks @jeroenlammerts).
+
+### Fixed
+- Fixed PHP errors that could occur when executing GraphQL queries.
+
 ## 2.0.3 - 2022-10-12
 
 ### Fixed
