@@ -349,7 +349,11 @@ class Comments extends Component
 
                 CommentsPlugin::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
-                CommentsPlugin::error('Unable to send email to admin (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to admin (' . $notificationAdmin['email'] . '): {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
             }
         }
     }
@@ -405,7 +409,11 @@ class Comments extends Component
 
                 CommentsPlugin::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
-                CommentsPlugin::error('Unable to send email to flag (' . $notificationAdmin['email'] . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to flag (' . $notificationAdmin['email'] . '): {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
             }
         }
     }
@@ -436,7 +444,11 @@ class Comments extends Component
                 $recipient = $element->getAuthor();
             }
         } catch (Throwable $e) {
-            CommentsPlugin::log('Not sending element author notification, no author found: ' . $e->getMessage());
+            CommentsPlugin::log('Not sending element author notification, no author found: {message} {file}:{line}.', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         if (!$recipient) {
@@ -484,7 +496,11 @@ class Comments extends Component
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            CommentsPlugin::error('Error sending element author notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending element author notification: {message} {file}:{line}.', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         if ($emailSent) {
@@ -569,7 +585,11 @@ class Comments extends Component
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            CommentsPlugin::error('Error sending reply notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending reply notification: {message} {file}:{line}.', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         if ($emailSent) {
@@ -635,7 +655,11 @@ class Comments extends Component
 
                 CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
             } catch (Throwable $e) {
-                CommentsPlugin::error('Unable to send email to moderator (' . $user->email . ') - ' . $e->getMessage());
+                CommentsPlugin::error('Unable to send email to moderator (' . $user->email . '): {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
             }
         }
     }
@@ -690,7 +714,11 @@ class Comments extends Component
 
             $emailSent = $message->send();
         } catch (Throwable $e) {
-            CommentsPlugin::error('Error sending comment author notification: ' . $e->getMessage());
+            CommentsPlugin::error('Error sending comment author notification: {message} {file}:{line}.', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         if ($emailSent) {
@@ -801,7 +829,11 @@ class Comments extends Component
                     CommentsPlugin::error('Unable to send email to subscriber (' . $user->email . ')');
                 }
             } catch (Throwable $e) {
-                CommentsPlugin::error('Error sending subscribe reply notification: ' . $e->getMessage());
+                CommentsPlugin::error('Error sending subscribe reply notification: {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
 
                 continue;
             }
@@ -990,7 +1022,11 @@ class Comments extends Component
                 'body' => Template::raw(Markdown::process($textBody)),
             ]), $templateMode));
         } catch (Throwable $e) {
-            CommentsPlugin::error('Error rendering email template: ' . $e->getMessage());
+            CommentsPlugin::error('Error rendering email template: {message} {file}:{line}.', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         return $message;
