@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.5 - 2022-12-30
+
+### Fixed
+- Fix an error when sending email notifications.
+
 ## 2.0.4 - 2022-12-25
 
 ### Changed
