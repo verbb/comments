@@ -71,6 +71,7 @@ return [
         'notificationAdmins' => [],
         'notificationAdminEnabled' => false,
         'notificationFlaggedEnabled' => false,
+        'useQueueForNotifications' => false,
 
         // Permissions
         'permissions' => [],
@@ -142,6 +143,7 @@ return [
 - `notificationAdmins` - Enter the email address of any administrators, used for the below settings.
 - `notificationAdminEnabled` - Admins will receive an email whenever someone makes a comment.
 - `notificationFlaggedEnabled` - Users receive an email when someone replies to their comment.
+- `useQueueForNotifications` - Whether to use Craft‘s queue system to trigger emails. This is highly recommended to prevent slow comment submission for your users.
 
 - `showCustomFieldNames` - Whether custom fields should show their field names as labels.
 - `showCustomFieldInstructions` - Whether custom fields should show their instruction text underneath labels.
