@@ -1012,7 +1012,7 @@ class Comments extends Component
             $template = $settings->templateEmail;
             $templateMode = View::TEMPLATE_MODE_SITE;
         } else {
-            // Default to the _special/email.html template
+            // Default to the `_special/email` template from Craft.
             $template = '_special/email';
             $templateMode = View::TEMPLATE_MODE_CP;
         }
@@ -1020,6 +1020,9 @@ class Comments extends Component
         try {
             $message->setHtmlBody($view->renderTemplate($template, array_merge($variables, [
                 'body' => Template::raw(Markdown::process($textBody)),
+
+                // Required when using `_special/email` from Craft.
+                'language' => $language,
             ]), $templateMode));
         } catch (Throwable $e) {
             CommentsPlugin::error('Error rendering email template: {message} {file}:{line}.', [
