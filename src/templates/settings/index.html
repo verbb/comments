@@ -1,6 +1,8 @@
 {% extends 'comments/_layouts' %}
 {% import '_includes/forms' as forms %}
 
+{% requireAdmin %}
+
 {% set crumbs = [
     { label: 'Comments' | t('comments'), url: url('comments') },
     { label: 'Settings' | t('app'), url: url('comments/settings') },
