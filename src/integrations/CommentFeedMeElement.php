@@ -125,6 +125,9 @@ class CommentFeedMeElement extends Element
         // only available as a setter method.
         $this->element->setParentId($value);
 
+        // Required until Craft 5 refactor
+        $this->element->newParentId = $value;
+
         return $value;
     }
 
