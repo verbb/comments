@@ -589,20 +589,7 @@ class Comment extends Element
             // If this wasn't a registered user...
             $author = new User();
             $author->email = $this->email;
-
-            // We only store guest users full name, so we need to split it for Craft.
-            // Best results using a library - particularly when we're dealing with worldwide names.
-            if ($this->name) {
-                $parser = new Parser();
-                $nameInfo = $parser->parse($this->name);
-
-                $author->firstName = $nameInfo->getFirstname();
-                $author->lastName = $nameInfo->getLastname();
-            }
-
-            if (!$author->firstName && !$author->lastName) {
-                $author->firstName = Craft::t('comments', 'Guest');
-            }
+            $author->fullName = $this->name ?: Craft::t('comments', 'Guest');
 
             $this->_author = $author;
 
@@ -616,8 +603,7 @@ class Comment extends Element
         if (!$user) {
             $author = new User();
             $author->email = null;
-            $author->firstName = Craft::t('comments', '[Deleted');
-            $author->lastName = Craft::t('comments', 'User]');
+            $author->fullName = Craft::t('comments', '[Deleted User]');
 
             $this->_author = $author;
 
