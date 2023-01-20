@@ -336,6 +336,8 @@ class Comment extends Element
             'comment' => ['label' => Craft::t('comments', 'Comment')],
             'commentDate' => ['label' => Craft::t('comments', 'Date')],
             'ownerId' => ['label' => Craft::t('comments', 'Element')],
+            'email' => ['label' => Craft::t('comments', 'Email')],
+            'name' => ['label' => Craft::t('comments', 'Name')],
             'voteCount' => ['label' => Craft::t('comments', 'Votes')],
             'flagCount' => ['label' => Craft::t('comments', 'Flagged')],
         ];
@@ -1182,6 +1184,14 @@ class Comment extends Element
                 }
 
                 return Craft::t('comments', '[Deleted element]');
+            }
+            case 'name':
+            {
+                return $this->getAuthorName() ?? '-';
+            }
+            case 'email':
+            {
+                return $this->getAuthorEmail() ?? '-';
             }
             case 'voteCount':
             {
