@@ -1161,23 +1161,23 @@ class Comment extends Element
         switch ($attribute) {
             case 'ownerId':
             {
-                $owner = $this->getOwner();
+                // $owner = $this->getOwner();
 
-                if ($owner) {
-                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
+                // if ($owner) {
+                //     $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
 
-                    return Template::raw($a);
-                }
+                //     return Template::raw($a);
+                // }
 
                 return Craft::t('comments', '[Deleted element]');
             }
             case 'name':
             {
-                return $this->getAuthorName() ?? '-';
+                return Html::encode($this->getAuthorName()) ?? '-';
             }
             case 'email':
             {
-                return $this->getAuthorEmail() ?? '-';
+                return Html::encode($this->getAuthorEmail()) ?? '-';
             }
             case 'voteCount':
             {
@@ -1186,6 +1186,10 @@ class Comment extends Element
             case 'flagCount':
             {
                 return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
+            }
+            case 'comment':
+            {
+                return Html::encode($this->comment);
             }
             default:
             {
