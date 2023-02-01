@@ -68,7 +68,7 @@ class CommentsController extends Controller
     public function actionEditComment($commentId, string $siteHandle = null, Comment $comment = null): Response
     {
         if (!$siteHandle) {
-            $siteHandle = Craft::$app->getSites()->getCurrentSite()->handle;
+            $siteHandle = $this->request->getParam('site', Craft::$app->getSites()->getCurrentSite()->handle);
         }
 
         $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
