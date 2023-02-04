@@ -1161,13 +1161,13 @@ class Comment extends Element
         switch ($attribute) {
             case 'ownerId':
             {
-                // $owner = $this->getOwner();
+                $owner = $this->getOwner();
 
-                // if ($owner) {
-                //     $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
+                if ($owner) {
+                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
 
-                //     return Template::raw($a);
-                // }
+                    return Template::raw($a);
+                }
 
                 return Craft::t('comments', '[Deleted element]');
             }
