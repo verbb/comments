@@ -905,7 +905,7 @@ class Comment extends Element
             }
 
             // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-            if (!Comments::$plugin->getComments()->checkPermissions($this->owner)) {
+            if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
                 $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
             }
 
@@ -956,7 +956,7 @@ class Comment extends Element
             }
 
             // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-            if (!Comments::$plugin->getComments()->checkPermissions($this->owner)) {
+            if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
                 $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
             }
 
