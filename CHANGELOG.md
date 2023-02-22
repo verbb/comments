@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.6 - 2023-02-22
+
+### Added
+- Add `name` and `email` to available index columns for the control panel.
+
+### Changed
+- Update English translations.
+- Only admins are now allowed to access plugin settings.
+
+### Fixed
+- Fix email notifications not sending via the queue when comments are made from a non-primary site.
+- Fix a 404 error when trying to edit a non-primary site comment for a multi-site install.
+- Fix HTML encoding for name, email and comment columns in the control panel element index.
+- Fix compatibility with Craft 4 and guest names showing `User`.
+- Fix an error when importing nested commerce with Feed Me.
+
 ## 2.0.5 - 2022-12-30
 
 ### Fixed
