@@ -269,6 +269,7 @@ class CommentsService extends Component
             Craft::$app->getQueue()->push(new SendNotification([
                 'type' => $type,
                 'commentId' => $comment->id,
+                'siteId' => $comment->siteId,
             ]));
         } else {
             $this->triggerNotificationEmail($type, $comment);
