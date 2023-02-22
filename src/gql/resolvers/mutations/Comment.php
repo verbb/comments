@@ -117,7 +117,7 @@ class Comment extends ElementMutationResolver
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      */
-    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?ElementInterface
+    public function voteComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?Vote
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
@@ -179,7 +179,7 @@ class Comment extends ElementMutationResolver
      * @param ResolveInfo $resolveInfo
      * @return ElementInterface|null
      */
-    public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?ElementInterface
+    public function flagComment($source, array $arguments, $context, ResolveInfo $resolveInfo): ?Flag
     {
         /** @var Settings $settings */
         $settings = Comments::$plugin->getSettings();
