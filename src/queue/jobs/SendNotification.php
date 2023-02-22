@@ -14,6 +14,7 @@ class SendNotification extends BaseJob
     // =========================================================================
 
     public int $commentId;
+    public ?int $siteId = null;
     public string $type;
 
 
@@ -35,7 +36,7 @@ class SendNotification extends BaseJob
     {
         $this->setProgress($queue, 0);
 
-        $comment = Comments::$plugin->getComments()->getCommentById($this->commentId);
+        $comment = Comments::$plugin->getComments()->getCommentById($this->commentId, $this->siteId);
 
         if (!$comment) {
             throw new Exception('Unable to find comment: ' . $this->commentId . '.');
