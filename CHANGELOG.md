@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.5 - 2023-02-22
+
+### Changed
+- Improve dutch translations. (thanks @jeroenlammerts).
+
+### Fixed
+- Fix email notifications not sending via the queue when comments are made from a non-primary site
+- Fix custom sources not filtering by `$ownerSectionId`. (thanks @jeroenlammerts).
+
 ## 1.9.4 - 2022-09-17
 
 ### Added
