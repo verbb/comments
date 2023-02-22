@@ -175,13 +175,13 @@ Saves a new nested visitor comment.
 
 ```graphql
 mutation NewComment($newParentId: ID, $ownerId: ID, $name: String, $email: String, $comment: String) {
-  saveComment(newParentId: $newParentId, ownerId: $ownerId, name: $name, email: $email, comment: $comment) {
-    id
-    ownerId
-    name
-    email
-    comment
-  }
+    saveComment(newParentId: $newParentId, ownerId: $ownerId, name: $name, email: $email, comment: $comment) {
+        id
+        ownerId
+        name
+        email
+        comment
+    }
 }
 ```
 
@@ -189,27 +189,26 @@ Query variables:
 
 ```json
 {
-  "ownerId": 7,
-  "newParentId": 30,
-  "name": "Matt",
-  "email": "matt@pixelandtonic.com",
-  "comment": "Here’s a nested comment."
+    "ownerId": 7,
+    "newParentId": 30,
+    "name": "Matt",
+    "email": "matt@pixelandtonic.com",
+    "comment": "Here’s a nested comment."
 }
 ```
 
 ### saveComment
-
 Edit an existing comment.
 
 ```graphql
 mutation UpdateComment($id: ID, $comment: String) {
-  saveComment(id: $id, comment: $comment) {
-    id
-    ownerId
-    name
-    email
-    comment
-  }
+    saveComment(id: $id, comment: $comment) {
+        id
+        ownerId
+        name
+        email
+        comment
+    }
 }
 ```
 
@@ -217,67 +216,19 @@ Query variables:
 
 ```json
 {
-  "id": 34,
-  "comment": "I’m totally changing what I said."
+    "id": 34,
+    "comment": "I’m totally changing what I said."
 }
 ```
 
 ### voteComment
-
 Upvote a comment:
 
 ```graphql
-mutation UpvoteComment($id: ID, $comment: String) {
-  voteComment(id: $id, comment: $comment) {
-    id
-    ownerId
-    name
-    email
-    comment
-  }
-}
-```
-
-Query variables:
-
-```json
-{
-  "id": 34,
-  "upvote": true
-}
-```
-
-Downvote a comment:
-
-```graphql
-mutation DownvoteComment($id: ID, $comment: String) {
-  voteComment(id: $id, comment: $comment) {
-    id
-    ownerId
-    name
-    email
-    comment
-  }
-}
-```
-
-Query variables:
-
-```json
-{
-  "id": 34,
-  "downvote": true
-}
-```
-
-### flagComment
-
-Flag a comment for moderation:
-
-```graphql
-mutation FlagComment($id: ID!) {
-    flagComment(id: $id) {
+mutation UpvoteComment($id: ID!, $upvote: Boolean) {
+    voteComment(id: $id, upvote: $upvote) {
         id
+        
         comment {
             flags
             upvotes
@@ -291,12 +242,62 @@ Query variables:
 
 ```json
 {
-  "id": 34
+    "id": 34,
+    "upvote": true
+}
+```
+
+Downvote a comment:
+
+```graphql
+mutation DownvoteComment($id: ID!, $downvote: Boolean) {
+    voteComment(id: $id, downvote: $downvote) {
+        id
+        
+        comment {
+            flags
+            upvotes
+            downvotes
+        }
+    }
+}
+```
+
+Query variables:
+
+```json
+{
+    "id": 34,
+    "downvote": true
+}
+```
+
+### flagComment
+Flag a comment for moderation:
+
+```graphql
+mutation FlagComment($id: ID!) {
+    flagComment(id: $id) {
+        id
+
+        comment {
+            flags
+            upvotes
+            downvotes
+        }
+    }
+}
+```
+
+Query variables:
+
+```json
+{
+    "id": 34
 }
 ```
 
 ### subscribeComment
-
 Subscribe to an element’s comment notifications:
 
 ```graphql
@@ -311,7 +312,7 @@ Query variables:
 
 ```json
 {
-  "ownerId": 34
+    "ownerId": 34
 }
 ```
 
@@ -329,13 +330,12 @@ Query variables:
 
 ```json
 {
-  "ownerId": 34,
-  "commentId": 95
+    "ownerId": 34,
+    "commentId": 95
 }
 ```
 
 ### deleteComment
-
 Delete a comment:
 
 ```graphql
@@ -348,6 +348,6 @@ Query variables:
 
 ```json
 {
-  "id": 34
+    "id": 34
 }
 ```
