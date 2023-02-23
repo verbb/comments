@@ -40,13 +40,13 @@ return [
         "Your comment has been approved on the post \"{{ element.title }}\".\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
-    'comments_admin_notification_heading' => 'When a comment is received:',
+    'comments_admin_notification_heading' => 'When a comment is received by an admin:',
     'comments_admin_notification_subject' => '"{{element.title}}" has received a comment on {{siteName}}.',
     'comments_admin_notification_body' => "Hi,\n\n" .
         "A new comment on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{comment.cpEditUrl}}.",
 
-    'comments_flag_notification_heading' => 'When a comment is received:',
+    'comments_flag_notification_heading' => 'When a comment has received a flag:',
     'comments_flag_notification_subject' => '"{{element.title}}" has received a comment flag on {{siteName}}.',
     'comments_flag_notification_body' => "Hi,\n\n" .
         "A comment has been flagged on the post \"{{ element.title }}\".\n\n" .
