@@ -127,23 +127,6 @@ class Comments extends Plugin
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
     }
 
-    public function afterInstall(): void
-    {
-        // Comments are a Structure, which helps with hierarchy-goodness.
-        // We only use a single structure for all our comments so store this at the plugin settings level
-        if (!$this->getSettings()->structureUid) {
-            $this->createAndStoreStructure();
-        }
-    }
-
-    public function beforeUninstall(): void
-    {
-        // Clean up structure
-        if ($this->getSettings()->structureUid) {
-            Craft::$app->getStructures()->deleteStructureById($this->getSettings()->getStructureId());
-        }
-    }
-
     public function createAndStoreStructure(): ?Structure
     {
         $structure = null;
@@ -311,6 +294,21 @@ class Comments extends Plugin
                 }
             });
         }
+
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
+            // Comments are a Structure, which helps with hierarchy-goodness.
+            // We only use a single structure for all our comments so store this at the plugin settings level
+            if ($event->plugin === $this && !$this->getSettings()->structureUid) {
+                $this->createAndStoreStructure();
+            }
+        });
+
+        Event::on(Plugins::class, Plugins::EVENT_BEFORE_UNINSTALL_PLUGIN, function(PluginEvent $event) {
+            // Clean up structure
+            if ($event->plugin === $this && $this->getSettings()->structureUid) {
+                Craft::$app->getStructures()->deleteStructureById($this->getSettings()->getStructureId());
+            }
+        });
     }
 
     private function _registerGraphQl(): void
