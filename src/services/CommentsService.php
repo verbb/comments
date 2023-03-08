@@ -941,7 +941,7 @@ class CommentsService extends Component
         $settings = Comments::$plugin->getSettings();
 
         $mailer = Craft::$app->getMailer();
-        $message = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
+        $message = $mailer->composeFromKey($key, $variables);
 
         // Default to the current language
         $language = Craft::$app->getRequest()->getIsSiteRequest() ? Craft::$app->language : Craft::$app->getSites()->getPrimarySite()->language;
