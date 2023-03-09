@@ -31,6 +31,7 @@ use craft\models\Structure;
 use craft\web\View;
 
 use DateTime;
+use Exception;
 use Throwable;
 
 use yii\helpers\Markdown;
@@ -324,6 +325,10 @@ class Comments extends Component
 
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
+                if (!isset($notificationAdmin['email'])) {
+                    throw new Exception('Invalid email.');
+                }
+
                 $mail = $this->_renderEmail('comments_admin_notification', [
                     'element' => $element,
                     'comment' => $comment,
@@ -384,6 +389,10 @@ class Comments extends Component
 
         foreach ($notificationAdmins as $notificationAdmin) {
             try {
+                if (!isset($notificationAdmin['email'])) {
+                    throw new Exception('Invalid email.');
+                }
+
                 $mail = $this->_renderEmail('comments_flag_notification', [
                     'element' => $element,
                     'comment' => $comment,
@@ -630,6 +639,10 @@ class Comments extends Component
 
         foreach ($recipients as $key => $user) {
             try {
+                if (!isset($user)) {
+                    throw new Exception('Invalid user.');
+                }
+
                 $mail = $this->_renderEmail('comments_moderator_notification', [
                     'element' => $element,
                     'comment' => $comment,
