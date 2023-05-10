@@ -368,11 +368,11 @@ class Comments extends Plugin
 
     private function _registerFieldLayoutListener(): void
     {
-        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
-            $fieldLayout = $e->sender;
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $event) {
+            $fieldLayout = $event->sender;
 
             if ($fieldLayout->type == Comment::class) {
-                $e->fields[] = CommentsFieldLayoutElement::class;
+                $event->fields[] = CommentsFieldLayoutElement::class;
             }
         });
     }
@@ -416,8 +416,8 @@ class Comments extends Plugin
     private function _registerFeedMeSupport(): void
     {
         if (class_exists(FeedMeElements::class)) {
-            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $e) {
-                $e->elements[] = CommentFeedMeElement::class;
+            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $event) {
+                $event->elements[] = CommentFeedMeElement::class;
             });
         }
     }
@@ -435,8 +435,8 @@ class Comments extends Plugin
             return;
         }
 
-        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
-            $e->actions['comments-comments'] = [
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $event) {
+            $event->actions['comments-comments'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
 
