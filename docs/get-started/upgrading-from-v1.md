@@ -25,3 +25,8 @@ Old | What to do instead
 | `Comment::upvoteUrl` | Use [form](https://verbb.io/craft-plugins/comments/docs/developers/comment) instead
 | `craft.comments.all()` | Use `craft.comments.fetch()` instead.
 | `craft.comments.form()` | Use `craft.comments.render()` instead.
+
+## Templates
+
+### `getFields()`
+Any references to `getFields()` should be changed to `getCustomFields()`. This is inline with Craft 4 element field layout changes.
