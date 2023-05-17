@@ -14,7 +14,7 @@
 
 {% set containsFileInput = false %}
 
-{% for field in fieldLayout.getFields() %}
+{% for field in fieldLayout.getCustomFields() %}
     {% if className(field) == 'craft\\fields\\Assets' %}
         {% set containsFileInput = true %}
     {% endif %}
@@ -65,9 +65,9 @@
                 </div>
             {% endif %}
 
-            {% if fieldLayout.getFields() | length %}
+            {% if fieldLayout.getCustomFields() | length %}
                 <div class="cc-f-cf">
-                    {% for field in fieldLayout.getFields() %}
+                    {% for field in fieldLayout.getCustomFields() %}
                         <div class="cc-f-row">
                             <div class="cc-f-col">
                                 {% include 'field' %}
