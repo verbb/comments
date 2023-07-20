@@ -189,10 +189,6 @@ class CommentFeedMeElement extends Element
             return null;
         }
 
-        if (is_numeric($value)) {
-            $match = 'elements.id';
-        }
-
         if ($match === 'fullName') {
             $element = UserElement::findOne(['search' => $value, 'status' => null]);
         } else {
