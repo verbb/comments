@@ -148,7 +148,13 @@ class CommentFeedMeElement extends Element
         // the content table.
         $columnName = $match;
 
-        if ($field = Craft::$app->getFields()->getFieldByHandle($match)) {
+        // Remove field_ prefix from match before giving it to getFieldByHandle
+        $fieldHandle = $match;
+        if (strpos($match, 'field_') === 0) {  
+            $fieldHandle = substr($match, 6);
+        }
+
+        if ($field = Craft::$app->getFields()->getFieldByHandle($fieldHandle)) {
             $columnName = ElementHelper::fieldColumnFromField($field);
         }
 
