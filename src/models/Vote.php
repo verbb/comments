@@ -8,6 +8,7 @@ use verbb\comments\records\Vote as VoteRecord;
 use Craft;
 use craft\base\Model;
 use craft\base\ElementInterface;
+use craft\elements\User;
 
 class Vote extends Model
 {
@@ -53,6 +54,16 @@ class Vote extends Model
     {
         if ($this->commentId) {
             return Comment::find()->id($this->commentId)->one();
+        }
+
+        return null;
+    }
+
+
+    public function getUser(): ?User
+    {
+        if ($this->userId) {
+            return User::find()->id($this->userId)->one();
         }
 
         return null;
