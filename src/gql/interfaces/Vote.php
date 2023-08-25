@@ -93,7 +93,7 @@ class Vote extends InterfaceType
         }
 
         if (GqlHelper::canQueryComments()) {
-            $conditionalFields = array_merge([
+            $conditionalFields = array_merge($conditionalFields, [
                 'commentId' => [
                     'name' => 'commentId',
                     'type' => Type::id(),
