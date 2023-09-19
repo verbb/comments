@@ -17,8 +17,6 @@ While the CSS and JS are an additional 7.3kb minified (2.3kb gzip), and 10.5kb m
 
 The above would produce a form similar to the below.
 
-![Comments Default Templating](/docs/screenshots/comments-default-templating.png)
-
 You can roll-your-own templates, or even override template partials using [Custom Templates](docs:template-guides/custom-templates).
 
 ## Default Templates

@@ -362,58 +362,6 @@
       "rFN" : 0,
       "uCM" : 0
     },
-    "\/docs\/screenshots\/comments-default-templating.png" : {
-      "ft" : 32768,
-      "iS" : 133532,
-      "oA" : 0,
-      "oAP" : "\/docs\/screenshots\/comments-default-templating.png",
-      "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
-      "oT" : 1,
-      "ou" : "lpckwebp-none",
-      "q" : 100,
-      "rq" : 75
-    },
-    "\/docs\/screenshots\/edit.png" : {
-      "ft" : 32768,
-      "iS" : 140166,
-      "oA" : 0,
-      "oAP" : "\/docs\/screenshots\/edit.png",
-      "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
-      "oT" : 1,
-      "ou" : "lpckwebp-none",
-      "q" : 100,
-      "rq" : 75
-    },
-    "\/docs\/screenshots\/main.png" : {
-      "ft" : 32768,
-      "iS" : 151910,
-      "oA" : 0,
-      "oAP" : "\/docs\/screenshots\/main.png",
-      "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
-      "oT" : 1,
-      "ou" : "lpckwebp-none",
-      "q" : 100,
-      "rq" : 75
-    },
-    "\/docs\/screenshots\/permissions.png" : {
-      "ft" : 32768,
-      "iS" : 102105,
-      "oA" : 0,
-      "oAP" : "\/docs\/screenshots\/permissions.png",
-      "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
-      "oT" : 1,
-      "ou" : "lpckwebp-none",
-      "q" : 100,
-      "rq" : 75
-    },
     "\/docs\/template-guides\/available-variables.md" : {
       "cB" : 0,
       "cS" : 0,
