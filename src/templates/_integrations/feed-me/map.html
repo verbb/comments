@@ -81,7 +81,7 @@
 }, {
     type: 'users',
     name: 'Author',
-    handle: 'authorId',
+    handle: 'userId',
     instructions: 'Comments will be assigned to the user in this field. If the field does not match any existing member, the default author will be assigned.'|t('feed-me'),
     default: {
         type: 'elementselect',
@@ -147,6 +147,72 @@
         </tbody>
     </table>
 {% endfor %}
+
+{% set voteFields = [{
+    name: 'Type',
+    handle: 'type',
+    instructions: 'Choose the type of this vote.'|t('feed-me'),
+    default: {
+        type: 'select',
+        options: [
+            { label: 'Don’t import'|t('feed-me'), value: '' },
+            { label: 'Upvote', value: 'up' },
+            { label: 'Downvote', value: 'down' },
+        ],
+    },
+}, {
+    type: 'date',
+    name: 'Vote Date',
+    handle: 'date',
+    instructions: 'Accepts Unix timestamp, or just about any English textual datetime description.'|t('feed-me'),
+    default: {
+        type: 'dateTime',
+    },
+}, {
+    name: 'IP Address',
+    skip: not craft.app.config.getGeneral().storeUserIps,
+    handle: 'ipAddress',
+    default: {
+        type: 'text',
+    },
+}, {
+    type: 'users',
+    name: 'User',
+    handle: 'userId',
+    instructions: 'Vote will be assigned to the user in this field. If the field does not match any existing member, the default user will be assigned.'|t('feed-me'),
+    default: {
+        type: 'elementselect',
+        options: {
+            elementType: 'craft\\elements\\User',
+            selectionLabel: "Default User"|t('feed-me'),
+            limit: 1,
+        },
+    },
+}] %}
+
+<h2>Votes</h2>
+<p>{{ "When updating an extisting comment and one or more of the vote fields are matched with a feed element, all existing votes for the imported comment will be removed before importing the new votes."|t('feed-me') }}</p>
+<table class="feedme-mapping data fullwidth collapsible">
+    <thead>
+        <th>{{ 'Field'|t('feed-me') }}</th>
+        <th>{{ 'Feed Element'|t('feed-me') }}</th>
+        <th>{{ 'Default Value'|t('feed-me') }}</th>
+    </thead>
+    <tbody>
+        {% for field in voteFields %}
+            {% if field.skip is not defined or not field.skip %}
+                {% set template = field.type ?? 'default' %}
+                {% set parentPath = ['vote']|merge ([field.handle]) %}
+                {% set variables = field | merge({ path: parentPath, feed: feed, feedData: feedData, attribute: true }) %}
+
+                {% include [
+                    'comments/_integrations/feed-me/fields/' ~ template,
+                    'feed-me/_includes/fields/' ~ template
+                ] ignore missing with variables only %}
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
 
 <hr>
 

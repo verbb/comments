@@ -3,6 +3,7 @@ namespace verbb\comments\integrations;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
+use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -62,6 +63,7 @@ class CommentFeedMeElement extends Element
         Event::on(Process::class, Process::EVENT_STEP_AFTER_ELEMENT_SAVE, function(FeedProcessEvent $event): void {
             if ($event->feed['elementType'] === CommentElement::class) {
                 $this->_processNestedComments($event);
+                $this->_processVotes($event);
             }
         });
     }
@@ -148,7 +150,13 @@ class CommentFeedMeElement extends Element
         // the content table.
         $columnName = $match;
 
-        if ($field = Craft::$app->getFields()->getFieldByHandle($match)) {
+        // Remove field_ prefix from match before giving it to getFieldByHandle
+        $fieldHandle = $match;
+        if (strpos($match, 'field_') === 0) {  
+            $fieldHandle = substr($match, 6);
+        }
+
+        if ($field = Craft::$app->getFields()->getFieldByHandle($fieldHandle)) {
             $columnName = ElementHelper::fieldColumnFromField($field);
         }
 
@@ -183,10 +191,6 @@ class CommentFeedMeElement extends Element
             return null;
         }
 
-        if (is_numeric($value)) {
-            $match = 'elements.id';
-        }
-
         if ($match === 'fullName') {
             $element = UserElement::findOne(['search' => $value, 'status' => null]);
         } else {
@@ -216,6 +220,110 @@ class CommentFeedMeElement extends Element
         }
 
         return null;
+    }
+
+    protected function _processVotes($event): void
+    {
+        // Save the imported comment as the parent, we'll need it in a sec
+        $parentId = $event->element->id;
+
+        // Check if we're mapping a node to start looking for children.
+        $voteFieldInfo = Hash::get($event->feed, 'fieldMapping.vote');
+
+        // If there's no mapping for votes, stop here.
+        if (empty($voteFieldInfo)) {
+            return;
+        }
+
+        $fieldData = [];
+
+        foreach ($event->feedData as $nodePath => $value) {
+            $fieldMapping = $this->_getFieldMappingInfoForNodePath($nodePath, $voteFieldInfo);
+
+            if($fieldMapping) {
+                $fieldHandle = $fieldMapping['fieldHandle'];
+                $fieldInfo = $fieldMapping['fieldInfo'];
+
+                $nodePathSegments = explode('/', $nodePath);
+
+                $blockIndex = 0;
+                $nodePathSegments = array_reverse($nodePathSegments);
+                foreach ($nodePathSegments as $segment) {
+                    if(is_numeric($segment)) {
+                        $blockIndex = $segment;
+                        break;
+                    }
+                }
+
+                $key = $blockIndex . '.' . $fieldHandle;
+
+                $fieldInfo['node'] = $nodePath;
+
+                // Parse field values
+                switch ($fieldHandle) {
+                    case 'date':
+                        $value = $this->fetchSimpleValue($event->feedData, $fieldInfo);
+                        $formatting = Hash::get($fieldInfo, 'options.match');
+
+                        $parsedValue = $this->parseDateAttribute($value, $formatting);
+                        break;
+                    case 'userId':
+                        $parsedValue = $this->parseUserId($event->feedData, $fieldInfo);
+                        break;
+                    default:
+                        $parsedValue = $this->fetchSimpleValue($event->feedData, $fieldInfo);
+                        break;
+                }
+                
+                $fieldData[$key] = $parsedValue;
+            }
+
+        }
+
+        ksort($fieldData, SORT_NUMERIC);
+
+        $results = Hash::expand($fieldData);
+
+        // Clear existing votes for this comment
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%comments_votes}}', ['commentId' => $parentId])
+            ->execute();
+
+        
+        // If there are no votes to import, stop here
+        if(empty($results)) {
+            return;
+        }
+
+        // Fill missing fields with default or empty values
+        $fullResults = [];
+        foreach ($results as $result) {
+            foreach ($voteFieldInfo as $handle => $info) {
+                if(!isset($result[$handle])) {
+                    $result[$handle] = $info['default'] ?? '';
+                }
+            }
+            $fullResults[] = $result;
+        }
+
+        // Save the votes
+        $voteService = Comments::$plugin->getVotes();
+        foreach ($fullResults as $voteData) {
+            $voteRecord = new VoteRecord();
+
+            $voteRecord->commentId = $parentId;
+            $voteRecord->userId = $voteData['userId'] ?? null;
+            $voteRecord->sessionId = $voteService->generateSessionId();
+            $voteRecord->upvote = ($voteData['type'] === 'up') ? 1 : null;;
+            $voteRecord->downvote = ($voteData['type'] === 'down') ? 1 : null;
+            $voteRecord->dateCreated = $voteData['date'] ?? null;;
+
+            if (Craft::$app->getConfig()->getGeneral()->storeUserIps) {
+                $voteRecord->lastIp = $voteData['ipAddress'] ?? null;
+            }
+
+            $voteRecord->save(false);
+        }
     }
 
     private function _processNestedComments($event): void
@@ -251,4 +359,31 @@ class CommentFeedMeElement extends Element
             Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
         }
     }
+
+
+    /**
+     * @param $nodePath
+     * @param $fields
+     * @return array|null
+     */
+    private function _getFieldMappingInfoForNodePath($nodePath, $fields): ?array
+    {
+        $feedPath = preg_replace('/(\/\d+\/)/', '/', $nodePath);
+        $feedPath = preg_replace('/^(\d+\/)|(\/\d+)/', '', $feedPath);
+
+        foreach ($fields as $fieldHandle => $fieldInfo) {
+            $node = Hash::get($fieldInfo, 'node');
+
+            if ($feedPath == $node) {
+                return [
+                    'fieldHandle' => $fieldHandle,
+                    'fieldInfo' => $fieldInfo,
+                    'nodePath' => $nodePath
+                ];
+            }
+        }
+
+        return null;
+    }
+    
 }
