@@ -21,17 +21,11 @@ class SendNotification extends BaseJob
     // Public Methods
     // =========================================================================
 
-    /**
-     * @inheritDoc
-     */
     public function getDescription(): ?string
     {
         return Craft::t('comments', 'Sending comment notification.');
     }
 
-    /**
-     * @inheritDoc
-     */
     public function execute($queue): void
     {
         $this->setProgress($queue, 0);

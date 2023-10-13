@@ -21,14 +21,6 @@ class Flag extends Model
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
-    {
-        return [
-            [['id'], 'number', 'integerOnly' => true],
-            [['commentId'], 'required'],
-        ];
-    }
-
     public function getComment(): ?Comment
     {
         if ($this->commentId) {
@@ -36,6 +28,18 @@ class Flag extends Model
         }
 
         return null;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        return [
+            [['id'], 'number', 'integerOnly' => true],
+            [['commentId'], 'required'],
+        ];
     }
 
 }

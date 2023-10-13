@@ -16,7 +16,7 @@
         {% set elementOptions = [] %}
 
         {% if element == 'craft\\elements\\Entry' %}
-            {% for section in craft.app.sections.getAllSections() %}
+            {% for section in craft.app.entries.getAllSections() %}
                 {% set elementOptions = [{ value: section.uid, label: section.name | e }] | merge(elementOptions) %}
             {% endfor %}
         {% elseif element == 'craft\\elements\\Category' %}

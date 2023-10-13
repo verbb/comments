@@ -11,9 +11,6 @@ class Comment extends ElementMutationArguments
     // Static Methods
     // =========================================================================
 
-    /**
-     * @inheritdoc
-     */
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), [

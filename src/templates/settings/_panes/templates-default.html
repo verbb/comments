@@ -13,12 +13,19 @@
 }) }}
 
 <div id="avatar-fields" class="field {{ not settings.showAvatar ? 'hidden' }}">
+    {% set elements = [] %}
+    {% set placeholderAvatar = settings.getPlaceholderAvatar() %}
+
+    {% if placeholderAvatar %}
+        {% set elements = elements | merge([placeholderAvatar]) %}
+    {% endif %}
+
     {{ forms.elementSelectField({
         label: 'Placeholder Avatar' | t('comments'),
         instructions: 'If a guest is making a comment, this will be shown as their avatar.' | t('comments'),
         id: 'placeholderAvatar',
         name: 'placeholderAvatar',
-        elements: [settings.getPlaceholderAvatar()],
+        elements: elements,
         elementType: 'craft\\elements\\Asset',
         selectionLabel: 'Choose placeholder avatar' | t('comments'),
         sources: '*',

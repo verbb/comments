@@ -27,7 +27,30 @@ class Vote extends Model
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
+    public function getComment(): ?Comment
+    {
+        if ($this->commentId) {
+            return Comment::find()->id($this->commentId)->one();
+        }
+
+        return null;
+    }
+
+
+    public function getUser(): ?User
+    {
+        if ($this->userId) {
+            return User::find()->id($this->userId)->one();
+        }
+
+        return null;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
     {
         $currentUser = Comments::$plugin->getService()->getUser();
 
@@ -48,25 +71,6 @@ class Vote extends Model
                 'message' => Craft::t('comments', 'You can only vote on a comment once.'),
             ],
         ];
-    }
-
-    public function getComment(): ?Comment
-    {
-        if ($this->commentId) {
-            return Comment::find()->id($this->commentId)->one();
-        }
-
-        return null;
-    }
-
-
-    public function getUser(): ?User
-    {
-        if ($this->userId) {
-            return User::find()->id($this->userId)->one();
-        }
-
-        return null;
     }
 
 }

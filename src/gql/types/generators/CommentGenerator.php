@@ -16,9 +16,6 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
     // Static Methods
     // =========================================================================
 
-    /**
-     * @inheritdoc
-     */
     public static function generateTypes(mixed $context = null): array
     {
         // Comments have no context
@@ -26,9 +23,6 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
         return [$type->name => $type];
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function generateType(mixed $context): mixed
     {
         $context = $context ?: Craft::$app->getFields()->getLayoutByType(Comment::class);

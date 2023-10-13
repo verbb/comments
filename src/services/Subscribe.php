@@ -115,7 +115,7 @@ class Subscribe extends Component
         }
 
         if ($runValidation && !$subscribe->validate()) {
-            Craft::info('Subscribe not saved due to validation error.', __METHOD__);
+            Comments::info('Subscribe not saved due to validation error.');
             return false;
         }
 

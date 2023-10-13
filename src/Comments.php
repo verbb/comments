@@ -82,16 +82,14 @@ class Comments extends Plugin
 
         self::$plugin = $this;
 
-        $this->_registerComponents();
-        $this->_registerLogTarget();
         $this->_registerTwigExtensions();
         $this->_registerEmailMessages();
         $this->_registerVariables();
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
         $this->_registerGraphQl();
-        $this->_registerCraftEventListeners();
-        $this->_registerProjectConfigEventListeners();
+        $this->_registerEventHandlers();
+        $this->_registerProjectConfigEventHandlers();
         $this->_checkDeprecations();
         $this->_registerFeedMeSupport();
 
@@ -99,7 +97,6 @@ class Comments extends Plugin
             $this->_registerCpRoutes();
             $this->_registerWidgets();
             $this->_registerFieldLayoutListener();
-            $this->_registerTemplateHooks();
         }
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
@@ -111,20 +108,29 @@ class Comments extends Plugin
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getCpNavItem(): ?array
+    public function getPluginName(): string
     {
-        $ret = parent::getCpNavItem();
-        $ret['label'] = Craft::t('comments', 'Comments');
-
-        return $ret;
+        return Craft::t('comments', $this->getSettings()->pluginName);
     }
 
     public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('comments/settings'));
+    }
+
+    public function getCpNavItem(): ?array
+    {
+        $nav = parent::getCpNavItem();
+        $nav['label'] = $this->getPluginName();
+
+        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            $nav['subnav']['settings'] = [
+                'label' => Craft::t('comments', 'Settings'),
+                'url' => 'comments/settings',
+            ];
+        }
+
+        return $nav;
     }
 
     public function createAndStoreStructure(): ?Structure
@@ -278,18 +284,11 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerCraftEventListeners(): void
+    private function _registerEventHandlers(): void
     {
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
                 if ($event->plugin === $this) {
-                    $fieldLayout = Craft::$app->getFields()->getLayoutByType(Comment::class);
-
-                    // Ensure the field layout is created, if not.
-                    if ($fieldLayout && !$fieldLayout->id) {
-                        Db::insert(Table::FIELDLAYOUTS, ['type' => Comment::class]);
-                    }
-
                     Comments::$plugin->getComments()->saveFieldLayout();
                 }
             });
@@ -347,7 +346,7 @@ class Comments extends Plugin
         });
     }
 
-    private function _registerProjectConfigEventListeners(): void
+    private function _registerProjectConfigEventHandlers(): void
     {
         $projectConfigService = Craft::$app->getProjectConfig();
         $service = $this->getComments();
@@ -446,12 +445,5 @@ class Comments extends Plugin
                 'helpSummary' => 'Re-saves Comments comments.',
             ];
         });
-    }
-
-    private function _registerTemplateHooks(): void
-    {
-        // Only used on the /comments page, hook onto the 'cp.elements.element' hook to allow us to
-        // modify the Title column for the element index table - we want something special.
-        Craft::$app->getView()->hook('cp.elements.element', [Comment::class, 'getCommentElementTitleHtml']);
     }
 }

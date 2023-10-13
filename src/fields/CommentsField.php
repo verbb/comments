@@ -29,7 +29,6 @@ class CommentsField extends Field
     // Properties
     // =========================================================================
 
-    public string $columnType = Schema::TYPE_TEXT;
     public bool $commentEnabled = true;
     public bool $default = true;
 
@@ -37,16 +36,12 @@ class CommentsField extends Field
     // Public Methods
     // =========================================================================
 
-    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
+    public function __construct($config = [])
     {
-        $id = Html::id($this->handle);
+        // Remove unused settings
+        unset($config['columnType']);
 
-        return Craft::$app->getView()->renderTemplate('comments/_field/input', [
-            'id' => $id,
-            'name' => $this->handle,
-            'value' => $value,
-            'element' => $element,
-        ]);
+        parent::__construct($config);
     }
 
     public function getSettingsHtml(): ?string
@@ -59,7 +54,7 @@ class CommentsField extends Field
         ]);
     }
 
-    public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
+    public function normalizeValue(mixed $value, ElementInterface $element = null): mixed
     {
         if ($value === null) {
             return ['commentEnabled' => $this->default];
@@ -70,5 +65,21 @@ class CommentsField extends Field
         }
 
         return $value;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function inputHtml(mixed $value, ?ElementInterface $element, bool $inline): string
+    {
+        $id = Html::id($this->handle);
+
+        return Craft::$app->getView()->renderTemplate('comments/_field/input', [
+            'id' => $id,
+            'name' => $this->handle,
+            'value' => $value,
+            'element' => $element,
+        ]);
     }
 }

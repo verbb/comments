@@ -31,7 +31,7 @@ return [
     'comments_moderator_notification_comment_subject' => 'Een nieuwe reactie moet gekeurd worden op {{ siteName }}',
     'comments_moderator_notification_comment_body' => "Hallo {{user.friendlyName}},\n\n" .
         "Een nieuwe reactie op de post \"{{ element.title }}\" moet gekeurd worden.\n\n" .
-        "{{comment.cpEditUrl}}.",
+        "{{comment.getCpEditUrl()}}.",
 
     'comments_moderator_approved_notification_comment_heading' => 'Als een reactie is goedgekeurd:',
     'comments_moderator_approved_notification_comment_subject' => 'Je reactie is goedgekeurd op {{ siteName }}',
@@ -43,13 +43,13 @@ return [
     'comments_admin_notification_subject' => '"{{element.title}}" heeft een reactie ontvangen op {{siteName}}.',
     'comments_admin_notification_body' => "Hallo,\n\n" .
         "Er is een nieuwe reactie geplaatst onder \"{{ element.title }}\".\n\n" .
-        "{{comment.cpEditUrl}}.",
+        "{{comment.getCpEditUrl()}}.",
 
     'comments_flag_notification_heading' => 'Als een reactie is geflagged:',
     'comments_flag_notification_subject' => '"{{element.title}}" heeft een flag ontvangen op {{siteName}}.',
     'comments_flag_notification_body' => "Hallo,\n\n" .
         "Er is een reactie geflagged op \"{{ element.title }}\".\n\n" .
-        "{{comment.cpEditUrl}}.",
+        "{{comment.getCpEditUrl()}}.",
 
     //
     // Other

@@ -165,7 +165,7 @@ class Votes extends Component
         }
 
         if ($runValidation && !$vote->validate()) {
-            Craft::info('Vote not saved due to validation error.', __METHOD__);
+            Comments::info('Vote not saved due to validation error.');
             return false;
         }
 

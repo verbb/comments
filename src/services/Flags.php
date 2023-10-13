@@ -109,7 +109,7 @@ class Flags extends Component
         }
 
         if ($runValidation && !$flag->validate()) {
-            Craft::info('Flag not saved due to validation error.', __METHOD__);
+            Comments::info('Flag not saved due to validation error.');
             return false;
         }
 

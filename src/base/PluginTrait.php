@@ -10,35 +10,43 @@ use verbb\comments\services\Security;
 use verbb\comments\services\Service;
 use verbb\comments\services\Subscribe;
 use verbb\comments\services\Votes;
-use verbb\base\BaseHelper;
 
-use Craft;
-
-use yii\log\Logger;
+use verbb\base\LogTrait;
+use verbb\base\helpers\Plugin;
 
 trait PluginTrait
 {
     // Properties
     // =========================================================================
 
-    public static Comments $plugin;
+    public static ?Comments $plugin = null;
+
+
+    // Traits
+    // =========================================================================
+
+    use LogTrait;
 
 
     // Static Methods
     // =========================================================================
 
-    public static function log(string $message, array $params = []): void
+    public static function config(): array
     {
-        $message = Craft::t('comments', $message, $params);
+        Plugin::bootstrapPlugin('comments');
 
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'comments');
-    }
-
-    public static function error(string $message, array $params = []): void
-    {
-        $message = Craft::t('comments', $message, $params);
-
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'comments');
+        return [
+            'components' => [
+                'comments' => CommentsService::class,
+                'flags' => Flags::class,
+                'protect' => Protect::class,
+                'renderCache' => RenderCache::class,
+                'security' => Security::class,
+                'service' => Service::class,
+                'subscribe' => Subscribe::class,
+                'votes' => Votes::class,
+            ],
+        ];
     }
 
 
@@ -83,31 +91,6 @@ trait PluginTrait
     public function getVotes(): Votes
     {
         return $this->get('votes');
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _registerComponents(): void
-    {
-        $this->setComponents([
-            'comments' => CommentsService::class,
-            'flags' => Flags::class,
-            'protect' => Protect::class,
-            'renderCache' => RenderCache::class,
-            'security' => Security::class,
-            'service' => Service::class,
-            'subscribe' => Subscribe::class,
-            'votes' => Votes::class,
-        ]);
-
-        BaseHelper::registerModule();
-    }
-
-    private function _registerLogTarget(): void
-    {
-        BaseHelper::setFileLogging('comments');
     }
 
 }

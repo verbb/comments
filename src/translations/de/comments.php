@@ -39,7 +39,7 @@ ein neuer Kommentar wurde zum Beitrag "{{ element.title }}" geschrieben.
 
 ein neuer Kommentar wurde zum Beitrag "{{ element.title }}" geschrieben und erwartet Moderation.
 
-{{comment.cpEditUrl}}.',
+{{comment.getCpEditUrl()}}.',
     'comments_moderator_approved_notification_comment_heading' => 'Wenn ein Kommentar durch Moderation freigeschaltet wurde:',
     'comments_moderator_approved_notification_comment_subject' => 'Ihr Kommentar bei {{ siteName }} wurde freigeschaltet',
     'comments_moderator_approved_notification_comment_body' => 'Hallo {{user.friendlyName}},

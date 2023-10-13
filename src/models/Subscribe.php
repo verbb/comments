@@ -23,15 +23,6 @@ class Subscribe extends Model
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
-    {
-        return [
-            [['id'], 'number', 'integerOnly' => true],
-            [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to change your settings.')],
-            [['ownerId'], 'required'],
-        ];
-    }
-
     public function getComment(): ?Comment
     {
         if ($this->commentId) {
@@ -39,6 +30,19 @@ class Subscribe extends Model
         }
 
         return null;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        return [
+            [['id'], 'number', 'integerOnly' => true],
+            [['userId'], 'required', 'message' => Craft::t('comments', 'You must be logged in to change your settings.')],
+            [['ownerId'], 'required'],
+        ];
     }
 
 }

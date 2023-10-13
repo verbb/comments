@@ -20,6 +20,7 @@ class Settings extends Model
     // Properties
     // =========================================================================
 
+    public string $pluginName = 'Comments';
     public ?string $structureUid = null;
     public bool $closed = false;
     public int $indexSidebarLimit = 25;

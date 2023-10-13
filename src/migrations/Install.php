@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\migrations;
 
+use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 
 use Craft;
@@ -21,11 +22,11 @@ class Install extends Migration
         $this->addForeignKeys();
 
         // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.comments', true) !== null);
-        $configExists = (Craft::$app->projectConfig->get('comments', true) !== null);
+        $installed = (Craft::$app->getProjectConfig()->get('plugins.comments', true) !== null);
+        $configExists = (Craft::$app->getProjectConfig()->get('comments', true) !== null);
 
         if (!$installed && !$configExists) {
-            $this->insert(FieldLayout::tableName(), ['type' => Comment::class]);
+            Comments::$plugin->getComments()->saveFieldLayout();
         }
 
         return true;
@@ -164,6 +165,6 @@ class Install extends Migration
 
     public function dropProjectConfig(): void
     {
-        Craft::$app->projectConfig->remove('comments');
+        Craft::$app->getProjectConfig()->remove('comments');
     }
 }
