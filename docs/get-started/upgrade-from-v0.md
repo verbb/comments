@@ -29,7 +29,7 @@ There's no longer separate templates for each status. Where you might have had:
 
 This is now handled through a single `comment.html` template.
 
-Templates received a major overhaul in Comments 1.x, and it's best to refer to the [latest templates](https://github.com/verbb/comments/blob/craft-3/src/templates/_special/comments.html). There are too many changes to list here, and the fundamental structure and implementation of the updated templates have changed too much to guide through changes.
+Templates received a major overhaul in Comments 1.x, and it's best to refer to the [latest templates](https://github.com/verbb/comments/blob/craft-4/src/templates/_special/comments.html). There are too many changes to list here, and the fundamental structure and implementation of the updated templates have changed too much to guide through changes.
 
 ## Github
 You can always view the Craft 2 version on [GitHub](https://github.com/verbb/comments/blob/craft-2/comments)

@@ -13,7 +13,7 @@ Whilst you can add any Craft custom field to the comments form, currently Commen
 - Radio Buttons
 - URL
 
-If you want to support any additional custom fields, or your own, you'll need to write your own templates for them. Check out the [source code](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) for existing field templates as a start.
+If you want to support any additional custom fields, or your own, you'll need to write your own templates for them. Check out the [source code](https://github.com/verbb/comments/tree/craft-4/src/templates/_special) for existing field templates as a start.
 
 ## Customising
 If you choose to use your own templates, you can output custom fields any manner of ways. To fetch the custom fields you've defined for Comments, you can use the following:
@@ -51,4 +51,4 @@ For another example, let's say you want the commenter to upload a number of file
 
 The resulting comment would include all the assets from the `someAssetField` on the entry with an ID slug `some-entry`, and any assets the commenter decided to upload in the form.
 
-For more examples, check out the [source code](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) for our basic field implementations.
+For more examples, check out the [source code](https://github.com/verbb/comments/tree/craft-4/src/templates/_special) for our basic field implementations.

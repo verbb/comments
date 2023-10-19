@@ -33,7 +33,7 @@ We're using the `.html` extension here for clarity. You can use `.twig` or whate
 Let's start with the top-level `comments.html` template.
 
 :::tip
-Check out the raw templates on [Comment's GitHub](https://github.com/verbb/comments/tree/craft-3/src/templates/_special) - they'll be the most up to date.
+Check out the raw templates on [Comment's GitHub](https://github.com/verbb/comments/tree/craft-4/src/templates/_special) - they'll be the most up to date.
 :::
 
 ## Comments Templates
@@ -127,4 +127,4 @@ You might like to modify _just_ the template used for an Assets custom field for
 ## Non-JavaScript Examples
 We've put together an example using no JavaScript, for a more traditional approach. You'll also likely want to turn off `Output default JS` in the plugin settings.
 
-View these example templates via [GitHub](https://github.com/verbb/comments/tree/craft-3/examples).
+View these example templates via [GitHub](https://github.com/verbb/comments/tree/craft-4/examples).
