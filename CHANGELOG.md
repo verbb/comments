@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.8 - 2023-10-25
+
+### Added
+- Add support for Votes to Feed Me itegration. (thanks @JeroenOnstuimig).
+- Add extra error-handling for some email notifications.
+
+### Fixed
+- Implement `Element::trackChanges()` for Blitz compatibility.
+- Fix returning Vote user when both querying users and comments is allowed for GraphQL. (thanks @JeroenOnstuimig).
+
 ## 2.0.7 - 2023-03-09
 
 ### Changed
