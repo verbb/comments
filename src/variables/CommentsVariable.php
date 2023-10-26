@@ -29,9 +29,10 @@ class CommentsVariable
         return Comments::$plugin->getComments()->render($elementId, $criteria, $jsSettings);
     }
 
-    public function protect(): Markup
+    public function protect(bool $loadInline = false): Markup
     {
-        $fields = Comments::$plugin->getProtect()->getFields();
+        $fields = Comments::$plugin->getProtect()->getFields($loadInline);
+
         return Template::raw($fields);
     }
 
