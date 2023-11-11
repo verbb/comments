@@ -102,7 +102,7 @@ class CommentsController extends Controller
         $currentUser = Comments::$plugin->getService()->getUser();
 
         $commentId = $request->getParam('commentId');
-        $siteId = $request->getParam('siteId');
+        $siteId = (int)$request->getParam('siteId');
 
         // Ensure we only set a selection of attributes from the CP
         $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
@@ -164,7 +164,7 @@ class CommentsController extends Controller
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $siteId = $request->getParam('siteId');
+        $siteId = (int)$request->getParam('siteId');
 
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
@@ -362,7 +362,7 @@ class CommentsController extends Controller
         $request = Craft::$app->getRequest();
 
         $ownerId = $request->getParam('ownerId');
-        $siteId = $request->getParam('siteId');
+        $siteId = (int)$request->getParam('siteId');
         $commentId = $request->getParam('commentId', null);
         $userId = $currentUser->id ?? null;
 
@@ -418,7 +418,7 @@ class CommentsController extends Controller
 
         $commentId = $request->getParam('commentId');
         $newParentId = $request->getParam('newParentId');
-        $siteId = $request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
+        $siteId = (int)$request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
 
         if ($commentId) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
@@ -430,7 +430,7 @@ class CommentsController extends Controller
             $comment = new Comment();
         }
 
-        $ownerSiteId = $request->getParam('ownerSiteId', $comment->ownerSiteId);
+        $ownerSiteId = (int)$request->getParam('ownerSiteId', $comment->ownerSiteId);
 
         // Backward compatibility
         $ownerId = $request->getParam('ownerId');
@@ -438,7 +438,7 @@ class CommentsController extends Controller
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
         $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-        $comment->siteId = $request->getParam('siteId', $comment->siteId);
+        $comment->siteId = (int)$request->getParam('siteId', $comment->siteId);
 
         if (!$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
