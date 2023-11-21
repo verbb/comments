@@ -351,7 +351,7 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::log('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
@@ -415,7 +415,7 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::log('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
@@ -504,7 +504,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending element author notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -593,7 +593,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending reply notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -665,7 +665,7 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
             } catch (Throwable $e) {
@@ -726,7 +726,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending comment author notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -837,7 +837,7 @@ class Comments extends Component
                     continue;
                 }
 
-                if ($message->send()) {
+                if (Craft::$app->getMailer()->send($message)) {
                     CommentsPlugin::log('Email sent successfully to subscriber (' . $user->email . ')');
                 } else {
                     CommentsPlugin::error('Unable to send email to subscriber (' . $user->email . ')');
@@ -1010,14 +1010,13 @@ class Comments extends Component
     {
         $settings = CommentsPlugin::$plugin->getSettings();
 
+        $view = Craft::$app->getView();
         $mailer = Craft::$app->getMailer();
-        $message = $mailer->composeFromKey($key, $variables);
+        $message = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         // Default to the current language
         $language = Craft::$app->getRequest()->getIsSiteRequest() ? Craft::$app->language : Craft::$app->getSites()->getPrimarySite()->language;
         $systemMessage = Craft::$app->getSystemMessages()->getMessage($key, $language);
-
-        $view = Craft::$app->getView();
 
         $message->setSubject($view->renderString($systemMessage->subject, $variables, View::TEMPLATE_MODE_SITE));
         $textBody = $view->renderString($systemMessage->body, $variables, View::TEMPLATE_MODE_SITE);
