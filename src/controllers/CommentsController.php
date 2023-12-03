@@ -330,7 +330,7 @@ class CommentsController extends Controller
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
         $comment->setAction(Comment::ACTION_DELETE);
 
-        if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
+        if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,

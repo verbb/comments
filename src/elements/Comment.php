@@ -941,42 +941,45 @@ class Comment extends Element
 
         // Skip for CP saving
         if ($this->scenario === self::SCENARIO_FRONT_END) {
-            // Let's check for spam!
-            if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
-                $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
-            }
-
-            // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
-            if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
-                $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
-            }
-
-            // Check the maximum comment length.
-            if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
-                $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
-                    'limit' => $settings->securityMaxLength,
-                ]));
-            }
-
-            // Protect against Guest submissions, if turned off
-            if (!$settings->allowGuest && !$this->userId) {
-                $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
-            }
-
-            // Additionally, check for user email/name, which is compulsory for guests
-            if ($settings->guestRequireEmailName && !$this->userId) {
-                if (!$this->name) {
-                    $this->addError('name', Craft::t('comments', 'Name is required.'));
+            // Check if we're deleting or saving (add/edit). Things like spam checks can be disabled for deletion
+            if ($this->getAction() === self::ACTION_SAVE) {
+                // Let's check for spam!
+                if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
+                    $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
                 }
 
-                if (!$this->email) {
-                    $this->addError('email', Craft::t('comments', 'Email is required.'));
+                // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
+                if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
+                    $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
                 }
-            }
 
-            // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-            if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
-                $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+                // Check the maximum comment length.
+                if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+                    $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                        'limit' => $settings->securityMaxLength,
+                    ]));
+                }
+
+                // Protect against Guest submissions, if turned off
+                if (!$settings->allowGuest && !$this->userId) {
+                    $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
+                }
+
+                // Additionally, check for user email/name, which is compulsory for guests
+                if ($settings->guestRequireEmailName && !$this->userId) {
+                    if (!$this->name) {
+                        $this->addError('name', Craft::t('comments', 'Name is required.'));
+                    }
+
+                    if (!$this->email) {
+                        $this->addError('email', Craft::t('comments', 'Email is required.'));
+                    }
+                }
+
+                // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
+                if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
+                    $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+                }
             }
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
