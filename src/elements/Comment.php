@@ -47,6 +47,9 @@ class Comment extends Element
     public const SCENARIO_CP = 'cp';
     public const SCENARIO_FRONT_END = 'frontEnd';
 
+    public const ACTION_SAVE = 'save';
+    public const ACTION_DELETE = 'delete';
+
 
     // Static Methods
     // =========================================================================
@@ -403,6 +406,7 @@ class Comment extends Element
     private ?ElementInterface $_owner = null;
     private ?User $_author = null;
     private mixed $_user = null;
+    private ?string $_action = null;
     private ?string $previousStatus = null;
 
 
@@ -500,6 +504,16 @@ class Comment extends Element
     public function getFieldLayout(): ?FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
+    }
+
+    public function setAction(string $action): void
+    {
+        $this->_action = $action;
+    }
+
+    public function getAction(): ?string
+    {
+        return $this->_action;
     }
 
     public function getComment(): ?string
