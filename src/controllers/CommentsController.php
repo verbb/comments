@@ -159,6 +159,7 @@ class CommentsController extends Controller
 
         $comment = $this->_setCommentFromPost();
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
+        $comment->setAction(Comment::ACTION_SAVE);
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($request->getAcceptsJson()) {
@@ -322,6 +323,7 @@ class CommentsController extends Controller
         $comment = $this->_setCommentFromPost();
         $comment->status = Comment::STATUS_TRASHED;
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
+        $comment->setAction(Comment::ACTION_DELETE);
 
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
             if ($request->getAcceptsJson()) {

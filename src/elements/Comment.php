@@ -46,6 +46,9 @@ class Comment extends Element
     const SCENARIO_CP = 'cp';
     const SCENARIO_FRONT_END = 'frontEnd';
 
+    public const ACTION_SAVE = 'save';
+    public const ACTION_DELETE = 'delete';
+
 
     // Public Properties
     // =========================================================================
@@ -67,6 +70,7 @@ class Comment extends Element
     private $_owner;
     private $_author;
     private $_user;
+    private $_action;
     private $previousStatus;
 
 
@@ -333,6 +337,16 @@ class Comment extends Element
     public function getFieldLayout()
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
+    }
+
+    public function setAction($action)
+    {
+        $this->_action = $action;
+    }
+
+    public function getAction()
+    {
+        return $this->_action;
     }
 
     public function getComment()
