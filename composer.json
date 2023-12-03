@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "Add comments to your site.",
     "type": "craft-plugin",
-    "version": "2.0.8",
+    "version": "2.0.9",
     "keywords": [
         "craft",
         "cms",
