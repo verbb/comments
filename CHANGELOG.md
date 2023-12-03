@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.7 - 2023-12-03
+
+### Added
+- Add action for Comments to determine state of saving or deleting.
+
+### Fixed
+- Fix an error where trashed comments weren’t validated correctly.
+
 ## 1.9.6 - 2023-03-09
 
 ### Changed
