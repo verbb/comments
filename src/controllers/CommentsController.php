@@ -460,7 +460,7 @@ class CommentsController extends Controller
         $comment->setFieldValuesFromRequest('fields');
 
         // Set any new comment to be pending if requireModeration is true
-        if ($settings->requireModeration) {
+        if ($settings->doesRequireModeration()) {
             $comment->status = Comment::STATUS_PENDING;
         } else {
             $comment->status = Comment::STATUS_APPROVED;

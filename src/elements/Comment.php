@@ -1077,7 +1077,7 @@ class Comment extends Element
             }
 
             // Don't send reply or author emails if we're moderating first
-            if ($settings->requireModeration) {
+            if ($settings->doesRequireModeration()) {
                 Comments::log('Not sending reply or author notification - marked as pending (to be moderated).');
             } else {
                 // Should we send a Notification email to the author of this comment?

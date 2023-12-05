@@ -61,13 +61,21 @@
 
     {{ forms.selectField({
         label: 'Moderator User Group' | t('comments'),
-        instructions: 'Select the user group that should be classified as moderators. The will determine who notifications should be sent to.' | t('comments'),
+        instructions: 'Select the user group that should be classified as moderators. This will determine who notifications should be sent to.' | t('comments'),
         id: 'moderatorUserGroup',
         name: 'moderatorUserGroup',
         value: settings.moderatorUserGroup,
         errors: settings.getErrors('moderatorUserGroup'),
         options: groups,
         warning: macros.configWarning('moderatorUserGroup', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Exclude Moderator Comments' | t('comments'),
+        instructions: 'Comments from any user in the moderator group will not require moderation themselves.' | t('comments'),
+        name: 'moderatorExcluded',
+        on: settings.moderatorExcluded,
+        warning: macros.configWarning('moderatorExcluded', 'comments'),
     }) }}
 </div>
 
