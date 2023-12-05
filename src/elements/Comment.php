@@ -407,7 +407,7 @@ class Comment extends Element
     private ?User $_author = null;
     private mixed $_user = null;
     private ?string $_action = null;
-    private ?string $previousStatus = null;
+    private ?Comment $previousComment = null;
 
 
     // Public Methods
@@ -1022,7 +1022,7 @@ class Comment extends Element
             $originalElement = Craft::$app->getElements()->getElementById($this->id, Comment::class, $this->siteId);
 
             if ($originalElement) {
-                $this->previousStatus = $originalElement->status;
+                $this->previousComment = $originalElement;
             }
         }
 
@@ -1064,6 +1064,9 @@ class Comment extends Element
 
         $this->id = $record->id;
         $this->commentDate = DateTimeHelper::toDateTime($record->commentDate);
+
+        $previousStatus = $this->previousComment ? $this->previousComment->status : null;
+        $previousCommentText = $this->previousComment ? $this->previousComment->comment : null;
 
         if ($isNew) {
             // Should we send moderator emails?
@@ -1112,7 +1115,7 @@ class Comment extends Element
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved
-        if ($this->previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
+        if ($previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
             if ($settings->notificationModeratorApprovedEnabled) {
                 Comments::$plugin->getComments()->sendNotificationEmail('moderator-approved', $this);
             } else {
@@ -1144,6 +1147,15 @@ class Comment extends Element
             // Check for all users subscribed to notifications
             if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
                 Comments::$plugin->getComments()->sendNotificationEmail('subscribe', $this);
+            }
+        }
+
+        // Are we editing an existing comment, and moderating comments is enabled (the comment will be pending)
+        // and allow moderation-edit notifications? Send the moderators an edit notification.
+        if (!$isNew && $settings->notificationModeratorEditEnabled && $this->status == self::STATUS_PENDING) {
+            // Has the comment actually changed?
+            if ($previousCommentText !== $this->comment) {
+                Comments::$plugin->getComments()->sendNotificationEmail('moderator-edit', $this);
             }
         }
 

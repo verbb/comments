@@ -67,6 +67,7 @@ return [
         'notificationSubscribeEnabled' => false,
         'notificationSubscribeCommentEnabled' => false,
         'notificationModeratorEnabled' => false,
+        'notificationModeratorEditEnabled' => false,
         'notificationModeratorApprovedEnabled' => false,
         'notificationAdmins' => [],
         'notificationAdminEnabled' => false,
@@ -137,8 +138,9 @@ return [
 - `notificationSubscribeAuto` - Whether to automatically subscribe to notifications on any comments on the same element, after your first reply.
 - `notificationSubscribeDefault` - Whether to automatically subscribe to notifications on comments that the user owns.
 - `notificationSubscribeEnabled` - Whether to allow subscriber notification altogether.
-- `notificationSubscribeCommentEnabled` - Whether to notify comment authors when a reply is made.
-- `notificationModeratorEnabled` - Users can subscribe to a specific thread of comments made on an element.
+- `notificationSubscribeCommentEnabled` - Users can subscribe to a specific thread of comments made on an element.
+- `notificationModeratorEnabled` - Whether a nominated user group should receive an email when a new comment has been made, and needs to be moderated.
+- `notificationModeratorEditEnabled` - Whether moderators should receive a notification when a user edits their own comment, and needs to be moderated.
 - `notificationModeratorApprovedEnabled` - Whether to notify comment authors when their comment has been approved via moderation.
 - `notificationAdmins` - Enter the email address of any administrators, used for the below settings.
 - `notificationAdminEnabled` - Admins will receive an email whenever someone makes a comment.

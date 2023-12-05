@@ -82,6 +82,7 @@ class Settings extends Model
     public bool $notificationSubscribeEnabled = false;
     public bool $notificationSubscribeCommentEnabled = false;
     public bool $notificationModeratorEnabled = false;
+    public bool $notificationModeratorEditEnabled = false;
     public bool $notificationModeratorApprovedEnabled = false;
     public array $notificationAdmins = [];
     public bool $notificationAdminEnabled = false;

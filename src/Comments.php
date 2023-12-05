@@ -217,37 +217,50 @@ class Comments extends Plugin
                     'heading' => Craft::t('comments', 'comments_author_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_author_notification_subject'),
                     'body' => Craft::t('comments', 'comments_author_notification_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_reply_notification',
                     'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
                     'body' => Craft::t('comments', 'comments_reply_notification_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_subscriber_notification_element',
                     'heading' => Craft::t('comments', 'comments_subscriber_notification_element_heading'),
                     'subject' => Craft::t('comments', 'comments_subscriber_notification_element_subject'),
                     'body' => Craft::t('comments', 'comments_subscriber_notification_element_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_subscriber_notification_comment',
                     'heading' => Craft::t('comments', 'comments_subscriber_notification_comment_heading'),
                     'subject' => Craft::t('comments', 'comments_subscriber_notification_comment_subject'),
                     'body' => Craft::t('comments', 'comments_subscriber_notification_comment_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_moderator_notification',
                     'heading' => Craft::t('comments', 'comments_moderator_notification_comment_heading'),
                     'subject' => Craft::t('comments', 'comments_moderator_notification_comment_subject'),
                     'body' => Craft::t('comments', 'comments_moderator_notification_comment_body'),
-                ], [
+                ],
+                [
+                    'key' => 'comments_moderator_edit_notification',
+                    'heading' => Craft::t('comments', 'comments_moderator_edit_notification_heading'),
+                    'subject' => Craft::t('comments', 'comments_moderator_edit_notification_subject'),
+                    'body' => Craft::t('comments', 'comments_moderator_edit_notification_body'),
+                ],
+                [
                     'key' => 'comments_moderator_approved_notification',
                     'heading' => Craft::t('comments', 'comments_moderator_approved_notification_comment_heading'),
                     'subject' => Craft::t('comments', 'comments_moderator_approved_notification_comment_subject'),
                     'body' => Craft::t('comments', 'comments_moderator_approved_notification_comment_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_admin_notification',
                     'heading' => Craft::t('comments', 'comments_admin_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_admin_notification_subject'),
                     'body' => Craft::t('comments', 'comments_admin_notification_body'),
-                ], [
+                ],
+                [
                     'key' => 'comments_flag_notification',
                     'heading' => Craft::t('comments', 'comments_flag_notification_heading'),
                     'subject' => Craft::t('comments', 'comments_flag_notification_subject'),

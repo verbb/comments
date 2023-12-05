@@ -34,6 +34,12 @@ return [
         "A new comment on the post \"{{ element.title }}\" has been made and requires moderation.\n\n" .
         "{{comment.cpEditUrl}}.",
 
+    'comments_moderator_edit_notification_comment_heading' => 'When a comment has been edited, and awaits moderation:',
+    'comments_moderator_edit_notification_subject' => 'Someone has edited their comment and requires moderation on {{siteName}}.',
+    'comments_moderator_edit_notification_body' => "Hi {{user.friendlyName}},\n\n" .
+        "A comment on the post \"{{ element.title }}\" was edited and requires moderation.\n\n" .
+        "{{comment.cpEditUrl}}.",
+
     'comments_moderator_approved_notification_comment_heading' => 'When a comment has been approved via moderation:',
     'comments_moderator_approved_notification_comment_subject' => 'Your comment has been approved on {{ siteName }}',
     'comments_moderator_approved_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .

@@ -293,6 +293,8 @@ class Comments extends Component
             $this->sendReplyNotificationEmail($comment);
         } else if ($type === 'moderator') {
             $this->sendModeratorNotificationEmail($comment);
+        } else if ($type === 'moderator-edit') {
+            $this->sendModeratorEditNotificationEmail($comment);
         } else if ($type === 'moderator-approved') {
             $this->sendModeratorApprovedNotificationEmail($comment);
         } else if ($type === 'subscribe') {
@@ -644,6 +646,75 @@ class Comments extends Component
                 }
 
                 $mail = $this->_renderEmail('comments_moderator_notification', [
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                ])
+                    ->setTo($user);
+
+                // Fire a 'beforeSendModeratorEmail' event
+                $event = new EmailEvent([
+                    'mail' => $mail,
+                    'user' => $user,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, $event);
+
+                if (!$event->isValid) {
+                    CommentsPlugin::log('Email blocked via event hook.');
+
+                    continue;
+                }
+
+                Craft::$app->getMailer()->send($mail);
+
+                CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
+            } catch (Throwable $e) {
+                CommentsPlugin::error('Unable to send email to moderator (' . $user->email . '): {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+            }
+        }
+    }
+
+    public function sendModeratorEditNotificationEmail(Comment $comment): void
+    {
+        $settings = CommentsPlugin::$plugin->getSettings();
+
+        $recipient = null;
+        $emailSent = null;
+
+        CommentsPlugin::log('Prepare Moderator Edit Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            CommentsPlugin::log('Cannot send moderator notification: No element ' . Json::encode($element));
+
+            return;
+        }
+
+        // Get our recipients - they're a user group
+        if (!$settings->moderatorUserGroup) {
+            CommentsPlugin::log('Cannot send moderator notification: No moderator group set.');
+
+            return;
+        }
+
+        $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
+        $recipients = User::find()->groupId($groupId)->all();
+
+        foreach ($recipients as $key => $user) {
+            try {
+                if (!isset($user)) {
+                    throw new Exception('Invalid user.');
+                }
+
+                $mail = $this->_renderEmail('comments_moderator_edit_notification', [
                     'element' => $element,
                     'comment' => $comment,
                     'user' => $user,
