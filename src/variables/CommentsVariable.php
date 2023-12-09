@@ -10,6 +10,7 @@ use craft\elements\Asset;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\Template;
 
 use Twig\Markup;
@@ -65,15 +66,22 @@ class CommentsVariable
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
 
+        // Wrap the Comment JS init code in a unqiue function, so it can be called onload
+        if ($loadInline) {
+            $functionName = StringHelper::appendRandomString('InitComments', 10);
+            $attributes = array_merge(['onload' => $functionName . '()'], $attributes);
+        }
+
         $output = [];
         $output[] = Html::jsFile($url, $attributes);
 
         if ($loadInline) {
-            $jsString = 'window.addEventListener("load", function() { new Comments.Instance(' .
+            // Wrap JS in our unique function, to prevent it firing early
+            $jsString = 'var ' . $functionName . ' = function() { new Comments.Instance(' .
                 Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
                 Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-                '); });';
-
+            '); }';
+    
             $output[] = Html::script($jsString, ['type' => 'text/javascript']);
         }
 
