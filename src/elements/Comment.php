@@ -572,13 +572,15 @@ class Comment extends Element
 
     public function getExcerpt($startPos = 0, $maxLength = 100): ?string
     {
-        if (strlen($this->comment) > $maxLength) {
-            $excerpt = substr($this->comment, $startPos, $maxLength - 3);
+        $comment = $this->getComment();
+
+        if (strlen($comment) > $maxLength) {
+            $excerpt = substr($comment, $startPos, $maxLength - 3);
             $lastSpace = strrpos($excerpt, ' ');
             $excerpt = substr($excerpt, 0, $lastSpace);
             $excerpt .= '...';
         } else {
-            $excerpt = $this->comment;
+            $excerpt = $comment;
         }
 
         return $excerpt;
@@ -1223,7 +1225,7 @@ class Comment extends Element
             }
             case 'comment':
             {
-                return Html::encode($this->comment);
+                return Html::encode($this->getComment());
             }
             default:
             {
