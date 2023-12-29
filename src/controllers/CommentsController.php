@@ -48,9 +48,8 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-        $elementId = $request->getParam('elementId');
-        $criteria = $request->getParam('criteria') ? Json::decode($request->getParam('criteria')) : [];
+        $elementId = $this->request->getParam('elementId');
+        $criteria = $this->request->getParam('criteria') ? Json::decode($this->request->getParam('criteria')) : [];
 
         $id = 'cc-w-' . $elementId;
         $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
@@ -97,17 +96,16 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
         $currentUser = Comments::$plugin->getService()->getUser();
 
-        $commentId = $request->getParam('commentId');
-        $siteId = $request->getParam('siteId');
+        $commentId = $this->request->getParam('commentId');
+        $siteId = $this->request->getParam('siteId');
 
         // Ensure we only set a selection of attributes from the CP
         $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
-        $comment->status = $request->getParam('status', $comment->status);
-        $comment->comment = $request->getParam('comment', $comment->comment);
+        $comment->status = $this->request->getParam('status', $comment->status);
+        $comment->comment = $this->request->getParam('comment', $comment->comment);
 
         $comment->setFieldValuesFromRequest('fields');
         $comment->setScenario(Comment::SCENARIO_CP);
@@ -141,10 +139,9 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
 
-        $commentId = $request->getParam('commentId');
+        $commentId = $this->request->getParam('commentId');
 
         if (!Craft::$app->getElements()->deleteElementById($commentId)) {
             $session->setError(Craft::t('comments', 'Unable to delete comment.'));
@@ -163,8 +160,7 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-        $siteId = $request->getParam('siteId');
+        $siteId = $this->request->getParam('siteId');
 
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
@@ -176,7 +172,7 @@ class CommentsController extends Controller
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'comment' => $comment,
@@ -192,7 +188,7 @@ class CommentsController extends Controller
             return null;
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             // Return some HTML with the template generated
             $html = Comments::$plugin->getComments()->renderComment($comment);
             $notice = '';
@@ -218,9 +214,8 @@ class CommentsController extends Controller
         $this->requirePostRequest();
 
         $currentUser = Comments::$plugin->getService()->getUser();
-        $request = Craft::$app->getRequest();
 
-        $commentId = $request->getParam('commentId');
+        $commentId = $this->request->getParam('commentId');
 
         $userId = $currentUser->id ?? null;
 
@@ -231,7 +226,7 @@ class CommentsController extends Controller
         $flag->userId = $userId;
 
         if (!Comments::$plugin->getFlags()->toggleFlag($flag)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'flag' => $flag,
@@ -244,10 +239,10 @@ class CommentsController extends Controller
                 'errors' => $flag->getErrors(),
             ]);
 
-            return $this->redirect($request->referrer);
+            return $this->redirect($this->request->referrer);
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId);
             $hasFlagged = Comments::$plugin->getFlags()->hasFlagged($comment, $currentUser);
             $message = $hasFlagged ? 'Comment has been flagged.' : 'Comment has been un-flagged.';
@@ -259,7 +254,7 @@ class CommentsController extends Controller
             ]);
         }
 
-        return $this->redirect($request->referrer);
+        return $this->redirect($this->request->referrer);
     }
 
     public function actionVote(): Response
@@ -267,11 +262,10 @@ class CommentsController extends Controller
         $this->requirePostRequest();
 
         $currentUser = Comments::$plugin->getService()->getUser();
-        $request = Craft::$app->getRequest();
 
-        $upvote = $request->getParam('upvote');
-        $downvote = $request->getParam('downvote');
-        $commentId = $request->getParam('commentId');
+        $upvote = $this->request->getParam('upvote');
+        $downvote = $this->request->getParam('downvote');
+        $commentId = $this->request->getParam('commentId');
 
         $userId = $currentUser->id ?? null;
 
@@ -292,7 +286,7 @@ class CommentsController extends Controller
         $vote->userId = $userId;
 
         if (!Comments::$plugin->getVotes()->saveVote($vote)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'vote' => $vote,
@@ -305,31 +299,30 @@ class CommentsController extends Controller
                 'errors' => $vote->getErrors(),
             ]);
 
-            return $this->redirect($request->referrer);
+            return $this->redirect($this->request->referrer);
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
                 'vote' => $vote,
             ]);
         }
 
-        return $this->redirect($request->referrer);
+        return $this->redirect($this->request->referrer);
     }
 
     public function actionTrash(): Response
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
 
         $comment = $this->_setCommentFromPost();
         $comment->status = Comment::STATUS_TRASHED;
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
 
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'comment' => $comment,
@@ -342,10 +335,10 @@ class CommentsController extends Controller
                 'errors' => $comment->getErrors(),
             ]);
 
-            return $this->redirect($request->referrer);
+            return $this->redirect($this->request->referrer);
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
                 'comment' => $comment,
@@ -353,17 +346,16 @@ class CommentsController extends Controller
             ]);
         }
 
-        return $this->redirect($request->referrer);
+        return $this->redirect($this->request->referrer);
     }
 
     public function actionSubscribe(): Response
     {
         $currentUser = Comments::$plugin->getService()->getUser();
-        $request = Craft::$app->getRequest();
 
-        $ownerId = $request->getParam('ownerId');
-        $siteId = $request->getParam('siteId');
-        $commentId = $request->getParam('commentId', null);
+        $ownerId = $this->request->getParam('ownerId');
+        $siteId = $this->request->getParam('siteId');
+        $commentId = $this->request->getParam('commentId', null);
         $userId = $currentUser->id ?? null;
 
         $subscribe = Comments::$plugin->getSubscribe()->getSubscribe($ownerId, $siteId, $userId, $commentId) ?? new Subscribe();
@@ -375,7 +367,7 @@ class CommentsController extends Controller
         $subscribe->userId = $userId;
 
         if (!Comments::$plugin->getSubscribe()->toggleSubscribe($subscribe)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'subscribe' => $subscribe,
@@ -389,10 +381,10 @@ class CommentsController extends Controller
                 'errors' => $subscribe->getErrors(),
             ]);
 
-            return $this->redirect($request->referrer);
+            return $this->redirect($this->request->referrer);
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             $message = $subscribe->subscribed ? 'Subscribed to discussion.' : 'Unsubscribed from discussion.';
 
             return $this->asJson([
@@ -402,7 +394,7 @@ class CommentsController extends Controller
             ]);
         }
 
-        return $this->redirect($request->referrer);
+        return $this->redirect($this->request->referrer);
     }
 
 
@@ -412,13 +404,12 @@ class CommentsController extends Controller
     private function _setCommentFromPost(): Comment
     {
         $currentUser = Comments::$plugin->getService()->getUser();
-        $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
         $settings = Comments::$plugin->getSettings();
 
-        $commentId = $request->getParam('commentId');
-        $newParentId = $request->getParam('newParentId');
-        $siteId = $request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
+        $commentId = $this->request->getParam('commentId');
+        $newParentId = $this->request->getParam('newParentId');
+        $siteId = $this->request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
 
         if ($commentId) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
@@ -430,29 +421,29 @@ class CommentsController extends Controller
             $comment = new Comment();
         }
 
-        $ownerSiteId = $request->getParam('ownerSiteId', $comment->ownerSiteId);
+        $ownerSiteId = $this->request->getParam('ownerSiteId', $comment->ownerSiteId);
 
         // Backward compatibility
-        $ownerId = $request->getParam('ownerId');
-        $elementId = $request->getParam('elementId');
+        $ownerId = $this->request->getParam('ownerId');
+        $elementId = $this->request->getParam('elementId');
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
         $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-        $comment->siteId = $request->getParam('siteId', $comment->siteId);
+        $comment->siteId = $this->request->getParam('siteId', $comment->siteId);
 
         if (!$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
         }
 
         // Other handy stuff
-        $comment->url = $request->getParam('url', $request->referrer);
-        $comment->ipAddress = $request->getUserIP();
-        $comment->userAgent = $request->getUserAgent();
+        $comment->url = $this->request->getParam('url', $this->request->referrer);
+        $comment->ipAddress = $this->request->getUserIP();
+        $comment->userAgent = $this->request->getUserAgent();
 
         // Handle the fields
-        $comment->name = $request->getParam('fields.name', $comment->name);
-        $comment->email = $request->getParam('fields.email', $comment->email);
-        $comment->comment = $request->getParam('fields.comment', $comment->comment);
+        $comment->name = $this->request->getParam('fields.name', $comment->name);
+        $comment->email = $this->request->getParam('fields.email', $comment->email);
+        $comment->comment = $this->request->getParam('fields.comment', $comment->comment);
 
         // Set any other field content
         $comment->setFieldValuesFromRequest('fields');
