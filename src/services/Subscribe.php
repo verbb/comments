@@ -10,6 +10,7 @@ use verbb\comments\records\Subscribe as SubscribeRecord;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\Db;
 
 class Subscribe extends Component
 {
@@ -153,9 +154,7 @@ class Subscribe extends Component
             ]));
         }
 
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%comments_subscribe}}', ['id' => $subscribe->id])
-            ->execute();
+        Db::delete('{{%comments_subscribe}}', ['id' => $subscribe->id]);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_SUBSCRIBE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_SUBSCRIBE, new SubscribeEvent([

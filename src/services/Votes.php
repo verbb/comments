@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\db\Query;
+use craft\helpers\Db;
 
 class Votes extends Component
 {
@@ -207,9 +208,7 @@ class Votes extends Component
             ]));
         }
 
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%comments_votes}}', ['id' => $vote->id])
-            ->execute();
+        Db::delete('{{%comments_votes}}', ['id' => $vote->id]);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_VOTE, new VoteEvent([

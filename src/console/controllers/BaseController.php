@@ -7,6 +7,7 @@ use verbb\comments\elements\Comment;
 use Craft;
 use craft\console\Controller;
 use craft\helpers\Console;
+use craft\helpers\Db;
 
 use yii\console\ExitCode;
 
@@ -53,7 +54,6 @@ class BaseController extends Controller
             return ExitCode::OK;
         }
 
-        $db = Craft::$app->getDb()->createCommand();
         $comments = Comment::find()->all();
 
         foreach ($comments as $comment) {
@@ -61,9 +61,7 @@ class BaseController extends Controller
                 continue;
             }
 
-            $db->update('{{%structureelements}}', [
-                'structureId' => $structure->id,
-            ], ['elementId' => $comment->id])->execute();
+            Db::update('{{%structureelements}}', ['structureId' => $structure->id], ['elementId' => $comment->id]);
 
             $this->stdout("Updating comment #$comment->id to structure ID $structure->id." . PHP_EOL, Console::FG_GREEN);
         }
