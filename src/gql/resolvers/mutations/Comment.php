@@ -88,7 +88,7 @@ class Comment extends ElementMutationResolver
         }
 
         // Set any new comment to be pending if requireModeration is true
-        if ($settings->requireModeration) {
+        if ($settings->doesRequireModeration()) {
             $comment->status = CommentElement::STATUS_PENDING;
         } else {
             $comment->status = CommentElement::STATUS_APPROVED;

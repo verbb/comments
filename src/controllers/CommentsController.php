@@ -100,7 +100,7 @@ class CommentsController extends Controller
         $currentUser = Comments::$plugin->getService()->getUser();
 
         $commentId = $this->request->getParam('commentId');
-        $siteId = $this->request->getParam('siteId');
+        $siteId = (int)$this->request->getParam('siteId');
 
         // Ensure we only set a selection of attributes from the CP
         $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
@@ -160,7 +160,7 @@ class CommentsController extends Controller
     {
         $this->requirePostRequest();
 
-        $siteId = $this->request->getParam('siteId');
+        $siteId = (int)$this->request->getParam('siteId');
 
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
@@ -170,6 +170,7 @@ class CommentsController extends Controller
 
         $comment = $this->_setCommentFromPost();
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
+        $comment->setAction(Comment::ACTION_SAVE);
 
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($this->request->getAcceptsJson()) {
@@ -320,8 +321,9 @@ class CommentsController extends Controller
         $comment = $this->_setCommentFromPost();
         $comment->status = Comment::STATUS_TRASHED;
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
+        $comment->setAction(Comment::ACTION_DELETE);
 
-        if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
+        if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
@@ -354,7 +356,7 @@ class CommentsController extends Controller
         $currentUser = Comments::$plugin->getService()->getUser();
 
         $ownerId = $this->request->getParam('ownerId');
-        $siteId = $this->request->getParam('siteId');
+        $siteId = (int)$this->request->getParam('siteId');
         $commentId = $this->request->getParam('commentId', null);
         $userId = $currentUser->id ?? null;
 
@@ -409,7 +411,7 @@ class CommentsController extends Controller
 
         $commentId = $this->request->getParam('commentId');
         $newParentId = $this->request->getParam('newParentId');
-        $siteId = $this->request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
+        $siteId = (int)$this->request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
 
         if ($commentId) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
@@ -421,7 +423,7 @@ class CommentsController extends Controller
             $comment = new Comment();
         }
 
-        $ownerSiteId = $this->request->getParam('ownerSiteId', $comment->ownerSiteId);
+        $ownerSiteId = (int)$this->request->getParam('ownerSiteId', $comment->ownerSiteId);
 
         // Backward compatibility
         $ownerId = $this->request->getParam('ownerId');
@@ -429,7 +431,7 @@ class CommentsController extends Controller
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
         $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-        $comment->siteId = $this->request->getParam('siteId', $comment->siteId);
+        $comment->siteId = (int)$this->request->getParam('siteId', $comment->siteId);
 
         if (!$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
@@ -449,7 +451,7 @@ class CommentsController extends Controller
         $comment->setFieldValuesFromRequest('fields');
 
         // Set any new comment to be pending if requireModeration is true
-        if ($settings->requireModeration) {
+        if ($settings->doesRequireModeration()) {
             $comment->status = Comment::STATUS_PENDING;
         } else {
             $comment->status = Comment::STATUS_APPROVED;

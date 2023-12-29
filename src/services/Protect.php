@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\View;
 
@@ -22,9 +23,9 @@ class Protect extends Component
     // Public Methods
     // =========================================================================
 
-    public function getFields(): string
+    public function getFields(bool $loadInline = false): string
     {
-        return $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha();
+        return $this->getOriginField() . $this->getHoneypotField() . $this->getJSField() . $this->getRecaptcha($loadInline);
     }
 
     public function verifyFields(): bool
@@ -36,16 +37,25 @@ class Protect extends Component
     // reCAPTCHA
     //
 
-    public function getRecaptcha(): void
+    public function getRecaptcha(bool $loadInline = false): ?string
     {
         $settings = Comments::$plugin->getSettings();
 
         if ($settings->recaptchaEnabled) {
-            Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), [
-                'defer' => 'defer',
-                'async' => 'async',
-            ]);
+            if ($loadInline) {
+                return Html::jsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), [
+                    'defer' => 'defer',
+                    'async' => 'async',
+                ]);
+            } else {
+                Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), [
+                    'defer' => 'defer',
+                    'async' => 'async',
+                ]);
+            }
         }
+
+        return null;
     }
 
     public function verifyRecaptcha(): bool
@@ -204,36 +214,6 @@ class Protect extends Component
     public function getTimeField(): string
     {
         return sprintf('<input type="hidden" id="__UATIME" name="__UATIME" value="%s" />', time());
-    }
-
-    public function getCaptchaHtml(): string
-    {
-        $settings = Comments::$plugin->getSettings();
-
-        if (!$settings->recaptchaEnabled) {
-            return '';
-        }
-
-        Craft::$app->getView()->registerJsFile(self::API_URL . '?render=' . $settings->getRecaptchaKey(), ['defer' => 'defer', 'async' => 'async']);
-
-        // Craft::$app->getView()->registerJs('grecaptcha.ready(function() {
-        //     grecaptcha.execute(' . $settings->getRecaptchaKey() . ', {action: "homepage"}).then(function(token) {
-
-        //     });
-        // });', View::POS_END);
-
-        // Craft::$app->getView()->registerCss('#g-recaptcha-response {
-        //     display: block !important;
-        //     position: absolute;
-        //     margin: -78px 0 0 0 !important;
-        //     width: 302px !important;
-        //     height: 76px !important;
-        //     z-index: -999999;
-        //     opacity: 0;
-        // }');
-
-        return '';
-        // return '<div class="g-recaptcha" data-sitekey="' . $settings->getRecaptchaKey() . '"></div>';
     }
 
 

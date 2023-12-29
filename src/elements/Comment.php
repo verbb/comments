@@ -48,6 +48,9 @@ class Comment extends Element
     public const SCENARIO_CP = 'cp';
     public const SCENARIO_FRONT_END = 'frontEnd';
 
+    public const ACTION_SAVE = 'save';
+    public const ACTION_DELETE = 'delete';
+
 
     // Static Methods
     // =========================================================================
@@ -60,6 +63,11 @@ class Comment extends Element
     public static function refHandle(): ?string
     {
         return 'comment';
+    }
+
+    public static function trackChanges(): bool
+    {
+        return true;
     }
 
     public static function hasTitles(): bool
@@ -373,7 +381,8 @@ class Comment extends Element
     private ?ElementInterface $_owner = null;
     private ?User $_author = null;
     private mixed $_user = null;
-    private ?string $previousStatus = null;
+    private ?string $_action = null;
+    private ?Comment $previousComment = null;
 
 
     // Public Methods
@@ -485,13 +494,15 @@ class Comment extends Element
 
     public function getExcerpt($startPos = 0, $maxLength = 100): ?string
     {
-        if (strlen($this->comment) > $maxLength) {
-            $excerpt = substr($this->comment, $startPos, $maxLength - 3);
+        $comment = $this->getComment();
+
+        if (strlen($comment) > $maxLength) {
+            $excerpt = substr($comment, $startPos, $maxLength - 3);
             $lastSpace = strrpos($excerpt, ' ');
             $excerpt = substr($excerpt, 0, $lastSpace);
             $excerpt .= '...';
         } else {
-            $excerpt = $this->comment;
+            $excerpt = $comment;
         }
 
         return $excerpt;
@@ -854,42 +865,45 @@ class Comment extends Element
 
         // Skip for CP saving
         if ($this->scenario === self::SCENARIO_FRONT_END) {
-            // Let's check for spam!
-            if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
-                $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
-            }
-
-            // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
-            if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
-                $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
-            }
-
-            // Check the maximum comment length.
-            if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
-                $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
-                    'limit' => $settings->securityMaxLength,
-                ]));
-            }
-
-            // Protect against Guest submissions, if turned off
-            if (!$settings->allowGuest && !$this->userId) {
-                $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
-            }
-
-            // Additionally, check for user email/name, which is compulsory for guests
-            if ($settings->guestRequireEmailName && !$this->userId) {
-                if (!$this->name) {
-                    $this->addError('name', Craft::t('comments', 'Name is required.'));
+            // Check if we're deleting or saving (add/edit). Things like spam checks can be disabled for deletion
+            if ($this->getAction() === self::ACTION_SAVE) {
+                // Let's check for spam!
+                if (!Comments::$plugin->getProtect()->verifyFields() && $settings->enableSpamChecks) {
+                    $this->addError('comment', Craft::t('comments', 'Form validation failed. Marked as spam.'));
                 }
 
-                if (!$this->email) {
-                    $this->addError('email', Craft::t('comments', 'Email is required.'));
+                // Check against any security keywords we've set. Can be words, IP's, User Agents, etc.
+                if (!Comments::$plugin->getSecurity()->checkSecurityPolicy($this)) {
+                    $this->addError('comment', Craft::t('comments', 'Comment blocked due to security policy.'));
                 }
-            }
 
-            // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
-            if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
-                $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+                // Check the maximum comment length.
+                if (!Comments::$plugin->getSecurity()->checkCommentLength($this)) {
+                    $this->addError('comment', Craft::t('comments', 'Comment must be shorter than {limit} characters.', [
+                        'limit' => $settings->securityMaxLength,
+                    ]));
+                }
+
+                // Protect against Guest submissions, if turned off
+                if (!$settings->allowGuest && !$this->userId) {
+                    $this->addError('comment', Craft::t('comments', 'Must be logged in to comment.'));
+                }
+
+                // Additionally, check for user email/name, which is compulsory for guests
+                if ($settings->guestRequireEmailName && !$this->userId) {
+                    if (!$this->name) {
+                        $this->addError('name', Craft::t('comments', 'Name is required.'));
+                    }
+
+                    if (!$this->email) {
+                        $this->addError('email', Craft::t('comments', 'Email is required.'));
+                    }
+                }
+
+                // Is someone sneakily making a comment on a non-allowed element through some black magic POST-ing?
+                if (!Comments::$plugin->getComments()->checkPermissions($this->getOwner())) {
+                    $this->addError('comment', Craft::t('comments', 'Comments are disabled for this element.'));
+                }
             }
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
@@ -932,7 +946,7 @@ class Comment extends Element
             $originalElement = Craft::$app->getElements()->getElementById($this->id, Comment::class, $this->siteId);
 
             if ($originalElement) {
-                $this->previousStatus = $originalElement->status;
+                $this->previousComment = $originalElement;
             }
         }
 
@@ -975,6 +989,9 @@ class Comment extends Element
         $this->id = $record->id;
         $this->commentDate = DateTimeHelper::toDateTime($record->commentDate);
 
+        $previousStatus = $this->previousComment ? $this->previousComment->status : null;
+        $previousCommentText = $this->previousComment ? $this->previousComment->comment : null;
+
         if ($isNew) {
             // Should we send moderator emails?
             if ($settings->notificationModeratorEnabled && $this->status == self::STATUS_PENDING) {
@@ -984,7 +1001,7 @@ class Comment extends Element
             }
 
             // Don't send reply or author emails if we're moderating first
-            if ($settings->requireModeration) {
+            if ($settings->doesRequireModeration()) {
                 Comments::info('Not sending reply or author notification - marked as pending (to be moderated).');
             } else {
                 // Should we send a Notification email to the author of this comment?
@@ -1022,7 +1039,7 @@ class Comment extends Element
         }
 
         // Check to see if we're moderating, and has just switch from pending to approved
-        if ($this->previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
+        if ($previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
             if ($settings->notificationModeratorApprovedEnabled) {
                 Comments::$plugin->getComments()->sendNotificationEmail('moderator-approved', $this);
             } else {
@@ -1054,6 +1071,15 @@ class Comment extends Element
             // Check for all users subscribed to notifications
             if ($settings->notificationSubscribeEnabled || $settings->notificationSubscribeAuto) {
                 Comments::$plugin->getComments()->sendNotificationEmail('subscribe', $this);
+            }
+        }
+
+        // Are we editing an existing comment, and moderating comments is enabled (the comment will be pending)
+        // and allow moderation-edit notifications? Send the moderators an edit notification.
+        if (!$isNew && $settings->notificationModeratorEditEnabled && $this->status == self::STATUS_PENDING) {
+            // Has the comment actually changed?
+            if ($previousCommentText !== $this->comment) {
+                Comments::$plugin->getComments()->sendNotificationEmail('moderator-edit', $this);
             }
         }
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.0.9 - 2023-12-03
+
+### Added
+- Add action for Comments to determine state of saving or deleting.
+- Add `inline` option for reCAPTCHA JS loading.
+
+### Fixed
+- Fix an error where trashed comments weren’t validated correctly.
+- Fix custom email templates not working for notifications.
+- Fix an error with `ownerSiteId` for multi-site installs.
+- Fix lack of typecast for `siteId` when submitting comments.
+
+## 2.0.8 - 2023-10-25
+
+### Added
+- Add support for Votes to Feed Me itegration. (thanks @JeroenOnstuimig).
+- Add extra error-handling for some email notifications.
+
+### Fixed
+- Implement `Element::trackChanges()` for Blitz compatibility.
+- Fix returning Vote user when both querying users and comments is allowed for GraphQL. (thanks @JeroenOnstuimig).
+
 ## 2.0.7 - 2023-03-09
 
 ### Changed

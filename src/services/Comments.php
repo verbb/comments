@@ -293,6 +293,8 @@ class Comments extends Component
             $this->sendReplyNotificationEmail($comment);
         } else if ($type === 'moderator') {
             $this->sendModeratorNotificationEmail($comment);
+        } else if ($type === 'moderator-edit') {
+            $this->sendModeratorEditNotificationEmail($comment);
         } else if ($type === 'moderator-approved') {
             $this->sendModeratorApprovedNotificationEmail($comment);
         } else if ($type === 'subscribe') {
@@ -351,7 +353,7 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::info('Email sent successfully to admin (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
@@ -415,7 +417,7 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::info('Email sent successfully to flag (' . $notificationAdmin['email'] . ')');
             } catch (Throwable $e) {
@@ -504,7 +506,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending element author notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -593,7 +595,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending reply notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -665,9 +667,78 @@ class Comments extends Component
                     continue;
                 }
 
-                $mail->send();
+                Craft::$app->getMailer()->send($mail);
 
                 CommentsPlugin::info('Email sent successfully to moderator (' . $user->email . ')');
+            } catch (Throwable $e) {
+                CommentsPlugin::error('Unable to send email to moderator (' . $user->email . '): {message} {file}:{line}.', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+            }
+        }
+    }
+
+    public function sendModeratorEditNotificationEmail(Comment $comment): void
+    {
+        $settings = CommentsPlugin::$plugin->getSettings();
+
+        $recipient = null;
+        $emailSent = null;
+
+        CommentsPlugin::log('Prepare Moderator Edit Notifications.');
+
+        // Get our commented-on element
+        $element = $comment->getOwner();
+
+        if (!$element) {
+            CommentsPlugin::log('Cannot send moderator notification: No element ' . Json::encode($element));
+
+            return;
+        }
+
+        // Get our recipients - they're a user group
+        if (!$settings->moderatorUserGroup) {
+            CommentsPlugin::log('Cannot send moderator notification: No moderator group set.');
+
+            return;
+        }
+
+        $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
+        $recipients = User::find()->groupId($groupId)->all();
+
+        foreach ($recipients as $key => $user) {
+            try {
+                if (!isset($user)) {
+                    throw new Exception('Invalid user.');
+                }
+
+                $mail = $this->_renderEmail('comments_moderator_edit_notification', [
+                    'element' => $element,
+                    'comment' => $comment,
+                    'user' => $user,
+                ])
+                    ->setTo($user);
+
+                // Fire a 'beforeSendModeratorEmail' event
+                $event = new EmailEvent([
+                    'mail' => $mail,
+                    'user' => $user,
+                    'element' => $element,
+                    'comment' => $comment,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, $event);
+
+                if (!$event->isValid) {
+                    CommentsPlugin::log('Email blocked via event hook.');
+
+                    continue;
+                }
+
+                Craft::$app->getMailer()->send($mail);
+
+                CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
             } catch (Throwable $e) {
                 CommentsPlugin::error('Unable to send email to moderator (' . $user->email . '): {message} {file}:{line}.', [
                     'message' => $e->getMessage(),
@@ -726,7 +797,7 @@ class Comments extends Component
                 return;
             }
 
-            $emailSent = $message->send();
+            $emailSent = Craft::$app->getMailer()->send($message);
         } catch (Throwable $e) {
             CommentsPlugin::error('Error sending comment author notification: {message} {file}:{line}.', [
                 'message' => $e->getMessage(),
@@ -837,7 +908,7 @@ class Comments extends Component
                     continue;
                 }
 
-                if ($message->send()) {
+                if (Craft::$app->getMailer()->send($message)) {
                     CommentsPlugin::info('Email sent successfully to subscriber (' . $user->email . ')');
                 } else {
                     CommentsPlugin::error('Unable to send email to subscriber (' . $user->email . ')');
@@ -1010,14 +1081,13 @@ class Comments extends Component
     {
         $settings = CommentsPlugin::$plugin->getSettings();
 
+        $view = Craft::$app->getView();
         $mailer = Craft::$app->getMailer();
-        $message = $mailer->composeFromKey($key, $variables);
+        $message = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         // Default to the current language
         $language = Craft::$app->getRequest()->getIsSiteRequest() ? Craft::$app->language : Craft::$app->getSites()->getPrimarySite()->language;
         $systemMessage = Craft::$app->getSystemMessages()->getMessage($key, $language);
-
-        $view = Craft::$app->getView();
 
         $message->setSubject($view->renderString($systemMessage->subject, $variables, View::TEMPLATE_MODE_SITE));
         $textBody = $view->renderString($systemMessage->body, $variables, View::TEMPLATE_MODE_SITE);

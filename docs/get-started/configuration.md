@@ -19,7 +19,8 @@ return [
         'guestRequireEmailName' => true,
         'guestShowEmailName' => true,
         'requireModeration' => true,
-        'moderatorUserGroup',
+        'moderatorUserGroup' => 'xxxxxxxxxxxxxxxxxxxxx',
+        'moderatorExcluded' => true,
         'autoCloseDays' => '',
         'maxReplyDepth' => '',
         'maxUserComments' => '',
@@ -67,6 +68,7 @@ return [
         'notificationSubscribeEnabled' => false,
         'notificationSubscribeCommentEnabled' => false,
         'notificationModeratorEnabled' => false,
+        'notificationModeratorEditEnabled' => false,
         'notificationModeratorApprovedEnabled' => false,
         'notificationAdmins' => [],
         'notificationAdminEnabled' => false,
@@ -99,6 +101,7 @@ return [
 - `guestShowEmailName` - Whether guests should be shown fields to enter their name and email.
 - `requireModeration` - Whether comments should be moderated before being public.
 - `moderatorUserGroup` - The UID of the User Group that should moderate comments and receive notifications.
+- `moderatorExcluded` - Comments from any user in the moderator group will not require moderation themselves.
 - `autoCloseDays` - Number of days until commenting is automatically closed. This uses the "Post Date" of an element. 0 to disable.
 - `maxReplyDepth` - Set the number of levels (depth) replies for comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.
 - `maxUserComments` - Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.
@@ -137,8 +140,9 @@ return [
 - `notificationSubscribeAuto` - Whether to automatically subscribe to notifications on any comments on the same element, after your first reply.
 - `notificationSubscribeDefault` - Whether to automatically subscribe to notifications on comments that the user owns.
 - `notificationSubscribeEnabled` - Whether to allow subscriber notification altogether.
-- `notificationSubscribeCommentEnabled` - Whether to notify comment authors when a reply is made.
-- `notificationModeratorEnabled` - Users can subscribe to a specific thread of comments made on an element.
+- `notificationSubscribeCommentEnabled` - Users can subscribe to a specific thread of comments made on an element.
+- `notificationModeratorEnabled` - Whether a nominated user group should receive an email when a new comment has been made, and needs to be moderated.
+- `notificationModeratorEditEnabled` - Whether moderators should receive a notification when a user edits their own comment, and needs to be moderated.
 - `notificationModeratorApprovedEnabled` - Whether to notify comment authors when their comment has been approved via moderation.
 - `notificationAdmins` - Enter the email address of any administrators, used for the below settings.
 - `notificationAdminEnabled` - Admins will receive an email whenever someone makes a comment.

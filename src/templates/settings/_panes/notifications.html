@@ -84,6 +84,16 @@
 }) }}
 
 {{ forms.lightswitchField({
+    first: true,
+    label: "Enable Moderator Edited Notifications" | t('comments'),
+    instructions: "Whether moderators should receive a notification when a user edits their own comment, and needs to be moderated." | t('comments'),
+    id: 'notificationModeratorEditEnabled',
+    name: 'notificationModeratorEditEnabled',
+    on: settings.notificationModeratorEditEnabled,
+    warning: macros.configWarning('notificationModeratorEditEnabled', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
     label: "Enable Moderator-Approved Notifications" | t('comments'),
     instructions: "Authors receive an email when the moderator has approved a comment." | t('comments'),
     id: 'notificationModeratorApprovedEnabled',
