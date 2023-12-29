@@ -454,32 +454,6 @@ class Comment extends Element
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
 
-    public function getComment(): ?string
-    {
-        $comment = $this->comment;
-
-        // Add Emoji support
-        if ($comment !== null) {
-            $comment = StringHelper::shortcodesToEmoji($comment);
-            $comment = trim(preg_replace('/\R/u', "\n", $comment));
-        }
-
-        return $comment;
-    }
-
-    public function setComment($comment): void
-    {
-        // Add Emoji support
-        if ($comment !== null) {
-            $comment = StringHelper::emojiToShortcodes($comment);
-        }
-
-        // Replace any 4-byte string that've been missed
-        $comment = preg_replace('%(?:\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})%xs', '', $comment);
-
-        $this->comment = $comment;
-    }
-
     public function getRawComment(): ?string
     {
         return $this->comment;
