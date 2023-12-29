@@ -9,6 +9,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User as UserElement;
+use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 
@@ -285,10 +286,7 @@ class CommentFeedMeElement extends Element
         $results = Hash::expand($fieldData);
 
         // Clear existing votes for this comment
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%comments_votes}}', ['commentId' => $parentId])
-            ->execute();
-
+        Db::delete('{{%comments_votes}}', ['commentId' => $parentId]);
         
         // If there are no votes to import, stop here
         if(empty($results)) {
