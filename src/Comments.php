@@ -90,7 +90,6 @@ class Comments extends Plugin
         $this->_registerGraphQl();
         $this->_registerEventHandlers();
         $this->_registerProjectConfigEventHandlers();
-        $this->_checkDeprecations();
         $this->_registerFeedMeSupport();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
@@ -387,38 +386,6 @@ class Comments extends Plugin
                 $event->fields[] = CommentsFieldLayoutElement::class;
             }
         });
-    }
-
-    private function _checkDeprecations(): void
-    {
-        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
-            return;
-        }
-
-        $settings = $this->getSettings();
-
-        // Check for renamed settings
-        $renamedSettings = [
-        ];
-
-        foreach ($renamedSettings as $old => $new) {
-            if (property_exists($settings, $old) && isset($settings->$old)) {
-                Craft::$app->getDeprecator()->log($old, "The {$old} config setting has been renamed to {$new}.");
-                $settings[$new] = $settings[$old];
-                unset($settings[$old]);
-            }
-        }
-
-        $removedSettings = [
-            'showCustomFields',
-        ];
-
-        foreach ($removedSettings as $setting) {
-            if (property_exists($settings, $setting) && isset($settings->$setting)) {
-                // Craft::$app->getDeprecator()->log($old, "The {$setting} config setting has been removed.");
-                unset($settings[$setting]);
-            }
-        }
     }
 
     private function _registerFeedMeSupport(): void
