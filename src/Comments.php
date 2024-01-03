@@ -399,7 +399,6 @@ class Comments extends Plugin
 
         // Check for renamed settings
         $renamedSettings = [
-            'allowAnonymous' => 'allowGuest',
             'allowAnonymousVoting' => 'allowGuestVoting',
             'allowAnonymousFlagging' => 'allowGuestFlagging',
             'securityBlacklist' => 'securitySpamlist',
