@@ -268,8 +268,13 @@ Comments.Instance = Comments.Base.extend({
         // Actions
         this.$subscribeBtn = $container.querySelector('[data-action="subscribe"]');
 
-        this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
-        this.addListener(this.$subscribeBtn, 'click', this.subscribe);
+        if (this.$baseForm) {
+            this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
+        }
+
+        if (this.$subscribeBtn) {
+            this.addListener(this.$subscribeBtn, 'click', this.subscribe);
+        }
 
         // Create classes for each comment item
         for (var i = 0; i < $comments.length; i++) {
@@ -280,10 +285,12 @@ Comments.Instance = Comments.Base.extend({
 
         // Update the CSRF token from the form. This plays nicely with Blitz.
         setTimeout(function() {
-            var $csrfTokenInput = this.$baseForm.querySelector('[name="' + Comments.csrfTokenName + '"]');
+            if (this.$baseForm) {
+                var $csrfTokenInput = this.$baseForm.querySelector('[name="' + Comments.csrfTokenName + '"]');
 
-            if ($csrfTokenInput) {
-                Comments.csrfToken = $csrfTokenInput.value;
+                if ($csrfTokenInput) {
+                    Comments.csrfToken = $csrfTokenInput.value;
+                }
             }
         }.bind(this), 2000);
     },
