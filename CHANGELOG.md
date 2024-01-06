@@ -9,6 +9,8 @@
 ### Fixed
 - Fix element index not dislaying some characters correctly for comments.
 - Fix manually rendering JS not firing correctly in some instances.
+- Fix max comments for user check for multi-site installs.
+- Fix JS errors when no comment form is available (due to permissions).
 
 ## 2.0.9 - 2023-12-03
 
