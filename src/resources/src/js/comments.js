@@ -268,13 +268,8 @@ Comments.Instance = Comments.Base.extend({
         // Actions
         this.$subscribeBtn = $container.querySelector('[data-action="subscribe"]');
 
-        if (this.$baseForm) {
-            this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
-        }
-
-        if (this.$subscribeBtn) {
-            this.addListener(this.$subscribeBtn, 'click', this.subscribe);
-        }
+        this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
+        this.addListener(this.$subscribeBtn, 'click', this.subscribe);
 
         // Create classes for each comment item
         for (var i = 0; i < $comments.length; i++) {
