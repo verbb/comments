@@ -6,6 +6,7 @@ use verbb\comments\elements\actions\SetCommentStatus;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\helpers\StringHelper;
 use verbb\comments\models\Subscribe;
 use verbb\comments\records\Comment as CommentRecord;
 
@@ -27,7 +28,6 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\SiteIdValidator;
 
-use LitEmoji\LitEmoji;
 use TheIconic\NameParser\Parser;
 
 use Throwable;
@@ -522,7 +522,7 @@ class Comment extends Element
 
         // Add Emoji support
         if ($comment !== null) {
-            $comment = LitEmoji::shortcodeToUnicode($comment);
+            $comment = StringHelper::shortcodesToEmoji($comment);
             $comment = trim(preg_replace('/\R/u', "\n", $comment));
         }
 
@@ -533,7 +533,7 @@ class Comment extends Element
     {
         // Add Emoji support
         if ($comment !== null) {
-            $comment = LitEmoji::unicodeToShortcode($comment);
+            $comment = StringHelper::emojiToShortcodes($comment);
         }
 
         // Replace any 4-byte string that've been missed
