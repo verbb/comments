@@ -367,6 +367,7 @@ class Comment extends Element
     public ?int $ownerId = null;
     public ?int $ownerSiteId = null;
     public ?int $userId = null;
+    public ?string $comment = null;
     public ?string $status = null;
     public ?string $name = null;
     public ?string $email = null;
@@ -377,7 +378,6 @@ class Comment extends Element
 
     public ?int $newParentId = null;
     private ?bool $_hasNewParent = null;
-    private ?string $comment = null;
     private ?ElementInterface $_owner = null;
     private ?User $_author = null;
     private mixed $_user = null;
@@ -490,6 +490,11 @@ class Comment extends Element
     public function getStatus(): ?string
     {
         return $this->status;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
     }
 
     public function getExcerpt($startPos = 0, $maxLength = 100): ?string
