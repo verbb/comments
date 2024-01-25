@@ -32,6 +32,7 @@
 // Custom title
 //
 
+.comments-widget .comment-block,
 .content-pane .elements .comment-block {
     small {
         color: #aaa;
@@ -82,8 +83,12 @@
 // ==========================================================================
 
 .comments-widget .comment-block {
-    margin-left: 0;
+    display: flex;
     margin-bottom: 10px;
+
+    .status {
+        margin-top: 4px;
+    }
 
     &:last-child {
         margin-bottom: 0;

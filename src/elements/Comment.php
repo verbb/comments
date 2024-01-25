@@ -494,7 +494,8 @@ class Comment extends Element
 
     public function getComment(): ?string
     {
-        return $this->comment;
+        // Decode any emoji's encoded in Craft 4 and earlier
+        return StringHelper::shortcodesToEmoji((string)$this->comment);
     }
 
     public function getExcerpt($startPos = 0, $maxLength = 100): ?string
