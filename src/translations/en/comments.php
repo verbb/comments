@@ -28,21 +28,21 @@ return [
         "A new reply on the post \"{{ element.title }}\" has been made.\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
-    'comments_moderator_notification_comment_heading' => 'When a comment has been made, and awaits moderation:',
-    'comments_moderator_notification_comment_subject' => 'A new comment requires moderation on {{ siteName }}',
-    'comments_moderator_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+    'comments_moderator_notification_heading' => 'When a comment has been made, and awaits moderation:',
+    'comments_moderator_notification_subject' => 'A new comment requires moderation on {{ siteName }}',
+    'comments_moderator_notification_body' => "Hi {{user.friendlyName}},\n\n" .
         "A new comment on the post \"{{ element.title }}\" has been made and requires moderation.\n\n" .
         "{{comment.cpEditUrl}}.",
 
-    'comments_moderator_edit_notification_comment_heading' => 'When a comment has been edited, and awaits moderation:',
+    'comments_moderator_edit_notification_heading' => 'When a comment has been edited, and awaits moderation:',
     'comments_moderator_edit_notification_subject' => 'Someone has edited their comment and requires moderation on {{siteName}}.',
     'comments_moderator_edit_notification_body' => "Hi {{user.friendlyName}},\n\n" .
         "A comment on the post \"{{ element.title }}\" was edited and requires moderation.\n\n" .
         "{{comment.cpEditUrl}}.",
 
-    'comments_moderator_approved_notification_comment_heading' => 'When a comment has been approved via moderation:',
-    'comments_moderator_approved_notification_comment_subject' => 'Your comment has been approved on {{ siteName }}',
-    'comments_moderator_approved_notification_comment_body' => "Hi {{user.friendlyName}},\n\n" .
+    'comments_moderator_approved_notification_heading' => 'When a comment has been approved via moderation:',
+    'comments_moderator_approved_notification_subject' => 'Your comment has been approved on {{ siteName }}',
+    'comments_moderator_approved_notification_body' => "Hi {{user.friendlyName}},\n\n" .
         "Your comment has been approved on the post \"{{ element.title }}\".\n\n" .
         "{{element.url}}#comment-{{comment.id}}.",
 
