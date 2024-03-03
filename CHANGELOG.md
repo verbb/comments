@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.11 - 2024-03-04
+
+### Fixed
+- Fix some email message translation keys.
+- Fix order of operations when uninstalling the plugin.
+- Fix Emoji support and stripping out some valid special characters for comments.
+
 ## 2.0.10 - 2024-01-06
 
 ### Added
