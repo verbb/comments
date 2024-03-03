@@ -20,6 +20,11 @@ class CommentsField extends Field
         return Craft::t('comments', 'Comment Options');
     }
 
+    public static function icon(): string
+    {
+        return '@verbb/comments/icon-mask.svg';
+    }
+
     public static function supportedTranslationMethods(): array
     {
         return [];
