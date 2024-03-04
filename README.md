@@ -1,5 +1,5 @@
-# Comments plugin for Craft CMS
-<img width="500" src="https://verbb.imgix.net/plugins/comments/comments-social-card.png?v=3">
+<p align="center"><img src="https://verbb.imgix.net/plugins/comments/comments-icon.svg" width="100" height="100" alt="Comments icon"></p>
+<h1 align="center">Comments for Craft CMS</h1>
 
 Comments is a Craft CMS plugin that allows your users to comment on elements. Not a fan of using Disqus? All your comments are stored in your Craft install, and hooked up to your existing users.
 
