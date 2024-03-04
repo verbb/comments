@@ -161,7 +161,11 @@ class Settings extends Model
 
         if ($this->maxUserComments && $currentUser) {
             // Has the user already commented X amount of times on this element?
-            $count = Comment::find()->ownerId($element->id)->userId($currentUser->id)->count();
+            $count = Comment::find()
+                ->ownerId($element->id)
+                ->ownerSiteId($element->siteId)
+                ->userId($currentUser->id)
+                ->count();
 
             if ($count >= $this->maxUserComments) {
                 return CommentStatus::TooManyComments;

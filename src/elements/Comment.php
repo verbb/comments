@@ -6,6 +6,7 @@ use verbb\comments\elements\actions\SetCommentStatus;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\helpers\StringHelper;
 use verbb\comments\models\Subscribe;
 use verbb\comments\records\Comment as CommentRecord;
 
