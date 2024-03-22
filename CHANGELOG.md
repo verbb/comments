@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.0-beta.2 - 2024-03-22
+
+### Added
+- Add element conditions to allow comments to be filtered in the control panel by custom sources.
+
+### Fixed
+- Fix an error when making a comment.
+
 ## 3.0.0-beta.1 - 2024-03-04
 
 ### Changed
