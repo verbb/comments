@@ -430,7 +430,7 @@ class CommentsController extends Controller
         $elementId = $this->request->getParam('elementId');
 
         $comment->ownerId = $ownerId ?? $elementId ?? $comment->ownerId;
-        $comment->ownerSiteId = $ownerSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+        $comment->ownerSiteId = $ownerSiteId ?: Craft::$app->getSites()->getCurrentSite()->id;
         $comment->siteId = (int)$this->request->getParam('siteId', $comment->siteId);
 
         if (!$comment->userId) {

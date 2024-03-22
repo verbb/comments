@@ -464,6 +464,16 @@ class Comment extends Element
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
 
+    public function setAction(string $action): void
+    {
+        $this->_action = $action;
+    }
+
+    public function getAction(): ?string
+    {
+        return $this->_action;
+    }
+
     public function getRawComment(): ?string
     {
         return $this->comment;
