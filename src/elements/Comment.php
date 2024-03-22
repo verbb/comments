@@ -3,6 +3,7 @@ namespace verbb\comments\elements;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\actions\SetCommentStatus;
+use verbb\comments\elements\conditions\CommentCondition;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
 use verbb\comments\helpers\CommentsHelper;
@@ -15,6 +16,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\actions\Delete;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\Asset;
@@ -100,6 +102,11 @@ class Comment extends Element
         return new CommentQuery(static::class);
     }
 
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(CommentCondition::class, [static::class]);
+    }
+
     public static function getStructureId(): int
     {
         return Comments::$plugin->getSettings()->getStructureId();
@@ -169,103 +176,6 @@ class Comment extends Element
                 'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
             ],
         ];
-
-        // $indexSidebarLimit = $settings->indexSidebarLimit;
-        // $indexSidebarGroup = $settings->indexSidebarGroup;
-        // $indexSidebarIndividualElements = $settings->indexSidebarIndividualElements;
-
-        // $query = (new Query())
-        //     ->select(['elements.id', 'elements.type', 'comments.ownerId', 'content.title', 'entries.sectionId'])
-        //     ->from(['{{%elements}} elements'])
-        //     ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
-        //     ->innerJoin('{{%comments_comments}} comments', '[[comments.ownerId]] = [[elements.id]]')
-        //     ->leftJoin('{{%entries}} entries', '[[comments.ownerId]] = [[entries.id]]')
-        //     ->limit($indexSidebarLimit)
-        //     ->groupBy(['ownerId', 'title', 'elements.id', 'entries.sectionId']);
-
-        // // Support Craft 3.1+
-        // if (Craft::$app->getDb()->columnExists('{{%elements}}', 'dateDeleted')) {
-        //     $query
-        //         ->addSelect(['elements.dateDeleted'])
-        //         ->where(['is', 'elements.dateDeleted', null]);
-        // }
-
-        // $commentedElements = $query->all();
-
-        // Keep a cache of sections here
-        // $sectionsById = [];
-
-        // foreach (Craft::$app->getEntries()->getAllSections() as $section) {
-        //     $sectionsById[$section->id] = $section;
-        // }
-
-        // foreach ($commentedElements as $element) {
-        //     try {
-        //         $elementGroupPrefix = '';
-        //         $displayName = $element['type']::pluralDisplayName();
-
-        //         switch ($element['type']) {
-        //             case Entry::class:
-        //                 $elementGroupPrefix = 'section';
-        //                 break;
-        //             case Category::class:
-        //                 $elementGroupPrefix = 'categorygroup';
-        //                 break;
-        //             case Asset::class:
-        //                 $elementGroupPrefix = 'volume';
-        //                 break;
-        //             case User::class:
-        //                 $elementGroupPrefix = 'usergroup';
-        //                 break;
-        //         }
-
-        //         $key = 'type:' . $element['type'];
-
-        //         $sources[$key] = ['heading' => $displayName];
-
-        //         $sources[$key . ':all'] = [
-        //             'key' => $key . ':all',
-        //             'label' => Craft::t('comments', 'All {elements}', ['elements' => $displayName]),
-        //             'structureId' => self::getStructureId(),
-        //             'structureEditable' => false,
-        //             'criteria' => [
-        //                 'ownerType' => $element['type'],
-        //             ],
-        //             'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
-        //         ];
-
-        //         // Just do sections for the moment
-        //         if ($indexSidebarGroup && $elementGroupPrefix == 'section' && $element['sectionId']) {
-        //             $section = $sectionsById[$element['sectionId']] ?? '';
-
-        //             $sources[$elementGroupPrefix . ':' . $element['sectionId']] = [
-        //                 'key' => $elementGroupPrefix . ':' . $element['sectionId'],
-        //                 'label' => $section->name ?? '',
-        //                 'structureId' => self::getStructureId(),
-        //                 'structureEditable' => false,
-        //                 'criteria' => [
-        //                     'ownerSectionId' => $element['sectionId'],
-        //                 ],
-        //                 'defaultSort' => [$settings->sortDefaultKey, $settings->sortDefaultDirection],
-        //             ];
-        //         }
-
-        //         if ($indexSidebarIndividualElements) {
-        //             $sources['elements:' . $element['ownerId']] = [
-        //                 'key' => 'elements:' . $element['ownerId'],
-        //                 'label' => $element['title'],
-        //                 'structureId' => self::getStructureId(),
-        //                 'structureEditable' => false,
-        //                 'criteria' => [
-        //                     'ownerId' => $element['ownerId'],
-        //                 ],
-        //                 'defaultSort' => ['structure', 'asc'],
-        //             ];
-        //         }
-        //     } catch (Throwable $e) {
-        //         continue;
-        //     }
-        // }
 
         return $sources;
     }
