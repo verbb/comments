@@ -107,7 +107,7 @@ class CommentFeedMeElement extends Element
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
 
-        $this->element->setComment($value);
+        $this->element->comment = $value;
 
         return $value;
     }
@@ -146,29 +146,22 @@ class CommentFeedMeElement extends Element
 
         $elementId = null;
 
-        // Because we can match on element attributes and custom fields, AND we're directly using SQL
-        // queries in our `where` below, we need to check if we need a prefix for custom fields accessing
-        // the content table.
-        $columnName = $match;
-
-        // Remove field_ prefix from match before giving it to getFieldByHandle
-        $fieldHandle = $match;
-        if (strpos($match, 'field_') === 0) {  
-            $fieldHandle = substr($match, 6);
-        }
-
-        if ($field = Craft::$app->getFields()->getFieldByHandle($fieldHandle)) {
-            $columnName = ElementHelper::fieldColumnFromField($field);
-        }
-
-        $result = (new Query())
-            ->select(['elements.id', 'elements_sites.elementId'])
+        $query = (new Query())
+            ->select(['elements.id', 'elements_sites.elementId', 'elements_sites.title', 'elements_sites.slug', 'elements_sites.uri', 'elements_sites.content'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%elements_sites}} elements_sites', '[[elements_sites.elementId]] = [[elements.id]]')
-            ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
-            ->where(['=', $columnName, $value])
-            ->andWhere(['dateDeleted' => null])
-            ->one();
+            ->andWhere(['dateDeleted' => null]);
+
+        // Check if we're query a column or a custom field
+        if (in_array($match, ['title', 'slug', 'uri'])) {
+            $query->andWhere(['=', $match, $value]);
+        } else {
+            $contentQuery = Craft::$app->getDb()->getQueryBuilder()->jsonContains('content', [$match => $value]);
+
+            $query->andWhere($contentQuery);
+        }
+
+        $result = $query->one();
 
         if ($result) {
             $elementId = $result['id'];
