@@ -283,8 +283,22 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('comments_comments.commentDate', $this->commentDate));
         }
 
-        if ($this->isFlagged) {
-            $this->subQuery->innerJoin('{{%comments_flags}} comments_flags', '[[comments_comments.id]] = [[comments_flags.commentId]]');
+        if ($this->isFlagged !== null) {
+            if ($this->isFlagged) {
+                // Inner join with a subquery to ensure unique flagged comments
+                $this->subQuery->innerJoin(
+                    '(SELECT DISTINCT commentId FROM {{%comments_flags}}) comments_flags',
+                    '[[comments_comments.id]] = [[comments_flags.commentId]]'
+                );
+            } else {
+                // Left join with a subquery and filter out flagged comments
+                $this->subQuery->leftJoin(
+                    '(SELECT DISTINCT commentId FROM {{%comments_flags}}) comments_flags',
+                    '[[comments_comments.id]] = [[comments_flags.commentId]]'
+                );
+                
+                $this->subQuery->andWhere(['comments_flags.commentId' => null]);
+            }
         }
 
         if ($this->ownerType) {
