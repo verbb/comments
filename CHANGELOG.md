@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.5 - 2025-02-03
+
+### Fixed
+- Fix the `isFlagged` element query not working correctly.
+
 ## 3.0.4 - 2024-11-12
 
 ### Fixed
