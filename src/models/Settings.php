@@ -114,6 +114,20 @@ class Settings extends Model
     // Public Methods
     // =========================================================================
 
+    public function __construct(array $config = [])
+    {
+        $config = $this->_normalizeAttributes($config);
+
+        parent::__construct($config);
+    }
+    
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        $values = $this->_normalizeAttributes($values);
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
     public function getPlaceholderAvatar(): ?Asset
     {
         if ($this->_placeholderAvatar !== null) {
@@ -240,5 +254,19 @@ class Settings extends Model
         }
 
         return false;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _normalizeAttributes(array $values): array
+    {
+        // Setting this value from the UI when using a Closure will produce an invalid value
+        if (isset($values['notificationAdmins']) && is_string($values['notificationAdmins'])) {
+            $values['notificationAdmins'] = [];
+        }
+
+        return $values;
     }
 }
