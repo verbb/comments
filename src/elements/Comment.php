@@ -984,7 +984,7 @@ class Comment extends Element
                 }
 
                 // Are they a guest trying to comment using a users details?
-                if (!$this->userId) {
+                if (!$this->userId && !empty($this->email)) {
                     $matchedUser = User::find()->email($this->email)->status(null)->one();
 
                     if ($matchedUser) {
