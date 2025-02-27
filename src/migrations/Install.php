@@ -55,7 +55,7 @@ class Install extends Migration
             'comment' => $this->text(),
             'name' => $this->string(),
             'email' => $this->string(),
-            'url' => $this->string(),
+            'url' => $this->text(),
             'ipAddress' => $this->string(),
             'userAgent' => $this->string(),
             'commentDate' => $this->dateTime()->notNull(),

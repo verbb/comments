@@ -16,6 +16,8 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
 
+use Closure;
+
 class Settings extends Model
 {
     // Properties
@@ -88,7 +90,7 @@ class Settings extends Model
     public bool $notificationModeratorEnabled = false;
     public bool $notificationModeratorEditEnabled = false;
     public bool $notificationModeratorApprovedEnabled = false;
-    public array $notificationAdmins = [];
+    public array|Closure $notificationAdmins = [];
     public bool $notificationAdminEnabled = false;
     public bool $notificationFlaggedEnabled = false;
     public bool $useQueueForNotifications = false;
@@ -112,6 +114,20 @@ class Settings extends Model
 
     // Public Methods
     // =========================================================================
+
+    public function __construct(array $config = [])
+    {
+        $config = $this->_normalizeAttributes($config);
+
+        parent::__construct($config);
+    }
+    
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        $values = $this->_normalizeAttributes($values);
+
+        parent::setAttributes($values, $safeOnly);
+    }
 
     public function getPlaceholderAvatar(): ?Asset
     {
@@ -192,9 +208,19 @@ class Settings extends Model
         return null;
     }
 
+    public function getNotificationAdmins(): array
+    {
+        // Support closures
+        if ($this->notificationAdmins instanceof Closure) {
+            return ($this->notificationAdmins)();
+        }
+
+        return $this->notificationAdmins;
+    }
+
     public function getEnabledNotificationAdmins(): array
     {
-        $notificationAdmins = $this->notificationAdmins ?: [];
+        $notificationAdmins = $this->getNotificationAdmins() ?: [];
 
         return ArrayHelper::where($notificationAdmins, 'enabled');
     }
@@ -229,5 +255,19 @@ class Settings extends Model
         }
 
         return false;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _normalizeAttributes(array $values): array
+    {
+        // Setting this value from the UI when using a Closure will produce an invalid value
+        if (isset($values['notificationAdmins']) && is_string($values['notificationAdmins'])) {
+            $values['notificationAdmins'] = [];
+        }
+
+        return $values;
     }
 }
