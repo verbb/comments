@@ -1,1 +1,7 @@
-<input class="cc-f-input" name="fields[{{ field.handle }}]" type="number" placeholder="{{ field.name }}" {% if required %}required{% endif %}>
+{{ tag('input', {
+    class: 'cc-f-input',
+    name: 'fields[' ~ field.handle ~ ']',
+    type: 'number',
+    placeholder: field.name,
+    required: required,
+}) }}
