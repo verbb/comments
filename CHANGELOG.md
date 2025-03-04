@@ -57,6 +57,15 @@
 ### Fixed
 - Fix an error when selecting a “Placeholder Avatar” asset.
 
+## 2.0.17 - 2025-03-05
+
+### Added
+- Add support for `notificationAdmins` to be a Closure.
+
+### Fixed
+- Fix an issue creating comments for long URLs.
+- Fix incorrect Unauthorized error caused by checking against random user.
+
 ## 2.0.16 - 2025-02-03
 
 ### Fixed
