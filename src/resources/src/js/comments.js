@@ -48,7 +48,7 @@ Comments.Base = Base.extend({
     createElement: function(html) {
         var el = document.createElement('div');
         el.innerHTML =  html;
-        return el.firstChild;
+        return el.firstElementChild;
     },
 
     serialize: function(form) {
