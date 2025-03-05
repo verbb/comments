@@ -198,7 +198,7 @@ class Comments extends Component
 
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 
-        return Template::raw($formHtml);
+        return Template::raw(trim($formHtml));
     }
 
     // Checks is there are sufficient permissions for commenting on this element
