@@ -149,7 +149,19 @@ Comments.Base = Base.extend({
                     }
 
                     if ($field) {
-                        $field.nextElementSibling.innerHTML = content[key][0];
+                        // Find the parent container - might not be one for backward compatibility
+                        const $parent = $field.closest('[data-role="comment-field"]');
+
+                        if ($parent) {
+                            const $errors = $parent.querySelector('[data-role="errors"]');
+
+                            if ($errors) {
+                                $errors.innerHTML = content[key][0];
+                            }
+                        } else {
+                            // TODO: remove at next breakpoint
+                            $field.nextElementSibling.innerHTML = content[key][0];
+                        }
                     }
                 });
             } else {
