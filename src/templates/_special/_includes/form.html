@@ -40,12 +40,12 @@
 
             {% if not currentUser and settings.allowGuest and (settings.guestShowEmailName or settings.guestRequireEmailName) %}
                 <div class="cc-f-row">
-                    <div class="cc-f-col">
+                    <div class="cc-f-col" data-role="comment-field">
                         <input class="cc-f-input" name="fields[name]" type="text" placeholder="{{ 'Your name' | t('comments') }}">
                         <div data-role="errors" class="cc-e"></div>
                     </div>
 
-                    <div class="cc-f-col">
+                    <div class="cc-f-col" data-role="comment-field">
                         <input class="cc-f-input" name="fields[email]" type="email" placeholder="{{ 'Your email' | t('comments') }}">
                         <div data-role="errors" class="cc-e"></div>
                     </div>

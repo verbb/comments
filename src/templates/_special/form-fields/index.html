@@ -3,13 +3,13 @@
         {% for element in tab.elements %}
             {% if className(element) == 'craft\\fieldlayoutelements\\CustomField' %}
                 <div class="cc-f-row">
-                    <div class="cc-f-col">
+                    <div class="cc-f-col" data-role="comment-field">
                         {{ commentsInclude('form-fields/field', { field: element.getField() }) }}
                     </div>
                 </div>
             {% elseif className(element) == 'verbb\\comments\\fieldlayoutelements\\CommentsField' %}
                 <div class="cc-f-row">
-                    <div class="cc-f-col">
+                    <div class="cc-f-col" data-role="comment-text">
                         {{ commentsInclude('form-fields/elements/comment') }}
                     </div>
                 </div>
