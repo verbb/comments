@@ -308,7 +308,9 @@ Comments.Instance = Comments.Base.extend({
         }.bind(this), 2000);
 
         // Clone the comment form before the `init` event, in case third-parties modify the edit form
-        this.commentForm = this.$baseForm.cloneNode(true);
+        if (this.$baseForm) {
+            this.commentForm = this.$baseForm.cloneNode(true);
+        }
 
         this.emit('init', { comments: this });
     },
