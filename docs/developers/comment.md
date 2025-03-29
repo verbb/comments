@@ -35,6 +35,8 @@ Method | Description
 `getUpvotes()` | Returns the number of upvotes made on this comment.
 `getDownvotes()` | Returns the number of upvotes made on this comment.
 `isPoorlyRated()` | If a comment receives more than a certain amount of downvotes, `isPoorlyRated` will be true. This limit is configurable through the plugin settings.
+`getAuthor()` | Returns a Craft User for the author of this comment.
+`getOwner()` | Returns an ElementInterface for the Element that owns this comment.
 
 ## Permission Methods
 
