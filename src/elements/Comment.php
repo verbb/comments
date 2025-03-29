@@ -1195,9 +1195,9 @@ class Comment extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'user') {
-            $this->_user = $elements[0] ?? false;
+            $this->_user = $elements[0] ?? null;
         } else if ($handle === 'owner') {
-            $this->_owner = $elements[0] ?? false;
+            $this->_owner = $elements[0] ?? null;
         } else {
             parent::setEagerLoadedElements($handle, $elements);
         }
