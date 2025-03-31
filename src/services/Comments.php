@@ -688,20 +688,20 @@ class Comments extends Component
         $recipient = null;
         $emailSent = null;
 
-        CommentsPlugin::log('Prepare Moderator Edit Notifications.');
+        CommentsPlugin::info('Prepare Moderator Edit Notifications.');
 
         // Get our commented-on element
         $element = $comment->getOwner();
 
         if (!$element) {
-            CommentsPlugin::log('Cannot send moderator notification: No element ' . Json::encode($element));
+            CommentsPlugin::info('Cannot send moderator notification: No element ' . Json::encode($element));
 
             return;
         }
 
         // Get our recipients - they're a user group
         if (!$settings->moderatorUserGroup) {
-            CommentsPlugin::log('Cannot send moderator notification: No moderator group set.');
+            CommentsPlugin::info('Cannot send moderator notification: No moderator group set.');
 
             return;
         }
@@ -732,14 +732,14 @@ class Comments extends Component
                 $this->trigger(self::EVENT_BEFORE_SEND_MODERATOR_EMAIL, $event);
 
                 if (!$event->isValid) {
-                    CommentsPlugin::log('Email blocked via event hook.');
+                    CommentsPlugin::info('Email blocked via event hook.');
 
                     continue;
                 }
 
                 Craft::$app->getMailer()->send($mail);
 
-                CommentsPlugin::log('Email sent successfully to moderator (' . $user->email . ')');
+                CommentsPlugin::info('Email sent successfully to moderator (' . $user->email . ')');
             } catch (Throwable $e) {
                 CommentsPlugin::error('Unable to send email to moderator (' . $user->email . '): {message} {file}:{line}.', [
                     'message' => $e->getMessage(),
