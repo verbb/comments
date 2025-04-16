@@ -66,6 +66,14 @@
 ### Fixed
 - Fix an error when selecting a “Placeholder Avatar” asset.
 
+## 2.0.18 - 2025-04-17
+
+### Changed
+- Improve performance of sidebar list of owner elements for large sites when viewing comments in the control panel.
+
+### Fixed
+- Fix an error when eager loading owner and user for comments.
+
 ## 2.0.17 - 2025-03-05
 
 ### Added
