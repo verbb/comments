@@ -120,9 +120,16 @@ class Comments extends Plugin
     public function getCpNavItem(): ?array
     {
         $nav = parent::getCpNavItem();
+
         $nav['label'] = $this->getPluginName();
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            // Only show the Comments page if the settings are also shown, otherwise just show the top-level menu item
+            $nav['subnav']['comments'] = [
+                'label' => Craft::t('comments', 'Comments'),
+                'url' => 'comments',
+            ];
+
             $nav['subnav']['settings'] = [
                 'label' => Craft::t('comments', 'Settings'),
                 'url' => 'comments/settings',
