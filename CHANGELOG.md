@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.7 - 2025-04-17
+
+### Added
+- Add “Comments” sub-nav item in the control panel.
+
+### Changed
+- Improve performance of sidebar list of owner elements for large sites when viewing comments in the control panel.
+- Custom fields now include a `data-role="comment-field"` attribute on their container. Consider including this in any custom templates of yours for the next major release.
+- Validation errors for custom fields now target the `data-role="errors"` attribute of the custom field.
+
+### Fixed
+- Fix an error when eager loading owner and user for comments.
+- Fix check of GraphQL Authentication plugin.
+- Fix an error when eager loading owner and user for comments.
+- Fix a JS error for guest comments (when guest comments are disabled).
+- Fix deprecated `log()` function.
+- Fix GraphQL resolvers to use `ElementCollection` correctly.
+- Fix JS to handle whitespace in comment’s HTML.
+
 ## 3.0.6 - 2025-03-05
 
 ### Added
