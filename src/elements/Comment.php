@@ -1004,7 +1004,7 @@ class Comment extends Element
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentUser = Comments::$plugin->getService()->getUser();
 
-                if ($currentUser->id !== $this->getAuthor()->id) {
+                if ($currentUser?->id !== $this->getAuthor()?->id) {
                     $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
                 }
             }
