@@ -37,6 +37,11 @@ class CommentsField extends Field
     // Public Methods
     // =========================================================================
 
+    public function getContentColumnType(): array|string
+    {
+        return $this->columnType;
+    }
+
     public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         $id = Html::id($this->handle);
