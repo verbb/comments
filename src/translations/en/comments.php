@@ -72,7 +72,6 @@ return [
   'Allow Subscriber Notifications' => 'Allow Subscriber Notifications',
   'Allow your users to flag a comment as inappropriate, spam, or any other reason.' => 'Allow your users to flag a comment as inappropriate, spam, or any other reason.',
   'Allow your users to upvote or downvote other users comments.' => 'Allow your users to upvote or downvote other users comments.',
-  'All {elements}' => 'All {elements}',
   'Approved' => 'Approved',
   'Are you sure you want to delete the selected comments?' => 'Are you sure you want to delete the selected comments?',
   'Are you sure you want to delete this comment?' => 'Are you sure you want to delete this comment?',
