@@ -85,6 +85,12 @@
 ### Fixed
 - Fix an error when selecting a “Placeholder Avatar” asset.
 
+## 2.0.19 - 2025-07-18
+
+### Fixed
+- Fix lack of handling for database column type for field.
+- Fix an error when editing another users’ comment in some instances.
+
 ## 2.0.18 - 2025-04-17
 
 ### Changed
@@ -1011,7 +1017,6 @@
 - Add flag user feedback
 - Fix migration for Craft 2 not renaming `comments` table
 
-
 ## 1.0.1 - 2018-08-26
 
 ### Changed
@@ -1021,7 +1026,6 @@
 ### Fixed
 - Ensure structure is cleaned up after uninstall
 - Removed craft 2 plugin that stuck around (wha?)
-
 
 ## 1.0.0 - 2018-08-25
 
