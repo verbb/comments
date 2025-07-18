@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.8 - 2025-07-18
+
+### Changed
+- Update English translations.
+
+### Fixed
+- Fix lack of handling for database column type for field.
+- Fix an error when editing another users’ comment in some instances.
+
 ## 3.0.7 - 2025-04-17
 
 ### Added
