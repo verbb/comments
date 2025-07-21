@@ -9,6 +9,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User as UserElement;
+use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Json;
@@ -156,9 +157,25 @@ class CommentFeedMeElement extends Element
         if (in_array($match, ['title', 'slug', 'uri'])) {
             $query->andWhere(['=', $match, $value]);
         } else {
-            $contentQuery = Craft::$app->getDb()->getQueryBuilder()->jsonContains('content', [$match => $value]);
+            // Swap the handle for the field layout UID. Pretty annoyingly complicated!
+            foreach (Craft::$app->getFields()->getAllLayouts() as $layout) {
+                $test = fn($layoutField) => (
+                    $layoutField instanceof CustomField &&
+                    $layoutField->getField()->handle === $match
+                );
 
-            $query->andWhere($contentQuery);
+                if ($layout->isFieldIncluded($test)) {
+                    $field = $layout->getField($test);
+
+                    if ($field) {
+                        $contentQuery = Craft::$app->getDb()->getQueryBuilder()->jsonContains('content', [$field->uid => $value]);
+
+                        $query->andWhere($contentQuery);
+
+                        break;
+                    }
+                }
+            }
         }
 
         $result = $query->one();
