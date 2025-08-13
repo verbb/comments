@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.9 - 2025-08-13
+
+### Fixed
+- Fix Feed Me lack of support for custom fields when resolving the owner element.
+- Fix nested comment display for comments, when viewing in the control panel.
+
 ## 3.0.8 - 2025-07-18
 
 ### Changed
