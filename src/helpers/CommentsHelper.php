@@ -11,6 +11,12 @@ use Throwable;
 
 class CommentsHelper
 {
+    // Properties
+    // =========================================================================
+
+    private static array $_resolvedGravatars = [];
+
+
     // Static Methods
     // =========================================================================
 
@@ -48,14 +54,11 @@ class CommentsHelper
         $settings = Comments::$plugin->getSettings();
 
         if ($settings->enableGravatar) {
-            try {
-                $gravatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=64&d=404';
+            $url = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=64&d=404';
 
-                // Try to fetch the gravatar. It'll throw an error if not found, so we fall back.
-                file_get_contents($gravatar);
-
-                return $gravatar;
-            } catch (Throwable $e) {
+            // Only use the Gravatar if it doesn't throw a 404
+            if (!self::_check404($url)) {
+                return $url;
             }
         }
 
@@ -81,5 +84,31 @@ class CommentsHelper
     private static function _assetExists($asset)
     {
         return $asset->getVolume()->getFs()->fileExists($asset->getPath());
+    }
+
+    private static function _check404(string $url): bool
+    {
+        // If we've already resolved this URL, return the cached result
+        if (isset(self::$_resolvedGravatars[$url])) {
+            return self::$_resolvedGravatars[$url];
+        }
+
+        // Perform a lightweight HEAD request
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_NOBODY        => true,  // Only headers
+            CURLOPT_RETURNTRANSFER => true, // Don't output
+            CURLOPT_FOLLOWLOCATION => true, // Follow redirects
+            CURLOPT_TIMEOUT        => 5,    // Short timeout
+        ]);
+
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Store in cache for subsequent lookups in the same request
+        self::$_resolvedGravatars[$url] = ($httpCode === 404);
+
+        return self::$_resolvedGravatars[$url];
     }
 }
