@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.10 - 2025-09-02
+
+### Changed
+- Improve Gravatar handling.
+
 ## 3.0.9 - 2025-08-13
 
 ### Fixed
