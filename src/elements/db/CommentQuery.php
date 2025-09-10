@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use craft\models\EntryType;
 use craft\models\Section;
 use craft\models\Site;
 
@@ -39,6 +40,8 @@ class CommentQuery extends ElementQuery
     public mixed $ownerType = null;
     public mixed $ownerSectionId = null;
     public mixed $ownerSection = null;
+    public mixed $ownerEntryTypeId = null;
+    public mixed $ownerEntryType = null;
     public mixed $isFlagged = null;
 
 
@@ -60,6 +63,9 @@ class CommentQuery extends ElementQuery
         switch ($name) {
             case 'ownerSection':
                 $this->ownerSection($value);
+                break;
+            case 'ownerEntryType':
+                $this->ownerEntryType($value);
                 break;
             default:
                 parent::__set($name, $value);
@@ -133,6 +139,29 @@ class CommentQuery extends ElementQuery
                 ->column();
         } else {
             $this->ownerSectionId = null;
+        }
+
+        return $this;
+    }
+
+    public function ownerEntryTypeId($value): static
+    {
+        $this->ownerEntryTypeId = $value;
+        return $this;
+    }
+
+    public function ownerEntryType(mixed $value): static
+    {
+        if ($value instanceof EntryType) {
+            $this->ownerEntryTypeId = $value->id;
+        } else if ($value !== null) {
+            $this->ownerEntryTypeId = (new Query())
+                ->select(['id'])
+                ->from([Table::ENTRY_TYPES])
+                ->where(Db::parseParam('handle', $value))
+                ->column();
+        } else {
+            $this->ownerEntryTypeId = null;
         }
 
         return $this;
@@ -309,6 +338,11 @@ class CommentQuery extends ElementQuery
         if ($this->ownerSectionId) {
             $this->subQuery->innerJoin('{{%entries}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
             $this->subQuery->andWhere(Db::parseParam('ownerElements.sectionId', $this->ownerSectionId));
+        }
+
+        if ($this->ownerEntryTypeId) {
+            $this->subQuery->innerJoin('{{%entries}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
+            $this->subQuery->andWhere(Db::parseParam('ownerElements.typeId', $this->ownerEntryTypeId));
         }
 
         if ($this->_orderByVotes()) {
