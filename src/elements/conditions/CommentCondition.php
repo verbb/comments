@@ -13,8 +13,11 @@ class CommentCondition extends ElementCondition
         return array_merge(parent::selectableConditionRules(), [
             CommentConditionRule::class,
             EmailConditionRule::class,
+            EntrySectionConditionRule::class,
+            EntryTypeConditionRule::class,
             NameConditionRule::class,
             OwnerConditionRule::class,
+            OwnerTypeConditionRule::class,
             StatusConditionRule::class,
             UrlConditionRule::class,
         ]);
