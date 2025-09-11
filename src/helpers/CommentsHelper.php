@@ -53,7 +53,7 @@ class CommentsHelper
     {
         $settings = Comments::$plugin->getSettings();
 
-        if ($settings->enableGravatar) {
+        if ($user && $user->email && $settings->enableGravatar) {
             $url = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=64&d=404';
 
             // Only use the Gravatar if it doesn't throw a 404
