@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.11 - 2025-09-16
+
+### Added
+- Add Entry Type, Section and Element Type conditions for filtering comments in the control panel.
+- Add the ability to query Comment elements via the `ownerEntryType` and `ownerEntryTypeId`.
+
+### Fixed
+- Fix Gravatar user check throwing an error for guests.
+
 ## 3.0.10 - 2025-09-02
 
 ### Changed
