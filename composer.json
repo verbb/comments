@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "Add comments to your site.",
     "type": "craft-plugin",
-    "version": "3.0.10",
+    "version": "4.0.0-alpha.1",
     "keywords": [
         "craft",
         "cms",
@@ -25,10 +25,10 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
+        "php": "^8.4",
+        "craftcms/cms": "6.x-dev",
         "theiconic/name-parser": "^1.0",
-        "verbb/base": "^3.0.0"
+        "verbb/base": "dev-craft-6"
     },
     "autoload": {
         "psr-4": {
@@ -38,7 +38,9 @@
     "extra": {
         "name": "Comments",
         "handle": "comments",
-        "changelogUrl": "https://raw.githubusercontent.com/verbb/comments/craft-5/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/comments/craft-6/CHANGELOG.md",
         "class": "verbb\\comments\\Comments"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

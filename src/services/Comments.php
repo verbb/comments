@@ -17,7 +17,7 @@ use craft\db\Table;
 use craft\elements\Asset;
 use craft\elements\User;
 use craft\elements\db\ElementQueryInterface;
-use craft\events\ConfigEvent;
+use CraftCms\Cms\ProjectConfig\Events\ItemAdded;
 use craft\events\FieldEvent;
 use craft\helpers\Db;
 use craft\helpers\Json;
@@ -926,7 +926,7 @@ class Comments extends Component
         }
     }
 
-    public function handleChangedPluginStructure(ConfigEvent $event): void
+    public function handleChangedPluginStructure($event): void
     {
         $data = $event->newValue;
 
@@ -940,7 +940,7 @@ class Comments extends Component
         }
     }
 
-    public function handleChangedFieldLayout(ConfigEvent $event): void
+    public function handleChangedFieldLayout($event): void
     {
         $data = $event->newValue;
 
@@ -979,7 +979,7 @@ class Comments extends Component
         }
     }
 
-    public function handleDeletedFieldLayout(ConfigEvent $event): void
+    public function handleDeletedFieldLayout($event): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Comment::class);
     }
