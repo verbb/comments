@@ -120,7 +120,9 @@ class Votes extends Component
         }
 
         if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            return reset($items);
+            reset($items);
+
+            return true;
         }
 
         return false;
@@ -139,7 +141,9 @@ class Votes extends Component
         }
 
         if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            return reset($items);
+            reset($items);
+
+            return true;
         }
 
         return false;
