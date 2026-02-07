@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.12 - 2026-02-07
+
+### Fixed
+- Fix return types for `hasDownVoted` and `hasUpVoted` functions.
+
 ## 3.0.11 - 2025-09-16
 
 ### Added
