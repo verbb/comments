@@ -114,6 +114,11 @@
 ### Fixed
 - Fix an error when selecting a “Placeholder Avatar” asset.
 
+## 2.0.20 - 2026-02-07
+
+### Fixed
+- Fix return types for `hasDownVoted` and `hasUpVoted` functions.
+
 ## 2.0.19 - 2025-07-18
 
 ### Fixed
