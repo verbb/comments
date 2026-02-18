@@ -125,7 +125,7 @@
         label: 'Structure ID' | t('comments'),
         id: 'structureId',
         instructions: 'The ID for the internal structure used by Comments.' | t('comments'),
-        value: settings.structureId,
+        value: settings.getStructureId(),
         warning: macros.configWarning('structureId', 'comments'),
     }) }}
 </div>
