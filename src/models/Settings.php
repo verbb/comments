@@ -126,6 +126,11 @@ class Settings extends Model
     {
         $values = $this->_normalizeAttributes($values);
 
+        // Never clear structureUid when saving from the form; it is auto-generated and not user-editable.
+        if (array_key_exists('structureUid', $values) && !$values['structureUid'] && $this->structureUid) {
+            $values['structureUid'] = $this->structureUid;
+        }
+
         parent::setAttributes($values, $safeOnly);
     }
 
