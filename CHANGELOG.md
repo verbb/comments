@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.13 - 2026-03-03
+
+### Fixed
+- Fix an error when saving plugin settings and structure information not persisting.
+- Fix an error when saving plugin setting in Craft 5.9+.
+
 ## 3.0.12 - 2026-02-07
 
 ### Fixed
