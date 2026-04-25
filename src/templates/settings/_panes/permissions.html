@@ -19,6 +19,12 @@
             {% for section in craft.app.entries.getAllSections() %}
                 {% set elementOptions = [{ value: section.uid, label: section.name | e }] | merge(elementOptions) %}
             {% endfor %}
+            {% for type in craft.app.entries.getAllEntryTypes() %}
+                {% set elementOptions = elementOptions|merge([{
+                    value: type.uid,
+                    label: (type.name ~ ' (' ~ 'Entry type'|t('app') ~ ')' ) | e,
+                }]) %}
+            {% endfor %}
         {% elseif element == 'craft\\elements\\Category' %}
             {% for group in craft.app.categories.getAllGroups() %}
                 {% set elementOptions = [{ value: group.uid, label: group.name | e }] | merge(elementOptions) %}

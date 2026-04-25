@@ -15,6 +15,7 @@ use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\db\Table;
 use craft\elements\Asset;
+use craft\elements\Entry;
 use craft\elements\User;
 use craft\elements\db\ElementQueryInterface;
 use craft\events\ConfigEvent;
@@ -226,13 +227,14 @@ class Comments extends Component
             }
 
             // Check for various elements
-            if ($elementType == 'craft\elements\Entry') {
-                $uid = $element->section->uid;
+            if ($element instanceof Entry) {
+                // Section entries use section UID; Matrix/nested/field-owned entries have no section — use type UID
+                $uid = $element->getSection()?->uid ?? $element->getType()?->uid;
             } else {
                 $uid = $element->group->uid;
             }
 
-            if (!in_array($uid, $permissions[$elementType])) {
+            if ($uid === null || !in_array($uid, $permissions[$elementType], true)) {
                 return false;
             }
         }
