@@ -930,7 +930,7 @@ class Comments extends Component
     {
         $data = $event->newValue;
 
-        $structureUid = $data['structureUid'];
+        $structureUid = $data['structureUid'] ?? null;
 
         if ($structureUid) {
             $structuresService = Craft::$app->getStructures();
