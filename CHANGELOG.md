@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.14 - 2026-04-29
+
+### Fixed
+- Fix an error when saving plugin settings and structure information not persisting.
+- Fix comment permissions for entry types without a section (e.g. Matrix).
+
 ## 3.0.13 - 2026-03-03
 
 ### Fixed
