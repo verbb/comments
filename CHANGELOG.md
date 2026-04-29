@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.21 - 2026-04-29
+
+### Fixed
+- Fix an error when saving plugin settings and structure information not persisting.
+
 ## 2.0.20 - 2026-02-07
 
 ### Fixed
