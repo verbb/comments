@@ -16,7 +16,8 @@
             "feature-tour/control-panel",
             "feature-tour/anti-spam",
             "feature-tour/security",
-            "feature-tour/permissions"
+            "feature-tour/permissions",
+            "feature-tour/giphy"
         ]
     },
     {

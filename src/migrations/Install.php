@@ -52,6 +52,7 @@ class Install extends Migration
             'userId' => $this->integer(),
             'status' => $this->enum('status', ['approved', 'pending', 'spam', 'trashed']),
             'comment' => $this->text(),
+            'gifUrl' => $this->text(),
             'name' => $this->string(),
             'email' => $this->string(),
             'url' => $this->text(),

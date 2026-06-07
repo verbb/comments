@@ -4,6 +4,7 @@ namespace verbb\comments\base;
 use verbb\comments\Comments;
 use verbb\comments\services\Comments as CommentsService;
 use verbb\comments\services\Flags;
+use verbb\comments\services\Giphy;
 use verbb\comments\services\Protect;
 use verbb\comments\services\RenderCache;
 use verbb\comments\services\Security;
@@ -55,6 +56,11 @@ trait PluginTrait
         return $this->get('flags');
     }
 
+    public function getGiphy(): Giphy
+    {
+        return $this->get('giphy');
+    }
+
     public function getProtect(): Protect
     {
         return $this->get('protect');
@@ -94,6 +100,7 @@ trait PluginTrait
         $this->setComponents([
             'comments' => CommentsService::class,
             'flags' => Flags::class,
+            'giphy' => Giphy::class,
             'protect' => Protect::class,
             'renderCache' => RenderCache::class,
             'security' => Security::class,

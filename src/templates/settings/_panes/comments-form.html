@@ -26,3 +26,49 @@
     customizableUi: false,
     pretendTabName: 'Comment Form' | t('comments'),
 }) }}
+
+<hr>
+
+<h2>{{ 'GIPHY' | t('comments') }}</h2>
+
+{{ forms.lightswitchField({
+    label: 'Reply with GIFs' | t('comments'),
+    instructions: 'Whether commenters can search GIPHY and attach a GIF to their comment or reply.' | t('comments'),
+    name: 'giphyEnabled',
+    on: settings.giphyEnabled,
+    warning: macros.configWarning('giphyEnabled', 'comments'),
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'GIPHY API Key' | t('comments'),
+    instructions: 'Your GIPHY API key, used to power GIF search. This is kept server-side and never exposed to visitors.' | t('comments'),
+    name: 'giphyApiKey',
+    value: settings.giphyApiKey,
+    suggestEnvVars: true,
+    warning: macros.configWarning('giphyApiKey', 'comments'),
+}) }}
+
+{{ forms.selectField({
+    label: 'GIF Content Rating' | t('comments'),
+    instructions: 'The maximum GIPHY content rating to return in search results.' | t('comments'),
+    name: 'giphyRating',
+    value: settings.giphyRating,
+    options: [
+        { label: 'G' | t('comments'), value: 'g' },
+        { label: 'PG' | t('comments'), value: 'pg' },
+        { label: 'PG-13' | t('comments'), value: 'pg-13' },
+        { label: 'R' | t('comments'), value: 'r' },
+    ],
+    warning: macros.configWarning('giphyRating', 'comments'),
+}) }}
+
+{{ forms.textField({
+    type: 'number',
+    label: 'GIF Results Limit' | t('comments'),
+    instructions: 'The maximum number of GIFs to show for each search.' | t('comments'),
+    name: 'giphyLimit',
+    value: settings.giphyLimit,
+    min: 1,
+    max: 50,
+    warning: macros.configWarning('giphyLimit', 'comments'),
+}) }}

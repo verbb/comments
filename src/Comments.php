@@ -63,7 +63,7 @@ class Comments extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.1.8';
+    public string $schemaVersion = '1.1.9';
     public string $minVersionRequired = '1.9.2';
 
 
