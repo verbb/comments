@@ -577,6 +577,8 @@ form[data-action] {
 .cc-giphy-result {
     appearance: none;
     cursor: pointer;
+    height: 110px;
+    width: 100%;
     border: 0;
     padding: 0;
     margin: 0;
@@ -594,8 +596,8 @@ form[data-action] {
 
     &:hover,
     &:focus {
-        outline: 0;
-        opacity: 0.85;
+        outline: 2px solid #3273dc;
+        outline-offset: -2px;
     }
 }
 
