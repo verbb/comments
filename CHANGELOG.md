@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Add “Reply with GIFs” support, allowing commenters to search GIPHY and attach a GIF to a comment or reply.
+- Add `giphyEnabled`, `giphyApiKey`, `giphyRating` and `giphyLimit` plugin settings.
+- Add `gifUrl` field to the GraphQL Comment interface.
+
 ## 2.0.21 - 2026-04-29
 
 ### Fixed

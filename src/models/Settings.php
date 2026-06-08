@@ -62,6 +62,12 @@ class Settings extends Model
     public bool $outputDefaultCss = true;
     public bool $outputDefaultJs = true;
 
+    // Giphy
+    public bool $giphyEnabled = false;
+    public ?string $giphyApiKey = null;
+    public string $giphyRating = 'g';
+    public int $giphyLimit = 24;
+
     // Templates - Custom
     public ?string $templateFolderOverride = null;
     public ?string $templateEmail = null;
@@ -232,6 +238,11 @@ class Settings extends Model
     public function getRecaptchaKey()
     {
         return App::parseEnv($this->recaptchaKey);
+    }
+
+    public function getGiphyApiKey(): ?string
+    {
+        return App::parseEnv($this->giphyApiKey);
     }
 
     public function getRecaptchaSecret()

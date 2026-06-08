@@ -2,6 +2,25 @@
 
 return [
   //
+  // GIPHY
+  //
+  'GIPHY' => 'GIPHY',
+  'Reply with GIFs' => 'Reply with GIFs',
+  'Whether commenters can search GIPHY and attach a GIF to their comment or reply.' => 'Whether commenters can search GIPHY and attach a GIF to their comment or reply.',
+  'GIPHY API Key' => 'GIPHY API Key',
+  'Your GIPHY API key, used to power GIF search. This is kept server-side and never exposed to visitors.' => 'Your GIPHY API key, used to power GIF search. This is kept server-side and never exposed to visitors.',
+  'GIF Content Rating' => 'GIF Content Rating',
+  'The maximum GIPHY content rating to return in search results.' => 'The maximum GIPHY content rating to return in search results.',
+  'GIF Results Limit' => 'GIF Results Limit',
+  'The maximum number of GIFs to show for each search.' => 'The maximum number of GIFs to show for each search.',
+  'Search GIPHY…' => 'Search GIPHY…',
+  'Powered by GIPHY' => 'Powered by GIPHY',
+  'No GIFs found.' => 'No GIFs found.',
+  'Remove GIF' => 'Remove GIF',
+  'GIFs are not enabled.' => 'GIFs are not enabled.',
+  'Invalid GIF.' => 'Invalid GIF.',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'When a comment is received:',

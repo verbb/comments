@@ -158,12 +158,15 @@ class Comments extends Component
             'recaptchaEnabled' => (bool)$settings->recaptchaEnabled,
             'recaptchaKey' => $settings->getRecaptchaKey(),
             'orderBy' => $settings->orderBy,
+            'giphyEnabled' => CommentsPlugin::$plugin->getGiphy()->isEnabled(),
             'translations' => [
                 'reply' => Craft::t('comments', 'Reply'),
                 'close' => Craft::t('comments', 'Close'),
                 'edit' => Craft::t('comments', 'Edit'),
                 'save' => Craft::t('comments', 'Save'),
                 'delete-confirm' => Craft::t('comments', 'Are you sure you want to delete this comment?'),
+                'giphy-empty' => Craft::t('comments', 'No GIFs found.'),
+                'giphy-remove' => Craft::t('comments', 'Remove GIF'),
             ],
             'element' => [
                 'id' => $variables['element']['id'] ?? '',

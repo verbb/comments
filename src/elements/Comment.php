@@ -395,6 +395,7 @@ class Comment extends Element
     public ?string $status = null;
     public ?string $name = null;
     public ?string $email = null;
+    public ?string $gifUrl = null;
     public ?string $url = null;
     public ?string $ipAddress = null;
     public ?string $userAgent = null;
@@ -1010,8 +1011,14 @@ class Comment extends Element
             }
         }
 
-        // Must have an actual comment if required
-        if (!trim($this->comment) && $this->_getCommentIsRequired()) {
+        // A chosen GIF must resolve to a valid Giphy URL - guard against arbitrary URLs being stored
+        if ($this->gifUrl && !Comments::$plugin->getGiphy()->isValidGifUrl($this->gifUrl)) {
+            $this->addError('gifUrl', Craft::t('comments', 'Invalid GIF.'));
+            $this->gifUrl = null;
+        }
+
+        // Must have an actual comment if required (an attached GIF is enough to satisfy this)
+        if (!trim((string)$this->comment) && !$this->gifUrl && $this->_getCommentIsRequired()) {
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
         }
 
@@ -1068,6 +1075,7 @@ class Comment extends Element
         $record->name = $this->name;
         $record->email = $this->email;
         $record->comment = $this->comment;
+        $record->gifUrl = $this->gifUrl;
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
         $record->userAgent = $this->userAgent;
