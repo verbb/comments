@@ -62,6 +62,7 @@ class Settings extends Model
     public string $orderBy = 'desc';
     public bool $outputDefaultCss = true;
     public bool $outputDefaultJs = true;
+    public ?string $assetBaseUrl = null;
 
     // Giphy
     public bool $giphyEnabled = false;
@@ -244,6 +245,11 @@ class Settings extends Model
     public function getGiphyApiKey(): ?string
     {
         return App::parseEnv($this->giphyApiKey);
+    }
+
+    public function getAssetBaseUrl(): ?string
+    {
+        return App::parseEnv($this->assetBaseUrl);
     }
 
     public function getRecaptchaSecret()

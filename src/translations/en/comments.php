@@ -28,6 +28,12 @@ return [
   'Total votes across this user’s comments' => 'Total votes across this user’s comments',
 
   //
+  // Asset base URL
+  //
+  'Asset Base URL' => 'Asset Base URL',
+  'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.' => 'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'When a comment is received:',

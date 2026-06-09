@@ -82,3 +82,14 @@
     on: settings.outputDefaultJs,
     warning: macros.configWarning('outputDefaultJs', 'comments'),
 }) }}
+
+{{ forms.autosuggestField({
+    label: 'Asset Base URL' | t('comments'),
+    instructions: 'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.' | t('comments'),
+    name: 'assetBaseUrl',
+    value: settings.assetBaseUrl,
+    suggestEnvVars: true,
+    suggestAliases: true,
+    placeholder: '@contentUrl/website/craft/comments',
+    warning: macros.configWarning('assetBaseUrl', 'comments'),
+}) }}

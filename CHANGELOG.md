@@ -7,6 +7,7 @@
 - Add `giphyEnabled`, `giphyApiKey`, `giphyRating` and `giphyLimit` plugin settings.
 - Add `gifUrl` field to the GraphQL Comment interface.
 - Add per-user reputation score (net votes across a user’s approved comments) shown next to their name, with a `showAuthorScore` setting to toggle it.
+- Add `assetBaseUrl` setting to serve the default front-end CSS/JS from a custom base URL (e.g. a CDN/file server) instead of publishing to `cpresources` — avoids per-server runtime publishing in multi-server setups.
 
 ### Changed
 - Cache comment vote lookups per request (busting on vote save/delete) to avoid duplicate queries when rendering threads.
