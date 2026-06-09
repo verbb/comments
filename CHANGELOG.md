@@ -6,6 +6,12 @@
 - Add “Reply with GIFs” support, allowing commenters to search GIPHY and attach a GIF to a comment or reply.
 - Add `giphyEnabled`, `giphyApiKey`, `giphyRating` and `giphyLimit` plugin settings.
 - Add `gifUrl` field to the GraphQL Comment interface.
+- Add per-user reputation score (net votes across a user’s approved comments) shown next to their name, with a `showAuthorScore` setting to toggle it.
+- Add `assetBaseUrl` setting to serve the default front-end CSS/JS from a custom base URL (e.g. a CDN/file server) instead of publishing to `cpresources` — avoids per-server runtime publishing in multi-server setups.
+- Add `assetBasePath` setting + a way to copy the front-end CSS/JS there: a `comments/base/publish-assets` console command, a “Publish now” button in the settings, and auto-publish on install.
+
+### Changed
+- Cache comment vote lookups per request (busting on vote save/delete) to avoid duplicate queries when rendering threads.
 
 ## 2.0.21 - 2026-04-29
 

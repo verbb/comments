@@ -47,6 +47,7 @@ class Settings extends Model
     public bool $allowGuestVoting = false;
     public int $downvoteCommentLimit = 5;
     public bool $hideVotingForThreshold = false;
+    public bool $showAuthorScore = true;
 
     // Flagging
     public bool $allowFlagging = true;
@@ -61,6 +62,8 @@ class Settings extends Model
     public string $orderBy = 'desc';
     public bool $outputDefaultCss = true;
     public bool $outputDefaultJs = true;
+    public ?string $assetBaseUrl = null;
+    public ?string $assetBasePath = null;
 
     // Giphy
     public bool $giphyEnabled = false;
@@ -243,6 +246,16 @@ class Settings extends Model
     public function getGiphyApiKey(): ?string
     {
         return App::parseEnv($this->giphyApiKey);
+    }
+
+    public function getAssetBaseUrl(): ?string
+    {
+        return App::parseEnv($this->assetBaseUrl);
+    }
+
+    public function getAssetBasePath(): ?string
+    {
+        return App::parseEnv($this->assetBasePath);
     }
 
     public function getRecaptchaSecret()
