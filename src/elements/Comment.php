@@ -866,6 +866,12 @@ class Comment extends Element
         return Comments::$plugin->getVotes()->getDownvotesByCommentId($this->id);
     }
 
+    public function getAuthorScore(): int
+    {
+        // Total net votes across all of this comment author's approved comments
+        return Comments::$plugin->getVotes()->getScoreByAuthorId($this->userId);
+    }
+
     public function canVote(): bool
     {
         $settings = Comments::$plugin->getSettings();

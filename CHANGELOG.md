@@ -6,6 +6,10 @@
 - Add “Reply with GIFs” support, allowing commenters to search GIPHY and attach a GIF to a comment or reply.
 - Add `giphyEnabled`, `giphyApiKey`, `giphyRating` and `giphyLimit` plugin settings.
 - Add `gifUrl` field to the GraphQL Comment interface.
+- Add per-user reputation score (net votes across a user’s approved comments) shown next to their name, with a `showAuthorScore` setting to toggle it.
+
+### Changed
+- Cache comment vote lookups per request (busting on vote save/delete) to avoid duplicate queries when rendering threads.
 
 ## 2.0.21 - 2026-04-29
 

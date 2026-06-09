@@ -47,6 +47,7 @@ class Settings extends Model
     public bool $allowGuestVoting = false;
     public int $downvoteCommentLimit = 5;
     public bool $hideVotingForThreshold = false;
+    public bool $showAuthorScore = true;
 
     // Flagging
     public bool $allowFlagging = true;

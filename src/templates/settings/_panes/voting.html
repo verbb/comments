@@ -34,3 +34,11 @@
     on: settings.hideVotingForThreshold,
     warning: macros.configWarning('hideVotingForThreshold', 'comments'),
 }) }}
+
+{{ forms.lightswitchField({
+    label: 'Show Author Score' | t('comments'),
+    instructions: 'Show each registered user’s total reputation (net votes across all their approved comments) next to their name.' | t('comments'),
+    name: 'showAuthorScore',
+    on: settings.showAuthorScore,
+    warning: macros.configWarning('showAuthorScore', 'comments'),
+}) }}

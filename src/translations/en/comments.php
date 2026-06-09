@@ -21,6 +21,13 @@ return [
   'Invalid GIF.' => 'Invalid GIF.',
 
   //
+  // Author score
+  //
+  'Show Author Score' => 'Show Author Score',
+  'Show each registered user’s total reputation (net votes across all their approved comments) next to their name.' => 'Show each registered user’s total reputation (net votes across all their approved comments) next to their name.',
+  'Total votes across this user’s comments' => 'Total votes across this user’s comments',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'When a comment is received:',

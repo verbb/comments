@@ -500,6 +500,34 @@ form[data-action] {
 
 
 //
+// Author score
+//
+
+.cc-i-score {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #687a86;
+    background: #eef1f4;
+    vertical-align: middle;
+
+    &.is-positive {
+        color: #3a8a44;
+        background: #e4f3e6;
+    }
+
+    &.is-negative {
+        color: #c0392b;
+        background: #fbe7e5;
+    }
+}
+
+
+//
 // GIF picker (GIPHY)
 //
 
