@@ -21,9 +21,11 @@ class BaseController extends Controller
         $path = $settings->getAssetBasePath();
 
         if (!$path) {
-            $this->stderr('No `assetBasePath` is configured — nothing to publish.' . PHP_EOL, Console::FG_YELLOW);
+            // Not an error: this is a no-op so it's safe to run from a Composer post-update hook
+            // on environments that don't use a custom asset path.
+            $this->stdout('No `assetBasePath` is configured — nothing to publish.' . PHP_EOL, Console::FG_YELLOW);
 
-            return ExitCode::CONFIG;
+            return ExitCode::OK;
         }
 
         $copied = Comments::$plugin->getComments()->publishFrontEndAssets();
