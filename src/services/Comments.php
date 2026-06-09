@@ -11,6 +11,7 @@ use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldElement;
 use verbb\comments\queue\jobs\SendNotification;
 
 use Craft;
+use craft\helpers\FileHelper;
 use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\db\Table;
@@ -202,6 +203,33 @@ class Comments extends Component
         $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
 
         return Template::raw($formHtml);
+    }
+
+    // Copies the bundled front-end CSS/JS (resources/dist) to the configured `assetBasePath`
+    // (e.g. a CDN/file-server mount). Run this at deploy time so the files referenced by
+    // `assetBaseUrl` stay in sync with the installed plugin version. Returns the copied paths.
+    public function publishFrontEndAssets(): array
+    {
+        $settings = CommentsPlugin::$plugin->getSettings();
+        $path = $settings->getAssetBasePath();
+
+        if (!$path) {
+            return [];
+        }
+
+        $source = Craft::getAlias('@verbb/comments/resources/dist');
+        $path = rtrim($path, '/');
+        $copied = [];
+
+        // Only the front-end files referenced by FrontEndAsset (not the control-panel assets)
+        foreach (['css/comments.css', 'js/comments.js'] as $file) {
+            $dest = $path . '/' . $file;
+            FileHelper::createDirectory(dirname($dest));
+            copy($source . '/' . $file, $dest);
+            $copied[] = $dest;
+        }
+
+        return $copied;
     }
 
     // Checks is there are sufficient permissions for commenting on this element

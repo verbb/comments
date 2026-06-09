@@ -32,6 +32,12 @@ return [
   //
   'Asset Base URL' => 'Asset Base URL',
   'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.' => 'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.',
+  'Asset Base Path' => 'Asset Base Path',
+  'Publish Front-end Assets' => 'Publish Front-end Assets',
+  'Publish now' => 'Publish now',
+  'No “Asset Base Path” is configured.' => 'No “Asset Base Path” is configured.',
+  '{count} front-end asset(s) published.' => '{count} front-end asset(s) published.',
+  'Couldn’t publish assets: {error}' => 'Couldn’t publish assets: {error}',
 
   //
   // Email Messages
