@@ -54,6 +54,24 @@
 
             {{ commentsInclude('form-fields') }}
 
+            {% if settings.giphyEnabled and settings.giphyApiKey %}
+                <div class="cc-giphy" data-role="giphy">
+                    <input type="hidden" name="gifUrl" value="">
+
+                    <div class="cc-giphy-preview" data-role="giphy-preview"></div>
+
+                    <button class="cc-giphy-toggle" type="button" data-action="giphy-toggle" aria-expanded="false">
+                        <span class="cc-giphy-toggle-mark">GIF</span>
+                    </button>
+
+                    <div class="cc-giphy-panel" data-role="giphy-panel" hidden>
+                        <input class="cc-giphy-search" type="search" data-role="giphy-search" placeholder="{{ 'Search GIPHY…' | t('comments') }}" autocomplete="off">
+                        <div class="cc-giphy-results" data-role="giphy-results"></div>
+                        <div class="cc-giphy-credit">{{ 'Powered by GIPHY' | t('comments') }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
             <div data-role="notice" class="cc-n"></div>
 
             <button class="cc-f-btn" type="submit">{{ 'Post comment' | t('comments') }}</button>

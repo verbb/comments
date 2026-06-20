@@ -19,6 +19,30 @@ class BaseController extends Controller
     // Public Methods
     // =========================================================================
 
+    public function actionPublishAssets(): int
+    {
+        $settings = Comments::$plugin->getSettings();
+        $path = $settings->getAssetBasePath();
+
+        if (!$path) {
+            // Not an error: this is a no-op so it's safe to run from a Composer post-update hook
+            // on environments that don't use a custom asset path.
+            $this->stdout('No `assetBasePath` is configured — nothing to publish.' . PHP_EOL, Console::FG_YELLOW);
+
+            return ExitCode::OK;
+        }
+
+        $copied = Comments::$plugin->getComments()->publishFrontEndAssets();
+
+        foreach ($copied as $file) {
+            $this->stdout('Published: ' . $file . PHP_EOL, Console::FG_GREEN);
+        }
+
+        $this->stdout(count($copied) . ' front-end asset(s) published.' . PHP_EOL, Console::FG_GREEN);
+
+        return ExitCode::OK;
+    }
+    
     /**
      * Resaves the Structure for comments, in case there's been an issue creating it.
      */

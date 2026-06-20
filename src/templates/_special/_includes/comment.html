@@ -12,7 +12,11 @@
                     {% elseif comment.isPoorlyRated() %}
                         <p>[{{ 'Comment hidden due to low rating' | t('comments') }}]</p>
                     {% else %}
-                        <p>{{ comment.comment | nl2br }}</p>
+                        {% if comment.comment %}<p>{{ comment.comment | nl2br }}</p>{% endif %}
+
+                        {% if comment.gifUrl %}
+                            <p class="cc-i-gif"><img src="{{ comment.gifUrl }}" alt="GIF" loading="lazy"></p>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

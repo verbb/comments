@@ -63,7 +63,7 @@ class Comments extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.2.1';
+    public string $schemaVersion = '1.2.2';
     public string $minVersionRequired = '1.9.2';
 
 
@@ -320,10 +320,23 @@ class Comments extends Plugin
         }
 
         Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
+            if ($event->plugin !== $this) {
+                return;
+            }
+
             // Comments are a Structure, which helps with hierarchy-goodness.
             // We only use a single structure for all our comments so store this at the plugin settings level
-            if ($event->plugin === $this && !$this->getSettings()->structureUid) {
+            if (!$this->getSettings()->structureUid) {
                 $this->createAndStoreStructure();
+            }
+
+            // If a front-end asset base path is configured (e.g. via config file), seed the files there
+            if ($this->getSettings()->getAssetBasePath()) {
+                try {
+                    $this->getComments()->publishFrontEndAssets();
+                } catch (\Throwable $e) {
+                    self::error('Couldn’t publish front-end assets on install: {message}', ['message' => $e->getMessage()]);
+                }
             }
         });
 

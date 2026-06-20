@@ -20,7 +20,7 @@ class CommentsController extends Controller
     // Properties
     // =========================================================================
 
-    protected array|bool|int $allowAnonymous = ['save', 'get-js-variables'];
+    protected array|bool|int $allowAnonymous = ['save', 'get-js-variables', 'giphy-search'];
 
 
     // Public Methods
@@ -57,6 +57,29 @@ class CommentsController extends Controller
         return $this->asJson([
             'id' => '#' . $id,
             'settings' => $jsVariables,
+        ]);
+    }
+
+    // Proxies a search to the GIPHY API, keeping the API key server-side
+    public function actionGiphySearch(): Response
+    {
+        $this->requirePostRequest();
+
+        $giphy = Comments::$plugin->getGiphy();
+
+        if (!$giphy->isEnabled()) {
+            return $this->asJson([
+                'success' => false,
+                'results' => [],
+                'error' => Craft::t('comments', 'GIFs are not enabled.'),
+            ]);
+        }
+
+        $query = Craft::$app->getRequest()->getParam('q');
+
+        return $this->asJson([
+            'success' => true,
+            'results' => $giphy->search($query),
         ]);
     }
 
@@ -458,6 +481,11 @@ class CommentsController extends Controller
         $comment->name = $this->request->getParam('fields.name', $comment->name);
         $comment->email = $this->request->getParam('fields.email', $comment->email);
         $comment->comment = $this->request->getParam('fields.comment', $comment->comment);
+
+        // Only accept a chosen GIF when the feature is actually enabled
+        if (Comments::$plugin->getGiphy()->isEnabled()) {
+            $comment->gifUrl = $request->getParam('gifUrl', $comment->gifUrl) ?: null;
+        }
 
         // Set any other field content
         $comment->setFieldValuesFromRequest('fields');

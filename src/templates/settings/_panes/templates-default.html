@@ -89,3 +89,52 @@
     on: settings.outputDefaultJs,
     warning: macros.configWarning('outputDefaultJs', 'comments'),
 }) }}
+
+{{ forms.autosuggestField({
+    label: 'Asset Base URL' | t('comments'),
+    instructions: 'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.' | t('comments'),
+    name: 'assetBaseUrl',
+    value: settings.assetBaseUrl,
+    suggestEnvVars: true,
+    suggestAliases: true,
+    placeholder: '@contentUrl/website/craft/comments',
+    warning: macros.configWarning('assetBaseUrl', 'comments'),
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Asset Base Path' | t('comments'),
+    instructions: 'Filesystem path the plugin’s `resources/dist` CSS/JS are copied to when publishing (this should map to the same location the “Asset Base URL” serves). Used by the button below, the `comments/base/publish-assets` console command, and on install.' | t('comments'),
+    name: 'assetBasePath',
+    value: settings.assetBasePath,
+    suggestEnvVars: true,
+    suggestAliases: true,
+    placeholder: '@contentPath/website/craft/comments',
+    warning: macros.configWarning('assetBasePath', 'comments'),
+}) }}
+
+<div class="field">
+    <div class="heading">
+        <label>{{ 'Publish Front-end Assets' | t('comments') }}</label>
+        <div class="instructions"><p>{{ 'Copy the current `resources/dist` files to the path above — run this after each plugin update. Equivalent to `php craft comments/base/publish-assets`. (Save your settings first.)' | t('comments') }}</p></div>
+    </div>
+    <div class="input">
+        <button type="button" class="btn" id="comments-publish-assets">{{ 'Publish now' | t('comments') }}</button>
+    </div>
+</div>
+
+{% js %}
+    document.getElementById('comments-publish-assets')?.addEventListener('click', (e) => {
+        const $btn = e.currentTarget;
+        $btn.classList.add('disabled');
+        $btn.setAttribute('disabled', 'disabled');
+
+        Craft.sendActionRequest('POST', 'comments/base/publish-assets').then((response) => {
+            Craft.cp.displayNotice(response.data.message);
+        }).catch(({response}) => {
+            Craft.cp.displayError((response && response.data && response.data.message) || 'Couldn’t publish assets.');
+        }).finally(() => {
+            $btn.classList.remove('disabled');
+            $btn.removeAttribute('disabled');
+        });
+    });
+{% endjs %}

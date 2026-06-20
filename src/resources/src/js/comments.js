@@ -280,6 +280,7 @@ Comments.Instance = Comments.Base.extend({
         Comments.recaptchaEnabled = settings.recaptchaEnabled;
         Comments.recaptchaKey = settings.recaptchaKey;
 
+        this.$container = $container;
         this.$commentsContainer = $container.querySelector('[data-role="comments"]');
         this.$baseForm = $container.querySelector('[data-role="form"]');
 
@@ -288,6 +289,14 @@ Comments.Instance = Comments.Base.extend({
 
         this.addListener(this.$baseForm, 'submit', this.onSubmit, false);
         this.addListener(this.$subscribeBtn, 'click', this.subscribe);
+
+        // GIF picker. Bound once on the container and event-delegated, so it covers the base
+        // form as well as any reply forms cloned into the DOM later on.
+        if (this.settings.giphyEnabled) {
+            this.$container.addEventListener('click', this.onGiphyClick.bind(this), false);
+            this.$container.addEventListener('input', this.onGiphyInput.bind(this), false);
+            this.$container.addEventListener('keydown', this.onGiphyKeydown.bind(this), false);
+        }
 
         // Create classes for each comment item
         for (var i = 0; i < $comments.length; i++) {
@@ -333,6 +342,7 @@ Comments.Instance = Comments.Base.extend({
                 this.comments[xhr.id] = new Comments.Comment(this, $html);
 
                 this.$baseForm.querySelector('form').reset();
+                this.giphyReset(this.$baseForm);
 
                 // Scroll to the new comment
                 location.hash = '#comment-' + xhr.id;
@@ -374,8 +384,246 @@ Comments.Instance = Comments.Base.extend({
                 if (response.errors) {
                     this.setNotifications('error', $commentHeader, response.errors);
                 }
-            }.bind(this),   
+            }.bind(this),
         });
+    },
+
+    //
+    // GIF picker (GIPHY)
+    //
+
+    onGiphyClick: function(e) {
+        var $toggle = e.target.closest('[data-action="giphy-toggle"]');
+
+        if ($toggle) {
+            e.preventDefault();
+            return this.giphyToggle($toggle);
+        }
+
+        var $result = e.target.closest('[data-role="giphy-result"]');
+
+        if ($result) {
+            e.preventDefault();
+            return this.giphySelect($result);
+        }
+
+        var $remove = e.target.closest('[data-action="giphy-remove"]');
+
+        if ($remove) {
+            e.preventDefault();
+            return this.giphyRemove($remove);
+        }
+    },
+
+    onGiphyInput: function(e) {
+        if (!e.target.closest) {
+            return;
+        }
+
+        var $search = e.target.closest('[data-role="giphy-search"]');
+
+        if (!$search) {
+            return;
+        }
+
+        var $giphy = $search.closest('[data-role="giphy"]');
+
+        clearTimeout(this._giphyTimer);
+
+        this._giphyTimer = setTimeout(function() {
+            this.giphySearch($giphy);
+        }.bind(this), 350);
+    },
+
+    onGiphyKeydown: function(e) {
+        if (e.key !== 'Enter' && e.keyCode !== 13) {
+            return;
+        }
+
+        if (!e.target.closest) {
+            return;
+        }
+
+        var $search = e.target.closest('[data-role="giphy-search"]');
+
+        if (!$search) {
+            return;
+        }
+
+        // Don't let Enter in the search field submit the comment form
+        e.preventDefault();
+
+        clearTimeout(this._giphyTimer);
+        this.giphySearch($search.closest('[data-role="giphy"]'));
+    },
+
+    giphyToggle: function($toggle) {
+        var $giphy = $toggle.closest('[data-role="giphy"]');
+        var $panel = $giphy.querySelector('[data-role="giphy-panel"]');
+
+        if ($panel.hasAttribute('hidden')) {
+            $panel.removeAttribute('hidden');
+            $toggle.setAttribute('aria-expanded', 'true');
+
+            var $search = $giphy.querySelector('[data-role="giphy-search"]');
+
+            if ($search) {
+                $search.focus();
+            }
+
+            // Show trending GIFs straight away the first time it's opened
+            var $results = $giphy.querySelector('[data-role="giphy-results"]');
+
+            if ($results && !$results.children.length) {
+                this.giphySearch($giphy);
+            }
+        } else {
+            $panel.setAttribute('hidden', '');
+            $toggle.setAttribute('aria-expanded', 'false');
+        }
+    },
+
+    giphySearch: function($giphy) {
+        var $search = $giphy.querySelector('[data-role="giphy-search"]');
+        var $results = $giphy.querySelector('[data-role="giphy-results"]');
+
+        this.addClass($giphy, 'is-loading');
+
+        this.ajax(Comments.baseUrl + 'giphy-search', {
+            method: 'POST',
+            data: this.serializeObject({ q: $search ? $search.value : '' }),
+            success: function(xhr) {
+                this.removeClass($giphy, 'is-loading');
+                this.giphyRenderResults($results, (xhr && xhr.results) || []);
+            }.bind(this),
+            error: function() {
+                this.removeClass($giphy, 'is-loading');
+                this.giphyRenderResults($results, []);
+            }.bind(this),
+        });
+    },
+
+    giphyRenderResults: function($results, results) {
+        if (!$results) {
+            return;
+        }
+
+        $results.innerHTML = '';
+
+        if (!results.length) {
+            var $empty = document.createElement('div');
+            $empty.className = 'cc-giphy-empty';
+            $empty.textContent = this.t('giphy-empty');
+            $results.appendChild($empty);
+
+            return;
+        }
+
+        // Build the grid with DOM nodes (not innerHTML), so result data is never
+        // interpreted as markup
+        results.forEach(function(item) {
+            var $btn = document.createElement('button');
+            $btn.type = 'button';
+            $btn.className = 'cc-giphy-result';
+            $btn.setAttribute('data-role', 'giphy-result');
+            $btn.setAttribute('data-url', item.url);
+
+            var $img = document.createElement('img');
+            $img.src = item.preview;
+            $img.alt = item.title || '';
+            $img.loading = 'lazy';
+
+            $btn.appendChild($img);
+            $results.appendChild($btn);
+        });
+    },
+
+    giphySelect: function($result) {
+        var $giphy = $result.closest('[data-role="giphy"]');
+        var url = $result.getAttribute('data-url');
+        var $input = $giphy.querySelector('input[name="gifUrl"]');
+
+        if ($input) {
+            $input.value = url;
+        }
+
+        this.giphyShowPreview($giphy, url);
+
+        // Collapse the picker once a GIF is chosen
+        var $panel = $giphy.querySelector('[data-role="giphy-panel"]');
+        var $toggle = $giphy.querySelector('[data-action="giphy-toggle"]');
+
+        if ($panel) {
+            $panel.setAttribute('hidden', '');
+        }
+
+        if ($toggle) {
+            $toggle.setAttribute('aria-expanded', 'false');
+        }
+    },
+
+    giphyShowPreview: function($giphy, url) {
+        var $preview = $giphy.querySelector('[data-role="giphy-preview"]');
+
+        if (!$preview) {
+            return;
+        }
+
+        $preview.innerHTML = '';
+
+        var $img = document.createElement('img');
+        $img.src = url;
+        $img.alt = '';
+
+        var $remove = document.createElement('button');
+        $remove.type = 'button';
+        $remove.className = 'cc-giphy-remove';
+        $remove.setAttribute('data-action', 'giphy-remove');
+        $remove.setAttribute('aria-label', this.t('giphy-remove'));
+        $remove.innerHTML = '&times;';
+
+        $preview.appendChild($img);
+        $preview.appendChild($remove);
+
+        this.addClass($giphy, 'has-gif');
+    },
+
+    giphyRemove: function($remove) {
+        var $giphy = $remove.closest('[data-role="giphy"]');
+
+        this.giphyReset($giphy);
+    },
+
+    giphyReset: function($scope) {
+        if (!$scope) {
+            return;
+        }
+
+        var $giphy = $scope.matches && $scope.matches('[data-role="giphy"]') ? $scope : $scope.querySelector('[data-role="giphy"]');
+
+        if (!$giphy) {
+            return;
+        }
+
+        var $input = $giphy.querySelector('input[name="gifUrl"]');
+
+        if ($input) {
+            $input.value = '';
+        }
+
+        var $preview = $giphy.querySelector('[data-role="giphy-preview"]');
+
+        if ($preview) {
+            $preview.innerHTML = '';
+        }
+
+        var $panel = $giphy.querySelector('[data-role="giphy-panel"]');
+
+        if ($panel) {
+            $panel.setAttribute('hidden', '');
+        }
+
+        this.removeClass($giphy, 'has-gif');
     },
 });
 
@@ -636,6 +884,23 @@ Comments.ReplyForm = Comments.Base.extend({
         // Set the value to be the id of comment we're replying to
         (form.querySelector('input[name="newParentId"]') || {}).value = this.comment.commentId;
 
+        // Don't carry over any GIF the user may have picked on the base form
+        var $giphy = form.querySelector('[data-role="giphy"]');
+
+        if ($giphy) {
+            this.removeClass($giphy, 'has-gif');
+            (form.querySelector('input[name="gifUrl"]') || {}).value = '';
+
+            var $preview = $giphy.querySelector('[data-role="giphy-preview"]');
+            if ($preview) { $preview.innerHTML = ''; }
+
+            var $results = $giphy.querySelector('[data-role="giphy-results"]');
+            if ($results) { $results.innerHTML = ''; }
+
+            var $panel = $giphy.querySelector('[data-role="giphy-panel"]');
+            if ($panel) { $panel.setAttribute('hidden', ''); }
+        }
+
         this.$container.innerHTML = form.outerHTML;
     },
 
@@ -700,6 +965,12 @@ Comments.EditForm = Comments.Base.extend({
         this.$container = comment.$replyContainer;
 
         this.$comment = this.$element.querySelector('[data-role="message"]');
+
+        // Keep any attached GIF aside - editing only touches the comment text, and we
+        // don't want to lose the GIF visually or have it stripped from the stored comment
+        var $gif = this.$comment.querySelector('.cc-i-gif');
+        this.gifHtml = $gif ? $gif.outerHTML : '';
+
         this.commentText = this.$comment.innerHTML.replace(/<[^>]+>/g, '').trim();
     },
 
@@ -713,6 +984,9 @@ Comments.EditForm = Comments.Base.extend({
         this.remove(form.querySelector('[name="fields[name]"]'));
         this.remove(form.querySelector('[name="fields[email]"]'));
         this.remove(form.querySelector('.cc-i-figure'));
+
+        // Editing is text-only - the existing GIF is preserved server-side untouched
+        this.remove(form.querySelector('[data-role="giphy"]'));
 		
 		// make a new ID if we already have an ID
 		if (form.getAttribute('id') !== null) {
@@ -739,8 +1013,9 @@ Comments.EditForm = Comments.Base.extend({
 
     closeForm: function() {
         var $comment = this.$element.querySelector('[data-role="message"]');
-        
-        $comment.innerHTML = '<p>' + this.commentText.replace(/\n/g, '<br>') + '</p>';
+
+        var html = this.commentText ? '<p>' + this.commentText.replace(/\n/g, '<br>') + '</p>' : '';
+        $comment.innerHTML = html + (this.gifHtml || '');
 
         this.isOpen = false;
     },
@@ -751,8 +1026,9 @@ Comments.EditForm = Comments.Base.extend({
         this.postForm(e, 'save', function(xhr) {
             var $comment = this.$element.querySelector('[data-role="message"]');
             var commentText = this.$element.querySelector('[name="fields[comment]"]').value;
-            
-            $comment.innerHTML = '<p>' + commentText.replace(/\n/g, '<br>\n') + '</p>';
+
+            var html = commentText ? '<p>' + commentText.replace(/\n/g, '<br>\n') + '</p>' : '';
+            $comment.innerHTML = html + (this.gifHtml || '');
 
             this.comment.editForm = new Comments.EditForm(this.comment);
 

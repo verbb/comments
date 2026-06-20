@@ -28,6 +28,9 @@ class Votes extends Component
     // =========================================================================
     protected string $sessionName = 'comments_vote';
 
+    private array $_authorScores = [];
+    private array $_votesByComment = [];
+
 
     // Public Methods
     // =========================================================================
@@ -106,6 +109,38 @@ class Votes extends Component
         }
 
         return $votes;
+    }
+
+    // The total reputation for an author: net votes (upvotes - downvotes) across all of their
+    // approved comments. Cached per-request so rendering many comments by the same author is cheap.
+    public function getScoreByAuthorId($userId): int
+    {
+        // Only registered users have a stable identity to aggregate a score against
+        if (!$userId) {
+            return 0;
+        }
+
+        if (array_key_exists($userId, $this->_authorScores)) {
+            return $this->_authorScores[$userId];
+        }
+
+        // All approved comments authored by this user (spam/pending/trashed don't count)
+        $commentIds = (new Query())
+            ->select(['id'])
+            ->from('{{%comments_comments}}')
+            ->where(['userId' => $userId, 'status' => 'approved']);
+
+        $upvotes = (new Query())
+            ->from('{{%comments_votes}}')
+            ->where(['commentId' => $commentIds, 'upvote' => 1])
+            ->count();
+
+        $downvotes = (new Query())
+            ->from('{{%comments_votes}}')
+            ->where(['commentId' => $commentIds, 'downvote' => 1])
+            ->count();
+
+        return $this->_authorScores[$userId] = (int)$upvotes - (int)$downvotes;
     }
 
     public function hasDownVoted($comment, $user): bool
@@ -189,6 +224,9 @@ class Votes extends Component
         // Save the record
         $voteRecord->save(false);
 
+        // Bust the request caches so any later read in this request sees the new vote
+        $this->_invalidateVoteCaches($voteRecord->commentId);
+
         // Now that we have an ID, save it on the model
         if ($isNewVote) {
             $vote->id = $voteRecord->id;
@@ -214,6 +252,8 @@ class Votes extends Component
 
         Db::delete('{{%comments_votes}}', ['id' => $vote->id]);
 
+        $this->_invalidateVoteCaches($vote->commentId);
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_VOTE, new VoteEvent([
                 'vote' => $vote,
@@ -234,6 +274,13 @@ class Votes extends Component
 
     private function _votes($commentId = null): array
     {
+        // Memoize per-comment lookups for the request. The plugin calls this multiple times per
+        // comment (count, upvotes, downvotes, hasUpVoted, hasDownVoted), so without this each
+        // call re-queries. Votes don't change mid-render; saveVote/deleteVote bust the entry.
+        if ($commentId !== null && array_key_exists($commentId, $this->_votesByComment)) {
+            return $this->_votesByComment[$commentId];
+        }
+
         $votes = [];
 
         $query = $this->_createVotesQuery();
@@ -246,7 +293,19 @@ class Votes extends Component
             $votes[] = new VoteModel($result);
         }
 
+        if ($commentId !== null) {
+            $this->_votesByComment[$commentId] = $votes;
+        }
+
         return $votes;
+    }
+
+    // Clears the request caches for a comment's votes (and all author scores, since a vote
+    // changes an author's total). Called whenever a vote is saved or deleted.
+    private function _invalidateVoteCaches($commentId): void
+    {
+        unset($this->_votesByComment[$commentId]);
+        $this->_authorScores = [];
     }
 
     private function _getSessionId()

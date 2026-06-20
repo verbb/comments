@@ -2,6 +2,44 @@
 
 return [
   //
+  // GIPHY
+  //
+  'GIPHY' => 'GIPHY',
+  'Reply with GIFs' => 'Reply with GIFs',
+  'Whether commenters can search GIPHY and attach a GIF to their comment or reply.' => 'Whether commenters can search GIPHY and attach a GIF to their comment or reply.',
+  'GIPHY API Key' => 'GIPHY API Key',
+  'Your GIPHY API key, used to power GIF search. This is kept server-side and never exposed to visitors.' => 'Your GIPHY API key, used to power GIF search. This is kept server-side and never exposed to visitors.',
+  'GIF Content Rating' => 'GIF Content Rating',
+  'The maximum GIPHY content rating to return in search results.' => 'The maximum GIPHY content rating to return in search results.',
+  'GIF Results Limit' => 'GIF Results Limit',
+  'The maximum number of GIFs to show for each search.' => 'The maximum number of GIFs to show for each search.',
+  'Search GIPHY…' => 'Search GIPHY…',
+  'Powered by GIPHY' => 'Powered by GIPHY',
+  'No GIFs found.' => 'No GIFs found.',
+  'Remove GIF' => 'Remove GIF',
+  'GIFs are not enabled.' => 'GIFs are not enabled.',
+  'Invalid GIF.' => 'Invalid GIF.',
+
+  //
+  // Author score
+  //
+  'Show Author Score' => 'Show Author Score',
+  'Show each registered user’s total reputation (net votes across all their approved comments) next to their name.' => 'Show each registered user’s total reputation (net votes across all their approved comments) next to their name.',
+  'Total votes across this user’s comments' => 'Total votes across this user’s comments',
+
+  //
+  // Asset base URL
+  //
+  'Asset Base URL' => 'Asset Base URL',
+  'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.' => 'Serve the default CSS/JS from this base URL (e.g. a CDN or file server) instead of publishing them to the web server. Leave blank to publish to `cpresources` as normal. You are responsible for deploying the plugin’s `resources/dist` files to this location.',
+  'Asset Base Path' => 'Asset Base Path',
+  'Publish Front-end Assets' => 'Publish Front-end Assets',
+  'Publish now' => 'Publish now',
+  'No “Asset Base Path” is configured.' => 'No “Asset Base Path” is configured.',
+  '{count} front-end asset(s) published.' => '{count} front-end asset(s) published.',
+  'Couldn’t publish assets: {error}' => 'Couldn’t publish assets: {error}',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'When a comment is received:',

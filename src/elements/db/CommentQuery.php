@@ -263,6 +263,7 @@ class CommentQuery extends ElementQuery
             'comments_comments.email',
             'comments_comments.url',
             'comments_comments.comment',
+            'comments_comments.gifUrl',
             'comments_comments.ipAddress',
             'comments_comments.userAgent',
             'comments_comments.commentDate',

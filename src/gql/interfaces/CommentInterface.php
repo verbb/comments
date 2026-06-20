@@ -66,6 +66,11 @@ class CommentInterface extends Structure
                 'type' => Type::string(),
                 'description' => 'The actual comment text.',
             ],
+            'gifUrl' => [
+                'name' => 'gifUrl',
+                'type' => Type::string(),
+                'description' => 'The URL of the GIF attached to the comment, if any.',
+            ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
