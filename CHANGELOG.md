@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.22 - 2026-06-20
 
 ### Added
 - Add “Reply with GIFs” support, allowing commenters to search GIPHY and attach a GIF to a comment or reply.
