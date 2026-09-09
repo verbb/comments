@@ -202,6 +202,7 @@ class Comments extends Plugin
                 'comments/<commentId:\d+>/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/new/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/settings' => 'comments/base/settings',
+                'comments/settings/<settingsNavItem:{handle}>' => 'comments/base/settings',
             ]);
         });
     }

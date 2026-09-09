@@ -1,14 +1,17 @@
-{% extends 'comments/_layouts/settings' %}
+{% extends 'verbb-base/_layouts/settings' %}
 
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
 {% requireAdmin %}
 
-{% set selectedTab = selectedTab ?? craft.app.request.getSegment(3) %}
-{% set selectedTab = selectedTab ?: 'general' %}
-{% set fullPageForm = true %}
-{% set pageTabs = {
+{% set crumbs = [
+    { label: 'Settings' | t('app'), url: url('settings') },
+    { label: 'Plugins' | t('app'), url: url('settings/plugins') },
+    { label: craft.comments.getPluginName() | t('comments'), url: url('comments/settings') },
+] | merge(crumbs ?? []) %}
+
+{% set pageTabs = pageTabs ?? {
     general: { title: 'General Settings' | t('comments'), url: url('comments/settings') },
     notifications: { title: 'Notifications' | t('comments'), url: url('comments/settings/notifications') },
     voting: { title: 'Voting' | t('comments'), url: url('comments/settings/voting') },
@@ -21,12 +24,12 @@
     security: { title: 'Security & Spam' | t('comments'), url: url('comments/settings/security') },
     permissions: { title: 'Permissions' | t('comments'), url: url('comments/settings/permissions') },
 } %}
-{% set pageTitle = pageTabs[selectedTab].title ?? null %}
-{% if not pageTitle %}{% exit 404 %}{% endif %}
-{% set pageAction = 'plugins/save-plugin-settings' %}
-{% set pageUrl = selectedTab == 'general' ? 'comments/settings' : 'comments/settings/' ~ selectedTab %}
 
-{% block settingsContent %}
-    {% set pane = selectedTab %}
-    {% include 'comments/settings/_panes/' ~ pane ignore missing %}
+{% set pageTitle = pageTitle ?? false %}
+{% if title is not defined and pageTitle %}
+    {% set title = pageTitle %}
+{% endif %}
+
+{% block settingsMeta %}
+    {{ hiddenInput('pluginHandle', 'comments') }}
 {% endblock %}

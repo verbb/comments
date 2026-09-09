@@ -11,7 +11,6 @@
 }) }}
 
 {{ forms.lightswitchField({
-    first: true,
     label: "Enable Author Notifications" | t('comments'),
     instructions: "Authors receive an email for every new comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
     id: 'notificationAuthorEnabled',
@@ -74,7 +73,6 @@
 <h3>{{ 'Moderators' | t('comments') }}</h3>
 
 {{ forms.lightswitchField({
-    first: true,
     label: "Enable Moderator Notifications" | t('comments'),
     instructions: "Whether a nominated user group should receive an email when a new comment has been made, and needs to be moderated. Note this will override author notifications, who shouldn't receive the notification until its been approved." | t('comments'),
     id: 'notificationModeratorEnabled',
@@ -84,7 +82,6 @@
 }) }}
 
 {{ forms.lightswitchField({
-    first: true,
     label: "Enable Moderator Edited Notifications" | t('comments'),
     instructions: "Whether moderators should receive a notification when a user edits their own comment, and needs to be moderated." | t('comments'),
     id: 'notificationModeratorEditEnabled',

@@ -105,6 +105,11 @@ class CommentsVariable
         return CommentsHelper::getAvatar(Comments::$plugin->getService()->getUser());
     }
 
+    public function getPluginName(): string
+    {
+        return Comments::$plugin->getPluginName();
+    }
+
     public function getUserVotes($userId): array
     {
         return Comments::$plugin->getVotes()->getVotesByUserId($userId);
