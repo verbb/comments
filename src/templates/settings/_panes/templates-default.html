@@ -123,7 +123,7 @@
 </div>
 
 {% js %}
-    document.getElementById('comments-publish-assets')?.addEventListener('click', (e) => {
+    document.getElementById('{{ 'comments-publish-assets' | namespaceInputId('settings') }}')?.addEventListener('click', (e) => {
         const $btn = e.currentTarget;
         $btn.classList.add('disabled');
         $btn.setAttribute('disabled', 'disabled');

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix the front-end asset publishing button after settings normalization.
+
 ## 3.0.16 - 2026-09-13
 
 ### Changed
