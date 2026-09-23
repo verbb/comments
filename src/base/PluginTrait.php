@@ -10,6 +10,7 @@ use verbb\comments\services\RenderCache;
 use verbb\comments\services\Security;
 use verbb\comments\services\Service;
 use verbb\comments\services\Subscribe;
+use verbb\comments\services\Templates;
 use verbb\comments\services\Votes;
 use verbb\base\BaseHelper;
 
@@ -91,6 +92,11 @@ trait PluginTrait
         return $this->get('votes');
     }
 
+    public function getTemplates(): Templates
+    {
+        return $this->get('templates');
+    }
+
 
     // Private Methods
     // =========================================================================
@@ -98,6 +104,7 @@ trait PluginTrait
     private function _registerComponents(): void
     {
         $this->setComponents([
+            'templates' => Templates::class,
             'comments' => CommentsService::class,
             'flags' => Flags::class,
             'giphy' => Giphy::class,

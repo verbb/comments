@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Require `verbb/base` 2.0.15 or later within 2.x.
+
+### Fixed
+- Fix a template injection vulnerability.
+
 ## 2.0.22 - 2026-06-20
 
 ### Added

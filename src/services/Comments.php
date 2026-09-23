@@ -1121,8 +1121,8 @@ class Comments extends Component
         $language = Craft::$app->getRequest()->getIsSiteRequest() ? Craft::$app->language : Craft::$app->getSites()->getPrimarySite()->language;
         $systemMessage = Craft::$app->getSystemMessages()->getMessage($key, $language);
 
-        $message->setSubject($view->renderString($systemMessage->subject, $variables, View::TEMPLATE_MODE_SITE));
-        $textBody = $view->renderString($systemMessage->body, $variables, View::TEMPLATE_MODE_SITE);
+        $message->setSubject(CommentsPlugin::$plugin->getTemplates()->renderSandboxedString($systemMessage->subject, $variables));
+        $textBody = CommentsPlugin::$plugin->getTemplates()->renderSandboxedString($systemMessage->body, $variables);
 
         if ($settings->templateEmail) {
             $template = $settings->templateEmail;
