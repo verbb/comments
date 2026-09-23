@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.18 - 2026-09-23
 
 ### Fixed
 - Render comment notification subjects and bodies in Twig sandbox.
