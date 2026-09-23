@@ -10,6 +10,7 @@ use verbb\comments\services\RenderCache;
 use verbb\comments\services\Security;
 use verbb\comments\services\Service;
 use verbb\comments\services\Subscribe;
+use verbb\comments\services\Templates;
 use verbb\comments\services\Votes;
 
 use verbb\base\LogTrait;
@@ -46,6 +47,7 @@ trait PluginTrait
                 'security' => Security::class,
                 'service' => Service::class,
                 'subscribe' => Subscribe::class,
+                'templates' => Templates::class,
                 'votes' => Votes::class,
             ],
         ];
@@ -93,6 +95,11 @@ trait PluginTrait
     public function getSubscribe(): Subscribe
     {
         return $this->get('subscribe');
+    }
+
+    public function getTemplates(): Templates
+    {
+        return $this->get('templates');
     }
 
     public function getVotes(): Votes
