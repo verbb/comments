@@ -23,7 +23,7 @@
 } %}
 {% set pageTitle = pageTabs[selectedTab].title ?? null %}
 {% if not pageTitle %}{% exit 404 %}{% endif %}
-{% set pageAction = 'plugins/save-plugin-settings' %}
+{% set pageAction = 'comments/settings/save-settings' %}
 {% set pageUrl = selectedTab == 'general' ? 'comments/settings' : 'comments/settings/' ~ selectedTab %}
 
 {% block settingsContent %}

@@ -166,8 +166,10 @@ class Comments extends Plugin
         }
 
         if ($structure) {
-            // Update our plugin settings straight away!
-            Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
+            // Store the generated UID without discarding unrelated plugin settings.
+            $settings = Craft::$app->getPlugins()->getStoredPluginInfo($this->handle)['settings'] ?? [];
+            $settings['structureUid'] = $structure->uid;
+            Craft::$app->getPlugins()->savePluginSettings($this, $settings);
 
             return $structure;
         }
@@ -201,8 +203,8 @@ class Comments extends Plugin
                 'comments/<commentId:\d+>' => 'comments/comments/edit-comment',
                 'comments/<commentId:\d+>/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/new/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
-                'comments/settings' => 'comments/base/settings',
-                'comments/settings/<settingsNavItem:{handle}>' => 'comments/base/settings',
+                'comments/settings' => 'comments/settings/index',
+                'comments/settings/<settingsNavItem:{handle}>' => 'comments/settings/index',
             ]);
         });
     }

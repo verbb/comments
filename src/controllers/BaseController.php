@@ -15,15 +15,6 @@ class BaseController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionSettings(): Response
-    {
-        $settings = Comments::$plugin->getSettings();
-
-        return $this->renderTemplate('comments/settings', [
-            'settings' => $settings,
-        ]);
-    }
-
     public function actionPublishAssets(): ?Response
     {
         $this->requirePostRequest();

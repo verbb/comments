@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix saving one settings page or generating the comment structure resetting unrelated plugin settings.
+
 ## 3.0.17 - 2026-09-14
 
 ### Fixed
