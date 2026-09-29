@@ -1,6 +1,6 @@
 {
     "name": "verbb/comments",
-    "description": "Add comments to your site.",
+    "description": "A Craft CMS plugin for self-hosted comments, threaded replies and moderation.",
     "type": "craft-plugin",
     "version": "3.0.18",
     "keywords": [
