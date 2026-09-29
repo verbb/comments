@@ -1,22 +1,21 @@
 <p align="center"><img src="https://assets.verbb.io/plugins/comments/comments-icon.svg" width="100" height="100" alt="Comments icon"></p>
 <h1 align="center">Comments for Craft CMS</h1>
 
-Comments is a Craft CMS plugin that allows your users to comment on elements. Not a fan of using Disqus? All your comments are stored in your Craft install, and hooked up to your existing users.
+Comments is a Craft CMS plugin that adds a complete, self-hosted conversation layer to Craft content. Accept threaded replies from guests or members, moderate the discussion in Craft, and shape the front end around your site rather than an embedded service.
+
+Attach comments to entries, products, events, assets, or other Craft elements and decide where discussion is allowed. Threaded replies keep conversations readable while votes and flags give the community useful ways to respond.
 
 ## Features
-- Threaded comments - users can comment on other comments.
-- Anonymous users can comment (configurable).
-- Comment moderation by admins - prevent comments from appearing on your site until approved.
-- Supports upvoting and downvoting, along with flagging inappropriate comments.
-- Front-end editing and deleting of comments for logged-in users.
-- Ready-to-go, single template tag for full comments list and reply form. Complete with CSS and Ajax-driven, vanilla Javascript.
-- Template override folder, so you can completely customise your own comment forms and front-end resources.
-- Comments can be made on any element type (entries, users, assets, etc).
-- Set permissions for each element (and element type) to allow or disable comments.
-- Optional GIPHY search lets visitors attach a validated GIF to a comment or reply.
-- Optional reputation scores show each registered user's net votes across approved comments.
-- Security rules can moderate, mark as spam or reject submissions that match project-defined values.
-- Plenty of settings to customise just about everything.
+
+- Let people reply directly and keep related conversation together.
+- Choose whether anonymous visitors, signed-in users, or both can participate.
+- Support upvotes and downvotes when community feedback benefits from them.
+- Give visitors a route to report spam or inappropriate content.
+- Review comments before publication and manage them from Craft.
+- Notify authors, moderators, and participants about relevant activity.
+- Let visitors find and attach a validated GIF to a comment or reply.
+- Show each registered user's net votes across approved comments.
+- Moderate, mark as spam, or reject submissions that match project-defined values.
 
 ## Documentation
 Visit the [Comments Plugin page](https://verbb.io/craft-plugins/comments) for all documentation, guides, pricing and developer resources.
