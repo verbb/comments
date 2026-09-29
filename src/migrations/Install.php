@@ -3,6 +3,7 @@ namespace verbb\comments\migrations;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\services\Comments as CommentsService;
 
 use Craft;
 use craft\db\Migration;
@@ -21,11 +22,10 @@ class Install extends Migration
         $this->createIndexes();
         $this->addForeignKeys();
 
-        // Don't make the same config changes twice
-        $installed = (Craft::$app->getProjectConfig()->get('plugins.comments', true) !== null);
-        $configExists = (Craft::$app->getProjectConfig()->get('comments', true) !== null);
+        // Preserve layouts supplied by project config, but don't let an existing plugin entry suppress the default layout.
+        $configExists = Craft::$app->getProjectConfig()->get(CommentsService::CONFIG_FIELDLAYOUT_KEY, true) !== null;
 
-        if (!$installed && !$configExists) {
+        if (!$configExists) {
             Comments::$plugin->getComments()->saveFieldLayout();
         }
 

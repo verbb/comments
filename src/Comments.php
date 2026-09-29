@@ -87,6 +87,7 @@ class Comments extends Plugin
         $this->_registerVariables();
         $this->_registerFieldTypes();
         $this->_registerElementTypes();
+        $this->_registerFieldLayoutListener();
         $this->_registerGraphQl();
         $this->_registerEventHandlers();
         $this->_registerProjectConfigEventHandlers();
@@ -95,7 +96,6 @@ class Comments extends Plugin
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
-            $this->_registerFieldLayoutListener();
         }
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
@@ -204,7 +204,7 @@ class Comments extends Plugin
                 'comments/<commentId:\d+>/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/new/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
                 'comments/settings' => 'comments/settings/index',
-                'comments/settings/<settingsNavItem:{handle}>' => 'comments/settings/index',
+                'comments/settings/<settingsNavItem:{slug}>' => 'comments/settings/index',
             ]);
         });
     }

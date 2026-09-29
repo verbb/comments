@@ -5,6 +5,9 @@
 ### Changed
 - Route plugin settings through the plugin’s authorized settings controller.
 
+### Fixed
+- Fix template settings pages returning 404 errors and the default comment textarea not rendering when the field layout was not initialized. ([#329](https://github.com/verbb/comments/issues/329))
+
 ## 3.0.18 - 2026-09-23
 
 ### Fixed
