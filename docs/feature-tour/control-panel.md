@@ -5,6 +5,8 @@ The left-hand sidebar groups all comments by the element they were made on.
 
 You can filter the right-hand side table as you need to. It's especially useful to filter by a comments' status. You can also use the checkboxes on each row to update multiple comment's status at once.
 
+![The Comments overview in the control panel](../../screenshots/comments-overview.png)
+
 ## Editing a comment
 Clicking on the first column will take you to the page where you can edit a comment. Here you can view all information regarding the comment, such as date, URL, IP Address, User Agent and more.
 

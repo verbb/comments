@@ -7,7 +7,7 @@ Take control of comments by keeping them alongside your Craft content. The whole
 
 Attach comments to any supported Craft element — whether it is an entry, product, event or something project-specific. Threaded replies keep conversations readable while votes and flags give the community useful ways to respond.
 
-![Comments awaiting review alongside approved conversations and threaded replies.](../screenshots/output/feature-tour/comments-overview.png)
+![Comments awaiting review alongside approved conversations and threaded replies.](../screenshots/comments-overview.png)
 
 <!-- feature-section-end -->
 
@@ -16,7 +16,7 @@ Attach comments to any supported Craft element — whether it is an entry, produ
 
 Control moderation, guest participation, notifications and captcha protection. Hold new comments for approval and automatically hide content after enough flags when that suits the community. Optional GIPHY replies and member reputation add more personality when the site calls for them.
 
-![The Comments settings area with controls for guests, moderation and reply limits.](../screenshots/output/feature-tour/comments-settings.png)
+![The Comments settings area with controls for guests, moderation and reply limits.](../screenshots/comments-settings.png)
 
 <!-- feature-media-end -->
 
@@ -33,6 +33,6 @@ Security rules can inspect the submitted comment, email address, URL, user agent
 
 Render a ready-to-go comment list and form with the included Twig, CSS, and JavaScript, or override the templates and resources for a bespoke experience. The underlying comment elements remain available for custom querying and integration.
 
-![A threaded conversation above the default comment form.](../screenshots/output/feature-tour/comments-form.png)
+![A threaded conversation above the default comment form.](../screenshots/comments-form.png)
 
 <!-- feature-section-end -->
