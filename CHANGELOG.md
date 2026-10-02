@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Updated the required version of `verbb/base` to 3.0.19.
+
 ## 3.0.19 - 2026-09-30
 
 ### Changed
