@@ -45,6 +45,63 @@
 {{ redirectInput('comments') }}
 
 <div id="comment">
+    {% set parents = craft.comments.fetch()
+    .ancestorOf(comment)
+    .all() %}
+
+    {% if parents %}
+
+    <div class="field">
+        <h2>{{ 'Parent comments'|t }}</h2>
+
+        <div>
+            {% nav parent in parents %}
+
+            <div class="elementindex elements" style="margin-left:{{ (loop.index - 1) * 20 }}px;">
+                <table class="data fullwidth">
+                    <thead>
+                    <tr>
+                        <th scope="col" data-attribute="id">{% if not loop.first %}&#x21AA; {% endif %}{{ 'Comment'| t }}
+
+                        </th>
+                        <th width="150px" scope="col" data-attribute="commentDate">
+                            {{ 'Date' | t }}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-id="{{ parent.id }}">
+                        <th data-title="Comment" scope="row">
+                            <div class="element small hasstatus" title="{{ parent.id }} – {{ currentSite.name }}"
+                                 data-type="verbb\comments\elements\Comment"
+                                 data-id="{{ parent.id }}" data-site-id="{{ parent.siteId }}" data-status="{{ parent.status }}" data-label="{{ parent.id }}"
+                                 data-editable="">
+                                <span class="status {{ parent.status }}"></span>
+                                <div class="label"><span class="title">{{ parent.id }}</span></div>
+                            </div>
+                            <div class="comment-block">
+                                <span class="status {{ parent.status }}"></span>
+                                <a
+                                    href="{{ cpUrl('comments/' ~ parent.id) }}">
+                                    <span class="username">{{- comment.parent.author.fullName ?? comment.parent.author -}}</span>
+                                    <small>{{ parent.comment }}</small>
+                                </a>
+                            </div>
+                        </th>
+                        <td width="150px" data-title="Date" data-attr="commentDate">
+                            <span title="{{ comment.commentDate | date('d.m.H H:i:s') }}">{{ parent.commentDate | date('d.m.H H:i:s') }}</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {% endnav %}
+        </div>
+    </div>
+    <hr>
+    {% endif %}
+
     {{ forms.textAreaField({
         first: true,
         label: 'Comment' | t('comments'),
