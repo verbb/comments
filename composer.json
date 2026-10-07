@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "A Craft CMS plugin for self-hosted comments, threaded replies and moderation.",
     "type": "craft-plugin",
-    "version": "3.0.20",
+    "version": "3.0.21",
     "keywords": [
         "craft",
         "cms",
