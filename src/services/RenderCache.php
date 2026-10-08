@@ -13,6 +13,8 @@ class RenderCache extends Component
     public array $elements = [];
     public array $commentIds = [];
 
+    private array $_authorIds = [];
+
 
     // Public Methods
     // =========================================================================
@@ -45,6 +47,28 @@ class RenderCache extends Component
     public function addElement($key, $value): void
     {
         $this->elements[$key] = $value;
+    }
+
+    // Register only loaded comments, including collections populated by eager-loading replies.
+    public function addComments(array $comments): void
+    {
+        foreach ($comments as $comment) {
+            if ($comment['id'] ?? null) {
+                $this->commentIds[] = (int)$comment['id'];
+            }
+
+            if ($comment['userId'] ?? null) {
+                $this->_authorIds[] = (int)$comment['userId'];
+            }
+        }
+
+        $this->commentIds = array_values(array_unique($this->commentIds));
+        $this->_authorIds = array_values(array_unique($this->_authorIds));
+    }
+
+    public function getAuthorIds(): array
+    {
+        return $this->_authorIds;
     }
 
     public function getCommentIds(): array
