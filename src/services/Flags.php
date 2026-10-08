@@ -2,6 +2,7 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments;
+use verbb\comments\elements\Comment;
 use verbb\comments\events\FlagEvent;
 use verbb\comments\errors\FlagNotFoundException;
 use verbb\comments\models\Flag as FlagModel;
@@ -9,9 +10,10 @@ use verbb\comments\records\Flag as FlagRecord;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\db\Query;
+
+use yii\base\Event;
 
 class Flags extends Component
 {
@@ -29,47 +31,57 @@ class Flags extends Component
     
     protected string $sessionName = 'comments_flag';
 
+    private array $_flagCounts = [];
+    private array $_viewerFlags = [];
+
 
     // Public Methods
     // =========================================================================
 
+    public function init(): void
+    {
+        parent::init();
+
+        foreach ([Comment::EVENT_AFTER_DELETE, Comment::EVENT_AFTER_RESTORE] as $event) {
+            Event::on(Comment::class, $event, function(): void {
+                $this->_invalidateFlagCaches();
+            });
+        }
+    }
+
     public function getFlagByUser(int $commentId, $userId)
     {
-        // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->_flags($commentId);
-        $criteria = ['commentId' => $commentId];
+        $flags = $this->_getViewerFlags($commentId, $userId);
 
-        if ($userId) {
-            $criteria['userId'] = $userId;
-        } else {
-            $criteria['sessionId'] = $this->_getSessionId();
-        }
-
-        if ($items = ArrayHelper::whereMultiple($flags, $criteria)) {
-            return reset($items);
-        }
-
-        return null;
+        return $flags ? reset($flags) : null;
     }
 
     public function getFlagsByCommentId(int $commentId): int
     {
-        return count($this->_flags($commentId));
+        if (!array_key_exists($commentId, $this->_flagCounts)) {
+            $commentIds = $this->_getUncachedCommentIds($commentId, $this->_flagCounts);
+            $rows = (new Query())
+                ->select(['commentId', 'total' => 'COUNT(*)'])
+                ->from('{{%comments_flags}}')
+                ->where(['commentId' => $commentIds])
+                ->groupBy('commentId')
+                ->all();
+
+            foreach ($commentIds as $id) {
+                $this->_flagCounts[$id] = 0;
+            }
+
+            foreach ($rows as $row) {
+                $this->_flagCounts[$row['commentId']] = (int)$row['total'];
+            }
+        }
+
+        return $this->_flagCounts[$commentId];
     }
 
     public function hasFlagged($comment, $user): bool
     {
-        // Try and fetch flags for a user, if not, use their sessionId
-        $flags = $this->_flags($comment->id);
-        $criteria = ['commentId' => $comment->id];
-
-        if ($user && $user->id) {
-            $criteria['userId'] = $user->id;
-        } else {
-            $criteria['sessionId'] = $this->_getSessionId();
-        }
-
-        return (bool)ArrayHelper::whereMultiple($flags, $criteria);
+        return (bool)$this->_getViewerFlags($comment->id, $user->id ?? null);
     }
 
     public function isOverFlagThreshold($comment): bool
@@ -128,6 +140,8 @@ class Flags extends Component
         // Save the record
         $flagRecord->save(false);
 
+        $this->_invalidateFlagCaches();
+
         // Now that we have an ID, save it on the model
         if ($isNewFlag) {
             $flag->id = $flagRecord->id;
@@ -153,6 +167,8 @@ class Flags extends Component
 
         Db::delete('{{%comments_flags}}', ['id' => $flag->id]);
 
+        $this->_invalidateFlagCaches();
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_FLAG)) {
             $this->trigger(self::EVENT_AFTER_DELETE_FLAG, new FlagEvent([
                 'flag' => $flag,
@@ -171,21 +187,45 @@ class Flags extends Component
     // Private Methods
     // =========================================================================
 
-    private function _flags($commentId = null): array
+    private function _getViewerFlags(int $commentId, $userId): array
     {
-        $flags = [];
+        $identity = $userId ? ['userId' => $userId] : ['sessionId' => $this->_getSessionId()];
+        $key = key($identity) . ':' . reset($identity);
+        $cached = $this->_viewerFlags[$key] ?? [];
 
-        $query = $this->_createFlagsQuery();
+        if (!array_key_exists($commentId, $cached)) {
+            $commentIds = $this->_getUncachedCommentIds($commentId, $cached);
+            $rows = $this->_createFlagsQuery()
+                ->where(['commentId' => $commentIds])
+                ->andWhere($identity)
+                ->all();
 
-        if ($commentId) {
-            $query->where(['commentId' => $commentId]);
+            foreach ($commentIds as $id) {
+                $cached[$id] = [];
+            }
+
+            foreach ($rows as $row) {
+                $cached[$row['commentId']][] = new FlagModel($row);
+            }
+
+            $this->_viewerFlags[$key] = $cached;
         }
 
-        foreach ($query->all() as $result) {
-            $flags[] = new FlagModel($result);
-        }
+        return $cached[$commentId];
+    }
 
-        return $flags;
+    private function _getUncachedCommentIds(int $commentId, array $cached): array
+    {
+        return array_values(array_diff(array_unique(array_merge(
+            Comments::$plugin->getRenderCache()->getCommentIds(),
+            [$commentId],
+        )), array_keys($cached)));
+    }
+
+    private function _invalidateFlagCaches(): void
+    {
+        $this->_flagCounts = [];
+        $this->_viewerFlags = [];
     }
 
     private function _getSessionId()

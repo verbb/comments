@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Batch vote counts, flag counts, viewer state and existing author scores for loaded comments and replies using request-scoped caches.
+- Register loaded comment IDs without querying all comments belonging to an owner.
+
+### Fixed
+- Invalidate reaction and author-score caches after relevant mutations.
+- Match guest votes and flags by session when retrieving viewer state.
+
 ## 3.0.21 - 2026-10-07
 
 ### Changed
