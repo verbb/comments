@@ -186,6 +186,8 @@ class Comments extends Component
             return '';
         }
 
+        CommentsPlugin::$plugin->getRenderCache()->addComments([$comment]);
+
         $templatePath = $this->getComponentTemplatePath('_includes/comment');
         $view->setTemplatesPath($templatePath);
 

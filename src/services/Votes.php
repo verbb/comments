@@ -2,6 +2,7 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments;
+use verbb\comments\elements\Comment;
 use verbb\comments\events\VoteEvent;
 use verbb\comments\errors\VoteNotFoundException;
 use verbb\comments\models\Vote as VoteModel;
@@ -9,8 +10,9 @@ use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\ArrayHelper;
 use craft\db\Query;
+
+use yii\base\Event;
 
 class Votes extends Component
 {
@@ -28,44 +30,44 @@ class Votes extends Component
     protected string $sessionName = 'comments_vote';
 
     private array $_authorScores = [];
-    private array $_votesByComment = [];
+    private array $_voteCounts = [];
+    private array $_viewerVotes = [];
 
 
     // Public Methods
     // =========================================================================
 
+    public function init(): void
+    {
+        parent::init();
+
+        foreach ([Comment::EVENT_AFTER_SAVE, Comment::EVENT_AFTER_DELETE, Comment::EVENT_AFTER_RESTORE] as $event) {
+            Event::on(Comment::class, $event, function(): void {
+                $this->_invalidateVoteCaches();
+            });
+        }
+    }
+
     public function getVoteByUser(int $commentId, $userId)
     {
-        // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes($commentId);
-        $criteria = ['commentId' => $commentId];
+        $votes = $this->_getViewerVotes($commentId, $userId);
 
-        if ($userId) {
-            $criteria['userId'] = $userId;
-        } else {
-            $criteria['sessionId'] = $this->_getSessionId();
-        }
-
-        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            return reset($items);
-        }
-
-        return null;
+        return $votes ? reset($votes) : null;
     }
 
     public function getVotesByCommentId(int $commentId): int
     {
-        return count($this->_votes($commentId));
+        return $this->_getVoteCounts($commentId)['total'];
     }
 
     public function getUpvotesByCommentId(int $commentId): int
     {
-        return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'upvote' => '1']));
+        return $this->_getVoteCounts($commentId)['upvotes'];
     }
 
     public function getDownvotesByCommentId(int $commentId): int
     {
-        return count(ArrayHelper::whereMultiple($this->_votes($commentId), ['commentId' => $commentId, 'downvote' => '1']));
+        return $this->_getVoteCounts($commentId)['downvotes'];
     }
 
     public function getVotesByUserId($userId): array
@@ -110,54 +112,50 @@ class Votes extends Component
         return $votes;
     }
 
-    // The total reputation for an author: net votes (upvotes - downvotes) across all of their
-    // approved comments. Cached per-request so rendering many comments by the same author is cheap.
+    // Net votes across approved comments, preserving the existing author-score scope.
     public function getScoreByAuthorId($userId): int
     {
-        // Only registered users have a stable identity to aggregate a score against
+        $userId = (int)$userId;
+
         if (!$userId) {
             return 0;
         }
 
-        if (array_key_exists($userId, $this->_authorScores)) {
-            return $this->_authorScores[$userId];
+        if (!array_key_exists($userId, $this->_authorScores)) {
+            $authorIds = array_values(array_diff(array_unique(array_merge(
+                Comments::$plugin->getRenderCache()->getAuthorIds(),
+                [(int)$userId],
+            )), array_keys($this->_authorScores)));
+
+            $rows = (new Query())
+                ->select([
+                    'comments.userId',
+                    'score' => 'SUM(CASE WHEN votes.upvote = 1 THEN 1 ELSE 0 END) - SUM(CASE WHEN votes.downvote = 1 THEN 1 ELSE 0 END)',
+                ])
+                ->from('{{%comments_comments}} comments')
+                ->innerJoin('{{%comments_votes}} votes', '[[votes.commentId]] = [[comments.id]]')
+                ->where(['comments.userId' => $authorIds, 'comments.status' => Comment::STATUS_APPROVED])
+                ->groupBy('comments.userId')
+                ->all();
+
+            foreach ($authorIds as $authorId) {
+                $this->_authorScores[$authorId] = 0;
+            }
+
+            foreach ($rows as $row) {
+                $this->_authorScores[$row['userId']] = (int)$row['score'];
+            }
         }
 
-        // All approved comments authored by this user (spam/pending/trashed don't count)
-        $commentIds = (new Query())
-            ->select(['id'])
-            ->from('{{%comments_comments}}')
-            ->where(['userId' => $userId, 'status' => 'approved']);
-
-        $upvotes = (new Query())
-            ->from('{{%comments_votes}}')
-            ->where(['commentId' => $commentIds, 'upvote' => 1])
-            ->count();
-
-        $downvotes = (new Query())
-            ->from('{{%comments_votes}}')
-            ->where(['commentId' => $commentIds, 'downvote' => 1])
-            ->count();
-
-        return $this->_authorScores[$userId] = (int)$upvotes - (int)$downvotes;
+        return $this->_authorScores[$userId];
     }
 
     public function hasDownVoted($comment, $user): bool
     {
-        // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes($comment->id);
-        $criteria = ['commentId' => $comment->id, 'downvote' => '1'];
-
-        if ($user->id) {
-            $criteria['userId'] = $user->id;
-        } else {
-            $criteria['sessionId'] = $this->_getSessionId();
-        }
-
-        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            reset($items);
-
-            return true;
+        foreach ($this->_getViewerVotes($comment->id, $user->id ?? null) as $vote) {
+            if ($vote->downvote == 1) {
+                return true;
+            }
         }
 
         return false;
@@ -165,20 +163,10 @@ class Votes extends Component
 
     public function hasUpVoted($comment, $user): bool
     {
-        // Try and fetch votes for a user, if not, use their sessionId
-        $votes = $this->_votes($comment->id);
-        $criteria = ['commentId' => $comment->id, 'upvote' => '1'];
-
-        if ($user->id) {
-            $criteria['userId'] = $user->id;
-        } else {
-            $criteria['sessionId'] = $this->_getSessionId();
-        }
-
-        if ($items = ArrayHelper::whereMultiple($votes, $criteria)) {
-            reset($items);
-
-            return true;
+        foreach ($this->_getViewerVotes($comment->id, $user->id ?? null) as $vote) {
+            if ($vote->upvote == 1) {
+                return true;
+            }
         }
 
         return false;
@@ -224,7 +212,7 @@ class Votes extends Component
         $voteRecord->save(false);
 
         // Bust the request caches so any later read in this request sees the new vote
-        $this->_invalidateVoteCaches($voteRecord->commentId);
+        $this->_invalidateVoteCaches();
 
         // Now that we have an ID, save it on the model
         if ($isNewVote) {
@@ -253,7 +241,7 @@ class Votes extends Component
             ->delete('{{%comments_votes}}', ['id' => $vote->id])
             ->execute();
 
-        $this->_invalidateVoteCaches($vote->commentId);
+        $this->_invalidateVoteCaches();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_VOTE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_VOTE, new VoteEvent([
@@ -273,39 +261,77 @@ class Votes extends Component
     // Private Methods
     // =========================================================================
 
-    private function _votes($commentId = null): array
+    private function _getVoteCounts(int $commentId): array
     {
-        // Memoize per-comment lookups for the request. The plugin calls this multiple times per
-        // comment (count, upvotes, downvotes, hasUpVoted, hasDownVoted), so without this each
-        // call re-queries. Votes don't change mid-render; saveVote/deleteVote bust the entry.
-        if ($commentId !== null && array_key_exists($commentId, $this->_votesByComment)) {
-            return $this->_votesByComment[$commentId];
+        if (!array_key_exists($commentId, $this->_voteCounts)) {
+            $commentIds = $this->_getUncachedCommentIds($commentId, $this->_voteCounts);
+            $rows = (new Query())
+                ->select([
+                    'commentId',
+                    'total' => 'COUNT(*)',
+                    'upvotes' => 'SUM(CASE WHEN upvote = 1 THEN 1 ELSE 0 END)',
+                    'downvotes' => 'SUM(CASE WHEN downvote = 1 THEN 1 ELSE 0 END)',
+                ])
+                ->from('{{%comments_votes}}')
+                ->where(['commentId' => $commentIds])
+                ->groupBy('commentId')
+                ->all();
+
+            foreach ($commentIds as $id) {
+                $this->_voteCounts[$id] = ['total' => 0, 'upvotes' => 0, 'downvotes' => 0];
+            }
+
+            foreach ($rows as $row) {
+                $this->_voteCounts[$row['commentId']] = [
+                    'total' => (int)$row['total'],
+                    'upvotes' => (int)$row['upvotes'],
+                    'downvotes' => (int)$row['downvotes'],
+                ];
+            }
         }
 
-        $votes = [];
-
-        $query = $this->_createVotesQuery();
-
-        if ($commentId) {
-            $query->where(['commentId' => $commentId]);
-        }
-
-        foreach ($query->all() as $result) {
-            $votes[] = new VoteModel($result);
-        }
-
-        if ($commentId !== null) {
-            $this->_votesByComment[$commentId] = $votes;
-        }
-
-        return $votes;
+        return $this->_voteCounts[$commentId];
     }
 
-    // Clears the request caches for a comment's votes (and all author scores, since a vote
-    // changes an author's total). Called whenever a vote is saved or deleted.
-    private function _invalidateVoteCaches($commentId): void
+    private function _getViewerVotes(int $commentId, $userId): array
     {
-        unset($this->_votesByComment[$commentId]);
+        $identity = $userId ? ['userId' => $userId] : ['sessionId' => $this->_getSessionId()];
+        $key = key($identity) . ':' . reset($identity);
+        $cached = $this->_viewerVotes[$key] ?? [];
+
+        if (!array_key_exists($commentId, $cached)) {
+            $commentIds = $this->_getUncachedCommentIds($commentId, $cached);
+            $rows = $this->_createVotesQuery()
+                ->where(['commentId' => $commentIds])
+                ->andWhere($identity)
+                ->all();
+
+            foreach ($commentIds as $id) {
+                $cached[$id] = [];
+            }
+
+            foreach ($rows as $row) {
+                $cached[$row['commentId']][] = new VoteModel($row);
+            }
+
+            $this->_viewerVotes[$key] = $cached;
+        }
+
+        return $cached[$commentId];
+    }
+
+    private function _getUncachedCommentIds(int $commentId, array $cached): array
+    {
+        return array_values(array_diff(array_unique(array_merge(
+            Comments::$plugin->getRenderCache()->getCommentIds(),
+            [$commentId],
+        )), array_keys($cached)));
+    }
+
+    private function _invalidateVoteCaches(): void
+    {
+        $this->_voteCounts = [];
+        $this->_viewerVotes = [];
         $this->_authorScores = [];
     }
 
