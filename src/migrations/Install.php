@@ -8,7 +8,6 @@ use verbb\comments\services\Comments as CommentsService;
 use Craft;
 use craft\db\Migration;
 use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 
 class Install extends Migration
@@ -148,19 +147,27 @@ class Install extends Migration
     public function dropForeignKeys(): void
     {
         if ($this->db->tableExists('{{%comments_comments}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_comments}}', $this);
+            $this->dropForeignKeyIfExists('{{%comments_comments}}', 'id');
+            $this->dropForeignKeyIfExists('{{%comments_comments}}', 'ownerId');
+            $this->dropForeignKeyIfExists('{{%comments_comments}}', 'ownerSiteId');
+            $this->dropForeignKeyIfExists('{{%comments_comments}}', 'userId');
         }
 
         if ($this->db->tableExists('{{%comments_flags}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_flags}}', $this);
+            $this->dropForeignKeyIfExists('{{%comments_flags}}', 'commentId');
+            $this->dropForeignKeyIfExists('{{%comments_flags}}', 'userId');
         }
 
         if ($this->db->tableExists('{{%comments_votes}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_votes}}', $this);
+            $this->dropForeignKeyIfExists('{{%comments_votes}}', 'commentId');
+            $this->dropForeignKeyIfExists('{{%comments_votes}}', 'userId');
         }
 
         if ($this->db->tableExists('{{%comments_subscribe}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_subscribe}}', $this);
+            $this->dropForeignKeyIfExists('{{%comments_subscribe}}', 'ownerId');
+            $this->dropForeignKeyIfExists('{{%comments_subscribe}}', 'ownerSiteId');
+            $this->dropForeignKeyIfExists('{{%comments_subscribe}}', 'userId');
+            $this->dropForeignKeyIfExists('{{%comments_subscribe}}', 'commentId');
         }
     }
 

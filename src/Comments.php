@@ -35,6 +35,7 @@ use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\enums\CmsEdition;
 use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -102,7 +103,7 @@ class Comments extends Plugin
             $this->_registerResaveCommand();
         }
 
-        if (Craft::$app->getEdition() !== Craft::Solo) {
+        if (Craft::$app->edition !== CmsEdition::Solo) {
             $this->_registerPermissions();
         }
     }
@@ -192,7 +193,7 @@ class Comments extends Plugin
 
     private function _registerTwigExtensions(): void
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension());
     }
 
     private function _registerCpRoutes(): void
@@ -232,56 +233,56 @@ class Comments extends Plugin
                 'subject' => Craft::t('comments', 'comments_author_notification_subject'),
                 'body' => Craft::t('comments', 'comments_author_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_reply_notification',
                 'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
                 'body' => Craft::t('comments', 'comments_reply_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_subscriber_notification_element',
                 'heading' => Craft::t('comments', 'comments_subscriber_notification_element_heading'),
                 'subject' => Craft::t('comments', 'comments_subscriber_notification_element_subject'),
                 'body' => Craft::t('comments', 'comments_subscriber_notification_element_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_subscriber_notification_comment',
                 'heading' => Craft::t('comments', 'comments_subscriber_notification_comment_heading'),
                 'subject' => Craft::t('comments', 'comments_subscriber_notification_comment_subject'),
                 'body' => Craft::t('comments', 'comments_subscriber_notification_comment_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_moderator_notification',
                 'heading' => Craft::t('comments', 'comments_moderator_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_moderator_notification_subject'),
                 'body' => Craft::t('comments', 'comments_moderator_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_moderator_edit_notification',
                 'heading' => Craft::t('comments', 'comments_moderator_edit_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_moderator_edit_notification_subject'),
                 'body' => Craft::t('comments', 'comments_moderator_edit_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_moderator_approved_notification',
                 'heading' => Craft::t('comments', 'comments_moderator_approved_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_moderator_approved_notification_subject'),
                 'body' => Craft::t('comments', 'comments_moderator_approved_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_admin_notification',
                 'heading' => Craft::t('comments', 'comments_admin_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_admin_notification_subject'),
                 'body' => Craft::t('comments', 'comments_admin_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_flag_notification',
                 'heading' => Craft::t('comments', 'comments_flag_notification_heading'),
