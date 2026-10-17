@@ -484,7 +484,7 @@ class CommentsController extends Controller
 
         // Only accept a chosen GIF when the feature is actually enabled
         if (Comments::$plugin->getGiphy()->isEnabled()) {
-            $comment->gifUrl = $request->getParam('gifUrl', $comment->gifUrl) ?: null;
+            $comment->gifUrl = $this->request->getParam('gifUrl', $comment->gifUrl) ?: null;
         }
 
         // Set any other field content
