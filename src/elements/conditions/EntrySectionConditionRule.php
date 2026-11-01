@@ -14,13 +14,13 @@ class EntrySectionConditionRule extends BaseMultiSelectConditionRule implements 
 {
     // Properties
     // =========================================================================
-    
+
     protected bool $reloadOnOperatorChange = true;
 
 
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Entry Section');
@@ -34,13 +34,15 @@ class EntrySectionConditionRule extends BaseMultiSelectConditionRule implements 
     public function modifyQuery(ElementQueryInterface $query): void
     {
         $sections = Craft::$app->getEntries();
-        
+
         $query->ownerSectionId($this->paramValue(fn($uid) => $sections->getSectionByUid($uid)->id ?? null));
-}
+    }
 
     public function matchElement(ElementInterface $element): bool
     {
-        return $this->matchValue($element->getSection()?->uid);
+        $owner = $element->getOwner();
+
+        return $this->matchValue($owner instanceof Entry ? $owner->getSection()?->uid : null);
     }
 
 

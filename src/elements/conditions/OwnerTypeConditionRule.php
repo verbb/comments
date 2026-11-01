@@ -17,7 +17,7 @@ class OwnerTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 {
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Owner Type');
@@ -36,7 +36,9 @@ class OwnerTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 
     public function matchElement(ElementInterface $element): bool
     {
-        return $this->matchValue(get_class($element));
+        $owner = $element->getOwner();
+
+        return $this->matchValue($owner ? get_class($owner) : null);
     }
 
 
