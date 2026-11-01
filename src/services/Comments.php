@@ -261,6 +261,8 @@ class Comments extends Component
             if ($element instanceof Entry) {
                 // Section entries use section UID; Matrix/nested/field-owned entries have no section — use type UID
                 $uid = $element->getSection()?->uid ?? $element->getType()?->uid;
+            } elseif ($element instanceof Asset) {
+                $uid = $element->getVolume()->uid;
             } else {
                 $uid = $element->group->uid;
             }
