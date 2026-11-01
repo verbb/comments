@@ -336,14 +336,16 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('ownerElements.type', $this->ownerType));
         }
 
+        if ($this->ownerSectionId || $this->ownerEntryTypeId) {
+            $this->subQuery->innerJoin('{{%entries}} ownerEntries', '[[comments_comments.ownerId]] = [[ownerEntries.id]]');
+        }
+
         if ($this->ownerSectionId) {
-            $this->subQuery->innerJoin('{{%entries}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
-            $this->subQuery->andWhere(Db::parseParam('ownerElements.sectionId', $this->ownerSectionId));
+            $this->subQuery->andWhere(Db::parseParam('ownerEntries.sectionId', $this->ownerSectionId));
         }
 
         if ($this->ownerEntryTypeId) {
-            $this->subQuery->innerJoin('{{%entries}} ownerElements', '[[comments_comments.ownerId]] = [[ownerElements.id]]');
-            $this->subQuery->andWhere(Db::parseParam('ownerElements.typeId', $this->ownerEntryTypeId));
+            $this->subQuery->andWhere(Db::parseParam('ownerEntries.typeId', $this->ownerEntryTypeId));
         }
 
         if ($this->_orderByVotes()) {

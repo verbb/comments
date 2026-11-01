@@ -7,6 +7,7 @@
 - Fix an error when saving or trashing a comment on the front-end while “Reply with GIFs” (GIPHY) support is enabled.
 - Fix an error when rendering comments on assets, categories or users while “Auto-close Comments” is enabled.
 - Fix an error when commenting on an asset while specific asset volumes are selected in the permissions settings.
+- Fix a database error when filtering comments by more than one of owner type, owner section and owner entry type.
 
 ## 3.0.22 - 2026-10-15
 
