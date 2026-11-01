@@ -288,9 +288,12 @@ class Comments extends Component
         $settings = CommentsPlugin::$plugin->getSettings();
 
         // Has this element's publish date exceeded the set auto-close limit? Does it even have an auto-close limit?
-        if ($settings->autoCloseDays) {
+        // Not every commentable element has a post date, and those can't expire
+        $postDate = $element->postDate ?? null;
+
+        if ($settings->autoCloseDays && $postDate) {
             $now = new DateTime('now');
-            $interval = $now->diff($element->postDate);
+            $interval = $now->diff($postDate);
 
             if ($interval->days > $settings->autoCloseDays) {
                 return true;

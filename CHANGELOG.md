@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a high-severity missing authorization vulnerability.
 - Fix an error when saving or trashing a comment on the front-end while “Reply with GIFs” (GIPHY) support is enabled.
+- Fix an error when rendering comments on assets, categories or users while “Auto-close Comments” is enabled.
 
 ## 3.0.22 - 2026-10-15
 
