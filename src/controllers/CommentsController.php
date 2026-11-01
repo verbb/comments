@@ -12,6 +12,7 @@ use craft\helpers\Json;
 use craft\web\Controller;
 
 use yii\base\Exception;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -164,10 +165,21 @@ class CommentsController extends Controller
 
         $session = Craft::$app->getSession();
 
-        $commentId = $this->request->getParam('commentId');
+        $commentId = (int)$this->request->getRequiredParam('commentId');
+        $comment = Comments::$plugin->getComments()->getCommentById($commentId, '*');
 
-        if (!Craft::$app->getElements()->deleteElementById($commentId)) {
+        if (!$comment) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        if (!Craft::$app->getElements()->canDelete($comment)) {
+            throw new ForbiddenHttpException('User not authorized to delete this comment.');
+        }
+
+        if (!Craft::$app->getElements()->deleteElement($comment)) {
             $session->setError(Craft::t('comments', 'Unable to delete comment.'));
+
+            return $this->redirectToPostedUrl();
         }
 
         $session->setNotice(Craft::t('comments', 'Comment deleted.'));
