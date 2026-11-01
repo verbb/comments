@@ -63,9 +63,11 @@ class CommentQuery extends ElementQuery
         switch ($name) {
             case 'ownerSection':
                 $this->ownerSection($value);
+
                 break;
             case 'ownerEntryType':
                 $this->ownerEntryType($value);
+
                 break;
             default:
                 parent::__set($name, $value);
@@ -75,6 +77,7 @@ class CommentQuery extends ElementQuery
     public function ownerType($value): static
     {
         $this->ownerType = $value;
+
         return $this;
     }
 
@@ -82,12 +85,14 @@ class CommentQuery extends ElementQuery
     {
         $this->ownerId = $owner->id;
         $this->siteId = $owner->siteId;
+
         return $this;
     }
 
     public function ownerId($value): static
     {
         $this->ownerId = $value;
+
         return $this;
     }
 
@@ -124,6 +129,7 @@ class CommentQuery extends ElementQuery
     public function ownerSectionId($value): static
     {
         $this->ownerSectionId = $value;
+
         return $this;
     }
 
@@ -131,7 +137,7 @@ class CommentQuery extends ElementQuery
     {
         if ($value instanceof Section) {
             $this->ownerSectionId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->ownerSectionId = (new Query())
                 ->select(['id'])
                 ->from([Table::SECTIONS])
@@ -147,6 +153,7 @@ class CommentQuery extends ElementQuery
     public function ownerEntryTypeId($value): static
     {
         $this->ownerEntryTypeId = $value;
+
         return $this;
     }
 
@@ -154,7 +161,7 @@ class CommentQuery extends ElementQuery
     {
         if ($value instanceof EntryType) {
             $this->ownerEntryTypeId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->ownerEntryTypeId = (new Query())
                 ->select(['id'])
                 ->from([Table::ENTRY_TYPES])
@@ -170,54 +177,63 @@ class CommentQuery extends ElementQuery
     public function userId($value): static
     {
         $this->userId = $value;
+
         return $this;
     }
 
     public function name($value): static
     {
         $this->name = $value;
+
         return $this;
     }
 
     public function email($value): static
     {
         $this->email = $value;
+
         return $this;
     }
 
     public function comment($value): static
     {
         $this->comment = $value;
+
         return $this;
     }
 
     public function url($value): static
     {
         $this->url = $value;
+
         return $this;
     }
 
     public function ipAddress($value): static
     {
         $this->ipAddress = $value;
+
         return $this;
     }
 
     public function userAgent($value): static
     {
         $this->userAgent = $value;
+
         return $this;
     }
 
     public function commentDate($value): static
     {
         $this->commentDate = $value;
+
         return $this;
     }
 
     public function isFlagged($value): static
     {
         $this->isFlagged = $value;
+
         return $this;
     }
 
@@ -326,7 +342,7 @@ class CommentQuery extends ElementQuery
                     '(SELECT DISTINCT commentId FROM {{%comments_flags}}) comments_flags',
                     '[[comments_comments.id]] = [[comments_flags.commentId]]'
                 );
-                
+
                 $this->subQuery->andWhere(['comments_flags.commentId' => null]);
             }
         }

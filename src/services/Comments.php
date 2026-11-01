@@ -324,19 +324,19 @@ class Comments extends Component
     {
         if ($type === 'admin') {
             $this->sendAdminNotificationEmail($comment);
-        } else if ($type === 'flag') {
+        } elseif ($type === 'flag') {
             $this->sendFlagNotificationEmail($comment);
-        } else if ($type === 'author') {
+        } elseif ($type === 'author') {
             $this->sendAuthorNotificationEmail($comment);
-        } else if ($type === 'reply') {
+        } elseif ($type === 'reply') {
             $this->sendReplyNotificationEmail($comment);
-        } else if ($type === 'moderator') {
+        } elseif ($type === 'moderator') {
             $this->sendModeratorNotificationEmail($comment);
-        } else if ($type === 'moderator-edit') {
+        } elseif ($type === 'moderator-edit') {
             $this->sendModeratorEditNotificationEmail($comment);
-        } else if ($type === 'moderator-approved') {
+        } elseif ($type === 'moderator-approved') {
             $this->sendModeratorApprovedNotificationEmail($comment);
-        } else if ($type === 'subscribe') {
+        } elseif ($type === 'subscribe') {
             $this->sendSubscribeNotificationEmail($comment);
         }
     }
@@ -491,7 +491,7 @@ class Comments extends Component
                 if ($element->getUploader()) {
                     $recipient = $element->getUploader();
                 }
-            } else if ($element->getAuthor()) {
+            } elseif ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
         } catch (Throwable $e) {
@@ -1037,7 +1037,7 @@ class Comments extends Component
 
         if ($config) {
             $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
-        } else if (!$layoutData) {
+        } elseif (!$layoutData) {
             $fieldLayout = Craft::$app->getFields()->getLayoutByType(Comment::class) ?? new FieldLayout();
 
             $tab1 = new FieldLayoutTab(['name' => 'Comment Form']);
