@@ -1,13 +1,9 @@
 <?php
 namespace verbb\comments\models;
 
-use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
-use verbb\comments\records\Vote as VoteRecord;
 
-use Craft;
 use craft\base\Model;
-use craft\base\ElementInterface;
 use craft\elements\User;
 
 class Vote extends Model
@@ -36,7 +32,6 @@ class Vote extends Model
         return null;
     }
 
-
     public function getUser(): ?User
     {
         if ($this->userId) {
@@ -52,25 +47,9 @@ class Vote extends Model
 
     protected function defineRules(): array
     {
-        $currentUser = Comments::$plugin->getService()->getUser();
-
-        if ($currentUser) {
-            $targetAttribute = ['userId', 'commentId', 'upvote', 'downvote'];
-        } else {
-            $targetAttribute = ['sessionId', 'commentId', 'upvote', 'downvote'];
-        }
-
         return [
             [['id'], 'number', 'integerOnly' => true],
             [['commentId'], 'required'],
-            [
-                'commentId',
-                'unique',
-                'targetAttribute' => $targetAttribute,
-                'targetClass' => VoteRecord::class,
-                'message' => Craft::t('comments', 'You can only vote on a comment once.'),
-            ],
         ];
     }
-
 }

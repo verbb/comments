@@ -1,0 +1,42 @@
+{# A timeline, oldest first: an icon coloured for the kind of event, who did what, and the details under it. #}
+<ol class="comments-timeline">
+    {% for item in timeline %}
+        <li class="comments-timeline__item comments-timeline__item--{{ item.tone }}">
+            <span class="comments-timeline__icon" aria-hidden="true">{{ iconSvg(item.icon) }}</span>
+            <div class="comments-timeline__body">
+                <p class="comments-timeline__line">
+                    {% if item.actor %}
+                        {% if item.actorUrl %}<a class="comments-timeline__actor" href="{{ item.actorUrl }}">{{ item.actor }}</a>{% else %}<strong class="comments-timeline__actor">{{ item.actor }}</strong>{% endif %}
+                    {% endif %}
+                    {{ item.text }}
+                </p>
+
+                {% if item.context or item.chips %}
+                    <p class="comments-timeline__details">
+                        {% if item.context %}<span class="light">{{ item.context | raw }}</span>{% endif %}
+                        {% for chip in item.chips %}
+                            <span class="comments-timeline__chip comments-timeline__chip--{{ chip.tone }}">{{ chip.label }}</span>
+                        {% endfor %}
+                    </p>
+                {% endif %}
+
+                {% if item.note %}
+                    <blockquote class="comments-timeline__note">“{{ item.note }}”</blockquote>
+                {% endif %}
+            </div>
+            <time class="comments-timeline__date" datetime="{{ item.date ? item.date | atom : '' }}">{{ item.date ? item.date | datetime('short') : '—' }}</time>
+        </li>
+    {% endfor %}
+</ol>
+
+{% if protection %}
+    <h3 class="comments-timeline__heading">{{ 'Spam protection' | t('comments') }}</h3>
+    <ul class="comments-protection">
+        {% for line in protection %}
+            <li>
+                <span class="status {{ line.status == 'passed' ? 'green' : (line.status == 'failed' ? 'red' : 'orange') }}" aria-hidden="true"></span>
+                {{ line.label }}: {{ line.detail ?? (line.status == 'passed' ? 'passed' | t('comments') : line.status) }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

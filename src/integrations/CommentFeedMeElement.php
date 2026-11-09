@@ -1,29 +1,26 @@
 <?php
 namespace verbb\comments\integrations;
 
-use verbb\comments\Comments;
 use verbb\comments\elements\Comment as CommentElement;
-use verbb\comments\records\Vote as VoteRecord;
 
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\User as UserElement;
 use craft\fieldlayoutelements\CustomField;
-use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 
-use craft\feedme\Plugin;
-use craft\feedme\base\Element;
-use craft\feedme\events\FeedProcessEvent;
-use craft\feedme\services\Process;
+use yii\base\Event;
+
+use DateTime;
 
 use Cake\Utility\Hash;
 use Carbon\Carbon;
-use DateTime;
-
-use yii\base\Event;
+use craft\feedme\base\Element;
+use craft\feedme\events\FeedProcessEvent;
+use craft\feedme\Plugin;
+use craft\feedme\services\Process;
 
 class CommentFeedMeElement extends Element
 {
@@ -36,7 +33,7 @@ class CommentFeedMeElement extends Element
     public $element = null;
 
 
-    // Templates
+    // Public Methods
     // =========================================================================
 
     public function getGroupsTemplate(): string
@@ -54,10 +51,6 @@ class CommentFeedMeElement extends Element
         return 'comments/_integrations/feed-me/map';
     }
 
-
-    // Public Methods
-    // =========================================================================
-
     public function init(): void
     {
         parent::init();
@@ -65,7 +58,6 @@ class CommentFeedMeElement extends Element
         Event::on(Process::class, Process::EVENT_STEP_AFTER_ELEMENT_SAVE, function(FeedProcessEvent $event): void {
             if ($event->feed['elementType'] === CommentElement::class) {
                 $this->_processNestedComments($event);
-                $this->_processVotes($event);
             }
         });
     }
@@ -89,7 +81,6 @@ class CommentFeedMeElement extends Element
     public function setModel($settings): \craft\base\Element
     {
         $this->element = new CommentElement();
-        $this->element->structureId = Comments::getInstance()->getSettings()->structureId;
 
         $siteId = Hash::get($settings, 'siteId');
 
@@ -125,12 +116,7 @@ class CommentFeedMeElement extends Element
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
 
-        // In Craft 4, we need to explicitly call `setParentId()`, as it's no longer a property
-        // only available as a setter method.
-        $this->element->setParentId($value);
-
-        // Required until Craft 5 refactor
-        $this->element->newParentId = $value;
+        $this->element->parentId = $value;
 
         return $value;
     }
@@ -233,106 +219,9 @@ class CommentFeedMeElement extends Element
         return null;
     }
 
-    protected function _processVotes($event): void
-    {
-        // Save the imported comment as the parent, we'll need it in a sec
-        $parentId = $event->element->id;
 
-        // Check if we're mapping a node to start looking for children.
-        $voteFieldInfo = Hash::get($event->feed, 'fieldMapping.vote');
-
-        // If there's no mapping for votes, stop here.
-        if (empty($voteFieldInfo)) {
-            return;
-        }
-
-        $fieldData = [];
-
-        foreach ($event->feedData as $nodePath => $value) {
-            $fieldMapping = $this->_getFieldMappingInfoForNodePath($nodePath, $voteFieldInfo);
-
-            if($fieldMapping) {
-                $fieldHandle = $fieldMapping['fieldHandle'];
-                $fieldInfo = $fieldMapping['fieldInfo'];
-
-                $nodePathSegments = explode('/', $nodePath);
-
-                $blockIndex = 0;
-                $nodePathSegments = array_reverse($nodePathSegments);
-                foreach ($nodePathSegments as $segment) {
-                    if(is_numeric($segment)) {
-                        $blockIndex = $segment;
-                        break;
-                    }
-                }
-
-                $key = $blockIndex . '.' . $fieldHandle;
-
-                $fieldInfo['node'] = $nodePath;
-
-                // Parse field values
-                switch ($fieldHandle) {
-                    case 'date':
-                        $value = $this->fetchSimpleValue($event->feedData, $fieldInfo);
-                        $formatting = Hash::get($fieldInfo, 'options.match');
-
-                        $parsedValue = $this->parseDateAttribute($value, $formatting);
-                        break;
-                    case 'userId':
-                        $parsedValue = $this->parseUserId($event->feedData, $fieldInfo);
-                        break;
-                    default:
-                        $parsedValue = $this->fetchSimpleValue($event->feedData, $fieldInfo);
-                        break;
-                }
-                
-                $fieldData[$key] = $parsedValue;
-            }
-
-        }
-
-        ksort($fieldData, SORT_NUMERIC);
-
-        $results = Hash::expand($fieldData);
-
-        // Clear existing votes for this comment
-        Db::delete('{{%comments_votes}}', ['commentId' => $parentId]);
-        
-        // If there are no votes to import, stop here
-        if(empty($results)) {
-            return;
-        }
-
-        // Fill missing fields with default or empty values
-        $fullResults = [];
-        foreach ($results as $result) {
-            foreach ($voteFieldInfo as $handle => $info) {
-                if(!isset($result[$handle])) {
-                    $result[$handle] = $info['default'] ?? '';
-                }
-            }
-            $fullResults[] = $result;
-        }
-
-        // Save the votes
-        $voteService = Comments::$plugin->getVotes();
-        foreach ($fullResults as $voteData) {
-            $voteRecord = new VoteRecord();
-
-            $voteRecord->commentId = $parentId;
-            $voteRecord->userId = $voteData['userId'] ?? null;
-            $voteRecord->sessionId = $voteService->generateSessionId();
-            $voteRecord->upvote = ($voteData['type'] === 'up') ? 1 : null;;
-            $voteRecord->downvote = ($voteData['type'] === 'down') ? 1 : null;
-            $voteRecord->dateCreated = $voteData['date'] ?? null;;
-
-            if (Craft::$app->getConfig()->getGeneral()->storeUserIps) {
-                $voteRecord->lastIp = $voteData['ipAddress'] ?? null;
-            }
-
-            $voteRecord->save(false);
-        }
-    }
+    // Private Methods
+    // =========================================================================
 
     private function _processNestedComments($event): void
     {
@@ -367,31 +256,4 @@ class CommentFeedMeElement extends Element
             Plugin::$plugin->getProcess()->processFeed(-1, $event->feed, $processedElementIds, $newFeedData);
         }
     }
-
-
-    /**
-     * @param $nodePath
-     * @param $fields
-     * @return array|null
-     */
-    private function _getFieldMappingInfoForNodePath($nodePath, $fields): ?array
-    {
-        $feedPath = preg_replace('/(\/\d+\/)/', '/', $nodePath);
-        $feedPath = preg_replace('/^(\d+\/)|(\/\d+)/', '', $feedPath);
-
-        foreach ($fields as $fieldHandle => $fieldInfo) {
-            $node = Hash::get($fieldInfo, 'node');
-
-            if ($feedPath == $node) {
-                return [
-                    'fieldHandle' => $fieldHandle,
-                    'fieldInfo' => $fieldInfo,
-                    'nodePath' => $nodePath
-                ];
-            }
-        }
-
-        return null;
-    }
-    
 }

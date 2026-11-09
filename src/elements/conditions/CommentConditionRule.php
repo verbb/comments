@@ -4,14 +4,14 @@ namespace verbb\comments\elements\conditions;
 use Craft;
 use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
-use craft\elements\db\ElementQueryInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
+use craft\elements\db\ElementQueryInterface;
 
 class CommentConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('comments', 'Comment');

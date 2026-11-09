@@ -4,8 +4,8 @@ namespace verbb\comments\elements\conditions;
 use Craft;
 use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
-use craft\elements\db\ElementQueryInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
+use craft\elements\db\ElementQueryInterface;
 
 use yii\db\QueryInterface;
 
@@ -13,7 +13,7 @@ class StatusConditionRule extends BaseMultiSelectConditionRule implements Elemen
 {
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Status');
@@ -48,5 +48,4 @@ class StatusConditionRule extends BaseMultiSelectConditionRule implements Elemen
 
         return array_map(fn($info) => $info['label'] ?? $info, $elementType::statuses());
     }
-
 }

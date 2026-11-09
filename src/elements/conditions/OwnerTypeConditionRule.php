@@ -4,10 +4,10 @@ namespace verbb\comments\elements\conditions;
 use Craft;
 use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
-use craft\elements\db\ElementQueryInterface;
-use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\Asset;
 use craft\elements\Category;
+use craft\elements\conditions\ElementConditionRuleInterface;
+use craft\elements\db\ElementQueryInterface;
 use craft\elements\Entry;
 use craft\elements\User;
 
@@ -17,7 +17,7 @@ class OwnerTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 {
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Owner Type');
@@ -36,7 +36,9 @@ class OwnerTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 
     public function matchElement(ElementInterface $element): bool
     {
-        return $this->matchValue(get_class($element));
+        $owner = $element->getOwner();
+
+        return $this->matchValue($owner ? get_class($owner) : null);
     }
 
 
@@ -52,5 +54,4 @@ class OwnerTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
             ['label' => User::displayName(), 'value' => User::class],
         ];
     }
-
 }

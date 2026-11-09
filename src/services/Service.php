@@ -1,8 +1,6 @@
 <?php
 namespace verbb\comments\services;
 
-use verbb\comments\helpers\Plugin;
-
 use Craft;
 use craft\base\Component;
 use craft\elements\User;
@@ -10,6 +8,7 @@ use craft\elements\User;
 use yii\web\IdentityInterface;
 
 use jamesedmonston\graphqlauthentication\GraphqlAuthentication;
+use verbb\base\helpers\Plugin;
 
 class Service extends Component
 {
@@ -27,5 +26,4 @@ class Service extends Component
 
         return Craft::$app->getUser()->getIdentity();
     }
-
 }

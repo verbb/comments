@@ -1,0 +1,39 @@
+{% import '_includes/forms' as forms %}
+
+{# The comment's element and author, changeable like an entry's authors. Saved by CommentEditor::applyRequest(). #}
+{% if ownerHandle %}
+    {% set owner = comment.owner %}
+    {% set ownerInputName = 'owner' ~ (ownerHandle | ucfirst) ~ 'Id' %}
+
+    {{ forms.hidden({
+        name: 'ownerType',
+        value: className(owner),
+    }) }}
+
+    {{ forms.elementSelectField({
+        label: owner.displayName(),
+        id: ownerInputName,
+        name: ownerInputName,
+        elementType: className(owner),
+        elements: [owner],
+        single: true,
+        criteria: {
+            siteId: comment.siteId,
+        },
+    }) }}
+{% endif %}
+
+{% if showAuthor %}
+    {{ forms.elementSelectField({
+        label: 'Author' | t('comments'),
+        id: 'authorId',
+        name: 'authorId',
+        elementType: 'craft\\elements\\User',
+        elements: comment.author ? [comment.author] : [],
+        single: true,
+        criteria: {
+            status: null,
+        },
+        errors: comment.getErrors('userId'),
+    }) }}
+{% endif %}

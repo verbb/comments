@@ -1,0 +1,20 @@
+{% import '_includes/forms' as forms %}
+
+{# A note posts straight away, without saving the comment, and joins the timeline below. #}
+<div class="comments-note-form">
+    {{ forms.textarea({
+        id: 'moderator-note',
+        rows: 2,
+        placeholder: 'Add a note for other moderators' | t('comments'),
+        inputAttributes: {
+            'data-comments-note-input': true,
+            'aria-label': 'Add a note for other moderators' | t('comments'),
+        },
+    }) }}
+    <div class="comments-note-form__foot">
+        <span class="light">{{ 'Only moderators see notes.' | t('comments') }}</span>
+        <button type="button" class="btn small" data-comments-panel-action="comments/moderation/add-note">{{ 'Add note' | t('comments') }}</button>
+    </div>
+</div>
+
+{% include 'comments/comments/_editor-history' %}

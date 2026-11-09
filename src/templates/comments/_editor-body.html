@@ -1,0 +1,24 @@
+{% import '_includes/forms' as forms %}
+
+{% if comment.isEditorContent() %}
+    <input type="hidden" name="contentFormat" value="editor">
+    <input type="hidden" name="fields[editorContent]" value="">
+    <div
+        data-editor-root
+        data-editor-options="{{ comment.getEditorOptions() | json_encode | e('html_attr') }}"
+        data-editor-content="{{ comment.getEditorFormContent() | e('html_attr') }}"
+        data-editor-placeholder="{{ 'Edit this comment…' | t('comments') }}"
+        data-editor-label="{{ 'Comment' | t('comments') }}"
+    ></div>
+    <textarea name="fields[comment]" hidden>{{ comment.comment ?? '' }}</textarea>
+{% else %}
+    <input type="hidden" name="contentFormat" value="plain">
+
+    {{ forms.textarea({
+        id: 'comment',
+        name: 'fields[comment]',
+        rows: 10,
+        value: comment.bodyContent ?? comment.comment ?? '',
+        disabled: static,
+    }) }}
+{% endif %}

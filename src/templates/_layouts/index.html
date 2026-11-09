@@ -1,16 +1,10 @@
 {% extends parentLayout ?? '_layouts/cp' %}
 
-{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsCpAsset') %}
 
-{% if noTabs is not defined and currentUser.admin and craft.app.config.general.allowAdminChanges %}
-    {% set tabs = {
-        comments: { label: 'Comments' | t('comments'), url: url('comments') },
-        settings: { label: 'Settings' | t('comments'), url: url('comments/settings') },
-    } %}
-{% endif %}
-
+{# Section navigation lives in the CP subnav (see Comments::getCpNavItem), not a page-level tab strip. #}
 {% if title is not defined %}
-    {% set title = 'Comments ' ~ tabs[selectedTab].label %}
+    {% set title = craft.comments.getPluginName() %}
 {% endif %}
 
 {% block content %}

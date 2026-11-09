@@ -5,6 +5,7 @@ use verbb\comments\elements\Comment;
 
 use craft\base\ElementInterface;
 use craft\base\Model;
+use craft\elements\User;
 
 class Flag extends Model
 {
@@ -30,6 +31,18 @@ class Flag extends Model
         return null;
     }
 
+    /**
+     * The person who reported the comment, for the GraphQL `user` field. Guests have none.
+     */
+    public function getUser(): ?User
+    {
+        if ($this->userId) {
+            return User::find()->id($this->userId)->one();
+        }
+
+        return null;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -41,5 +54,4 @@ class Flag extends Model
             [['commentId'], 'required'],
         ];
     }
-
 }

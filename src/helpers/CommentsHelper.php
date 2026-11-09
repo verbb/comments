@@ -5,18 +5,12 @@ use verbb\comments\Comments;
 
 use Craft;
 use craft\elements\Asset;
+use craft\elements\User;
 
 use DateInterval;
-use Throwable;
 
 class CommentsHelper
 {
-    // Properties
-    // =========================================================================
-
-    private static array $_resolvedGravatars = [];
-
-
     // Static Methods
     // =========================================================================
 
@@ -49,18 +43,31 @@ class CommentsHelper
         return '';
     }
 
+    /**
+     * With `useEmailAsUsername` a user with no full name would otherwise be shown by their email address.
+     */
+    public static function publicUserName(User $user): string
+    {
+        $name = (string)$user->getName();
+
+        return $name !== '' && strcasecmp($name, (string)$user->email) !== 0 ? $name : Craft::t('comments', 'Member');
+    }
+
+    /**
+     * D1: commenters' addresses are admin-only, including as a search term, a filter or a sort.
+     * Anyone else, a visitor or a console request with no user included, gets nothing that would
+     * reveal one.
+     */
+    public static function canViewAddresses(): bool
+    {
+        $viewer = Craft::$app->getUser()->getIdentity();
+
+        return $viewer instanceof User && $viewer->admin;
+    }
+
     public static function getAvatar($user = null): string|Asset
     {
         $settings = Comments::$plugin->getSettings();
-
-        if ($user && $user->email && $settings->enableGravatar) {
-            $url = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=64&d=404';
-
-            // Only use the Gravatar if it doesn't throw a 404
-            if (!self::_check404($url)) {
-                return $url;
-            }
-        }
 
         if ($user && $photo = $user->getPhoto()) {
             if (self::_assetExists($photo)) {
@@ -77,38 +84,8 @@ class CommentsHelper
         return '';
     }
 
-
-    // Private Methods
-    // =========================================================================
-
     private static function _assetExists($asset)
     {
         return $asset->getVolume()->getFs()->fileExists($asset->getPath());
-    }
-
-    private static function _check404(string $url): bool
-    {
-        // If we've already resolved this URL, return the cached result
-        if (isset(self::$_resolvedGravatars[$url])) {
-            return self::$_resolvedGravatars[$url];
-        }
-
-        // Perform a lightweight HEAD request
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_NOBODY        => true,  // Only headers
-            CURLOPT_RETURNTRANSFER => true, // Don't output
-            CURLOPT_FOLLOWLOCATION => true, // Follow redirects
-            CURLOPT_TIMEOUT        => 5,    // Short timeout
-        ]);
-
-        curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        // Store in cache for subsequent lookups in the same request
-        self::$_resolvedGravatars[$url] = ($httpCode === 404);
-
-        return self::$_resolvedGravatars[$url];
     }
 }

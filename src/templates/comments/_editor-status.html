@@ -1,0 +1,45 @@
+{% import '_includes/forms' as forms %}
+
+{% set canModerate = currentUser.can('comments-moderate') %}
+{% set statuses = comment.statuses | filter((status, handle) => handle != 'author-removed') %}
+{% set currentStatus = statuses[comment.status] ?? comment.statuses[comment.status] %}
+{% set currentStatusColor = currentStatus.color.value ?? currentStatus.color ?? comment.status %}
+
+{{ forms.hidden({
+    id: 'status',
+    name: 'status',
+    value: comment.status,
+    inputAttributes: {
+        'data-comments-status-input': true,
+    },
+}) }}
+
+{% set statusField %}
+    <div>
+        <button type="button" class="btn{% if canModerate %} menubtn{% endif %}" data-comments-status-menu>
+            <span class="status {{ currentStatusColor }}"></span>
+            <span class="menu-btn-text">{{ currentStatus.label ?? currentStatus }}</span>
+        </button>
+
+        {% if canModerate %}
+            <div class="menu">
+                <ul class="padded">
+                    {% for status, definition in statuses %}
+                        {% if status != 'removed' or currentUser.can('comments-trash') %}
+                            {% set color = definition.color.value ?? definition.color ?? status %}
+                            <li>
+                                <a data-val="{{ status }}" data-label="{{ definition.label ?? definition }}" data-color="{{ color }}">
+                                    <span class="status {{ color }}"></span>{{ definition.label ?? definition }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endset %}
+
+{{ forms.field({
+    label: 'Status' | t('comments'),
+}, statusField) }}

@@ -44,5 +44,4 @@ class Subscribe extends Model
             [['ownerId'], 'required'],
         ];
     }
-
 }

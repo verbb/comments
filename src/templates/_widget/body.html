@@ -1,14 +1,15 @@
-{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsCpAsset') %}
 
 <div class="comments-widget">
     {% if comments | length %}
         {% for comment in comments %}
             <div class="comment-block">
-                <span class="status {{ comment.status }}"></span>
+                {% set status = comment.statuses[comment.status] ?? null %}
+                <span class="status {{ status.color.value ?? status.color ?? 'disabled' }}"></span>
 
                 {% set title = [
                     comment.getOwner() ?? '[Deleted element]' | t('comments'),
-                    comment.getAuthor(),
+                    comment.getAuthorName(),
                 ] | filter %}
 
                 <a href="{{ comment.getCpEditUrl() }}">

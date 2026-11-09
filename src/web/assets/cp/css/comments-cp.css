@@ -1,0 +1,150 @@
+.comments-widget .comment-block {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-block: 8px;
+}
+
+.comments-widget .comment-block + .comment-block {
+    border-block-start: 1px solid var(--hairline-color);
+}
+
+.comments-widget .comment-block .status {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.comments-widget .comment-block a {
+    display: block;
+    min-width: 0;
+}
+
+.comments-widget .comment-block .username {
+    display: block;
+    font-weight: 500;
+}
+
+.comments-widget .comment-block small {
+    color: var(--light-text-color);
+}
+
+.comments-settings-block {
+    margin-block-start: 24px;
+}
+
+/* Waiting and reported tones from the signed-off prototype, warmer than Craft's amber and red. */
+:root {
+    --comments-warn: #a85007;
+    --comments-warn-soft: #fdf1e1;
+    --comments-bad: #c42b1c;
+    --comments-bad-soft: #fde8e6;
+}
+
+/* Why a comment needs a moderator. */
+.comments-reason {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--comments-warn);
+    background-color: var(--comments-warn-soft);
+}
+
+.comments-reason--protection {
+    color: var(--violet-800);
+    background-color: var(--violet-100);
+}
+
+.comments-reason--edited,
+.comments-reason--moderator {
+    color: var(--blue-800);
+    background-color: var(--blue-100);
+}
+
+.comments-reason--reported {
+    color: var(--comments-bad);
+    background-color: var(--comments-bad-soft);
+}
+
+
+/* A commenter's avatar when they have no photo: initials on a colour picked from their name, the
+   same in the index, Commenters and the entry panel. Guests are outlined, as they have no account. */
+.comments-avatar {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--white);
+    background-color: var(--gray-500);
+    object-fit: cover;
+}
+
+.comments-avatar--small {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+}
+
+/* Custom properties, so cells inside Plugin Kit's shadow roots can use the same colours. */
+:root {
+    --comments-avatar-0: #3b6ea5;
+    --comments-avatar-1: #8a5a2b;
+    --comments-avatar-2: #2f7d4f;
+    --comments-avatar-3: #8a3f7d;
+    --comments-avatar-4: #b0532a;
+    --comments-avatar-5: #237a7a;
+    --comments-avatar-6: #5a4fa3;
+    --comments-avatar-7: #6b7a2a;
+}
+
+.comments-avatar[data-tone='0'] { background-color: var(--comments-avatar-0); }
+.comments-avatar[data-tone='1'] { background-color: var(--comments-avatar-1); }
+.comments-avatar[data-tone='2'] { background-color: var(--comments-avatar-2); }
+.comments-avatar[data-tone='3'] { background-color: var(--comments-avatar-3); }
+.comments-avatar[data-tone='4'] { background-color: var(--comments-avatar-4); }
+.comments-avatar[data-tone='5'] { background-color: var(--comments-avatar-5); }
+.comments-avatar[data-tone='6'] { background-color: var(--comments-avatar-6); }
+.comments-avatar[data-tone='7'] { background-color: var(--comments-avatar-7); }
+
+.comments-avatar.comments-avatar--guest {
+    color: var(--medium-text-color);
+    background-color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--gray-300);
+}
+
+.comments-guest-pill {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    white-space: nowrap;
+    color: var(--medium-text-color);
+    background-color: var(--gray-100);
+}
+
+/* A comment's label outside an index, such as the breadcrumbs: its two lines run on as one. */
+.comments-comment-label {
+    display: inline-flex;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.comments-comment-label > .comments-comment-name::after {
+    content: '·';
+    margin-inline-start: 0.4em;
+    color: var(--light-text-color);
+}
+
+.elements .comments-comment-label > .comments-comment-name::after {
+    content: none;
+}

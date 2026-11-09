@@ -5,8 +5,8 @@ use Craft;
 use craft\base\conditions\BaseElementSelectConditionRule;
 use craft\base\ElementInterface;
 use craft\base\NestedElementInterface;
-use craft\elements\db\ElementQueryInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
+use craft\elements\db\ElementQueryInterface;
 use craft\elements\Entry;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -18,13 +18,13 @@ class OwnerConditionRule extends BaseElementSelectConditionRule implements Eleme
 {
     // Properties
     // =========================================================================
-    
+
     public string $elementType = Entry::class;
 
 
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Owner');
@@ -52,7 +52,7 @@ class OwnerConditionRule extends BaseElementSelectConditionRule implements Eleme
 
     // Protected Methods
     // =========================================================================
-    
+
     protected function elementType(): string
     {
         return $this->elementType;
@@ -70,7 +70,8 @@ class OwnerConditionRule extends BaseElementSelectConditionRule implements Eleme
         $id = 'element-type';
 
         return Html::hiddenLabel($this->getLabel(), $id) .
-            Html::tag('div',
+            Html::tag(
+                'div',
                 Cp::selectHtml([
                     'id' => $id,
                     'name' => 'elementType',
@@ -92,11 +93,11 @@ class OwnerConditionRule extends BaseElementSelectConditionRule implements Eleme
 
     // Private Methods
     // =========================================================================
-    
+
     private function _elementTypeOptions(): array
     {
         $options = [];
-        
+
         foreach (Craft::$app->getElements()->getAllElementTypes() as $elementType) {
             $options[] = [
                 'value' => $elementType,

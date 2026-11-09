@@ -1,8 +1,26 @@
 {% extends '_layouts/elementindex' %}
-
-{% do view.registerAssetBundle('verbb\\comments\\assetbundles\\AdminAsset') %}
+{% requirePermission 'comments-view' %}
 
 {% set elementType = 'verbb\\comments\\elements\\Comment' %}
-{% set selectedTab = 'comments' %}
+{% set selectedSubnavItem = 'comments' %}
 {% set showStatusMenu = true %}
 {% set title = 'Comments' | t('comments') %}
+{# The plugin's own crumb, as on Commenters. #}
+{% set crumbs = [{ label: craft.comments.getPluginName() | t('comments'), url: url('comments') }] %}
+
+{# Linked to from an element's Comments field, to show just that element's comments. #}
+{% set ownerId = craft.app.request.getQueryParam('ownerId') %}
+{% set owner = ownerId matches '/^\\d+$/' ? craft.app.elements.getElementById(ownerId, null, '*') : null %}
+
+{% if owner %}
+    {% set title = 'Comments on “{title}”' | t('comments', { title: owner.uiLabel }) %}
+{% endif %}
+
+{% block initJs %}
+    {% if owner %}
+        Craft.defaultIndexCriteria = { ownerId: {{ owner.id }} };
+    {% endif %}
+    {{ parent() }}
+{% endblock %}
+
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsIndexAsset') %}

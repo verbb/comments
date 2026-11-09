@@ -1,0 +1,246 @@
+[data-comments-status-menu] {
+    max-width: 100%;
+}
+
+[data-comments-status-menu] .menu-btn-text {
+    max-width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.comments-editor-section + .comments-editor-section {
+    border-block-start: 1px solid var(--hairline-color);
+    margin-block-start: 32px;
+    padding-block-start: 32px;
+}
+
+.comments-in-reply-to {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+}
+
+.comments-in-reply-to .cp-icon {
+    flex: none;
+    align-self: center;
+    width: 12px;
+    height: 12px;
+}
+
+.comments-review-notice + .comments-in-reply-to {
+    margin-block-start: 16px;
+}
+
+.comments-remove-panel__label {
+    display: block;
+    margin-block-start: 12px;
+    font-weight: 600;
+}
+
+.comments-remove-panel__instructions {
+    margin: 2px 0 6px;
+}
+
+.comments-remove-panel .select,
+.comments-remove-panel select,
+.comments-remove-panel textarea {
+    width: 100%;
+}
+
+.comments-remove-panel {
+    margin-block-start: 12px;
+}
+
+.comments-protection .status {
+    margin-inline-end: 6px;
+}
+
+.comments-preview-modal {
+    width: min(1100px, 90vw);
+}
+
+.comments-preview-modal .body {
+    padding: 0;
+}
+
+.comments-preview-frame {
+    display: block;
+    width: 100%;
+    height: calc(80vh - 120px);
+    border: 0;
+}
+
+
+/* Why the comment is waiting: Plugin Kit's alert, above the comment's fields. */
+/* No outer margins: Craft's field layout already spaces this block from the fields after it. */
+.comments-review-notice {
+    display: block;
+}
+
+.comments-review-notice p {
+    margin: 0;
+}
+
+.comments-review-notice__lines {
+    margin-block-start: 4px;
+    padding-inline-start: 18px;
+    list-style: disc;
+}
+
+/* The moderator's decisions: Craft's buttons in a box of their own, under an h6 heading like Status. */
+.comments-sidebar-actions .meta {
+    padding: 14px var(--m, 24px);
+}
+
+.comments-decisions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.comments-delete-permanently {
+    color: var(--error-color);
+}
+
+/* Activity: the note box, then the timeline. */
+.comments-note-form {
+    display: grid;
+    gap: 8px;
+    margin-block-end: 20px;
+    padding-block-end: 18px;
+    border-block-end: 1px solid var(--hairline-color);
+}
+
+.comments-note-form textarea {
+    width: 100%;
+}
+
+.comments-note-form__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+/* History: a coloured icon for each kind of event on a connecting line, who did what, then the details. */
+.comments-timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.comments-timeline__item {
+    --tone: var(--medium-text-color);
+    --tone-soft: var(--gray-100);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-block-end: 18px;
+}
+
+.comments-timeline__item:last-child {
+    padding-block-end: 0;
+}
+
+.comments-timeline__item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    inset-block: 32px 2px;
+    inset-inline-start: 13px;
+    width: 2px;
+    background-color: var(--gray-100);
+}
+
+.comments-timeline__item--blue { --tone: var(--blue-600); --tone-soft: var(--blue-050); }
+.comments-timeline__item--teal { --tone: var(--teal-600); --tone-soft: var(--teal-050); }
+.comments-timeline__item--amber { --tone: var(--comments-warn); --tone-soft: var(--comments-warn-soft); }
+.comments-timeline__item--red { --tone: var(--comments-bad); --tone-soft: var(--comments-bad-soft); }
+.comments-timeline__item--violet { --tone: var(--violet-600); --tone-soft: var(--violet-050); }
+.comments-timeline__item--note { --tone: var(--yellow-700); --tone-soft: var(--yellow-100); }
+
+.comments-timeline__icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: var(--tone);
+    background-color: var(--tone-soft);
+}
+
+.comments-timeline__icon svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+}
+
+.comments-timeline__line,
+.comments-timeline__details {
+    margin: 0;
+}
+
+.comments-timeline__line {
+    padding-block-start: 4px;
+    color: var(--text-color);
+}
+
+.comments-timeline__actor {
+    font-weight: 600;
+}
+
+.comments-timeline__details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-block-start: 4px;
+    font-size: 13px;
+}
+
+.comments-timeline__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    color: var(--medium-text-color);
+    background-color: var(--gray-100);
+}
+
+.comments-timeline__chip--red { color: var(--comments-bad); background-color: var(--comments-bad-soft); }
+.comments-timeline__chip--teal { color: var(--teal-700); background-color: var(--teal-050); }
+.comments-timeline__chip--violet { color: var(--violet-700); background-color: var(--violet-050); }
+.comments-timeline__chip--amber { color: var(--comments-warn); background-color: var(--comments-warn-soft); }
+
+.comments-timeline__chip--open {
+    background-color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--hairline-color);
+}
+
+.comments-timeline__note {
+    margin: 6px 0 0;
+    padding: 6px 10px;
+    border-inline-start: 3px solid var(--yellow-200);
+    border-radius: 0 4px 4px 0;
+    color: var(--yellow-900, #5b4708);
+    background-color: var(--yellow-050);
+    white-space: pre-wrap;
+}
+
+.comments-timeline__date {
+    padding-block-start: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--light-text-color);
+}
+
+.comments-timeline__heading {
+    margin-block: 24px 8px;
+}

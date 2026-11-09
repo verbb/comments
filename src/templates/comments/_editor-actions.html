@@ -1,0 +1,58 @@
+{% import '_includes/forms' as forms %}
+
+{% set moderation = craft.app.plugins.getPlugin('comments').getModeration() %}
+{% set decisions = moderation.availableDecisions(comment, currentUser) %}
+
+{% if decisions %}
+    {# A section of its own under Status, headed like Craft's own sidebar sections, with Craft's buttons. #}
+    <fieldset class="comments-sidebar-actions">
+        <legend class="h6">{{ 'Actions' | t('comments') }}</legend>
+        <div class="meta">
+            <div class="comments-decisions" data-comments-decisions>
+                {% for decision in decisions %}
+                    {% if decision == 'remove' %}
+                        <button type="button" class="btn" data-comments-remove-toggle aria-expanded="false" aria-controls="comments-remove-{{ comment.id }}">{{ 'Remove…' | t('comments') }}</button>
+                    {% else %}
+                        <button type="button" class="btn{% if loop.first %} submit{% endif %}" data-comments-decision="{{ decision }}">{{ moderation.decisionLabel(decision) }}</button>
+                    {% endif %}
+                {% endfor %}
+
+                {% if comment.status == 'spam' and currentUser.can('comments-delete') %}
+                    <button
+                        type="button"
+                        class="btn comments-delete-permanently"
+                        data-comments-delete-permanently="{{ comment.id }}"
+                        data-confirm="{{ 'Delete this comment permanently? This can’t be undone.' | t('comments') }}"
+                    >{{ 'Delete permanently…' | t('comments') }}</button>
+                {% endif %}
+            </div>
+
+            {% if 'remove' in decisions %}
+                <div id="comments-remove-{{ comment.id }}" class="comments-remove-panel hidden" data-comments-remove-panel>
+                    <label class="comments-remove-panel__label" for="removalReason">{{ 'Why remove it?' | t('comments') }}</label>
+                    <p class="comments-remove-panel__instructions light">{{ 'It disappears from the site. Replies stay, under “Comment removed”. The commenter isn’t told the reason.' | t('comments') }}</p>
+                    {{ forms.select({
+                        id: 'removalReason',
+                        name: 'removalReason',
+                        options: [{ label: 'Choose a reason' | t('comments'), value: '' }] | merge(
+                            craft.comments.removalReasons() | map((label, value) => { label: label, value: value }) | values
+                        ),
+                    }) }}
+
+                    <label class="comments-remove-panel__label" for="removalNote">{{ 'Private note' | t('comments') }}</label>
+                    <p class="comments-remove-panel__instructions light">{{ 'Optional. Only moderators see this.' | t('comments') }}</p>
+                    {{ forms.textarea({
+                        id: 'removalNote',
+                        name: 'removalNote',
+                        rows: 2,
+                    }) }}
+
+                    <div class="buttons">
+                        <button type="button" class="btn submit" data-comments-decision="remove">{{ 'Remove' | t('comments') }}</button>
+                        <button type="button" class="btn" data-comments-remove-toggle>{{ 'Cancel' | t('app') }}</button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </fieldset>
+{% endif %}

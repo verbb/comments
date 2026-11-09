@@ -1,0 +1,32 @@
+{% if review %}
+    {# Plugin Kit's alert, from the edit screen's bundle. #}
+    <pk-alert
+        class="comments-review-notice"
+        variant="{{ { waiting: 'warning', spam: 'error', reported: 'error' }[review.tone] ?? 'neutral' }}"
+        heading="{{ review.title }}"
+        data-tone="{{ review.tone }}"
+    >
+        {% if review.text %}<p>{{ review.text }}</p>{% endif %}
+
+        {% set lines = review.lines | merge(review.protection | map(line => line.label ~ ': ' ~ (line.detail ?? (line.status == 'passed' ? 'passed' | t('comments') : line.status)))) %}
+        {% if lines %}
+            <ul class="comments-review-notice__lines">
+                {% for line in lines %}
+                    <li>{{ line }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </pk-alert>
+{% endif %}
+
+{% if parent %}
+    <p class="comments-in-reply-to light">
+        <span class="cp-icon" aria-hidden="true">{{ iconSvg('reply') }}</span>
+        {{ 'In reply to {name}:' | t('comments', { name: parent.getAuthorName() ?? 'Guest' | t('comments') }) }}
+        {% if parent.cpEditUrl %}
+            <a href="{{ parent.cpEditUrl }}">“{{ parent.getExcerpt(0, 80) }}”</a>
+        {% else %}
+            “{{ parent.getExcerpt(0, 80) }}”
+        {% endif %}
+    </p>
+{% endif %}

@@ -13,7 +13,7 @@ class EntryTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 {
     // Public Methods
     // =========================================================================
-    
+
     public function getLabel(): string
     {
         return Craft::t('app', 'Entry Type');
@@ -44,8 +44,9 @@ class EntryTypeConditionRule extends BaseMultiSelectConditionRule implements Ele
 
     public function matchElement(ElementInterface $element): bool
     {
-        /** @var Entry $element */
-        return $this->matchValue((string)$element->getType()->uid);
+        $owner = $element->getOwner();
+
+        return $this->matchValue($owner instanceof Entry ? (string)$owner->getType()->uid : null);
     }
 
 

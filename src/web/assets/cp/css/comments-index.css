@@ -1,0 +1,84 @@
+/* Two lines: the author over the excerpt. */
+.elements .comments-comment-label {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 1px;
+    max-width: 100%;
+    min-width: 0;
+    line-height: 1.35;
+    vertical-align: middle;
+}
+
+.elements .comments-comment-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: var(--text-color);
+}
+
+.elements .comments-comment-author {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.elements .comments-guest-pill {
+    flex: none;
+}
+
+.elements .thumb.rounded {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.elements .thumb.rounded img {
+    border-radius: inherit;
+}
+
+.elements .thumb .comments-avatar {
+    width: 100%;
+    height: 100%;
+}
+
+.elements .comments-comment-excerpt {
+    min-width: 0;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.elements a.label-link:hover,
+.elements a.label-link:focus-visible {
+    text-decoration: none;
+}
+
+.elements a:hover .comments-comment-author,
+.elements a:focus-visible .comments-comment-author {
+    text-decoration: underline;
+}
+
+/* Photos and initials at one size, so every row's name lines up. */
+.elements .chip:has(.comments-comment-label) {
+    gap: 10px;
+}
+
+.elements .chip:has(.comments-comment-label) .thumb {
+    flex: none;
+    width: 32px;
+    height: 32px;
+}
+
+.elements .chip > .comments-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.elements .chip:has(.comments-comment-label) .thumb img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}

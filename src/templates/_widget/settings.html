@@ -23,7 +23,7 @@
 }) }}
 
 {{ forms.lightswitchField({
-    label: 'Show Flagged Comments' | t('comments'),
+    label: 'Show Reported Comments' | t('comments'),
     name: 'showFlagged',
     on: widget.showFlagged,
     errors: widget.getErrors('showFlagged'),
@@ -52,8 +52,8 @@
             value: 'spam'
         },
         {
-            label: 'Trashed' | t('comments'),
-            value: 'trashed'
+            label: 'Removed' | t('comments'),
+            value: 'removed'
         },
     ],
 }) }}

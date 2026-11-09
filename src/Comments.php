@@ -3,26 +3,28 @@ namespace verbb\comments;
 
 use verbb\comments\base\PluginTrait;
 use verbb\comments\elements\Comment;
-use verbb\comments\fields\CommentsField;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
+use verbb\comments\fields\CommentsField;
 use verbb\comments\gql\interfaces\CommentInterface;
-use verbb\comments\gql\queries\CommentQuery;
 use verbb\comments\gql\mutations\Comment as CommentMutations;
+use verbb\comments\gql\queries\CommentQuery;
+use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\helpers\EditorContexts;
 use verbb\comments\helpers\ProjectConfigData;
 use verbb\comments\integrations\CommentFeedMeElement;
 use verbb\comments\models\Settings;
 use verbb\comments\services\Comments as CommentsService;
-use verbb\comments\twigextensions\Extension;
 use verbb\comments\variables\CommentsVariable;
 use verbb\comments\widgets\Comments as CommentsWidget;
 
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
-use craft\db\Table;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\db\Table;
+use craft\events\CreateFieldLayoutFormEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
@@ -35,21 +37,22 @@ use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\events\SearchEvent;
 use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Structure;
-use craft\records\StructureElement;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gc;
 use craft\services\Gql;
 use craft\services\Plugins;
 use craft\services\ProjectConfig;
+use craft\services\Search;
 use craft\services\SystemMessages;
 use craft\services\UserPermissions;
-use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
+use craft\web\UrlManager;
 
 use yii\base\Event;
 
@@ -58,19 +61,19 @@ use craft\feedme\services\Elements as FeedMeElements;
 
 class Comments extends Plugin
 {
+    // Traits
+    // =========================================================================
+
+    use PluginTrait;
+
+
     // Properties
     // =========================================================================
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.2.2';
+    public string $schemaVersion = '4.0.4';
     public string $minVersionRequired = '1.9.2';
-
-
-    // Traits
-    // =========================================================================
-
-    use PluginTrait;
 
 
     // Public Methods
@@ -82,7 +85,8 @@ class Comments extends Plugin
 
         self::$plugin = $this;
 
-        $this->_registerTwigExtensions();
+        $this->_bootstrapEditor();
+
         $this->_registerEmailMessages();
         $this->_registerVariables();
         $this->_registerFieldTypes();
@@ -91,19 +95,21 @@ class Comments extends Plugin
         $this->_registerEventHandlers();
         $this->_registerProjectConfigEventHandlers();
         $this->_registerFeedMeSupport();
+        $this->_registerSiteRoutes();
+
+        // Registered unconditionally: Craft hides the permission UI on editions without user
+        // groups, and unregistered permissions get stripped when group/user permissions save.
+        $this->_registerPermissions();
+
+        $this->_registerFieldLayoutListener();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
-            $this->_registerFieldLayoutListener();
         }
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             $this->_registerResaveCommand();
-        }
-
-        if (Craft::$app->getEdition() !== Craft::Solo) {
-            $this->_registerPermissions();
         }
     }
 
@@ -123,56 +129,56 @@ class Comments extends Plugin
 
         $nav['label'] = $this->getPluginName();
 
-        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
-            // Only show the Comments page if the settings are also shown, otherwise just show the top-level menu item
+        $user = Craft::$app->getUser();
+        $isAdmin = $user->getIsAdmin();
+
+        // Each item mirrors the permission its controller enforces, so the nav can never
+        // link a user to a screen that will 403 on them.
+        if ($isAdmin || $user->checkPermission('comments-view')) {
+            // `comments` is the same screen as the top-level nav item, so it comes first.
             $nav['subnav']['comments'] = [
                 'label' => Craft::t('comments', 'Comments'),
                 'url' => 'comments',
             ];
 
+            // What waits for a moderator: held comments plus reported ones still on the site.
+            if ($isAdmin || $user->checkPermission('comments-moderate')) {
+                $counts = $this->getModeration()->getQueueCounts();
+                $waiting = $counts['pending'] + $counts['reported'];
+
+                if ($waiting) {
+                    $nav['badgeCount'] = $waiting;
+                }
+            }
+        }
+
+        if ($isAdmin || $user->checkPermission('comments-moderate')) {
+            $nav['subnav']['commenters'] = [
+                'label' => Craft::t('comments', 'Commenters'),
+                'url' => 'comments/commenters',
+            ];
+        }
+
+        // Settings write to project config, so they need admin plus `allowAdminChanges`.
+        if ($isAdmin && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $nav['subnav']['settings'] = [
                 'label' => Craft::t('comments', 'Settings'),
                 'url' => 'comments/settings',
             ];
         }
 
+        // No reachable screen means no section.
+        if (!$nav['subnav']) {
+            return null;
+        }
+
+        // A single item is just the section itself; the subnav would be noise.
+        if (count($nav['subnav']) === 1) {
+            $nav['url'] = reset($nav['subnav'])['url'];
+            unset($nav['subnav']);
+        }
+
         return $nav;
-    }
-
-    public function createAndStoreStructure(): ?Structure
-    {
-        $structure = null;
-
-        // Try and find an existing comment elements' structure and use that
-        $firstComment = Comment::find()->one();
-
-        if ($firstComment) {
-            $structureRecord = StructureElement::findOne([
-                'elementId' => $firstComment->id,
-            ]);
-
-            if ($structureRecord) {
-                $structure = Craft::$app->getStructures()->getStructureById($structureRecord->structureId);
-            }
-        }
-
-        if (!$structure) {
-            $structure = new Structure();
-
-            Craft::$app->getStructures()->saveStructure($structure);
-
-            // We need to fetch the UID
-            $structure = Craft::$app->getStructures()->getStructureById($structure->id);
-        }
-
-        if ($structure) {
-            // Update our plugin settings straight away!
-            Craft::$app->getPlugins()->savePluginSettings($this, ['structureUid' => $structure->uid]);
-
-            return $structure;
-        }
-
-        return null;
     }
 
 
@@ -188,20 +194,48 @@ class Comments extends Plugin
     // Private Methods
     // =========================================================================
 
-    private function _registerTwigExtensions(): void
+    private function _bootstrapEditor(): void
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        \verbb\editor\Editor::bootstrap();
+        $editor = \verbb\editor\Editor::getInstance();
+        EditorContexts::register($editor->getEditorConfigs());
     }
 
     private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
-                'comments/new' => 'comments/comments/edit-comment',
-                'comments/<commentId:\d+>' => 'comments/comments/edit-comment',
-                'comments/<commentId:\d+>/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
-                'comments/new/<siteHandle:{handle}>' => 'comments/comments/edit-comment',
-                'comments/settings' => 'comments/base/settings',
+                // The Comments index and editor are Craft's own.
+                'comments/edit/<elementId:\d+>' => 'elements/edit',
+                'comments/<elementId:\d+>' => 'elements/edit',
+                'comments/<elementId:\d+>/<siteHandle:{handle}>' => 'elements/edit',
+                'comments/commenters' => 'comments/commenters/index',
+                'comments/commenters/<identityId:\d+>' => 'comments/commenters/view',
+                'comments/settings' => 'comments/settings/index',
+                'comments/settings/<pane:{slug}>' => 'comments/settings/index',
+            ]);
+        });
+    }
+
+    private function _registerSiteRoutes(): void
+    {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            // Query-param actions align with the browser apiBase helper (e.g. conversation?ownerId=).
+            $event->rules = array_merge($event->rules, [
+                'comments/api/v1/conversation' => 'comments/frontend-api/conversation',
+                'comments/api/v1/roots' => 'comments/frontend-api/roots',
+                'comments/api/v1/replies' => 'comments/frontend-api/replies',
+                'comments/api/v1/viewer-controls' => 'comments/frontend-api/viewer-controls',
+                'comments/api/v1/protection' => 'comments/frontend-api/protection',
+                'comments/api/v1/composer' => 'comments/frontend-api/composer',
+                'comments/api/v1/create' => 'comments/frontend-api/create',
+                'comments/api/v1/remove' => 'comments/frontend-api/remove',
+                'comments/api/v1/interaction' => 'comments/frontend-api/interaction',
+                'comments/api/v1/moderate' => 'comments/frontend-api/moderate',
+                'comments/api/v1/report' => 'comments/frontend-api/report',
+                'comments/api/v1/subscription' => 'comments/frontend-api/subscription',
+                'comments/api/v1/thread' => 'comments/frontend-api/thread',
+                'comments/manage' => 'comments/subscriptions/manage',
             ]);
         });
     }
@@ -209,12 +243,20 @@ class Comments extends Plugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
+            // `comments-view` gates the CP section itself, so the capabilities that only make
+            // sense once you can see comments are nested beneath it.
             $event->permissions[] = [
                 'heading' => Craft::t('comments', 'Comments'),
                 'permissions' => [
-                    'comments-edit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
-                    'comments-trash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
-                    'comments-delete' => ['label' => Craft::t('comments', 'Delete comments')],
+                    'comments-view' => [
+                        'label' => Craft::t('comments', 'View comments'),
+                        'nested' => [
+                            'comments-moderate' => ['label' => Craft::t('comments', 'Moderate comments')],
+                            'comments-edit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
+                            'comments-trash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
+                            'comments-delete' => ['label' => Craft::t('comments', 'Delete comments')],
+                        ],
+                    ],
                 ],
             ];
         });
@@ -223,68 +265,42 @@ class Comments extends Plugin
     private function _registerEmailMessages(): void
     {
         Event::on(SystemMessages::class, SystemMessages::EVENT_REGISTER_MESSAGES, function(RegisterEmailMessagesEvent $event) {
-            $event->messages[] = [
-                'key' => 'comments_author_notification',
-                'heading' => Craft::t('comments', 'comments_author_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_author_notification_subject'),
-                'body' => Craft::t('comments', 'comments_author_notification_body'),
-            ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_reply_notification',
                 'heading' => Craft::t('comments', 'comments_reply_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_reply_notification_subject'),
                 'body' => Craft::t('comments', 'comments_reply_notification_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_subscriber_notification_element',
                 'heading' => Craft::t('comments', 'comments_subscriber_notification_element_heading'),
                 'subject' => Craft::t('comments', 'comments_subscriber_notification_element_subject'),
                 'body' => Craft::t('comments', 'comments_subscriber_notification_element_body'),
             ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_subscriber_notification_comment',
                 'heading' => Craft::t('comments', 'comments_subscriber_notification_comment_heading'),
                 'subject' => Craft::t('comments', 'comments_subscriber_notification_comment_subject'),
                 'body' => Craft::t('comments', 'comments_subscriber_notification_comment_body'),
             ];
-            
-            $event->messages[] = [
-                'key' => 'comments_moderator_notification',
-                'heading' => Craft::t('comments', 'comments_moderator_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_moderator_notification_subject'),
-                'body' => Craft::t('comments', 'comments_moderator_notification_body'),
-            ];
-            
-            $event->messages[] = [
-                'key' => 'comments_moderator_edit_notification',
-                'heading' => Craft::t('comments', 'comments_moderator_edit_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_moderator_edit_notification_subject'),
-                'body' => Craft::t('comments', 'comments_moderator_edit_notification_body'),
-            ];
-            
+
             $event->messages[] = [
                 'key' => 'comments_moderator_approved_notification',
                 'heading' => Craft::t('comments', 'comments_moderator_approved_notification_heading'),
                 'subject' => Craft::t('comments', 'comments_moderator_approved_notification_subject'),
                 'body' => Craft::t('comments', 'comments_moderator_approved_notification_body'),
             ];
-            
+
             $event->messages[] = [
-                'key' => 'comments_admin_notification',
-                'heading' => Craft::t('comments', 'comments_admin_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_admin_notification_subject'),
-                'body' => Craft::t('comments', 'comments_admin_notification_body'),
+                'key' => 'comments_guest_confirmation',
+                'heading' => Craft::t('comments', 'comments_guest_confirmation_heading'),
+                'subject' => Craft::t('comments', 'comments_guest_confirmation_subject'),
+                'body' => Craft::t('comments', 'comments_guest_confirmation_body'),
             ];
-            
-            $event->messages[] = [
-                'key' => 'comments_flag_notification',
-                'heading' => Craft::t('comments', 'comments_flag_notification_heading'),
-                'subject' => Craft::t('comments', 'comments_flag_notification_subject'),
-                'body' => Craft::t('comments', 'comments_flag_notification_body'),
-            ];
+
         });
     }
 
@@ -315,35 +331,35 @@ class Comments extends Plugin
             Event::on(Plugins::class, Plugins::EVENT_AFTER_SAVE_PLUGIN_SETTINGS, function(PluginEvent $event) {
                 if ($event->plugin === $this) {
                     Comments::$plugin->getComments()->saveFieldLayout();
+                    EditorContexts::refresh();
                 }
             });
         }
 
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
-            if ($event->plugin !== $this) {
-                return;
-            }
-
-            // Comments are a Structure, which helps with hierarchy-goodness.
-            // We only use a single structure for all our comments so store this at the plugin settings level
-            if (!$this->getSettings()->structureUid) {
-                $this->createAndStoreStructure();
-            }
-
-            // If a front-end asset base path is configured (e.g. via config file), seed the files there
-            if ($this->getSettings()->getAssetBasePath()) {
-                try {
-                    $this->getComments()->publishFrontEndAssets();
-                } catch (\Throwable $e) {
-                    self::error('Couldn’t publish front-end assets on install: {message}', ['message' => $e->getMessage()]);
-                }
+        Event::on(FieldLayout::class, FieldLayout::EVENT_CREATE_FORM, function(CreateFieldLayoutFormEvent $event) {
+            if ($event->element instanceof Comment) {
+                Comments::$plugin->getCommentEditor()->addTabs($event);
             }
         });
 
-        Event::on(Plugins::class, Plugins::EVENT_BEFORE_UNINSTALL_PLUGIN, function(PluginEvent $event) {
-            // Clean up structure
-            if ($event->plugin === $this && $this->getSettings()->structureUid) {
-                Craft::$app->getStructures()->deleteStructureById($this->getSettings()->getStructureId());
+        // D1: CommentQuery keeps a match on an address out of the results for anyone who can't see
+        // addresses. Leave it out of the ranking too, so an address can't lift a comment up the list.
+        Event::on(Search::class, Search::EVENT_BEFORE_SCORE_RESULTS, function(SearchEvent $event) {
+            if ($event->elementQuery->elementType !== Comment::class || $event->results === null || CommentsHelper::canViewAddresses()) {
+                return;
+            }
+
+            $event->results = array_values(array_filter(
+                $event->results,
+                static fn(array $row): bool => ($row['attribute'] ?? null) !== Comment::SEARCH_ATTRIBUTE_EMAIL,
+            ));
+        });
+
+        // Fires once trashed elements are purged, so replies left without a parent are put back right away.
+        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            // Garbage collection can run while the upgrade from Comments 3 is still pending.
+            if (Craft::$app->getDb()->columnExists('{{%comments_comments}}', 'parentId')) {
+                Comments::$plugin->getConversations()->repairDetachedReplies();
             }
         });
     }
@@ -380,6 +396,7 @@ class Comments extends Plugin
                 'comments:edit' => ['label' => Craft::t('comments', 'Create comments')],
                 'comments:save' => ['label' => Craft::t('comments', 'Save comments')],
                 'comments:delete' => ['label' => Craft::t('comments', 'Delete comments')],
+                'comments:moderate' => ['label' => Craft::t('comments', 'Moderate comments')],
             ];
         });
     }
@@ -392,9 +409,6 @@ class Comments extends Plugin
         $projectConfigService->onAdd(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
             ->onUpdate(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleChangedFieldLayout'])
             ->onRemove(CommentsService::CONFIG_FIELDLAYOUT_KEY, [$service, 'handleDeletedFieldLayout']);
-
-        $projectConfigService->onAdd('plugins.comments.settings', [$service, 'handleChangedPluginStructure'])
-            ->onUpdate('plugins.comments.settings', [$service, 'handleChangedPluginStructure']);
 
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$service, 'pruneDeletedField']);
 

@@ -1,0 +1,37 @@
+{% extends 'verbb-base/_layouts/settings' %}
+
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% requireAdmin %}
+
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsCpAsset') %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set crumbs = [
+    { label: 'Settings' | t('app'), url: url('settings') },
+    { label: 'Plugins' | t('app'), url: url('settings/plugins') },
+    { label: craft.comments.getPluginName() | t('comments'), url: url('comments/settings') },
+] | merge(crumbs ?? []) %}
+
+{% set pageTabs = {} %}
+{% for handle, item in craft.comments.getSettingsNavItems() %}
+    {% if item.heading is defined %}
+        {% set pageTabs = pageTabs | merge({ (handle): item }) %}
+    {% else %}
+        {% set itemUrl = handle == 'general'
+            ? url('comments/settings')
+            : url('comments/settings/' ~ handle)
+        %}
+        {% set pageTabs = pageTabs | merge({ (handle): item | merge({ url: itemUrl }) }) %}
+    {% endif %}
+{% endfor %}
+
+{% set pageTitle = pageTitle ?? false %}
+{% if title is not defined and pageTitle %}
+    {% set title = pageTitle %}
+{% endif %}
+
+{% block settingsMeta %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% import '_includes/forms' as forms %}
+
+{% set canEdit = currentUser.can('comments-edit') %}
+
+{# A guest has no account, so their name and address belong to the comment and can be corrected here. #}
+{{ forms.textField({
+    label: 'Guest name' | t('comments'),
+    id: 'name',
+    name: 'name',
+    value: comment.name,
+    errors: comment.getErrors('name') ?? '',
+    disabled: not canEdit,
+}) }}
+
+{% if currentUser.admin %}
+    {{ forms.textField({
+        label: 'Guest email' | t('comments'),
+        instructions: 'Shown to admins only.' | t('comments'),
+        id: 'email',
+        name: 'email',
+        type: 'email',
+        value: comment.email,
+        errors: comment.getErrors('email') ?? '',
+        disabled: not canEdit,
+    }) }}
+{% endif %}
