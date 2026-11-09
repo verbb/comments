@@ -1,0 +1,106 @@
+{% import '_includes/forms' as forms %}
+
+<form method="post" accept-charset="UTF-8" class="meta comments-review-setting">
+    {{ csrfInput() }}
+    {{ actionInput('comments/commenters/set-review-setting') }}
+    {{ hiddenInput('identityId', id) }}
+    {{ redirectInput(redirectUrl) }}
+
+    <fieldset>
+        <legend class="h6">{{ 'Review setting' | t('comments') }}</legend>
+
+        {% for setting in reviewSettings %}
+            <label class="comments-review-option">
+                <input
+                    type="radio"
+                    name="reviewSetting"
+                    value="{{ setting.value }}"
+                    {% if setting == reviewSetting %}checked{% endif %}
+                    {% if setting.value == 'blocked' %}data-comments-confirm="{{ 'Block {name}? They won’t be able to post, and their existing comments stay as they are.' | t('comments', { name: name }) }}"{% endif %}
+                >
+                <span>
+                    <strong>{{ setting.label() }}</strong>
+                    <span class="light">{{ setting.instructions() }}</span>
+                </span>
+            </label>
+        {% endfor %}
+    </fieldset>
+
+    <label class="comments-review-setting__label" for="review-note">{{ 'Note' | t('comments') }}</label>
+    <p class="comments-review-setting__instructions light">{{ 'Optional. Recorded in the history, and only moderators see it.' | t('comments') }}</p>
+    {{ forms.textarea({
+        id: 'review-note',
+        name: 'note',
+        rows: 2,
+    }) }}
+
+    <button type="submit" class="btn submit" data-comments-review-submit>{{ 'Save review setting' | t('comments') }}</button>
+</form>
+
+<div class="meta read-only comments-commenter-history">
+    <h2 class="h6">{{ 'History' | t('comments') }}</h2>
+
+    {% if history %}
+        <ol class="comments-timeline">
+            {% for item in history %}
+                <li class="comments-timeline__item">
+                    <div class="comments-timeline__body">
+                        <p>
+                            {% if item.actor %}<strong>{{ item.actor }}</strong> {% endif %}{{ item.text }}
+                            {% if item.element %}<em>{{ item.element }}</em>{% endif %}
+                            {% if item.detail %}<span class="light"> · {{ item.detail }}</span>{% endif %}
+                        </p>
+                        {% if item.note %}<p class="comments-history-note">{{ item.note }}</p>{% endif %}
+                    </div>
+                    <time class="light" datetime="{{ item.date ? item.date | atom : '' }}">{{ item.date ? item.date | date('short') : '—' }}</time>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="light">{{ 'Nothing yet.' | t('comments') }}</p>
+    {% endif %}
+
+    {% set scoped = restrictions | filter(r => r.isActive and not r.isGlobal) %}
+    {% if scoped %}
+        <h3 class="h6">{{ 'In one conversation' | t('comments') }}</h3>
+        {% for restriction in scoped %}
+            <form method="post" accept-charset="UTF-8" class="comments-scoped-restriction">
+                {{ csrfInput() }}
+                {{ actionInput('comments/commenters/revoke') }}
+                {{ hiddenInput('identityId', id) }}
+                {{ hiddenInput('restrictionId', restriction.id) }}
+                <span>{{ restriction.label }}</span>
+                <button type="submit" class="btn small">{{ 'Remove' | t('comments') }}</button>
+            </form>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if email or user %}
+    <div class="meta read-only">
+        {% if email %}
+            <div class="data">
+                <h5 class="heading">{{ 'Comment emails' | t('comments') }}</h5>
+                <div class="value">
+                    {% if not isGuest %}
+                        {{ 'They have an account, so none are sent' | t('comments') }}
+                    {% elseif identity.emailOptOutAt %}
+                        {{ 'Stopped by them' | t('comments') }}
+                    {% elseif not identity.verifiedAt %}
+                        {{ 'Address not confirmed, so none are sent' | t('comments') }}
+                    {% else %}
+                        {{ 'Sent' | t('comments') }}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if user %}
+            {% set groups = user.getGroups() | map(g => g.name) %}
+            <div class="data">
+                <h5 class="heading">{{ 'User groups' | t('comments') }}</h5>
+                <div class="value">{{ groups ? groups | join(', ') : '—' }}</div>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,52 @@
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentersAsset') %}
+<div class="comments-commenter">
+    <section class="comments-commenter__card">
+        <div class="comments-commenter__identity">
+            {% if photoUrl %}
+                <img class="comments-avatar comments-avatar--large" src="{{ photoUrl }}" alt="">
+            {% else %}
+                <span class="comments-avatar comments-avatar--large{% if isGuest %} comments-avatar--guest{% endif %}" data-tone="{{ avatarTone }}" aria-hidden="true">{{ initials }}</span>
+            {% endif %}
+            <div>
+                <h2 class="comments-commenter__name">{{ name }}</h2>
+                <p class="light">
+                    {% set facts = [] %}
+                    {% if email %}{% set facts = facts | merge([email]) %}{% endif %}
+                    {% if user %}
+                        {% set facts = facts | merge(['member since {date}' | t('comments', { date: user.dateCreated | date('long') })]) %}
+                    {% elseif isGuest %}
+                        {% set facts = facts | merge([isRecognisedGuest ? 'Guest, recognised by browser' | t('comments') : 'Guest, imported or not recognisable' | t('comments')]) %}
+                    {% endif %}
+                    {% set total = counts.approved + counts.pending + counts.spam + counts.removed %}
+                    {% set facts = facts | merge([total == 1 ? '1 comment' | t('comments') : '{count} comments' | t('comments', { count: total | number })]) %}
+                    {{ facts | join(' · ') }}
+                </p>
+            </div>
+            {% if reviewSetting.value != 'normal' %}
+                <span class="comments-setting-pill comments-setting-pill--{{ reviewSetting.value }}">
+                    {{ { trusted: 'Trusted commenter' | t('comments'), held: 'Comments held for review' | t('comments'), blocked: 'Blocked' | t('comments') }[reviewSetting.value] }}
+                </span>
+            {% endif %}
+        </div>
+
+        <dl class="comments-commenter__counts">
+            {% for label, count in {
+                ('Approved' | t('comments')): counts.approved,
+                ('Waiting' | t('comments')): counts.pending,
+                ('Removed' | t('comments')): counts.removed,
+                ('Spam' | t('comments')): counts.spam,
+                ('Reports against' | t('comments')): reportsAgainst,
+            } %}
+                <div>
+                    <dt class="light">{{ label }}</dt>
+                    <dd>{{ count | number }}</dd>
+                </div>
+            {% endfor %}
+        </dl>
+    </section>
+
+    <section class="comments-commenter__comments">
+        <h2>{{ 'Comments' | t('comments') }}</h2>
+        {{ commentsIndexHtml | raw }}
+    </section>
+</div>

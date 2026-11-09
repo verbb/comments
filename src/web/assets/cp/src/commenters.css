@@ -1,0 +1,195 @@
+/* Layout only: colours come from Craft's variables and Plugin Kit tokens. */
+/* The avatar itself is .comments-avatar in comments-cp.css. */
+.comments-avatar--large {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+}
+
+/* The table brings its own card, so it sits on the page instead of Craft's white pane, as on an element index. */
+#content:has(> .comments-commenters) {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#toolbar .comments-index-toolbar {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#sidebar .comments-source-count {
+    margin-inline-start: auto;
+}
+
+.comments-commenter__card {
+    margin-block-end: 24px;
+}
+
+.comments-commenter__identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.comments-commenter__identity > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.comments-commenter__name {
+    margin: 0;
+}
+
+.comments-setting-pill {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--amber-800);
+    background-color: var(--amber-100);
+}
+
+.comments-setting-pill--trusted {
+    color: var(--green-800);
+    background-color: var(--green-100);
+}
+
+.comments-setting-pill--blocked {
+    color: var(--red-800);
+    background-color: var(--red-100);
+}
+
+.comments-commenter__counts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 16px;
+    margin-block-start: 24px;
+    padding-block-start: 16px;
+    border-block-start: 1px solid var(--hairline-color);
+}
+
+.comments-commenter__counts dd {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.comments-review-setting {
+    padding-block: 16px;
+}
+
+.comments-review-setting__label {
+    display: block;
+    font-weight: 600;
+}
+
+.comments-review-setting__instructions {
+    margin: 2px 0 6px;
+}
+
+.comments-review-setting textarea {
+    width: 100%;
+    margin-block-end: 12px;
+}
+
+.comments-review-setting fieldset {
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+}
+
+.comments-review-option {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    margin-block-end: 8px;
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--large-border-radius);
+    cursor: pointer;
+}
+
+.comments-review-option:has(input:checked) {
+    border-color: var(--gray-900);
+}
+
+.comments-review-option > span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.comments-commenter-history .comments-timeline__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    padding-block: 8px;
+}
+
+.comments-commenter-history .comments-timeline__item + .comments-timeline__item {
+    border-block-start: 1px solid var(--hairline-color);
+}
+
+.comments-commenter-history p {
+    margin: 0;
+}
+
+.comments-history-note {
+    margin-block-start: 6px !important;
+    padding: 6px 10px;
+    border-radius: var(--medium-border-radius);
+    background-color: var(--amber-050);
+}
+
+.comments-scoped-restriction {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-block-start: 8px;
+}
+
+/* The commenter page embeds Craft's element index, whose comment labels are single lines of excerpt.
+   Left to size itself, that column pushed Date Posted out of the card and squeezed the entry title
+   onto several lines. The label column takes whatever room is left and truncates instead (the full
+   text is in its tooltip), the entry title gets up to two lines, and the other columns keep to one. */
+.comments-commenter__comments .tableview th[data-titlecell] {
+    width: 100%;
+    max-width: 0;
+}
+
+.comments-commenter__comments .tableview th[data-titlecell] :is(.flex, .chip, .chip-content) {
+    min-width: 0;
+}
+
+/* Every row here is the same person, so the label drops their name and keeps the excerpt, which
+   gives way with an ellipsis. */
+.comments-commenter__comments .tableview th[data-titlecell] .comments-comment-label {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.comments-commenter__comments .tableview th[data-titlecell] .comments-comment-name {
+    display: none;
+}
+
+.comments-commenter__comments .tableview th[data-titlecell] .comments-comment-excerpt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.comments-commenter__comments .tableview td[data-attr]:not([data-attr='ownerId']) {
+    white-space: nowrap;
+}
+
+.comments-commenter__comments .tableview td[data-attr='ownerId'] > a {
+    display: -webkit-box;
+    min-width: 9rem;
+    max-width: 13rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}

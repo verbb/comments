@@ -1,0 +1,56 @@
+{% extends '_layouts/cp' %}
+{% requirePermission 'comments-moderate' %}
+
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentersAsset') %}
+
+{% set selectedSubnavItem = 'commenters' %}
+{% set title = 'Commenters' | t('comments') %}
+{% set crumbs = [
+    { label: craft.comments.getPluginName() | t('comments'), url: url('comments') },
+    { label: title, url: url('comments/commenters') },
+] %}
+
+{# The table's search and View menu sit in the page header, like a Craft element index. #}
+{% block toolbar %}
+    <pk-data-table-toolbar for="comments-commenters-table" class="comments-index-toolbar"></pk-data-table-toolbar>
+{% endblock %}
+
+{% block sidebar %}
+    <nav aria-label="{{ 'Sources' | t('app') }}">
+        <ul>
+            {% for handle, item in sources %}
+                {% if handle == 'trusted' %}
+                    </ul>
+                    <div class="heading"><span>{{ 'Review setting' | t('comments') }}</span></div>
+                    <ul>
+                {% endif %}
+                <li>
+                    <a href="{{ url('comments/commenters', handle != 'all' ? { source: handle } : {}) }}"{% if handle == source %} class="sel" aria-current="page"{% endif %}>
+                        {% if handle in ['trusted', 'held', 'blocked'] %}
+                            <span class="status {{ { trusted: 'green', held: 'orange', blocked: 'red' }[handle] }}" aria-hidden="true"></span>
+                        {% endif %}
+                        <span class="label">{{ item.label }}</span>
+                        <span class="badge comments-source-count" aria-label="{{ '{count} commenters' | t('comments', { count: item.count }) }}">{{ item.count | number }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div
+        class="comments-commenters"
+        data-comments-commenters
+        data-endpoint="{{ actionUrl('comments/commenters/table-data') }}"
+        data-set-action="comments/commenters/set-review-setting"
+        data-source="{{ source }}"
+        data-page-size="{{ pageSize }}"
+        data-user-id="{{ currentUser.uid }}"
+        data-label="{{ sources[source].label }}"
+        data-settings="{{ reviewSettings | json_encode | e('html_attr') }}"
+        data-block-confirm="{{ 'Block the selected commenters? They won’t be able to post, and their existing comments stay as they are.' | t('comments') }}"
+    >
+        <p class="light">{{ 'Loading…' | t('app') }}</p>
+    </div>
+{% endblock %}
