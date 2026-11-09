@@ -1,5 +1,161 @@
 # Changelog
 
+## Unreleased
+
+Comments 4 is a major redevelopment with breaking changes to templates, settings, GraphQL and PHP APIs. Read the [upgrade guide](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3) before updating.
+
+### Added
+- Add rich authoring through Editor's composer, with an **Authoring Mode** setting. It keeps an unsent draft in the browser and shows **Maximum Comment Length** as a character limit. Commenters can format what they write, and signed-in commenters can mention people and attach images and files, with **Allow Mentions**, **Allow Attachments**, **Attachment Volume**, **Allowed File Types** and **Maximum File Size** settings.
+- Add new spam protection through Protect: a randomised honeypot, a minimum form time, single-use forms, rate limits, Cloudflare Turnstile and Akismet, alongside reCAPTCHA v3 and the keyword filters. It applies to public forms, the frontend API and GraphQL. Akismet can also learn from moderators' corrections.
+- Moderate in the Comments index, with **Needs review**, **Reported** and **Spam** sources, a **Reason** column saying why each comment needs someone, and a count of what's waiting in the navigation. Bulk actions approve, keep, remove, mark as spam or mark as not spam, and never delete permanently.
+- Add decisions to the comment editor's sidebar while a comment waits: **Approve**, **Spam** and **Remove**, or **Keep** and **Remove** for a reported comment, each saving any edits in one step. Removing asks for a reason from a short fixed list, with an optional private note. A notice at the top of the comment says why it's waiting or what it was reported for, and **Preview** shows it in its thread on the site.
+- Add a **Commenters** area for moderators, listing everyone who has commented with their counts, and a page for each person with their comments, history and **Review setting**: Trusted, Normal, Held or Blocked. Trusted commenters skip pre-moderation, while spam checks still apply to them.
+- Keep what spam protection found on each comment it checks, so moderators can see which checks passed and what a provider said.
+- Add moderation on the public page, where moderators read held and reported comments in full, decide them in place, and see how many wait on that page.
+- Add an **Activity** tab to each comment in the editor, after its own fields: everything that's happened to it, newest first, with moderators' notes, which post straight away.
+- Add a Comments panel to owner elements' Comments field, with the comments waiting there to approve, mark as spam, keep or remove in place, the latest comments, and how many people follow the discussion.
+- Add guest subscriptions. Guests can subscribe to a discussion, or ask to be emailed about replies when they comment, after confirming their address.
+- Add an unsubscribe link and one-click `List-Unsubscribe` headers to every email sent to guests. A link can stop that discussion's emails or all comment emails, and works without an account or cookie.
+- Add a `Notifications::EVENT_AFTER_NOTIFY` event naming the people with an account who should hear about a comment: replies, mentions, follows, approvals, the element's author, and the moderator group for new, waiting, edited and reported comments. Comments doesn't email them itself.
+- Add deep links that reach a comment wherever it is: past the first page, below a collapsed reply or deeper than replies are shown. `#comment-123` fetches its thread in the browser, and `?comment=123` renders it on the server. `Comment::getPermalink()` includes both.
+- Add a `sharedCache` option on `craft.comments.render()`, which outputs a version safe for `{% cache %}` and full-page caches, and fills in each visitor's form and controls in the browser.
+- Add a **Load Comments When Reached** setting and a `lazy` option on `craft.comments.render()`, which leave the comments and form out of the page until a visitor scrolls near them.
+- Add a global `Comments` object to the browser, with `mount()`, `destroy()` and `get()`, and `comments:*` browser events such as `comments:comment-created`.
+- Add support for using comments without JavaScript: paging, sorting, replying, editing, deleting, reporting, voting and moderating, with errors and what was typed kept when a form comes back.
+- Add a new default thread design: the form comes first and says who you're posting as, guests get a way to sign in or comment as a guest, actions are quiet with counts hidden at zero and the rest in a menu, people without a photo get their initials on a colour, short public field values such as a location sit after a comment's time, and tapping the time shows the full date.
+- Add a **Public Fields** setting, and inputs for selected fields on the default form: plain text, number, email, URL, date, dropdown, multi-select, radio buttons, checkboxes, lightswitch and file uploads through Assets fields.
+- Add an **Interaction Mode** setting with likes, upvotes and downvotes, or neither, and a Top sort ranked by score.
+- Add rate limits for votes, reports and guest subscriptions, per user for signed-in visitors and per network for guests.
+- Add an **Author Edit Window** setting that limits how long authors can edit or delete their own comments, and an “Edited” label on comments changed after posting.
+- Add configurable **Author** and **Staff** badges, with staff chosen by user group.
+- Add **Report this comment**, with a configurable list of **Report Reasons** and their explanations. The dialog quotes the comment, has no default reason and an optional box for anything else.
+- Add a button to collapse a comment's replies, a confirmation before authors delete a comment, and remembering a returning guest's name and email.
+- Add light, dark and automatic themes with a **Theme** setting, where “None” outputs no default CSS.
+- Add a Closed option to the Comments field, which stops new comments on an element while leaving existing ones visible.
+- Add a guest confirmation system message.
+- Add `contentFormat`, `contentHtml`, `editorContent`, `editedAt`, `moderationState`, `rootId` and `depth` to GraphQL comments, a `commentConversation` query, `reason` and `details` on `flagComment`, a `protection` argument on `createComment` and `saveComment`, and a `moderateComment` mutation behind a new schema permission.
+- Add `craft.comments.getSummary()` and `craft.comments.getConfig()` Twig functions, and `conversationId`, `identityId`, `moderationState`, `rootId`, `adjacencyParentId` and `hasOpenReports` query params.
+- Add `comments/diagnostics/scan` and `comments/diagnostics/rebuild-counts` console commands.
+- Add an Upgrade Report settings page, shown after upgrading if there's anything to report, including settings that were in use and no longer exist.
+- Add a Restore action to the Comments index, for users who can trash comments, as trashed comments couldn't be restored.
+
+### Changed
+- Comments now requires Craft 5.10 or greater, and Verbb Base 3.0.20 or greater. It also requires `verbb/editor` and `verbb/protect`, which Composer installs with it. PHP 8.2 is unchanged.
+- Replace the public templates. Template overrides now go in a `frontend/` subfolder of **Template Folder Override**, using new names and variables, and only need the files you change. Overrides in the old structure are ignored. ([Custom Templates](https://verbb.io/craft-plugins/comments/docs/v4/template-guides/custom-templates))
+- Replace the public CSS and JavaScript, including their class names and script API. Anything written against the `cc-*` classes, `data-role` attributes or `Comments.Instance` needs updating.
+- Public forms and the API now only accept custom fields selected under **Public Fields**, so select any your forms use. Required fields that aren't selected no longer block public submissions.
+- Custom forms need updating for the new protection fields: pass the element and site to `craft.comments.protect()`, and remove any old `__UAHASH`, `__JSCHK`, `__HPP` and `__TIME` fields.
+- `craft.comments.render()` now takes the options `siteId`, `sort`, `limit`, `sharedCache` and `lazy` as its second argument, and ignores anything else. It no longer sets properties on a comment query.
+- Guests are now only emailed once they've confirmed their address, including replies to their comments. Those who gave an address before upgrading stop getting emails until they confirm one.
+- The Trashed comment status is now **Removed**, separate from Craft's trash. `Comment::STATUS_TRASHED` is now `Comment::STATUS_REMOVED`, so update any templates or queries using `trashed`.
+- **Close Comments Globally** now keeps existing comments visible, and turning comments off for an element now hides them.
+- GraphQL public schemas now only return published comments, whatever arguments are supplied, including through the `children` and `parent` fields. `saveComment` can now only change a comment's content, and only for its author. `createComment` and `saveComment` now need protection evidence while spam checks are on.
+- Upgrading now runs in small batches that can resume after a timeout or failure, and verifies the migrated data before removing anything, stopping if it doesn't match. Comments 3 votes, flags, subscriptions and structure are kept in `comments_v3_*` tables, without IP addresses, and can be dropped afterwards.
+- Threads no longer use a Craft structure. Use `depth`, `rootId`, `parentId` and `getReplies()` in place of `level`, `getAncestors()` and similar.
+- Replace `allowVoting` with `interactionMode`. Upgraded sites with voting on keep upvotes and downvotes, and new installs default to likes.
+- Only guests are emailed now. People with an account, staff included, are named in the new `Notifications::EVENT_AFTER_NOTIFY` event for your site or a notifications plugin to deliver. The author, mention, moderator, moderator edit, admin and flag system messages and the `beforeSendAuthorEmail`, `beforeSendModeratorEmail`, `beforeSendAdminEmail` and `beforeSendFlagEmail` events are gone.
+- Consolidate the notification settings into `participantNotifications`, `staffNotifications`, `subscriptionTypes` and `subscriptionDefault`. Existing settings are translated when loaded, and removed the next time settings are saved. `notificationAdmins` has no replacement, as staff are told through the event.
+- `useQueueForNotifications` now defaults to on, so make sure your site's queue is running.
+- Replace `getVotes()`, `getFlags()` and `getSubscribe()` on the plugin class with `getInteractions()`, `getReports()` and `getSubscriptions()`, and `getProtect()` with `getProtection()`.
+- Moderators changing a comment's status no longer saves its element, so `Comment::EVENT_AFTER_SAVE` doesn't fire for that. Use the new `Moderation::EVENT_AFTER_CHANGE_STATE` event instead.
+- Call flags reports throughout. A comment now counts as reported as soon as it has an open report.
+- Grant the new `comments-view` and `comments-moderate` permissions to users and user groups who held the matching Comments 3 permissions. Plugin access no longer reaches comments without `comments-view`.
+- Client IP addresses now come from Protect, which only trusts forwarded headers from proxies listed in Craft's `trustedHosts`. A site behind a proxy or CDN needs this set, or every visitor shares one address. ([Security](https://verbb.io/craft-plugins/comments/docs/v4/feature-tour/security))
+- Manage comments through Craft's native element index and editor, including slideouts, with moderation and element type sources, and date, report and vote columns. The editor's sidebar lets you move a comment and its replies to another element, change its author, and links its commenter's page. Moderators without `comments-edit` see a comment read-only.
+- Commenters' email addresses are now only shown to admins. Other users no longer see the Email column in the Comments index, or can search, filter or sort comments by address.
+- Replace the sidebar on owner elements with a Comments field you add to a field layout, with options to follow the source setting, open, close or turn off comments. It also lists the element's waiting, reported and latest comments, which its **Show Comments Summary** setting can turn off.
+- Reorganise settings into General Settings, Authoring, Comment Fields, Commenting, Interactions, Notifications, Moderation, Spam, Appearance, and Templates & Resources. **Commenting** holds where comments are allowed, guest settings and limits, and reporting settings are now under **Interactions**.
+- Bundled CSS and JavaScript are now published by Craft as asset bundles, including on Craft Cloud. Settings are now labelled **Load Bundled CSS** and **Load Bundled JavaScript**.
+- Errors are now shown next to the field they're about, a new comment now appears at the top unless sorted oldest first, and comment headings now count the whole discussion.
+- Marking a comment as not spam now returns it to Pending, so publishing it is a separate decision.
+
+### Fixed
+- Comments deleted by their authors are no longer returned as approved. They have a new `author-removed` status.
+- Fix comments with emoji failing to save on databases that haven't been converted to `utf8mb4`. Emoji are stored as shortcodes there and shown as emoji everywhere, as are emoji from Comments 2. ([Upgrading from Comments 3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#running-the-upgrade))
+- Fix keyword filters also matching a comment's status and format, ignoring words with accented characters, and matching case-sensitively in exact mode.
+- Fix Maximum Comment Length counting bytes and refusing a comment of exactly that length.
+- Fix vote and flag buttons being shown to guests when they aren't allowed to use them.
+- Fix comments on auto-closed elements being accepted through the API.
+- Fix the dashboard widget showing nothing until its settings were saved, and hiding flagged comments unless asked to show only those.
+- Fixed a high-severity broken access control vulnerability.
+- Fixed a high-severity mass assignment vulnerability.
+- Fixed an information disclosure vulnerability.
+- Fixed a moderate-severity information disclosure vulnerability.
+- Fixed a moderation bypass vulnerability.
+- Fixed an improper input validation vulnerability.
+- Fix approving, holding and re-approving a comment resending every notification, notifications being sent for comments removed before the queue job ran, and people receiving more than one email for the same comment. Each person now gets one email per comment.
+- Fix failed notification emails leaving the queue job marked as successful. All recipients are still tried, then the job fails so it shows up in the queue manager.
+- Fix notification emails having no plain text part.
+- Fix a removed moderator group exempting every signed-in user from moderation.
+- Fix votes and flags being accepted on unpublished comments.
+- Fix authors with no full name showing a blank name.
+- Fix an error when commenting on a user while specific user groups are selected in the permissions settings.
+- Fix GraphQL `createComment` being registered under the name `saveComment`.
+- Fix GraphQL `voteComment` ignoring its `downvote` and `siteId` arguments, `flagComment` ignoring `siteId`, the `user` field on flags, and `createComment` keeping a name and email for signed-in users.
+- Fix GraphQL schemas with only the save or delete comment scopes having no mutations available.
+
+### Removed
+- Remove the GIPHY picker, its search proxy and its settings. Comments that already have a GIF keep showing it, and `gifUrl` stays available.
+- Remove the `defaultQueryStatus`, `downvoteCommentLimit`, `hideVotingForThreshold`, `showAuthorScore`, `flaggedCommentLimit`, `enableGravatar`, `showCustomFieldNames`, `showCustomFieldInstructions`, `assetBaseUrl`, `assetBasePath`, `indexSidebarLimit`, `indexSidebarGroup` and `indexSidebarIndividualElements` settings. Public forms always show field labels.
+- Remove author scores, `Comment::isPoorlyRated()`, `Comment::getAuthorScore()`, `Comment::can()` and `Comment::canTrash()`.
+- Remove the `_special` templates, the `commentsInclude()` and `commentsSiteInclude()` Twig functions, and `craft.comments.renderCss()`, `renderJs()` and `getJsVariables()`.
+- Remove the `comments/comments/trash`, `get-js-variables`, `giphy-search`, `edit-comment`, `save-comment`, `edit-comment-slideout` and `delete-comment` controller actions, and the `html` key from JSON responses to `comments/comments/save`. Use `comments/frontend-api/remove` and the `comments/api/v1/*` endpoints instead.
+- Remove `email` from the GraphQL `CommentInterface` and the `email` argument from the `comments` query.
+- Remove the `userId`, `commentDate` and `newParentId` arguments from GraphQL comment mutations, and structure arguments and fields from GraphQL comments, in favour of `parentId`, `rootId`, `adjacencyParentId` and `depth`.
+- Remove the `comments/base/publish-assets`, `comments/base/resave-structure` and `comments/base/set-structure` console commands, and the **Publish now** settings button.
+- Remove the `FlagEvent`, `VoteEvent` and `SubscribeEvent` classes and the `FlagNotFoundException`, `VoteNotFoundException` and `SubscribeNotFoundException` classes, which nothing used.
+- Remove the `comments/new` control panel routes, so comments can't be created from the control panel.
+- Remove the **Additional Notification Recipients** setting.
+
+## 3.0.23 - 2026-11-01
+
+### Fixed
+- Fixed a high-severity missing authorization vulnerability.
+- Fix an error when saving or trashing a comment on the front-end while “Reply with GIFs” (GIPHY) support is enabled.
+- Fix an error when rendering comments on assets, categories or users while “Auto-close Comments” is enabled.
+- Fix an error when commenting on an asset while specific asset volumes are selected in the permissions settings.
+- Fix a database error when filtering comments by more than one of owner type, owner section and owner entry type.
+- Fix the Entry Section, Entry Type and Owner Type condition rules checking the comment instead of its owner when matching a comment.
+
+## 3.0.22 - 2026-10-15
+
+### Changed
+- Updated Craft API usage to avoid deprecated calls.
+
+## 3.0.21 - 2026-10-07
+
+### Changed
+- Require Verbb Base 3.0.20 or later so shared control-panel layouts use the current asset bundle namespace. ([verbb-base#3](https://github.com/verbb/verbb-base/issues/3))
+
+## 3.0.20 - 2026-10-02
+
+### Changed
+- Updated the required version of `verbb/base` to 3.0.19.
+
+## 3.0.19 - 2026-09-30
+
+### Changed
+- Route plugin settings through the plugin’s authorized settings controller.
+
+### Fixed
+- Fix template settings pages returning 404 errors and the default comment textarea not rendering when the field layout was not initialized. ([#329](https://github.com/verbb/comments/issues/329))
+
+## 3.0.18 - 2026-09-23
+
+### Fixed
+- Render comment notification subjects and bodies in Twig sandbox.
+- Fix saving one settings page or generating the comment structure resetting unrelated plugin settings.
+
+## 3.0.17 - 2026-09-14
+
+### Fixed
+- Fix the front-end asset publishing button after settings normalization.
+
+## 3.0.16 - 2026-09-13
+
+### Changed
+- Normalize plugin settings.
+
 ## 3.0.15 - 2026-06-20
 
 ### Added
