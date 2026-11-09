@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.24 - 2026-11-10
 
 ### Fixed
 - Fix “time ago” text for comments always showing in English, rather than the site’s language. ([#330](https://github.com/verbb/comments/issues/330))
