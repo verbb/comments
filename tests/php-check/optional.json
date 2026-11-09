@@ -1,0 +1,10 @@
+{
+    "Cake\\Utility\\Hash": "cakephp/utility (optional Feed Me dependency)",
+    "craft\\feedme\\Plugin": "craftcms/feed-me (optional import integration)",
+    "craft\\feedme\\base\\Element": "craftcms/feed-me (optional import integration)",
+    "craft\\feedme\\events\\FeedProcessEvent": "craftcms/feed-me (optional import integration)",
+    "craft\\feedme\\events\\RegisterFeedMeElementsEvent": "craftcms/feed-me (optional import integration)",
+    "craft\\feedme\\services\\Elements": "craftcms/feed-me (optional import integration)",
+    "craft\\feedme\\services\\Process": "craftcms/feed-me (optional import integration)",
+    "jamesedmonston\\graphqlauthentication\\GraphqlAuthentication": "jamesedmonston/graphql-authentication (optional GraphQL authentication)"
+}

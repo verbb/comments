@@ -1,0 +1,140 @@
+{
+  "manifestVersion": 1,
+  "schema": "comments-v3-final",
+  "sourceMigrations": [
+    "Install.php",
+    "m231229_000000_content_refactor.php",
+    "m250227_000000_comments_url.php",
+    "m260607_000000_add_gif_url.php"
+  ],
+  "tables": {
+    "comments_comments": {
+      "columns": [
+        "id",
+        "ownerId",
+        "ownerSiteId",
+        "userId",
+        "status",
+        "comment",
+        "gifUrl",
+        "name",
+        "email",
+        "url",
+        "ipAddress",
+        "userAgent",
+        "commentDate",
+        "dateCreated",
+        "dateUpdated",
+        "uid"
+      ],
+      "indexes": [
+        ["id"],
+        ["ownerId"],
+        ["ownerSiteId"],
+        ["userId"]
+      ],
+      "foreignKeys": {
+        "id": ["elements", "id", "CASCADE"],
+        "ownerId": ["elements", "id", "SET NULL"],
+        "ownerSiteId": ["sites", "id", "CASCADE"],
+        "userId": ["users", "id", "SET NULL"]
+      }
+    },
+    "comments_flags": {
+      "columns": [
+        "id",
+        "commentId",
+        "userId",
+        "sessionId",
+        "lastIp",
+        "dateCreated",
+        "dateUpdated",
+        "uid"
+      ],
+      "indexes": [
+        ["commentId"],
+        ["userId"]
+      ],
+      "foreignKeys": {
+        "commentId": ["comments_comments", "id", "CASCADE"],
+        "userId": ["users", "id", "SET NULL"]
+      }
+    },
+    "comments_votes": {
+      "columns": [
+        "id",
+        "commentId",
+        "userId",
+        "sessionId",
+        "lastIp",
+        "upvote",
+        "downvote",
+        "dateCreated",
+        "dateUpdated",
+        "uid"
+      ],
+      "indexes": [
+        ["commentId"],
+        ["userId"]
+      ],
+      "foreignKeys": {
+        "commentId": ["comments_comments", "id", "CASCADE"],
+        "userId": ["users", "id", "SET NULL"]
+      }
+    },
+    "comments_subscribe": {
+      "columns": [
+        "id",
+        "ownerId",
+        "ownerSiteId",
+        "userId",
+        "commentId",
+        "subscribed",
+        "dateCreated",
+        "dateUpdated",
+        "uid"
+      ],
+      "indexes": [
+        ["ownerId"],
+        ["ownerSiteId"],
+        ["userId"],
+        ["commentId"]
+      ],
+      "foreignKeys": {
+        "ownerId": ["elements", "id", "CASCADE"],
+        "ownerSiteId": ["sites", "id", "CASCADE"],
+        "userId": ["users", "id", "SET NULL"],
+        "commentId": ["comments_comments", "id", "CASCADE"]
+      }
+    }
+  },
+  "craftDependencies": {
+    "commentElement": "verbb\\comments\\elements\\Comment",
+    "hierarchy": "single-craft-structure",
+    "structureSetting": "structureUid",
+    "tables": [
+      "elements",
+      "elements_sites",
+      "users",
+      "sites",
+      "structures",
+      "structureelements",
+      "fieldlayouts",
+      "fields"
+    ]
+  },
+  "migrationRules": {
+    "preserveElementIds": true,
+    "preserveCustomFields": true,
+    "discardRuntimeColumns": [
+      "comments_comments.ipAddress",
+      "comments_comments.userAgent",
+      "comments_flags.lastIp",
+      "comments_flags.sessionId",
+      "comments_votes.lastIp",
+      "comments_votes.sessionId"
+    ],
+    "legacyGuestOwnership": "non-ownable",
+    "hierarchySource": "structureelements"
+  }
+}

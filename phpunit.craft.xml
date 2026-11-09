@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap-craft.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Craft Integration Suite">
+            <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+    <php>
+        <env name="DOTENV_FILE" value=".env.testing" force="true"/>
+        <env name="ENVIRONMENT" value="testing" force="true"/>
+    </php>
+</phpunit>

@@ -1,0 +1,24 @@
+{
+    "project": "comments-react-tests",
+    "suites": {
+        "default": [
+            "--exclude-group=slow",
+            "--exclude-group=perf",
+            "--exclude-group=perf-large",
+            "--exclude-group=migrate-plugins"
+        ],
+        "all": [
+            "--exclude-group=perf-large",
+            "--exclude-group=migrate-plugins"
+        ],
+        "performance": [
+            "--group=perf"
+        ],
+        "slow": [
+            "--group=slow"
+        ]
+    },
+    "tasks": {
+        "browser-fixture": "tests/runtime/browser-fixture.php"
+    }
+}
