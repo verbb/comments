@@ -4,6 +4,7 @@ namespace verbb\comments\gql\queries;
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\resolvers\CommentResolver;
+use verbb\comments\gql\types\ConversationType;
 use verbb\comments\helpers\Gql as GqlHelper;
 
 use craft\gql\base\Query;
@@ -33,6 +34,15 @@ class CommentQuery extends Query
                 'args' => CommentArguments::getArguments(),
                 'resolve' => CommentResolver::class . '::resolveOne',
                 'description' => 'This query is used to query for a comment.',
+            ],
+            'commentConversation' => [
+                'type' => ConversationType::getType(),
+                'args' => [
+                    'ownerId' => Type::nonNull(Type::id()),
+                    'siteId' => Type::id(),
+                ],
+                'resolve' => ConversationType::class . '::resolve',
+                'description' => 'The state and totals of the conversation on an element.',
             ],
         ];
     }

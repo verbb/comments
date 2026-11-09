@@ -1,21 +1,21 @@
 <?php
 namespace verbb\comments\gql\interfaces;
 
-use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;
+use verbb\comments\gql\types\generators\CommentGenerator;
 
 use Craft;
-use craft\gql\interfaces\elements\User;
-use craft\gql\interfaces\Structure;
-use craft\gql\types\DateTime;
 use craft\gql\GqlEntityRegistry;
+use craft\gql\interfaces\Element;
+use craft\gql\interfaces\elements\User;
+use craft\gql\types\DateTime;
 use craft\helpers\Gql as GqlHelper;
 
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
-class CommentInterface extends Structure
+class CommentInterface extends Element
 {
     // Static Methods
     // =========================================================================
@@ -66,20 +66,50 @@ class CommentInterface extends Structure
                 'type' => Type::string(),
                 'description' => 'The actual comment text.',
             ],
+            'contentFormat' => [
+                'name' => 'contentFormat',
+                'type' => Type::string(),
+                'description' => 'How the comment was written: `plain` or `editor`.',
+            ],
+            'contentHtml' => [
+                'name' => 'contentHtml',
+                'type' => Type::string(),
+                'description' => 'The rendered HTML of a rich comment. Null for plain text comments.',
+            ],
+            'editorContent' => [
+                'name' => 'editorContent',
+                'type' => Type::string(),
+                'description' => 'The Editor JSON of a rich comment, to edit it. Null for plain text comments.',
+            ],
+            'editedAt' => [
+                'name' => 'editedAt',
+                'type' => DateTime::getType(),
+                'description' => 'When the comment’s content last changed after it was posted.',
+            ],
+            'moderationState' => [
+                'name' => 'moderationState',
+                'type' => Type::string(),
+                'description' => 'The comment’s moderation state. Public schemas only ever return `approved` comments.',
+            ],
+            'rootId' => [
+                'name' => 'rootId',
+                'type' => Type::int(),
+                'description' => 'The ID of the comment at the top of this comment’s thread.',
+            ],
+            'depth' => [
+                'name' => 'depth',
+                'type' => Type::int(),
+                'description' => 'How many replies deep the comment is. Top-level comments are 0.',
+            ],
             'gifUrl' => [
                 'name' => 'gifUrl',
                 'type' => Type::string(),
-                'description' => 'The URL of the GIF attached to the comment, if any.',
+                'description' => 'The URL of the GIF on a comment from before GIF search was removed.',
             ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
                 'description' => 'The full name for the comment‘s author.',
-            ],
-            'email' => [
-                'name' => 'email',
-                'type' => Type::string(),
-                'description' => 'The email for the comment‘s author.',
             ],
             'url' => [
                 'name' => 'url',

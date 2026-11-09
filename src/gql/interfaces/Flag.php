@@ -1,12 +1,12 @@
 <?php
 namespace verbb\comments\gql\interfaces;
 
-use verbb\comments\helpers\Gql as GqlHelper;
 use verbb\comments\gql\types\Flag as FlagType;
+use verbb\comments\helpers\Gql as GqlHelper;
 
 use Craft;
-use craft\gql\interfaces\elements\User;
 use craft\gql\GqlEntityRegistry;
+use craft\gql\interfaces\elements\User;
 use craft\helpers\Gql as CraftGqlHelper;
 
 use GraphQL\Type\Definition\InterfaceType;
@@ -26,9 +26,9 @@ class Flag extends InterfaceType
         return GqlEntityRegistry::createEntity(self::getName(), new InterfaceType([
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
-            'description' => 'This is the interface implemented by all comment votes.',
+            'description' => 'This is the interface implemented by all comment flags.',
             'resolveType' => static function() {
-                // register Vote type that implements this interface
+                // register Flag type that implements this interface
                 return GqlEntityRegistry::getEntity('Flag') ?: GqlEntityRegistry::createEntity('Flag', new FlagType([
                     'name' => 'Flag',
                     'fields' => self::getFieldDefinitions(),
@@ -53,12 +53,12 @@ class Flag extends InterfaceType
             'sessionId' => [
                 'name' => 'sessionId',
                 'type' => Type::id(),
-                'description' => 'The session ID from which the vote was submitted.',
+                'description' => 'The session ID from which the flag was submitted.',
             ],
             'lastIp' => [
                 'name' => 'lastIp',
                 'type' => Type::string(),
-                'description' => 'The last known IP address of the voter.',
+                'description' => 'The last known IP address of the person flagging.',
             ],
         ]), self::getName());
     }
@@ -72,27 +72,27 @@ class Flag extends InterfaceType
                 'userId' => [
                     'name' => 'userId',
                     'type' => Type::int(),
-                    'description' => 'The ID of the submitter of this vote.',
+                    'description' => 'The ID of the submitter of this flag.',
                 ],
                 'user' => [
                     'name' => 'user',
                     'type' => User::getType(),
-                    'description' => 'The vote‘s submitter.',
+                    'description' => 'The flag’s submitter.',
                 ],
             ]);
         }
 
         if (GqlHelper::canQueryComments()) {
-            $conditionalFields = array_merge([
+            $conditionalFields = array_merge($conditionalFields, [
                 'commentId' => [
                     'name' => 'commentId',
                     'type' => Type::id(),
-                    'description' => 'The ID of the comment the vote is applied to.',
+                    'description' => 'The ID of the comment the flag is applied to.',
                 ],
                 'comment' => [
                     'name' => 'comment',
                     'type' => CommentInterface::getType(),
-                    'description' => 'The comment the vote is applied to.',
+                    'description' => 'The comment the flag is applied to.',
                 ],
             ]);
         }

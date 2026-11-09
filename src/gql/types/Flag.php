@@ -1,9 +1,11 @@
 <?php
 namespace verbb\comments\gql\types;
 
-use GraphQL\Type\Definition\ResolveInfo;
 use verbb\comments\gql\interfaces\Flag as FlagInterface;
+
 use craft\gql\base\ObjectType;
+
+use GraphQL\Type\Definition\ResolveInfo;
 
 class Flag extends ObjectType
 {

@@ -1,12 +1,12 @@
 <?php
 namespace verbb\comments\gql\interfaces;
 
-use verbb\comments\helpers\Gql as GqlHelper;
 use verbb\comments\gql\types\Vote as VoteType;
+use verbb\comments\helpers\Gql as GqlHelper;
 
 use Craft;
-use craft\gql\interfaces\elements\User;
 use craft\gql\GqlEntityRegistry;
+use craft\gql\interfaces\elements\User;
 use craft\helpers\Gql as CraftGqlHelper;
 
 use GraphQL\Type\Definition\InterfaceType;

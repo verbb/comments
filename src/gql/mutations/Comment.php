@@ -2,22 +2,23 @@
 namespace verbb\comments\gql\mutations;
 
 use verbb\comments\Comments;
+use verbb\comments\elements\Comment as CommentElement;
 use verbb\comments\gql\arguments\mutations\Comment as CommentMutationArguments;
+use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\interfaces\Flag;
 use verbb\comments\gql\interfaces\Vote;
 use verbb\comments\gql\resolvers\mutations\Comment as CommentMutationResolver;
+use verbb\comments\gql\types\generators\CommentGenerator;
 use verbb\comments\helpers\Gql as GqlHelper;
 use verbb\comments\models\Settings;
-use verbb\comments\gql\types\generators\CommentGenerator;
-use verbb\comments\elements\Comment as CommentElement;
 
 use Craft;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\Mutation;
 
-use GraphQL\Type\Definition\Type;
-
 use yii\base\InvalidConfigException;
+
+use GraphQL\Type\Definition\Type;
 
 class Comment extends Mutation
 {
@@ -52,7 +53,7 @@ class Comment extends Mutation
                 'Save a comment.'
             );
 
-            if ($settings->allowVoting) {
+            if ($settings->resolveInteractionMode()->isEnabled()) {
                 $mutationList['voteComment'] = [
                     'name' => 'voteComment',
                     'args' => [
@@ -73,6 +74,8 @@ class Comment extends Mutation
                     'args' => [
                         'id' => Type::nonNull(Type::id()),
                         'siteId' => Type::id(),
+                        'reason' => Type::string(),
+                        'details' => Type::string(),
                     ],
                     'resolve' => [$resolver, 'flagComment'],
                     'description' => 'Flag a comment.',
@@ -80,7 +83,7 @@ class Comment extends Mutation
                 ];
             }
 
-            if ($settings->notificationSubscribeEnabled) {
+            if ($settings->subscriptionTypes !== []) {
                 $mutationList['subscribeComment'] = [
                     'name' => 'subscribeComment',
                     'args' => [
@@ -108,16 +111,29 @@ class Comment extends Mutation
             ];
         }
 
+        if (GqlHelper::canSchema($scope, 'moderate')) {
+            $mutationList['moderateComment'] = [
+                'name' => 'moderateComment',
+                'args' => [
+                    'id' => Type::nonNull(Type::id()),
+                    'action' => [
+                        'type' => Type::nonNull(Type::string()),
+                        'description' => 'One of `approve`, `remove`, `restore`, `spam` or `notSpam`.',
+                    ],
+                    'reason' => Type::string(),
+                ],
+                'resolve' => [$resolver, 'moderateComment'],
+                'description' => 'Moderate a comment. Needs a signed-in user who can moderate, as well as this schema permission.',
+                'type' => CommentInterface::getType(),
+            ];
+        }
+
         return $mutationList;
     }
 
     /**
      * Create the save mutation.
      *
-     * @param string $mutationName Mutation name.
-     * @param string $resolveMethod Resolver method (also used for mutation name).
-     * @param string $description Mutation description.
-     * @return array
      * @throws InvalidConfigException
      */
     public static function createSaveMutation(string $mutationName, string $resolveMethod, string $description): array
@@ -130,7 +146,11 @@ class Comment extends Mutation
         $resolver = Craft::createObject(CommentMutationResolver::class);
 
         // Prepare resolver with custom fields
-        static::prepareResolver($resolver, $context->getCustomFields());
+        $publicFields = Comments::$plugin->getSettings()->publicFields;
+        static::prepareResolver($resolver, array_filter(
+            $context->getCustomFields(),
+            static fn($field) => in_array($field->handle, $publicFields, true),
+        ));
 
         $mutationArguments = array_merge(
             $mutationArguments,
@@ -138,7 +158,7 @@ class Comment extends Mutation
         );
 
         return [
-            'name' => $resolveMethod,
+            'name' => $mutationName,
             'description' => $description,
             'args' => $mutationArguments,
             'resolve' => [$resolver, $resolveMethod],

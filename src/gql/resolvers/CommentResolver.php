@@ -33,6 +33,21 @@ class CommentResolver extends ElementResolver
             return ElementCollection::empty();
         }
 
+        // Applied after the arguments so a public schema can't ask for unpublished comments.
+        if (GqlHelper::isPublicSchema()) {
+            $query->status(Comment::STATUS_APPROVED)
+                ->trashed(false)
+                ->andWhere(['comments_comments.authorRemovedAt' => null]);
+        }
+
         return $query;
+    }
+
+    public static function isPubliclyReadable(?Comment $comment): bool
+    {
+        return $comment
+            && $comment->status === Comment::STATUS_APPROVED
+            && !$comment->authorRemovedAt
+            && !$comment->trashed;
     }
 }

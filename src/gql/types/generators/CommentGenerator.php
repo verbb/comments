@@ -6,10 +6,10 @@ use verbb\comments\gql\interfaces\CommentInterface;
 use verbb\comments\gql\types\CommentType;
 
 use Craft;
-use craft\gql\GqlEntityRegistry;
 use craft\gql\base\Generator;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\base\SingleGeneratorInterface;
+use craft\gql\GqlEntityRegistry;
 
 class CommentGenerator extends Generator implements GeneratorInterface, SingleGeneratorInterface
 {
@@ -20,6 +20,7 @@ class CommentGenerator extends Generator implements GeneratorInterface, SingleGe
     {
         // Comments have no context
         $type = static::generateType($context);
+
         return [$type->name => $type];
     }
 

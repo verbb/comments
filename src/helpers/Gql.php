@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\helpers;
 
+use Craft;
+use craft\errors\GqlException;
 use craft\helpers\Gql as GqlHelper;
 
 class Gql extends GqlHelper
@@ -15,10 +17,23 @@ class Gql extends GqlHelper
         return isset($allowedEntities['comments']);
     }
 
+    public static function isPublicSchema(): bool
+    {
+        try {
+            return Craft::$app->getGql()->getActiveSchema()->isPublic;
+        } catch (GqlException) {
+            return false;
+        }
+    }
+
     public static function canMutateComments($schema = null): bool
     {
-        $allowedEntities = self::extractAllowedEntitiesFromSchema('edit', $schema);
+        foreach (['edit', 'save', 'delete', 'moderate'] as $action) {
+            if (isset(self::extractAllowedEntitiesFromSchema($action, $schema)['comments'])) {
+                return true;
+            }
+        }
 
-        return isset($allowedEntities['comments']);
+        return false;
     }
 }
