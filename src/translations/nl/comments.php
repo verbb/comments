@@ -2,6 +2,22 @@
 
 return [
   //
+  // Time ago
+  //
+  '1 year ago' => '1 jaar geleden',
+  '{num} years ago' => '{num} jaar geleden',
+  '1 month ago' => '1 maand geleden',
+  '{num} months ago' => '{num} maanden geleden',
+  '1 day ago' => '1 dag geleden',
+  '{num} days ago' => '{num} dagen geleden',
+  '1 hour ago' => '1 uur geleden',
+  '{num} hours ago' => '{num} uur geleden',
+  '1 minute ago' => '1 minuut geleden',
+  '{num} minutes ago' => '{num} minuten geleden',
+  '1 second ago' => '1 seconde geleden',
+  '{num} seconds ago' => '{num} seconden geleden',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'Als een reactie is ontvangen:',

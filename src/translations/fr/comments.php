@@ -2,6 +2,22 @@
 
 return [
   //
+  // Time ago
+  //
+  '1 year ago' => 'il y a 1 an',
+  '{num} years ago' => 'il y a {num} ans',
+  '1 month ago' => 'il y a 1 mois',
+  '{num} months ago' => 'il y a {num} mois',
+  '1 day ago' => 'il y a 1 jour',
+  '{num} days ago' => 'il y a {num} jours',
+  '1 hour ago' => 'il y a 1 heure',
+  '{num} hours ago' => 'il y a {num} heures',
+  '1 minute ago' => 'il y a 1 minute',
+  '{num} minutes ago' => 'il y a {num} minutes',
+  '1 second ago' => 'il y a 1 seconde',
+  '{num} seconds ago' => 'il y a {num} secondes',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'Lorsqu’un commentaire est reçu :',

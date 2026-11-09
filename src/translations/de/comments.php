@@ -2,6 +2,22 @@
 
 return [
   //
+  // Time ago
+  //
+  '1 year ago' => 'vor 1 Jahr',
+  '{num} years ago' => 'vor {num} Jahren',
+  '1 month ago' => 'vor 1 Monat',
+  '{num} months ago' => 'vor {num} Monaten',
+  '1 day ago' => 'vor 1 Tag',
+  '{num} days ago' => 'vor {num} Tagen',
+  '1 hour ago' => 'vor 1 Stunde',
+  '{num} hours ago' => 'vor {num} Stunden',
+  '1 minute ago' => 'vor 1 Minute',
+  '{num} minutes ago' => 'vor {num} Minuten',
+  '1 second ago' => 'vor 1 Sekunde',
+  '{num} seconds ago' => 'vor {num} Sekunden',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'Wenn ein Kommentar geschrieben wurde:',

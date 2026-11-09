@@ -23,27 +23,27 @@ class CommentsHelper
     public static function humanDurationFromInterval(DateInterval $dateInterval): string
     {
         if ($dateInterval->y) {
-            return $dateInterval->y == 1 ? Craft::t('app', '1 year ago') : Craft::t('app', '{num} years ago', ['num' => $dateInterval->y]);
+            return $dateInterval->y == 1 ? self::_translate('1 year ago') : self::_translate('{num} years ago', ['num' => $dateInterval->y]);
         }
 
         if ($dateInterval->m) {
-            return $dateInterval->m == 1 ? Craft::t('app', '1 month ago') : Craft::t('app', '{num} months ago', ['num' => $dateInterval->m]);
+            return $dateInterval->m == 1 ? self::_translate('1 month ago') : self::_translate('{num} months ago', ['num' => $dateInterval->m]);
         }
 
         if ($dateInterval->d) {
-            return $dateInterval->d == 1 ? Craft::t('app', '1 day ago') : Craft::t('app', '{num} days ago', ['num' => $dateInterval->d]);
+            return $dateInterval->d == 1 ? self::_translate('1 day ago') : self::_translate('{num} days ago', ['num' => $dateInterval->d]);
         }
 
         if ($dateInterval->h) {
-            return $dateInterval->h == 1 ? Craft::t('app', '1 hour ago') : Craft::t('app', '{num} hours ago', ['num' => $dateInterval->h]);
+            return $dateInterval->h == 1 ? self::_translate('1 hour ago') : self::_translate('{num} hours ago', ['num' => $dateInterval->h]);
         }
 
         if ($dateInterval->i) {
-            return $dateInterval->i == 1 ? Craft::t('app', '1 minute ago') : Craft::t('app', '{num} minutes ago', ['num' => $dateInterval->i]);
+            return $dateInterval->i == 1 ? self::_translate('1 minute ago') : self::_translate('{num} minutes ago', ['num' => $dateInterval->i]);
         }
 
         if ($dateInterval->s) {
-            return $dateInterval->s == 1 ? Craft::t('app', '1 second ago') : Craft::t('app', '{num} seconds ago', ['num' => $dateInterval->s]);
+            return $dateInterval->s == 1 ? self::_translate('1 second ago') : self::_translate('{num} seconds ago', ['num' => $dateInterval->s]);
         }
 
         return '';
@@ -80,6 +80,15 @@ class CommentsHelper
 
     // Private Methods
     // =========================================================================
+
+    private static function _translate(string $message, array $params = []): string
+    {
+        // Craft has no translations for these strings, so use the plugin's own. Sites that already override them
+        // in their `app` translations keep that override.
+        $appTranslation = Craft::$app->getI18n()->getMessageSource('app')->translate('app', $message, Craft::$app->language);
+
+        return Craft::t($appTranslation !== false ? 'app' : 'comments', $message, $params);
+    }
 
     private static function _assetExists($asset)
     {

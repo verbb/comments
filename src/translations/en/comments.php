@@ -40,6 +40,22 @@ return [
   'Couldn’t publish assets: {error}' => 'Couldn’t publish assets: {error}',
 
   //
+  // Time ago
+  //
+  '1 year ago' => '1 year ago',
+  '{num} years ago' => '{num} years ago',
+  '1 month ago' => '1 month ago',
+  '{num} months ago' => '{num} months ago',
+  '1 day ago' => '1 day ago',
+  '{num} days ago' => '{num} days ago',
+  '1 hour ago' => '1 hour ago',
+  '{num} hours ago' => '{num} hours ago',
+  '1 minute ago' => '1 minute ago',
+  '{num} minutes ago' => '{num} minutes ago',
+  '1 second ago' => '1 second ago',
+  '{num} seconds ago' => '{num} seconds ago',
+
+  //
   // Email Messages
   //
   'comments_author_notification_heading' => 'When a comment is received:',
