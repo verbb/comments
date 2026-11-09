@@ -3,10 +3,9 @@ namespace verbb\comments\services;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\enums\ModerationState;
 
 use craft\base\Component;
-
-use DateTime;
 
 class Security extends Component
 {
@@ -20,38 +19,18 @@ class Security extends Component
         // Check for content where a comment should be marked as pending.
         if ($this->_findInElementContent($comment, $settings->securityModeration)) {
             $comment->status = Comment::STATUS_PENDING;
+            $comment->moderationState = ModerationState::Pending->value;
         }
 
         // Check for content where a comment should be marked as spam.
         if ($this->_findInElementContent($comment, $settings->securitySpamlist)) {
             $comment->status = Comment::STATUS_SPAM;
+            $comment->moderationState = ModerationState::Spam->value;
         }
 
         // Check for content where a comment should be blocked.
         if ($this->_findInElementContent($comment, $settings->securityBanned)) {
             return false;
-        }
-
-        // Check if flood-control is active. Call in Master Chief!
-        if ($settings->securityFlooding) {
-
-            // Lookup last comment from this user (real or anon)
-            if ($comment->userId) {
-                $lastComment = Comment::findOne(['orderBy' => 'commentDate desc', 'userId' => $comment->userId]);
-            } else {
-                $lastComment = Comment::findOne(['orderBy' => 'commentDate desc', 'email' => $comment->email]);
-            }
-
-            // Maybe this is a new user, never commented before?
-            if ($lastComment) {
-                $lastCommentTime = $lastComment->commentDate;
-                $newCommentTime = new DateTime('now');
-                $seconds = abs($newCommentTime->getTimestamp() - $lastCommentTime->getTimestamp());
-
-                if ($seconds <= (int)$settings->securityFlooding) {
-                    return false;
-                }
-            }
         }
 
         return true;
@@ -68,11 +47,12 @@ class Security extends Component
                 && $settings->securityMaxLength > 0
                 && $settings->securityMaxLength == round($settings->securityMaxLength, 0)
             ) {
-                if (strlen($comment->getComment()) >= (int)$settings->securityMaxLength) {
+                if (mb_strlen((string)$comment->getComment()) > (int)$settings->securityMaxLength) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 
@@ -88,41 +68,28 @@ class Security extends Component
             return false;
         }
 
-        $values = explode("\n", $setting);
-        $attributes = $comment->getAttributes();
+        $values = array_filter(array_map('trim', explode("\n", $setting)));
 
-        // add the comment too, it's not included in the attributes
-        $comment = ["comment" => $comment->comment];
-        $mergedAttributes = array_merge($attributes, $comment);
-
-        foreach ($mergedAttributes as $attr) {
+        foreach ([$comment->comment, $comment->name, $comment->email, $comment->ipAddress] as $attr) {
             if (!is_string($attr)) {
                 continue;
             }
 
-            // Cleanup the string content coming from submissions
-            $attr = trim($attr);
-
-            // Strip out encoded text
-            $attr = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $attr);
+            // Control characters could otherwise split a word so that it doesn't match. Line breaks
+            // stay, because they're what separates a word at the start of a line from the one before.
+            $attr = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', trim($attr));
 
             foreach ($values as $value) {
-                $value = trim($value);
+                $found = $settings->securityMatchExact
+                    ? preg_match('/(?<![\p{L}\p{N}_])' . preg_quote($value, '/') . '(?![\p{L}\p{N}_])/iu', $attr)
+                    : mb_stripos($attr, $value) !== false;
 
-                if ($value) {
-                    if ($settings->securityMatchExact) {
-                        if (preg_match('/\b' . $value . '\b/', $attr)) {
-                            return true;
-                        }
-                    } else if (stripos($attr, $value) !== false) {
-                        // Found a match - that's all folks!
-                        return true;
-                    }
+                if ($found) {
+                    return true;
                 }
             }
         }
 
         return false;
     }
-
 }
