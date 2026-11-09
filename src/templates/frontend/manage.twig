@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="{{ craft.app.language }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{{ 'Comment emails' | t('comments') }}</title>
+    <style>
+        :root { color-scheme: light dark; }
+        body { margin: 0; padding: 3rem 1rem; font: 16px/1.5 system-ui, sans-serif; }
+        main { max-width: 32rem; margin: 0 auto; }
+        h1 { font-size: 1.5rem; margin: 0 0 0.75rem; }
+        form { margin-top: 1.25rem; }
+        button { font: inherit; padding: 0.5rem 1rem; cursor: pointer; }
+        .secondary { margin-top: 0.75rem; }
+    </style>
+</head>
+<body>
+    <main>
+        {% if not management %}
+            <h1>{{ 'This link isn’t valid' | t('comments') }}</h1>
+            <p>{{ 'It may have expired or been copied incorrectly. Links to confirm an email address last for a week.' | t('comments') }}</p>
+        {% elseif applied == purposes.confirm %}
+            <h1>{{ 'Your email is confirmed' | t('comments') }}</h1>
+            <p>{{ 'You’ll now get emails about comments you’ve asked to follow.' | t('comments') }}</p>
+        {% elseif applied == purposes.conversation %}
+            <h1>{{ 'You’re unsubscribed' | t('comments') }}</h1>
+            <p>{{ 'You won’t get any more emails about this discussion.' | t('comments') }}</p>
+        {% elseif applied == purposes.all %}
+            <h1>{{ 'You’re unsubscribed' | t('comments') }}</h1>
+            <p>{{ 'You won’t get any more comment emails.' | t('comments') }}</p>
+        {% elseif management.p == purposes.confirm %}
+            <h1>{{ 'Confirm your email' | t('comments') }}</h1>
+            <p>
+                {% if elementTitle %}
+                    {{ 'Confirm your address to get emails about comments on “{title}”.' | t('comments', { title: elementTitle }) }}
+                {% else %}
+                    {{ 'Confirm your address to get emails about replies to your comments.' | t('comments') }}
+                {% endif %}
+            </p>
+            <form method="post">
+                <input type="hidden" name="emailToken" value="{{ token }}">
+                <button type="submit">{{ 'Confirm my email' | t('comments') }}</button>
+            </form>
+        {% else %}
+            <h1>{{ 'Stop these emails?' | t('comments') }}</h1>
+
+            {% if management.p == purposes.conversation %}
+                <p>
+                    {% if elementTitle %}
+                        {{ 'You’re subscribed to comments on “{title}”.' | t('comments', { title: elementTitle }) }}
+                    {% else %}
+                        {{ 'You’re subscribed to this discussion.' | t('comments') }}
+                    {% endif %}
+                </p>
+                <form method="post">
+                    <input type="hidden" name="emailToken" value="{{ token }}">
+                    <button type="submit">{{ 'Unsubscribe from this discussion' | t('comments') }}</button>
+                </form>
+            {% endif %}
+
+            <form method="post" class="{{ management.p == purposes.conversation ? 'secondary' }}">
+                <input type="hidden" name="emailToken" value="{{ token }}">
+                <input type="hidden" name="scope" value="{{ purposes.all }}">
+                <button type="submit">{{ 'Stop all comment emails' | t('comments') }}</button>
+            </form>
+        {% endif %}
+    </main>
+</body>
+</html>

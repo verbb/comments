@@ -56,5 +56,4 @@ class RenderCache extends Component
     {
         $this->commentIds = $value;
     }
-
 }

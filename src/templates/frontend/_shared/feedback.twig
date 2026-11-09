@@ -1,0 +1,1 @@
+<div class="comments__feedback" {% if flash.error ?? false %}data-comments-state="error"{% elseif flash.notice ?? false %}data-comments-state="success"{% endif %}>{{ flash.error ?? flash.notice ?? '' }}</div>

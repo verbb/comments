@@ -1,0 +1,24 @@
+<div class="comments__load-more">
+    {% if mode == 'roots' and next %}
+        <a
+            href="{{ conversation.rootsNextHref }}"
+            class="comments__load-more-link"
+            data-comments-action="load-roots"
+            data-comments-next="{{ next }}"
+            aria-controls="{{ instance }}-list"
+        >
+            {{ label }}
+        </a>
+    {% elseif mode == 'replies' and rootUid is defined %}
+        <a
+            href="{{ href }}"
+            class="comments__load-more-link"
+            data-comments-action="load-replies"
+            data-comments-root-uid="{{ rootUid }}"
+            {% if limit is defined %}data-comments-reply-limit="{{ limit }}"{% endif %}
+            {% if controls ?? false %}aria-controls="{{ controls }}"{% endif %}
+        >
+            {{ label }}{% if remaining is defined %} ({{ remaining }}){% endif %}
+        </a>
+    {% endif %}
+</div>

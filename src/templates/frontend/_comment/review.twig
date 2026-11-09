@@ -1,0 +1,35 @@
+{% set moderationLabels = {
+    'moderate-approve': 'Approve' | t('comments'),
+    'moderate-keep': 'Keep' | t('comments'),
+    'moderate-remove': 'Remove' | t('comments'),
+    'moderate-restore': 'Restore' | t('comments'),
+    'moderate-spam': 'Spam' | t('comments'),
+    'moderate-not-spam': 'Not spam' | t('comments'),
+} %}
+{% set inline = comment.moderationActions | filter(a => comment.moderatorOnly or comment.reported) %}
+
+<div class="comments__review" data-comments-state-badge="{{ comment.state }}">
+    <p class="comments__review-label">
+        <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 6.5V10l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        {{ comment.reviewLabel ?? ({ removed: 'Removed · only moderators see this' | t('comments') }[comment.state] ?? '') }}
+    </p>
+
+    {% if inline %}
+        <div class="comments__moderation-actions" role="group" aria-label="{{ 'Moderation' | t('comments') }}">
+            {% for moderationAction in inline %}
+                <form method="post" action="{{ conversation.moderateAction }}" class="comments__moderate-form">
+                    {{ csrfInput() }}
+                    <input type="hidden" name="commentId" value="{{ comment.id }}">
+                    <input type="hidden" name="moderationAction" value="{{ moderationAction }}">
+                    <button
+                        type="submit"
+                        class="comments__button {{ loop.first ? 'comments__button--primary' : 'comments__button--quiet' }}"
+                        data-comments-action="moderate"
+                        data-comments-moderation-action="{{ moderationAction }}"
+                        data-comments-comment-uid="{{ comment.uid }}"
+                    >{{ moderationLabels[moderationAction] ?? moderationAction }}</button>
+                </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

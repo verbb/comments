@@ -1,0 +1,22 @@
+<div class="comments__content" dir="auto">
+    {# Moderators read held comments in full, so they can decide on them. #}
+    {% if comment.state != 'approved' and not comment.moderatorOnly %}
+        <p class="comments__content-muted">
+            {% if comment.state == 'pending-verification' %}
+                {{ 'Comment pending verification.' | t('comments') }}
+            {% elseif comment.state == 'spam' %}
+                {{ 'Comment marked as spam.' | t('comments') }}
+            {% else %}
+                {{ 'Comment unavailable.' | t('comments') }}
+            {% endif %}
+        </p>
+    {% elseif comment.contentHtml %}
+        <div class="comments__content-rich">{{ comment.contentHtml | raw }}</div>
+    {% elseif comment.content %}
+        <p class="comments__content-plain">{{ comment.content | nl2br }}</p>
+    {% endif %}
+
+    {% if (comment.state == 'approved' or comment.moderatorOnly) and comment.gifUrl %}
+        <img class="comments__gif" src="{{ comment.gifUrl }}" alt="{{ 'GIF' | t('comments') }}" loading="lazy">
+    {% endif %}
+</div>

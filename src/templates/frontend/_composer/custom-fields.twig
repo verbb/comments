@@ -1,0 +1,113 @@
+{% set fieldId = fieldId ?? (instance ~ '-' ~ (form ?? composer.mode)) %}
+{% set fieldLayout = craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment') %}
+{% set commentField = fieldLayout.getFirstElementByType('verbb\\comments\\fieldlayoutelements\\CommentsField') %}
+{# A label is blank by default in the field layout, but a form field always needs one. #}
+{% set label = commentField and commentField.label != '__blank__' ? commentField.label : 'Your comment' | t('comments') %}
+{% set instructions = commentField ? commentField.instructions : null %}
+{% set required = commentField ? commentField.required : true %}
+
+<div class="comments__field comments__field-comment">
+    <label class="comments__field-label" id="{{ fieldId }}-comment-label" for="{{ fieldId }}-comment-body">
+        {{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}
+    </label>
+
+    {% if composer.richAuthoring %}
+        {% set formMode = form ?? composer.mode %}
+        <input type="hidden" name="contentFormat" value="{{ composer.contentFormat }}">
+        <input type="hidden" name="fields[editorContent]" value="">
+        {# Editor's composer: the toolbar, uploads, character limit, draft and Post button are its own. #}
+        <verbb-editor
+            data-editor-root
+            data-options="{{ composer.getEditorOptions() | merge(composer.initialEditorContent ? { content: composer.initialEditorContent | json_decode } : {}) | json_encode | e('html_attr') }}"
+            aria-labelledby="{{ fieldId }}-comment-label"
+            submit-label="{{ formMode == 'edit' ? 'Save comment' | t('comments') : (formMode == 'reply' ? 'Post reply' | t('comments') : 'Post comment' | t('comments')) }}"
+            {% if composer.draftKey %}draft-key="{{ composer.draftKey }}"{% endif %}
+            {% if composer.maxLength %}limit="{{ composer.maxLength }}"{% endif %}
+            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
+            {% if required %}required{% endif %}
+            {% if formMode == 'create' %}collapsible{% endif %}
+        >
+            {% if formMode == 'create' and (viewer.isLoggedIn ?? false) and viewer.name %}
+                <span slot="header" class="comments__posting-as">
+                    {{ 'Posting as {name}' | t('comments', { name: viewer.name }) }}
+                    {% if viewer.badge %}<span class="comments__badge">{{ viewer.badge }}</span>{% endif %}
+                </span>
+            {% elseif formMode == 'reply' and composer.parentAuthorName %}
+                <span slot="header" class="comments__posting-as">{{ 'Replying to {name}' | t('comments', { name: composer.parentAuthorName }) }}</span>
+            {% endif %}
+            {% if formMode != 'create' %}
+                <button slot="actions" type="button" class="verbb-editor__button" data-comments-action="cancel-composer">{{ 'Cancel' | t('comments') }}</button>
+            {% endif %}
+        </verbb-editor>
+        {# Shown instead of the editor when JavaScript isn't running. #}
+        <textarea
+            id="{{ fieldId }}-comment-body"
+            class="comments__textarea comments__textarea-fallback"
+            name="fields[comment]"
+            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
+        >{{ composer.initialPlainContent ?? '' }}</textarea>
+    {% else %}
+        <textarea
+            id="{{ fieldId }}-comment-body"
+            class="comments__textarea"
+            name="fields[comment]"
+            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
+            {% if required %}required{% endif %}
+        >{{ composer.initialPlainContent ?? '' }}</textarea>
+    {% endif %}
+</div>
+
+{% for field in composer.publicFields %}
+    {% set inputId = fieldId ~ '-' ~ field.handle %}
+    {% set inputName = 'fields[' ~ field.handle ~ ']' %}
+    {% set describedBy = field.instructions ? 'aria-describedby="' ~ inputId ~ '-instructions"' : '' %}
+
+    {% if field.type in ['checkboxes', 'radio'] %}
+        <fieldset class="comments__field comments__field-custom" {{ describedBy | raw }}>
+            <legend class="comments__field-label">{{ field.label }}{% if field.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
+            {% if field.instructions %}<p class="comments__field-instructions" id="{{ inputId }}-instructions">{{ field.instructions }}</p>{% endif %}
+
+            {% for option in field.options %}
+                <label class="comments__field--checkbox" for="{{ inputId }}-{{ loop.index }}">
+                    <input
+                        id="{{ inputId }}-{{ loop.index }}"
+                        type="{{ field.type == 'radio' ? 'radio' : 'checkbox' }}"
+                        name="{{ inputName }}{{ field.type == 'checkboxes' ? '[]' }}"
+                        value="{{ option.value }}"
+                        {% if option.value in field.values %}checked{% endif %}
+                        {% if field.type == 'radio' and field.required %}required{% endif %}
+                    >
+                    <span>{{ option.label }}</span>
+                </label>
+            {% endfor %}
+        </fieldset>
+    {% elseif field.type == 'lightswitch' %}
+        <div class="comments__field comments__field-custom">
+            <input type="hidden" name="{{ inputName }}" value="">
+            <label class="comments__field--checkbox" for="{{ inputId }}">
+                <input id="{{ inputId }}" type="checkbox" name="{{ inputName }}" value="1" {{ describedBy | raw }} {% if field.values %}checked{% endif %}>
+                <span>{{ field.label }}</span>
+            </label>
+            {% if field.instructions %}<p class="comments__field-instructions" id="{{ inputId }}-instructions">{{ field.instructions }}</p>{% endif %}
+        </div>
+    {% else %}
+        <div class="comments__field comments__field-custom">
+            <label class="comments__field-label" for="{{ inputId }}">{{ field.label }}{% if field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+            {% if field.instructions %}<p class="comments__field-instructions" id="{{ inputId }}-instructions">{{ field.instructions }}</p>{% endif %}
+
+            {% if field.type == 'select' %}
+                <select id="{{ inputId }}" class="comments__input" name="{{ inputName }}{{ field.multiple ? '[]' }}" {% if field.multiple %}multiple{% endif %} {% if field.required %}required{% endif %} {{ describedBy | raw }}>
+                    {% for option in field.options %}
+                        <option value="{{ option.value }}" {% if option.value in field.values %}selected{% endif %} {% if option.disabled ?? false %}disabled{% endif %}>{{ option.label }}</option>
+                    {% endfor %}
+                </select>
+            {% elseif field.type == 'textarea' %}
+                <textarea id="{{ inputId }}" class="comments__textarea" name="{{ inputName }}" {% if field.required %}required{% endif %} {{ describedBy | raw }}>{{ field.values | first }}</textarea>
+            {% elseif field.type == 'file' %}
+                <input id="{{ inputId }}" class="comments__input" name="{{ inputName }}[]" type="file" {% if field.multiple %}multiple{% endif %} {% if field.required and not composer.editCommentId %}required{% endif %} {{ describedBy | raw }}>
+            {% else %}
+                <input id="{{ inputId }}" class="comments__input" name="{{ inputName }}" type="{{ field.type }}" value="{{ field.values | first }}" {% if field.required %}required{% endif %} {{ describedBy | raw }}>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}

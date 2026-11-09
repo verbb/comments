@@ -1,0 +1,56 @@
+{% set formMode = form ?? composer.mode %}
+{% set fieldId = instance ~ '-' ~ formMode ~ '-' ~ (composer.parentCommentId ?? composer.editCommentId ?? 'new') %}
+
+<form
+    class="comments__composer"
+    method="post"
+    accept-charset="UTF-8"
+    data-comments-form="{{ formMode }}"
+    data-comments-operation-id="{{ composer.operationId }}"
+    {% if composer.hasFileInputs %}enctype="multipart/form-data"{% endif %}
+>
+    <input type="hidden" name="action" value="comments/comments/save">
+    <input type="hidden" name="elementId" value="{{ composer.ownerId }}">
+    <input type="hidden" name="siteId" value="{{ composer.siteId }}">
+    <input type="hidden" name="parentId" value="{{ composer.parentCommentId ?? '' }}">
+    <input type="hidden" name="commentId" value="{{ composer.editCommentId ?? '' }}">
+    <input type="hidden" name="commentsOperationId" value="{{ composer.operationId }}">
+    {{ csrfInput() }}
+    {{ redirectInput(composer.redirectTemplate) }}
+    {{ craft.comments.protect(composer.ownerId, composer.siteId, composer.editCommentId) }}
+
+    {# With rich authoring, these sit in the composer's own header instead. #}
+    {% if composer.richAuthoring %}
+    {% elseif formMode == 'create' and (viewer.isLoggedIn ?? false) and viewer.name %}
+        <p class="comments__posting-as">
+            <span class="comments__avatar comments__avatar--initials comments__avatar--small" data-tone="{{ viewer.avatarTone }}" aria-hidden="true">{{ viewer.initials }}</span>
+            <span>{{ 'Posting as {name}' | t('comments', { name: viewer.name }) }}</span>
+            {% if viewer.badge %}<span class="comments__badge">{{ viewer.badge }}</span>{% endif %}
+        </p>
+    {% elseif formMode == 'reply' and (composer.parentAuthorName ?? false) %}
+        <p class="comments__posting-as">{{ 'Replying to {name}' | t('comments', { name: composer.parentAuthorName }) }}</p>
+    {% endif %}
+
+    {% if composer.showGuestFields %}
+        {% include '_composer/guest-fields' %}
+    {% endif %}
+
+    {% include '_composer/custom-fields' %}
+
+    {# The composer has its own Post button, so these are for the plain box and pages without JavaScript. #}
+    <div class="comments__composer-actions">
+        <button class="comments__submit" type="submit">
+            {% if formMode == 'edit' %}
+                {{ 'Save comment' | t('comments') }}
+            {% elseif formMode == 'reply' %}
+                {{ 'Post reply' | t('comments') }}
+            {% else %}
+                {{ 'Post comment' | t('comments') }}
+            {% endif %}
+        </button>
+        {% if formMode != 'create' %}
+            <button type="button" data-comments-action="cancel-composer" data-comments-js-only>{{ 'Cancel' | t('comments') }}</button>
+            <noscript><a class="comments__action-link" href="{{ composer.cancelHref }}">{{ 'Cancel' | t('comments') }}</a></noscript>
+        {% endif %}
+    </div>
+</form>

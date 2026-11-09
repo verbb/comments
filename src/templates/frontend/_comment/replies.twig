@@ -1,0 +1,40 @@
+{% if comment.replies is not empty or comment.hasMoreReplies %}
+    {% set repliesId = 'comment-' ~ comment.id ~ '-replies' %}
+
+    <div
+        class="comments__replies"
+        data-comments-replies
+        data-comments-root-uid="{{ comment.uid }}"
+    >
+        {% if comment.replies is not empty %}
+            <button
+                type="button"
+                class="comments__toggle-replies"
+                data-comments-action="toggle-replies"
+                data-comments-js-only
+                data-comments-label-hide="{{ 'Hide replies' | t('comments') }}"
+                data-comments-label-show="{{ 'Show replies' | t('comments') }}"
+                aria-expanded="true"
+                aria-controls="{{ repliesId }}"
+            >{{ 'Hide replies' | t('comments') }}</button>
+
+            <ol class="comments__replies-list" id="{{ repliesId }}" role="list">
+                {% for reply in comment.replies %}
+                    {% include '_comment/comment' with { comment: reply } %}
+                {% endfor %}
+            </ol>
+        {% endif %}
+
+        {% if comment.hasMoreReplies %}
+            {% include '_shared/pagination' with {
+                mode: 'replies',
+                rootUid: comment.uid,
+                remaining: comment.replyCount - comment.replies | length,
+                limit: comment.replies | length + 20,
+                href: comment.hrefs.replies ?? '#',
+                controls: comment.replies is not empty ? repliesId : null,
+                label: 'Load more replies' | t('comments'),
+            } %}
+        {% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,36 @@
+<fieldset class="comments__guest-fields">
+    <legend class="comments__guest-fields-legend">{{ 'Your details' | t('comments') }}</legend>
+
+    <label class="comments__field" for="{{ fieldId }}-guest-name">
+        <span class="comments__field-label">{{ 'Your name' | t('comments') }}{% if composer.guestRequireEmailName %} <span aria-hidden="true">*</span>{% endif %}</span>
+        <input
+            id="{{ fieldId }}-guest-name"
+            class="comments__input"
+            name="fields[name]"
+            type="text"
+            autocomplete="name"
+            value="{{ composer.guestName }}"
+            {% if composer.guestRequireEmailName %}required{% endif %}
+        >
+    </label>
+
+    <label class="comments__field" for="{{ fieldId }}-guest-email">
+        <span class="comments__field-label">{{ 'Your email' | t('comments') }}{% if composer.guestRequireEmailName %} <span aria-hidden="true">*</span>{% endif %}</span>
+        <input
+            id="{{ fieldId }}-guest-email"
+            class="comments__input"
+            name="fields[email]"
+            type="email"
+            autocomplete="email"
+            value="{{ composer.guestEmail }}"
+            {% if composer.guestRequireEmailName %}required{% endif %}
+        >
+    </label>
+
+    {% if composer.offerReplyEmails %}
+        <label class="comments__field--checkbox" for="{{ fieldId }}-guest-notify">
+            <input id="{{ fieldId }}-guest-notify" name="fields[notifyReplies]" type="checkbox" value="1">
+            <span>{{ 'Email me when someone replies. We’ll ask you to confirm your address first.' | t('comments') }}</span>
+        </label>
+    {% endif %}
+</fieldset>

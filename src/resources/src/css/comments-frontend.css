@@ -1,0 +1,1073 @@
+[data-comments-root] {
+  --comments-font-family: inherit;
+  --comments-font-size: 1rem;
+  --comments-line-height: 1.5;
+  --comments-color-text: #1f2328;
+  --comments-color-muted: #5a6068;
+  --comments-color-link: #0b57d0;
+  --comments-color-border: #d6d9dd;
+  --comments-color-surface: #fff;
+  --comments-color-surface-muted: #f5f6f7;
+  --comments-color-accent: #0b57d0;
+  --comments-color-on-accent: #fff;
+  --comments-color-danger: #b3261e;
+  --comments-color-success: #146c2e;
+  --comments-color-focus: #0b57d0;
+  --comments-space-1: 0.25rem;
+  --comments-space-2: 0.5rem;
+  --comments-space-3: 0.75rem;
+  --comments-space-4: 1rem;
+  --comments-space-5: 1.5rem;
+  --comments-radius: 0.5rem;
+  --comments-avatar-size: 2rem;
+  --comments-thread-indent: 1.25rem;
+  --comments-max-visual-depth: 4;
+  --comments-control-size: 2.25rem;
+
+  font-family: var(--comments-font-family);
+  font-size: var(--comments-font-size);
+  line-height: var(--comments-line-height);
+  color: var(--comments-color-text);
+  color-scheme: light;
+}
+
+[data-comments-root][data-comments-theme='dark'] {
+  --comments-color-text: #eceef0;
+  --comments-color-muted: #b4b9c0;
+  --comments-color-link: #8ab4f8;
+  --comments-color-border: #43484f;
+  --comments-color-surface: #1f2226;
+  --comments-color-surface-muted: #2a2e33;
+  --comments-color-accent: #8ab4f8;
+  --comments-color-on-accent: #10223f;
+  --comments-color-danger: #f2b8b5;
+  --comments-color-success: #7dd99b;
+  --comments-color-focus: #8ab4f8;
+
+  /* Its light text can't rely on what's behind it on the page. */
+  padding: var(--comments-space-4);
+  border-radius: var(--comments-radius);
+  background: #17191c;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-comments-root][data-comments-theme='auto'] {
+    --comments-color-text: #eceef0;
+    --comments-color-muted: #b4b9c0;
+    --comments-color-link: #8ab4f8;
+    --comments-color-border: #43484f;
+    --comments-color-surface: #1f2226;
+    --comments-color-surface-muted: #2a2e33;
+    --comments-color-accent: #8ab4f8;
+    --comments-color-on-accent: #10223f;
+    --comments-color-danger: #f2b8b5;
+    --comments-color-success: #7dd99b;
+    --comments-color-focus: #8ab4f8;
+
+    padding: var(--comments-space-4);
+    border-radius: var(--comments-radius);
+    background: #17191c;
+    color-scheme: dark;
+  }
+}
+
+.comments {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-4);
+}
+
+.comments :where(a):not([data-editor-root] *) {
+  color: var(--comments-color-link);
+}
+
+/* Browsers give form controls their own font, monospace for a textarea, so a control without
+   one of our classes would look out of place. */
+.comments :where(input, select, textarea, button):not([data-editor-root] *) {
+  font: inherit;
+}
+
+.comments :where(a, button, input, select, textarea, summary, article):focus-visible {
+  outline: 2px solid var(--comments-color-focus);
+  outline-offset: 2px;
+}
+
+/* Only ever focused from script, to move someone to what just changed. */
+.comments article:focus:not(:focus-visible),
+.comments__heading:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.comments__live,
+.comments__visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Without JavaScript these would do nothing, and links take their place. */
+[data-comments-root]:not([data-comments-js]) [data-comments-js-only] {
+  display: none;
+}
+
+/* Header */
+
+.comments__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--comments-space-3);
+}
+
+.comments__header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--comments-space-2) var(--comments-space-3);
+  margin-inline-end: auto;
+}
+
+.comments__heading {
+  margin: 0;
+  font-size: 1.25em;
+  line-height: 1.3;
+}
+
+.comments__count {
+  margin: 0;
+  color: var(--comments-color-muted);
+}
+
+.comments__subscribe-form,
+.comments__sort-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--comments-space-2);
+  max-inline-size: 100%;
+  margin: 0;
+}
+
+.comments__sort-form {
+  align-items: center;
+}
+
+.comments__sort-form select {
+  min-block-size: var(--comments-control-size);
+  padding-inline: var(--comments-space-2);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  color: inherit;
+  font: inherit;
+}
+
+/* Lists and comments */
+
+.comments__list,
+.comments__replies-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comments__comment {
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+}
+
+/* A thread line says what cards inside cards would, and leaves room on a phone. */
+.comments__replies .comments__comment {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.comments__replies {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-3);
+  margin-block-start: var(--comments-space-3);
+  padding-inline-start: var(--comments-thread-indent);
+  border-inline-start: 2px solid var(--comments-color-border);
+}
+
+/* However deep a thread goes, it stops moving across the page. */
+.comments__comment[data-comments-visual-depth='4'] > article > .comments__replies {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.comments__comment > article {
+  border-radius: var(--comments-radius);
+}
+
+.comments__comment > article:target,
+.comments__comment--highlight > article {
+  outline: 2px solid var(--comments-color-accent);
+  outline-offset: 4px;
+}
+
+.comments__author {
+  display: flex;
+  align-items: center;
+  gap: var(--comments-space-3);
+  margin-block-end: var(--comments-space-2);
+}
+
+.comments__avatar {
+  flex: none;
+  inline-size: var(--comments-avatar-size);
+  block-size: var(--comments-avatar-size);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comments__author-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--comments-space-1) var(--comments-space-2);
+  min-inline-size: 0;
+}
+
+.comments__author-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.comments__date,
+.comments__edited {
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__permalink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.comments__permalink:hover .comments__date,
+.comments__permalink:focus-visible .comments__date {
+  color: var(--comments-color-link);
+  text-decoration: underline;
+}
+
+.comments__badge {
+  padding-inline: var(--comments-space-2);
+  border: 1px solid var(--comments-color-border);
+  border-radius: 999px;
+  background: var(--comments-color-surface-muted);
+  font-size: 0.75em;
+  line-height: 1.6;
+}
+
+.comments__state-badge {
+  display: inline-block;
+  margin: 0 0 var(--comments-space-2);
+  padding: 0.1rem 0.45rem;
+  border: 1px dashed var(--comments-color-muted);
+  border-radius: var(--comments-radius);
+  font-size: 0.8125em;
+}
+
+.comments__content {
+  overflow-wrap: anywhere;
+}
+
+.comments__content-plain {
+  margin: 0;
+}
+
+.comments__content-muted,
+.comments__placeholder {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-style: italic;
+}
+
+.comments__content-rich :where(p, ul, ol, blockquote, pre) {
+  margin-block: var(--comments-space-2);
+}
+
+.comments__content-rich :where(:first-child) {
+  margin-block-start: 0;
+}
+
+.comments__content-rich :where(:last-child) {
+  margin-block-end: 0;
+}
+
+.comments__content-rich :where(img, video) {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.comments__content-rich :where(pre) {
+  overflow-x: auto;
+}
+
+.comments__gif {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  margin-block-start: var(--comments-space-2);
+  border-radius: var(--comments-space-1);
+}
+
+/* Actions */
+
+/* Rich authoring has its own controls. A link styled as a button looks like one, so Review in
+   Comments matches the Hide held button beside it. */
+.comments :where(button, a.comments__button, .comments__action-link, .comments__load-more-link):not([data-editor-root] *) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--comments-space-1);
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.comments :where(button, a.comments__button, .comments__action-link, .comments__load-more-link):not([data-editor-root] *):hover {
+  background: var(--comments-color-surface-muted);
+}
+
+.comments :where(button, a)[aria-busy='true'] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.comments .comments__submit {
+  border-color: var(--comments-color-accent);
+  background: var(--comments-color-accent);
+  color: var(--comments-color-on-accent);
+  font-weight: 600;
+}
+
+.comments .comments__submit:hover {
+  background: var(--comments-color-accent);
+  filter: brightness(0.92);
+}
+
+@media (pointer: coarse) {
+  [data-comments-root] {
+    --comments-control-size: 2.75rem;
+  }
+}
+
+.comments__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+  margin-block-start: var(--comments-space-3);
+}
+
+.comments__interactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+}
+
+.comments__vote-form,
+.comments__moderate-form,
+.comments__remove-form {
+  display: contents;
+}
+
+.comments__vote[aria-pressed='true'],
+.comments__subscribe[aria-pressed='true'] {
+  border-color: currentColor;
+  background: var(--comments-color-surface-muted);
+  font-weight: 600;
+}
+
+.comments__vote-count,
+.comments__score {
+  font-variant-numeric: tabular-nums;
+}
+
+.comments__score {
+  color: var(--comments-color-muted);
+}
+
+.comments__moderation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+  margin-inline-start: auto;
+}
+
+.comments .comments__toggle-replies {
+  justify-self: start;
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+  color: var(--comments-color-muted);
+  text-decoration: underline;
+}
+
+.comments__replies-list[hidden],
+.comments__load-more[hidden] {
+  display: none;
+}
+
+.comments__load-more {
+  margin-block-start: var(--comments-space-1);
+}
+
+/* Forms */
+
+.comments__composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-3);
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface-muted);
+}
+
+/* Protect's wrapper only holds hidden inputs and a hidden trap field (its challenges go on the form
+   itself), so it gets no box. Otherwise it takes an empty row of the grid, which shows as a gap
+   above the first field. */
+.comments__composer > [data-comments-protection] {
+  display: contents;
+}
+
+.comments__contextual-composer:not(:empty) {
+  margin-block-start: var(--comments-space-3);
+}
+
+.comments__guest-fields,
+.comments__report-fields,
+.comments__field-custom:where(fieldset) {
+  display: grid;
+  gap: var(--comments-space-3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.comments__guest-fields-legend,
+.comments__report-fields legend,
+.comments__field-custom legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.comments__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-1);
+}
+
+.comments__field-label,
+.comments__label {
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.comments__field-instructions {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__field--checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+  font-size: 0.875em;
+}
+
+.comments__field--checkbox input {
+  flex: none;
+  margin-block-start: 0.2em;
+}
+
+.comments__input,
+.comments__textarea,
+.comments__report-fields :where(select, textarea),
+.comments__report-form .comments__field textarea {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-muted);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  color: inherit;
+  font: inherit;
+}
+
+.comments__textarea {
+  min-block-size: 6rem;
+  resize: vertical;
+}
+
+/* Rich authoring takes over from the plain box once it's running. */
+form[data-comments-editor-mounted] .comments__textarea-fallback {
+  display: none;
+}
+
+[aria-invalid='true'] {
+  border-color: var(--comments-color-danger);
+}
+
+.comments__field-error,
+.comments__form-error {
+  margin: 0;
+  color: var(--comments-color-danger);
+  font-size: 0.875em;
+}
+
+.comments__composer-actions,
+.comments__report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+}
+
+.comments__report-actions {
+  margin-block-start: var(--comments-space-4);
+}
+
+.comments__report-dialog {
+  box-sizing: border-box;
+  inline-size: min(28rem, calc(100vw - 2rem));
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  color: var(--comments-color-text);
+}
+
+.comments__report-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+/* States */
+
+.comments__empty p,
+.comments__guest-notice,
+.comments__closed-notice,
+.comments__loading {
+  margin: 0;
+  color: var(--comments-color-muted);
+}
+
+.comments__empty p + p {
+  margin-block-start: var(--comments-space-1);
+}
+
+/* Sits at the end so it can stay in view from anywhere in the comments, wherever the action was. */
+[data-comments-region='feedback'] {
+  position: sticky;
+  inset-block-end: var(--comments-space-3);
+  z-index: 1;
+}
+
+.comments__feedback:empty {
+  display: none;
+}
+
+.comments__feedback {
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+}
+
+.comments__feedback[data-comments-state='error'] {
+  border-color: var(--comments-color-danger);
+  color: var(--comments-color-danger);
+}
+
+.comments__feedback[data-comments-state='success'] {
+  border-color: var(--comments-color-success);
+}
+
+.comments__feedback button {
+  margin-inline-start: var(--comments-space-2);
+}
+
+@media (max-width: 40rem) {
+  [data-comments-root] {
+    --comments-thread-indent: 0.75rem;
+  }
+
+  .comments__moderation-actions {
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-comments-root] * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Thread design: quiet actions, a menu, moderator review, guests' way in. */
+
+[data-comments-root] {
+  --comments-color-held-surface: #fff8eb;
+  --comments-color-held-border: #f2d39b;
+  --comments-color-held-text: #8a5300;
+  --comments-color-reported-surface: #fff1f0;
+  --comments-color-reported-border: #f5c2bd;
+  --comments-color-like: #c4314b;
+  --comments-avatar-0: #3b6ea5;
+  --comments-avatar-1: #8a5a2b;
+  --comments-avatar-2: #2f7d4f;
+  --comments-avatar-3: #8a3f7d;
+  --comments-avatar-4: #b0532a;
+  --comments-avatar-5: #237a7a;
+  --comments-avatar-6: #5a4fa3;
+  --comments-avatar-7: #6b7a2a;
+  --comments-color-on-avatar: #fff;
+}
+
+[data-comments-root][data-comments-theme='dark'] {
+  --comments-color-held-surface: #33291a;
+  --comments-color-held-border: #6b5428;
+  --comments-color-held-text: #f3c77a;
+  --comments-color-reported-surface: #3a2422;
+  --comments-color-reported-border: #74403b;
+  --comments-color-like: #ff8a9e;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-comments-root][data-comments-theme='auto'] {
+    --comments-color-held-surface: #33291a;
+    --comments-color-held-border: #6b5428;
+    --comments-color-held-text: #f3c77a;
+    --comments-color-reported-surface: #3a2422;
+    --comments-color-reported-border: #74403b;
+    --comments-color-like: #ff8a9e;
+  }
+}
+
+.comments__icon {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  flex: none;
+}
+
+.comments__heading .comments__count {
+  margin-inline-start: var(--comments-space-1);
+  font-size: 0.7em;
+  font-weight: 400;
+}
+
+.comments__sort {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--comments-color-surface-muted);
+}
+
+.comments .comments__sort-option {
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border-radius: 999px;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+  text-decoration: none;
+}
+
+.comments .comments__sort-option[aria-current='true'] {
+  background: var(--comments-color-surface);
+  color: var(--comments-color-text);
+  font-weight: 600;
+}
+
+/* Quiet by default: the row's buttons only show an outline when they're hovered or pressed. */
+.comments .comments__actions :where(.comments__action, .comments__vote, .comments__menu-toggle) {
+  border-color: transparent;
+  padding-inline: var(--comments-space-2);
+  color: var(--comments-color-muted);
+}
+
+/* The count for someone who can't like: the Like button's look, without being a control. */
+.comments .comments__vote-total {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--comments-space-1);
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-2);
+  border: 1px solid transparent;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments .comments__vote[aria-pressed='true'] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--comments-color-like);
+}
+
+.comments .comments__subscribe {
+  gap: var(--comments-space-2);
+}
+
+.comments__menu {
+  position: relative;
+}
+
+.comments__menu-toggle {
+  list-style: none;
+}
+
+.comments__menu-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.comments__menu-items {
+  position: absolute;
+  inset-inline-start: 0;
+  z-index: 10;
+  display: grid;
+  min-inline-size: 12rem;
+  margin-block-start: var(--comments-space-1);
+  padding: var(--comments-space-1);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.comments .comments__menu-item {
+  justify-content: flex-start;
+  inline-size: 100%;
+  border-color: transparent;
+  text-align: start;
+}
+
+.comments .comments__menu-item--danger {
+  color: var(--comments-color-danger);
+}
+
+.comments__avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--comments-color-on-avatar);
+  background: var(--comments-avatar-0);
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.comments__avatar--initials[data-tone='1'] { background: var(--comments-avatar-1); }
+.comments__avatar--initials[data-tone='2'] { background: var(--comments-avatar-2); }
+.comments__avatar--initials[data-tone='3'] { background: var(--comments-avatar-3); }
+.comments__avatar--initials[data-tone='4'] { background: var(--comments-avatar-4); }
+.comments__avatar--initials[data-tone='5'] { background: var(--comments-avatar-5); }
+.comments__avatar--initials[data-tone='6'] { background: var(--comments-avatar-6); }
+.comments__avatar--initials[data-tone='7'] { background: var(--comments-avatar-7); }
+
+.comments__avatar--small {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  font-size: 0.625em;
+}
+
+/* Held and reported comments, which only moderators see. */
+.comments__comment--held > article,
+.comments__comment--reported > article {
+  padding: var(--comments-space-3);
+  border: 1px solid var(--comments-color-held-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-held-surface);
+}
+
+.comments__comment--reported > article {
+  border-color: var(--comments-color-reported-border);
+  background: var(--comments-color-reported-surface);
+}
+
+.comments--hide-held .comments__comment--held {
+  display: none;
+}
+
+.comments__review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+  margin-block-start: var(--comments-space-3);
+  padding-block-start: var(--comments-space-2);
+  border-block-start: 1px solid var(--comments-color-held-border);
+}
+
+.comments__review-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--comments-space-1);
+  margin: 0;
+  color: var(--comments-color-held-text);
+  font-size: 0.875em;
+}
+
+.comments .comments__button {
+  border-radius: 999px;
+}
+
+.comments .comments__button--primary {
+  border-color: var(--comments-color-accent);
+  background: var(--comments-color-accent);
+  color: var(--comments-color-on-accent);
+  font-weight: 600;
+}
+
+.comments .comments__button--primary:hover {
+  background: var(--comments-color-accent);
+  filter: brightness(0.92);
+}
+
+.comments .comments__button--quiet {
+  background: transparent;
+}
+
+.comments__moderator-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--comments-space-2);
+  inline-size: 100%;
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-held-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-held-surface);
+  color: var(--comments-color-held-text);
+}
+
+.comments__moderator-bar p {
+  margin: 0;
+}
+
+.comments__moderator-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+}
+
+.comments__join {
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+}
+
+.comments__join-title {
+  margin: 0;
+  font-size: 1em;
+}
+
+.comments__join-text {
+  margin: var(--comments-space-1) 0 var(--comments-space-3);
+  color: var(--comments-color-muted);
+}
+
+.comments__join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+}
+
+.comments__join-guest {
+  flex: 0 1 auto;
+}
+
+.comments__join-guest[open] {
+  flex-basis: 100%;
+}
+
+.comments__join-guest > summary {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: 999px;
+  font-size: 0.875em;
+  list-style: none;
+  cursor: pointer;
+}
+
+.comments__join-guest > summary:hover {
+  background: var(--comments-color-surface-muted);
+}
+
+.comments__join-guest > summary::-webkit-details-marker {
+  display: none;
+}
+
+.comments__join-guest[open] > summary {
+  margin-block-end: var(--comments-space-3);
+}
+
+.comments__join-actions > .comments__button {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-4);
+  text-decoration: none;
+}
+
+.comments__join-actions:has(.comments__join-guest[open]) {
+  display: block;
+}
+
+.comments__posting-as {
+  display: flex;
+  align-items: center;
+  gap: var(--comments-space-2);
+  margin: 0 0 var(--comments-space-2);
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__report-dialog {
+  inline-size: min(28rem, calc(100vw - 2rem));
+}
+
+.comments__report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--comments-space-2);
+  margin-block-end: var(--comments-space-3);
+}
+
+.comments__report-title {
+  margin: 0;
+  font-size: 1.05em;
+}
+
+.comments .comments__report-close {
+  border-color: transparent;
+  font-size: 1.25em;
+}
+
+.comments__report-quote {
+  margin: 0 0 var(--comments-space-3);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border-inline-start: 3px solid var(--comments-color-border);
+  background: var(--comments-color-surface-muted);
+  font-size: 0.875em;
+}
+
+.comments__report-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+  margin-block-end: var(--comments-space-2);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  cursor: pointer;
+}
+
+.comments__report-reason:has(input:checked) {
+  border-color: var(--comments-color-accent);
+}
+
+.comments__report-reason input {
+  margin-block-start: 0.25em;
+}
+
+.comments__report-reason-label {
+  display: block;
+  font-weight: 600;
+}
+
+.comments__report-reason-description {
+  display: block;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+/* A flat thread, as the design shows: avatars and spacing separate comments, not boxes. Held and
+   reported comments get the only tinted box, so they stand out to moderators. */
+.comments__comment {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.comments__list {
+  gap: var(--comments-space-5);
+}
+
+.comments a.comments__button {
+  text-decoration: none;
+}
+
+/* Editor's composer, themed from the thread's own tokens. Until its script arrives the plain box
+   underneath stays in use, and once it's mounted its own Post button replaces ours. */
+.comments verbb-editor {
+  --verbb-editor-accent: var(--comments-color-accent);
+  --verbb-editor-accent-fg: var(--comments-color-on-accent);
+  --verbb-editor-bg: var(--comments-color-surface);
+  --verbb-editor-fg: var(--comments-color-text);
+  --verbb-editor-muted: var(--comments-color-muted);
+  --verbb-editor-border: var(--comments-color-border);
+  --verbb-editor-hover: var(--comments-color-surface-muted);
+  --verbb-editor-danger: var(--comments-color-danger);
+  --verbb-editor-radius: var(--comments-radius);
+  --verbb-editor-font-family: inherit;
+  display: block;
+}
+
+.comments verbb-editor:not(:defined),
+.comments form:not([data-comments-editor-mounted]) verbb-editor {
+  display: none;
+}
+
+.comments form[data-comments-editor-mounted] .comments__composer-actions:has(.comments__submit) {
+  display: none;
+}
+
+.comments verbb-editor .comments__posting-as {
+  margin: 0;
+}
+
+.comments__meta-item {
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__meta-item::before {
+  content: '· ';
+}

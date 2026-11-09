@@ -2,15 +2,17 @@
 namespace verbb\comments\variables;
 
 use verbb\comments\Comments;
-use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\elements\db\CommentQuery;
+use verbb\comments\enums\InteractionMode;
+use verbb\comments\enums\RemovalReason;
+use verbb\comments\enums\SubscriptionType;
+use verbb\comments\helpers\CommentsHelper;
+use verbb\comments\helpers\SettingsTabs;
+use verbb\comments\migrations\support\V3UpgradeLog;
 
 use Craft;
 use craft\elements\Asset;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\Html;
-use craft\helpers\Json;
-use craft\helpers\StringHelper;
 use craft\helpers\Template;
 
 use Twig\Markup;
@@ -19,6 +21,36 @@ class CommentsVariable
 {
     // Public Methods
     // =========================================================================
+
+    public function getPluginName(): string
+    {
+        return Comments::$plugin->getPluginName();
+    }
+
+    public function getSettingsNavItems(): array
+    {
+        return SettingsTabs::navItems();
+    }
+
+    public function getInteractionModeOptions(): array
+    {
+        return InteractionMode::options();
+    }
+
+    public function getUpgradeIssues(): array
+    {
+        return V3UpgradeLog::issues(Craft::$app->getDb());
+    }
+
+    public function removalReasons(): array
+    {
+        return RemovalReason::options();
+    }
+
+    public function reportReasonLabel(?string $reason): string
+    {
+        return Comments::$plugin->getReports()->reasonLabel($reason);
+    }
 
     public function fetch($criteria = null): CommentQuery
     {
@@ -30,9 +62,9 @@ class CommentsVariable
         return Comments::$plugin->getComments()->render($elementId, $criteria, $jsSettings);
     }
 
-    public function protect(bool $loadInline = false): Markup
+    public function protect(int $ownerId, ?int $siteId = null, ?int $commentId = null): Markup
     {
-        $fields = Comments::$plugin->getProtect()->getFields($loadInline);
+        $fields = Comments::$plugin->getProtection()->getFields($ownerId, $siteId ?? (int)Craft::$app->getSites()->getCurrentSite()->id, $commentId);
 
         return Template::raw($fields);
     }
@@ -42,62 +74,54 @@ class CommentsVariable
         $currentUser = Comments::$plugin->getService()->getUser();
         $elementId = $element->id ?? null;
         $elementSiteId = $element->siteId ?? null;
-        $userId = $currentUser->id ?? null;
         $commentId = $comment->id ?? null;
 
-        return Comments::$plugin->getSubscribe()->hasSubscribed($elementId, $elementSiteId, $userId, $commentId);
-    }
-
-    public function renderCss($elementId, $attributes = []): Markup
-    {
-        $view = Craft::$app->getView();
-        $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/css/comments.css', true);
-
-        $output = Html::cssFile($url, $attributes);
-
-        return Template::raw($output);
-    }
-
-    public function renderJs($elementId, $criteria = [], $loadInline = true, $attributes = []): Markup
-    {
-        $view = Craft::$app->getView();
-        $url = Craft::$app->getAssetManager()->getPublishedUrl('@verbb/comments/resources/dist/js/comments.js', true);
-
-        $id = 'cc-w-' . $elementId;
-        $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
-
-        // Wrap the Comment JS init code in a unqiue function, so it can be called onload
-        if ($loadInline) {
-            $functionName = StringHelper::appendRandomString('InitComments', 10);
-            $attributes = array_merge(['onload' => $functionName . '()'], $attributes);
+        if (!$elementId || !$elementSiteId || !$currentUser) {
+            return false;
         }
 
-        $output = [];
+        $conversation = Comments::$plugin->getConversations()->findForOwner((int)$elementId, (int)$elementSiteId);
 
-        if ($loadInline) {
-            // Wrap JS in our unique function, to prevent it firing early
-            $jsString = 'var ' . $functionName . ' = function() { new Comments.Instance(' .
-                Json::encode('#' . $id, JSON_UNESCAPED_UNICODE) . ', ' .
-                Json::encode($jsVariables, JSON_UNESCAPED_UNICODE) .
-            '); }';
-    
-            $output[] = Html::script($jsString, ['type' => 'text/javascript']);
+        if ($conversation) {
+            $identity = Comments::$plugin->getIdentities()->findForUser((int)$currentUser->id);
+
+            if (!$identity) {
+                return false;
+            }
+
+            return Comments::$plugin->getSubscriptions()->isSubscribed(
+                (int)$conversation->id,
+                (int)$identity->id,
+                $commentId ? (int)$commentId : null,
+                $commentId ? SubscriptionType::Replies : SubscriptionType::Conversation,
+            );
         }
-        
-        $output[] = Html::jsFile($url, $attributes);
 
-        return Template::raw(implode(PHP_EOL, $output));
+        return false;
     }
 
-    public function getJsVariables($elementId, $criteria = []): array
+    public function getSummary($element)
     {
-        $id = 'cc-w-' . $elementId;
-        $jsVariables = Comments::$plugin->getComments()->getRenderJsVariables($id, $elementId, $criteria);
+        $elementId = $element->id ?? null;
+        $elementSiteId = $element->siteId ?? null;
 
-        return [
-            'id' => '#' . $id,
-            'settings' => $jsVariables,
-        ];
+        if (!$elementId || !$elementSiteId) {
+            return null;
+        }
+
+        return Comments::$plugin->getConversations()->getSummaryForOwner((int)$elementId, (int)$elementSiteId);
+    }
+
+    public function getConfig($element)
+    {
+        $elementId = $element->id ?? null;
+        $elementSiteId = $element->siteId ?? null;
+
+        if (!$elementId || !$elementSiteId) {
+            return null;
+        }
+
+        return Comments::$plugin->getConversations()->getConfigForOwner((int)$elementId, (int)$elementSiteId);
     }
 
     public function getAvatar(): string|Asset
@@ -107,17 +131,16 @@ class CommentsVariable
 
     public function getUserVotes($userId): array
     {
-        return Comments::$plugin->getVotes()->getVotesByUserId($userId);
+        return Comments::$plugin->getInteractions()->getForUser((int)$userId);
     }
 
     public function getUserDownvotes($userId): array
     {
-        return Comments::$plugin->getVotes()->getDownvotesByUserId($userId);
+        return Comments::$plugin->getInteractions()->getForUser((int)$userId, \verbb\comments\enums\InteractionType::Downvote);
     }
 
     public function getUserUpvotes($userId): array
     {
-        return Comments::$plugin->getVotes()->getUpvotesByUserId($userId);
+        return Comments::$plugin->getInteractions()->getForUser((int)$userId, \verbb\comments\enums\InteractionType::Upvote);
     }
-
 }

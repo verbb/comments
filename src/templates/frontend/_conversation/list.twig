@@ -1,0 +1,20 @@
+{% if conversation.lazy %}
+    <p class="comments__loading" data-comments-lazy-placeholder>{{ 'Loading comments…' | t('comments') }}</p>
+    <noscript><a class="comments__load-more-link" href="{{ conversation.showCommentsHref }}">{{ 'Show comments' | t('comments') }}</a></noscript>
+{% elseif conversation.roots is empty %}
+    {% include '_conversation/empty' %}
+{% else %}
+    <ol class="comments__list" id="{{ instance }}-list" role="list">
+        {% for comment in conversation.roots %}
+            {% include '_comment/comment' with { comment: comment } %}
+        {% endfor %}
+    </ol>
+
+    {% if conversation.rootsNext %}
+        {% include '_shared/pagination' with {
+            mode: 'roots',
+            next: conversation.rootsNext,
+            label: 'Load more comments' | t('comments'),
+        } %}
+    {% endif %}
+{% endif %}
