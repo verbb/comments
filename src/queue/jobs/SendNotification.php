@@ -6,8 +6,9 @@ use verbb\comments\Comments;
 use Craft;
 use craft\queue\BaseJob;
 
-use Exception;
-
+/**
+ * Concrete notification delivery job. Payload is stable scalars only — no serialized elements.
+ */
 class SendNotification extends BaseJob
 {
     // Properties
@@ -16,6 +17,7 @@ class SendNotification extends BaseJob
     public int $commentId;
     public ?int $siteId = null;
     public string $type;
+    public ?int $mentionedIdentityId = null;
 
 
     // Public Methods
@@ -32,11 +34,17 @@ class SendNotification extends BaseJob
 
         $comment = Comments::$plugin->getComments()->getCommentById($this->commentId, $this->siteId);
 
+        // Trashed or deleted since this was queued, so there's nothing left to tell anyone about.
         if (!$comment) {
-            throw new Exception('Unable to find comment: ' . $this->commentId . '.');
+            return;
         }
 
-        Comments::$plugin->getComments()->triggerNotificationEmail($this->type, $comment);
+        // Throws if any recipient couldn't be reached, leaving the job failed in the queue manager.
+        Comments::$plugin->getComments()->triggerNotificationEmail(
+            $this->type,
+            $comment,
+            $this->mentionedIdentityId,
+        );
 
         $this->setProgress($queue, 1);
     }
