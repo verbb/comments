@@ -1,0 +1,229 @@
+/* The entry's Comments panel. Spacing and most colours come from Craft's variables; avatars and the
+   waiting and reported tones (--comments-warn, --comments-bad) from comments-cp.css. */
+/* The setting sits on its own, like any field; the comments are in a card under it. */
+.comments-field__card-box {
+    margin-block-start: 14px;
+    overflow: hidden;
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--large-border-radius);
+    background-color: var(--white);
+}
+
+.comments-field .cp-icon {
+    --icon-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Open, Closed, Off, or following the source */
+.comments-field__state {
+    padding: 0;
+}
+
+.comments-field__note {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--light-text-color);
+}
+
+/* Waiting for a moderator */
+.comments-field__waiting {
+    display: grid;
+    gap: 8px;
+    padding: 10px 16px 12px;
+    background-color: var(--comments-warn-soft);
+}
+
+.comments-field__waiting-title,
+.comments-field__clear {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.comments-field__waiting-title {
+    color: var(--comments-warn);
+    --icon-color: var(--comments-warn);
+}
+
+.comments-field__clear {
+    padding: 10px 16px;
+    color: var(--green-700);
+    background-color: var(--green-050);
+    --icon-color: var(--green-600);
+}
+
+.comments-field__clear[hidden] {
+    display: none;
+}
+
+.comments-field__card {
+    display: grid;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: var(--medium-border-radius);
+    font-size: 13px;
+    background-color: var(--white);
+    box-shadow: 0 0 0 1px rgb(31 41 51 / 7%), 0 2px 8px -2px rgb(31 41 51 / 10%);
+}
+
+/* Wraps in a narrow column rather than squeezing the name down to an initial. */
+.comments-field__card-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 6px;
+    min-width: 0;
+}
+
+.comments-field__card-top .comments-field__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.comments-field__card-top .comments-field__age {
+    margin-inline-start: auto;
+    white-space: nowrap;
+}
+
+.comments-field__pill {
+    flex-shrink: 0;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--comments-warn);
+    background-color: var(--comments-warn-soft);
+}
+
+.comments-field__pill--reported {
+    color: var(--comments-bad);
+    background-color: var(--comments-bad-soft);
+}
+
+.comments-field__card-text {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    color: var(--medium-text-color);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.comments-field__card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.comments-field__secondary.btn {
+    background-color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--gray-200);
+}
+
+.comments-field__secondary.btn:hover {
+    background-color: var(--gray-050);
+}
+
+/* A quiet link to the comment's page, like a plain button. */
+.comments-field__open {
+    margin-inline-start: auto;
+    padding: 4px 8px;
+    border-radius: var(--medium-border-radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--medium-text-color);
+}
+
+.comments-field__open:hover {
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: var(--gray-050);
+}
+
+/* Latest */
+.comments-field__latest {
+    padding: 12px 16px 8px;
+}
+
+.comments-field__label {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--light-text-color);
+}
+
+.comments-field__list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.comments-field__item {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    font-size: 12px;
+}
+
+.comments-field__item-body {
+    min-width: 0;
+}
+
+.comments-field__item .comments-field__name {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.comments-field__age {
+    font-size: 12px;
+    color: var(--light-text-color);
+}
+
+.comments-field__item .comments-field__age {
+    margin-inline-start: 4px;
+}
+
+.comments-field__line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--medium-text-color);
+}
+
+/* Footer */
+.comments-field__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 10px 16px 14px;
+    border-block-start: 1px solid var(--hairline-color);
+    font-size: 13px;
+}
+
+.comments-field__following {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--light-text-color);
+    --icon-color: var(--light-text-color);
+}
+
+.comments-field__all {
+    margin-inline-start: auto;
+    font-weight: 600;
+}

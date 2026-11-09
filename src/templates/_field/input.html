@@ -1,12 +1,126 @@
 {% import '_includes/forms' as forms %}
+{% import _self as panel %}
 
-{{ forms.lightswitchField({
-    label: 'Enable comments' | t('comments'),
-    instructions: 'Toggle whether comments should be allowed for this {element} or not.' | t('comments', {
-        'element': element.lowerDisplayName(),
-    }),
-    id: name ~ '-commentEnabled',
-    name: name ~ '[commentEnabled]',
-    on: value.commentEnabled ?? false,
-}) }}
+{% set moderation = craft.app.plugins.getPlugin('comments').getModeration() %}
 
+{# The field stores `inherit`, `enabled`, `closed` or `disabled`, and the summary speaks in statuses. #}
+{% set valueForStatus = { open: 'enabled', closed: 'closed', disabled: 'disabled' } %}
+{% set inheriting = value not in stateOptions|keys %}
+{% set inheritedValue = sourceStatus ? valueForStatus[sourceStatus] : null %}
+{% set shownValue = inheriting ? inheritedValue : value %}
+
+{# A plain select: the first option follows the source setting and says what that gives. #}
+{% set selectOptions = [{
+    label: inheritedValue ? 'Default ({state})' | t('comments', { state: stateOptions[inheritedValue].label }) : 'Default' | t('comments'),
+    value: 'inherit',
+    data: { description: inheritedValue ? stateOptions[inheritedValue].text : '' },
+}] %}
+{% for optionValue, option in stateOptions %}
+    {% set selectOptions = selectOptions|merge([{ label: option.label, value: optionValue, data: { description: option.text } }]) %}
+{% endfor %}
+
+{% macro avatar(author, small) %}
+    {%- if author.photoUrl -%}
+        <img class="comments-avatar{{ small ? ' comments-avatar--small' }}" src="{{ author.photoUrl }}" alt="">
+    {%- else -%}
+        <span class="comments-avatar{{ small ? ' comments-avatar--small' }}" data-tone="{{ author.tone }}" aria-hidden="true">{{ author.initials }}</span>
+    {%- endif -%}
+{% endmacro %}
+
+<div class="comments-field" data-comments-field>
+    <div class="comments-field__state" data-comments-field-state>
+        {{ forms.select({
+            id: id,
+            name: name,
+            value: inheriting ? 'inherit' : value,
+            options: selectOptions,
+            labelledBy: id ~ '-label',
+            inputAttributes: { data: { 'comments-field-value': true } },
+        }) }}
+
+        <p class="comments-field__note" data-comments-field-description>{{ shownValue ? stateOptions[shownValue].text }}</p>
+    </div>
+
+    {% if summary %}
+        {# The comments themselves sit in a card under the setting. #}
+        <div class="comments-field__card-box">
+        {% set waitingParts = [] %}
+        {% if summary.counts.pending %}
+            {% set waitingParts = waitingParts | merge([summary.counts.pending == 1 ? '1 waiting for review' | t('comments') : '{count} waiting for review' | t('comments', { count: summary.counts.pending })]) %}
+        {% endif %}
+        {% if summary.counts.openReports %}
+            {% set waitingParts = waitingParts | merge([summary.counts.openReports == 1 ? '1 reported' | t('comments') : '{count} reported' | t('comments', { count: summary.counts.openReports })]) %}
+        {% endif %}
+
+        {% if summary.waiting %}
+            <section
+                class="comments-field__waiting"
+                aria-labelledby="{{ id }}-waiting"
+                data-comments-field-waiting
+                data-pending="{{ summary.counts.pending }}"
+                data-reported="{{ summary.counts.openReports }}"
+            >
+                <h4 id="{{ id }}-waiting" class="comments-field__waiting-title">
+                    <span class="cp-icon" aria-hidden="true">{{ iconSvg('clock') }}</span>
+                    <span data-comments-field-waiting-label>{{ waitingParts | join(' · ') }}</span>
+                </h4>
+
+                {% for item in summary.waiting %}
+                    {% set comment = item.comment %}
+                    <article class="comments-field__card" data-comments-field-card data-kind="{{ item.kind }}">
+                        <header class="comments-field__card-top">
+                            {{ panel.avatar(item.author, true) }}
+                            <strong class="comments-field__name">{{ item.author.name }}</strong>
+                            <span class="comments-field__pill comments-field__pill--{{ item.kind }}">{{ item.reason }}</span>
+                            <time class="comments-field__age" datetime="{{ comment.commentDate | atom }}" title="{{ comment.commentDate | datetime('short') }}">{{ item.age }}</time>
+                        </header>
+                        <p class="comments-field__card-text">{{ comment.getExcerpt(0, 400) }}</p>
+                        <div class="comments-field__card-actions">
+                            {% for decision in item.decisions %}
+                                <button
+                                    type="button"
+                                    class="btn small {{ loop.first ? 'submit' : 'comments-field__secondary' }}"
+                                    data-comments-field-decide="{{ decision }}"
+                                    data-comment-id="{{ comment.id }}"
+                                >{{ moderation.decisionLabel(decision) }}</button>
+                            {% endfor %}
+                            <a class="comments-field__open" href="{{ comment.cpEditUrl }}">{{ 'Open' | t('comments') }}</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <p class="comments-field__clear" data-comments-field-clear{% if summary.waiting %} hidden{% endif %}>
+            <span class="cp-icon" aria-hidden="true">{{ iconSvg('check') }}</span>
+            {{ 'Nothing waiting on this entry' | t('comments') }}
+        </p>
+
+        {% if summary.latest %}
+            <section class="comments-field__latest" aria-labelledby="{{ id }}-latest">
+                <h4 id="{{ id }}-latest" class="comments-field__label">{{ 'Latest' | t('comments') }}</h4>
+                <ul class="comments-field__list">
+                    {% for item in summary.latest %}
+                        <li class="comments-field__item">
+                            {{ panel.avatar(item.author, true) }}
+                            <div class="comments-field__item-body">
+                                <a class="comments-field__name" href="{{ item.comment.cpEditUrl }}">{{ item.author.name }}</a>
+                                <time class="comments-field__age" datetime="{{ item.comment.commentDate | atom }}" title="{{ item.comment.commentDate | datetime('short') }}">{{ item.age }}</time>
+                                <div class="comments-field__line">{{ item.comment.getExcerpt(0, 160) }}</div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        <footer class="comments-field__footer">
+            <span class="comments-field__following">
+                <span class="cp-icon" aria-hidden="true">{{ iconSvg('bell') }}</span>
+                {{ summary.following == 1 ? '1 following' | t('comments') : '{count} following' | t('comments', { count: summary.following | number }) }}
+            </span>
+            <a class="comments-field__all" href="{{ summary.manageUrl }}">{{ 'All {count} in Comments' | t('comments', { count: summary.counts.approved | number }) }} →</a>
+        </footer>
+        </div>
+    {% endif %}
+</div>

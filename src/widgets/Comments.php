@@ -48,9 +48,9 @@ class Comments extends Widget
     public function getBodyHtml(): ?string
     {
         $comments = Comment::find()
-            ->status($this->status)
+            ->status($this->status === 'all' ? null : $this->status)
             ->limit($this->limit)
-            ->isFlagged($this->showFlagged)
+            ->isFlagged($this->showFlagged ?: null)
             ->orderBy('dateCreated desc')
             ->all();
 
@@ -65,5 +65,4 @@ class Comments extends Widget
             'widget' => $this,
         ]);
     }
-
 }

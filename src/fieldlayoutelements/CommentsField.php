@@ -5,6 +5,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\fieldlayoutelements\BaseField;
 use craft\helpers\Html;
+use craft\web\View;
 
 class CommentsField extends BaseField
 {
@@ -53,7 +54,7 @@ class CommentsField extends BaseField
             return Html::encode(Craft::t('comments', $this->label));
         }
 
-        return '__blank__';
+        return Craft::t('comments', 'Comment');
     }
 
     public function instructions(?ElementInterface $element = null, bool $static = false): ?string
@@ -62,7 +63,7 @@ class CommentsField extends BaseField
             return Html::encode(Craft::t('comments', $this->instructions));
         }
 
-        return Craft::t('comments', 'Add a comment...');
+        return null;
     }
 
 
@@ -71,6 +72,13 @@ class CommentsField extends BaseField
 
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
-        return '';
+        if (!$element) {
+            return '';
+        }
+
+        return Craft::$app->getView()->renderTemplate('comments/comments/_editor-body', [
+            'comment' => $element,
+            'static' => $static,
+        ], View::TEMPLATE_MODE_CP);
     }
 }
