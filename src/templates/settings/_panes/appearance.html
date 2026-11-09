@@ -1,0 +1,110 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.selectField({
+    first: true,
+    label: 'Frontend Comment Order' | t('comments'),
+    instructions: 'The default order comments are displayed on the public site.' | t('comments'),
+    name: 'orderBy',
+    value: settings.orderBy,
+    options: [
+        { label: 'Newest first' | t('comments'), value: 'desc' },
+        { label: 'Oldest first' | t('comments'), value: 'asc' },
+    ],
+    warning: macros.configWarning('orderBy', 'comments'),
+}) }}
+
+{{ forms.selectField({
+    label: 'Theme' | t('comments'),
+    instructions: '“Auto” follows the visitor’s colour-scheme preference. “None” outputs no styling at all, for sites providing their own.' | t('comments'),
+    name: 'editorTheme',
+    value: settings.editorTheme,
+    options: [
+        { label: 'Light' | t('comments'), value: 'light' },
+        { label: 'Dark' | t('comments'), value: 'dark' },
+        { label: 'Auto' | t('comments'), value: 'auto' },
+        { label: 'None' | t('comments'), value: 'none' },
+    ],
+    warning: macros.configWarning('editorTheme', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Show Avatar' | t('comments'),
+    instructions: 'Whether to show an avatar for comments. Craft users who comment will have their user profile image shown, while guests will show a placeholder (be sure to add one below).' | t('comments'),
+    name: 'showAvatar',
+    on: settings.showAvatar,
+    warning: macros.configWarning('showAvatar', 'comments'),
+    toggle: 'avatar-fields',
+}) }}
+
+<div id="avatar-fields" class="field {{ not settings.showAvatar ? 'hidden' }}">
+    {% set elements = [] %}
+    {% set placeholderAvatar = settings.getPlaceholderAvatar() %}
+
+    {% if placeholderAvatar %}
+        {% set elements = elements | merge([placeholderAvatar]) %}
+    {% endif %}
+
+    {{ forms.elementSelectField({
+        label: 'Placeholder Avatar' | t('comments'),
+        instructions: 'If a guest is making a comment, this will be shown as their avatar.' | t('comments'),
+        id: 'placeholderAvatar',
+        name: 'placeholderAvatar',
+        elements: elements,
+        elementType: 'craft\\elements\\Asset',
+        selectionLabel: 'Choose placeholder avatar' | t('comments'),
+        sources: '*',
+        criteria: {
+            kind: [],
+            siteId: null,
+        },
+        limit: 1,
+        jsClass: 'Craft.AssetSelectInput',
+        modalStorageKey: 'comments.placeholderAvatar',
+        warning: macros.configWarning('placeholderAvatar', 'comments'),
+    }) }}
+
+</div>
+
+{{ forms.textField({
+    label: 'Author Badge' | t('comments'),
+    instructions: 'Shown next to a comment made by the author of the element it’s on. Leave blank for no badge.' | t('comments'),
+    id: 'ownerBadgeLabel',
+    name: 'ownerBadgeLabel',
+    value: settings.ownerBadgeLabel,
+    warning: macros.configWarning('ownerBadgeLabel', 'comments'),
+}) }}
+
+{{ forms.textField({
+    label: 'Staff Badge' | t('comments'),
+    instructions: 'Shown next to comments from the user groups below. Leave blank for no badge.' | t('comments'),
+    id: 'staffBadgeLabel',
+    name: 'staffBadgeLabel',
+    value: settings.staffBadgeLabel,
+    warning: macros.configWarning('staffBadgeLabel', 'comments'),
+}) }}
+
+{% set staffGroupOptions = [] %}
+
+{% for group in craft.app.userGroups.getAllGroups() %}
+    {% set staffGroupOptions = staffGroupOptions | merge([{ label: group.name, value: group.uid }]) %}
+{% endfor %}
+
+{% if staffGroupOptions %}
+    {{ forms.checkboxSelectField({
+        label: 'Staff Badge Groups' | t('comments'),
+        instructions: 'Being able to moderate doesn’t show a badge. Only membership of these groups does.' | t('comments'),
+        name: 'staffBadgeGroups',
+        values: settings.staffBadgeGroups,
+        options: staffGroupOptions,
+        warning: macros.configWarning('staffBadgeGroups', 'comments'),
+    }) }}
+{% endif %}
+
+{{ forms.lightswitchField({
+    label: 'Show Time Ago' | t('comments'),
+    instructions: 'Whether to show how long ago a comment was made.' | t('comments'),
+    name: 'showTimeAgo',
+    on: settings.showTimeAgo,
+    warning: macros.configWarning('showTimeAgo', 'comments'),
+}) }}

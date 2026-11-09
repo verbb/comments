@@ -1,64 +1,16 @@
-{% extends 'comments/_layouts' %}
+{% extends 'comments/_layouts/settings' %}
+
 {% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
 
-{% requireAdmin %}
-
-{% set crumbs = [
-    { label: 'Comments' | t('comments'), url: url('comments') },
-    { label: 'Settings' | t('app'), url: url('comments/settings') },
-] %}
-
-{% set navItems = {
-    'general': { title: 'General Settings' | t('comments') },
-    'notifications': { title: 'Notifications' | t('comments') },
-    'voting': { title: 'Voting' | t('comments') },
-    'flagging': { title: 'Flagging' | t('comments') },
-    'templates-heading': { heading: 'Templates' | t('comments') },
-    'comments-form': { title: 'Comments Form' | t('comments') },
-    'templates-default': { title: 'Default Templates' | t('comments') },
-    'templates-custom': { title: 'Custom Templates' | t('comments') },
-    'security-heading': { heading: 'Security' | t('comments') },
-    'security': { title: 'Security & Spam' | t('comments') },
-    'permissions': { title: 'Permissions' | t('comments') },
-} %}
-
-{% set selectedTab = 'settings' %}
-{% set selectedItem = 'general' %}
 {% set fullPageForm = true %}
+{% set pageTitle = tab.label | t('comments') %}
+{% set pageAction = 'comments/settings/save-settings' %}
+{% set pageUrl = selectedTab == 'general'
+    ? 'comments/settings'
+    : 'comments/settings/' ~ selectedTab
+%}
 
-{% block sidebar %}
-    <nav class="comments-settings-tabs" data-vui-tabs>
-        <ul>
-            {% for id, item in navItems %}
-                {% if item.heading is defined %}
-                    <li class="heading"><span>{{ item.heading }}</span></li>
-                {% else %}
-                    <li>
-                        <a href="#sidebar-tab-{{ id }}" class="tab {% if id == selectedItem %}sel{% endif %}">
-                            {{ item.title }}
-                        </a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </nav>
-{% endblock %}
-
-{% block blockContent %}
-
-<input type="hidden" name="action" value="plugins/save-plugin-settings">
-<input type="hidden" name="pluginHandle" value="comments">
-
-{% for id, item in navItems %}
-    {% if item.title is defined %}
-        <div id="sidebar-tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
-            <h2>{{ item.title }}</h2>
-
-            {% namespace 'settings' %}
-                {% include 'comments/settings/_panes/' ~ id ignore missing %}
-            {% endnamespace %}
-        </div>
-    {% endif %}
-{% endfor %}
-
+{% block settingsContent %}
+    {% include 'comments/settings/_panes/' ~ selectedTab %}
 {% endblock %}

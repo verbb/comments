@@ -1,0 +1,41 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.lightswitchField({
+    first: true,
+    label: 'Comments Require Moderation' | t('comments'),
+    instructions: 'Hold every new comment until a moderator approves it.' | t('comments'),
+    name: 'requireModeration',
+    on: settings.requireModeration,
+    toggle: 'moderator-groups',
+    warning: macros.configWarning('requireModeration', 'comments'),
+}) }}
+
+<div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
+    {% set groups = [{ label: 'None' | t('comments'), value: '' }] %}
+    {% for group in craft.app.userGroups.getAllGroups() %}
+        {% set groups = groups | merge([{ label: group.name, value: group.uid }]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Moderator User Group' | t('comments'),
+        instructions: 'The group whose members are told about new, waiting and reported comments.' | t('comments'),
+        id: 'moderatorUserGroup',
+        name: 'moderatorUserGroup',
+        value: settings.moderatorUserGroup,
+        errors: settings.getErrors('moderatorUserGroup'),
+        options: groups,
+        warning: macros.configWarning('moderatorUserGroup', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Exclude Moderator Comments' | t('comments'),
+        instructions: 'Comments from members of the moderator group are approved straight away.' | t('comments'),
+        name: 'moderatorExcluded',
+        on: settings.moderatorExcluded,
+        warning: macros.configWarning('moderatorExcluded', 'comments'),
+    }) }}
+</div>
+
+{# Inline Markdown, since a paragraph inside this one would leave empty paragraphs around it. #}
+<p class="light">{{ 'Review comments from the Needs review, Reported and Spam sources on the [Comments]({link}) screen.' | t('comments', { link: url('comments') }) | md(inlineOnly=true) }}</p>

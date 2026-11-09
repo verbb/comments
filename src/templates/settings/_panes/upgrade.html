@@ -1,0 +1,20 @@
+{% set issues = craft.comments.upgradeIssues %}
+
+<p>{{ 'What the upgrade from Comments 3 found that’s worth knowing. Nothing here stopped it from completing.' | t('comments') }}</p>
+
+<table class="data fullwidth">
+    <thead>
+        <tr>
+            <th scope="col">{{ 'Finding' | t('comments') }}</th>
+            <th scope="col" class="thin">{{ 'Count' | t('comments') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for issue in issues %}
+            <tr>
+                <td>{{ issue.label }}</td>
+                <td class="thin">{{ issue.count | number }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

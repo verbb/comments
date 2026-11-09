@@ -1,0 +1,95 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.selectField({
+    first: true,
+    label: 'Authoring Mode' | t('comments'),
+    instructions: 'Plain text authoring works standalone. Rich authoring is powered by the Editor plugin.' | t('comments'),
+    name: 'authoringMode',
+    value: settings.authoringMode,
+    options: [
+        { label: 'Plain text' | t('comments'), value: 'plain' },
+        { label: 'Rich (Editor)' | t('comments'), value: 'rich' },
+    ],
+    toggle: true,
+    targetPrefix: 'authoring-',
+    warning: macros.configWarning('authoringMode', 'comments'),
+}) }}
+
+{{ forms.textField({
+    type: 'number',
+    label: 'Maximum Comment Length' | t('comments'),
+    instructions: 'Limit the number of characters a comment can have.' | t('comments'),
+    name: 'securityMaxLength',
+    value: settings.securityMaxLength,
+    min: 1,
+    warning: macros.configWarning('securityMaxLength', 'comments'),
+}) }}
+
+{{ forms.textField({
+    type: 'number',
+    label: 'Author Edit Window' | t('comments'),
+    instructions: 'How many minutes authors can edit or delete their own comment for. Leave blank for no limit.' | t('comments'),
+    id: 'authorEditWindow',
+    name: 'authorEditWindow',
+    value: settings.authorEditWindow,
+    min: 1,
+    errors: settings.getErrors('authorEditWindow'),
+    warning: macros.configWarning('authorEditWindow', 'comments'),
+}) }}
+
+<div id="authoring-rich" {% if settings.authoringMode != 'rich' %}class="hidden"{% endif %}>
+    {{ forms.lightswitchField({
+        label: 'Allow Mentions' | t('comments'),
+        instructions: 'Commenters can mention other users, who are then notified.' | t('comments'),
+        name: 'allowMentions',
+        on: settings.allowMentions,
+        warning: macros.configWarning('allowMentions', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Allow Attachments' | t('comments'),
+        instructions: 'Commenters can attach images and files to a comment.' | t('comments'),
+        name: 'allowAttachments',
+        on: settings.allowAttachments,
+        toggle: 'attachment-fields',
+        warning: macros.configWarning('allowAttachments', 'comments'),
+    }) }}
+
+    <div id="attachment-fields"{% if not settings.allowAttachments %} class="hidden"{% endif %}>
+        {% set volumeOptions = [{ label: 'None' | t('comments'), value: '' }] %}
+        {% for volume in craft.app.volumes.getAllVolumes() %}
+            {% set volumeOptions = volumeOptions | merge([{ label: volume.name, value: volume.id }]) %}
+        {% endfor %}
+
+        {{ forms.selectField({
+            label: 'Attachment Volume' | t('comments'),
+            instructions: 'The asset volume uploaded attachments are stored in. Attachments are disabled until a volume is chosen.' | t('comments'),
+            name: 'attachmentVolumeId',
+            value: settings.attachmentVolumeId,
+            options: volumeOptions,
+            warning: macros.configWarning('attachmentVolumeId', 'comments'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Allowed File Types' | t('comments'),
+            instructions: 'File extensions commenters can attach, separated by commas.' | t('comments'),
+            id: 'attachmentExtensions',
+            name: 'attachmentExtensions',
+            value: settings.attachmentExtensions | join(', '),
+            warning: macros.configWarning('attachmentExtensions', 'comments'),
+        }) }}
+
+        {{ forms.textField({
+            type: 'number',
+            label: 'Maximum File Size' | t('comments'),
+            instructions: 'The largest file commenters can attach, in megabytes.' | t('comments'),
+            id: 'attachmentMaxSize',
+            name: 'attachmentMaxSize',
+            value: settings.attachmentMaxSize,
+            min: 1,
+            errors: settings.getErrors('attachmentMaxSize'),
+            warning: macros.configWarning('attachmentMaxSize', 'comments'),
+        }) }}
+    </div>
+</div>

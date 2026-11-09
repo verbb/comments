@@ -1,135 +1,57 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
-{{ forms.lightswitchField({
-    first: true,
-    label: 'Allow Guest Comments' | t('comments'),
-    instructions: 'Guest users can post a comment.' | t('comments'),
-    name: 'allowGuest',
-    on: settings.allowGuest,
-    warning: macros.configWarning('allowGuest', 'comments'),
-    toggle: 'allow-guest',
-    reverseToggle: 'allow-guest-none',
+{{ forms.textField({
+    autofocus: true,
+    label: 'Plugin Name' | t('app'),
+    instructions: 'The name shown for Comments in the control panel.' | t('comments'),
+    id: 'pluginName',
+    name: 'pluginName',
+    value: settings.pluginName,
+    required: true,
+    errors: settings.getErrors('pluginName'),
+    warning: macros.configWarning('pluginName', 'comments'),
 }) }}
 
-<div id="allow-guest" style="margin-top: 24px;" {% if not settings.allowGuest %}class="hidden"{% endif %}>
-    {{ forms.lightswitchField({
-        label: 'Show Email and Name for Guests' | t('comments'),
-        instructions: 'Guests are shown fields to enter their name and email. Only applicable for guest comments.' | t('comments'),
-        name: 'guestShowEmailName',
-        on: settings.guestShowEmailName,
-        warning: macros.configWarning('guestShowEmailName', 'comments'),
-        toggle: 'require-email-name',
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: 'Require Email and Name for Guests' | t('comments'),
-        instructions: 'Guests are required to enter their name and email. Only applicable for guest comments.' | t('comments'),
-        name: 'guestRequireEmailName',
-        on: settings.guestRequireEmailName,
-        warning: macros.configWarning('guestRequireEmailName', 'comments'),
-    }) }}
-</div>
-
-<div id="allow-guest-none" style="margin-top: 24px;" {% if settings.allowGuest %}class="hidden"{% endif %}>
-    {{ forms.textField({
-        label: 'Guest Notice' | t('comments'),
-        id: 'guestNotice',
-        name: 'guestNotice',
-        instructions: 'This text will be shown to guests, informing that they are unable to comment.' | t('comments'),
-        value: settings.guestNotice,
-        warning: macros.configWarning('guestNotice', 'comments'),
-    }) }}
-</div>
-
-<hr>
-
 {{ forms.lightswitchField({
-    label: 'Comments Require Moderation' | t('comments'),
-    instructions: 'All comments require manual approval before being publicly visible.' | t('comments'),
-    name: 'requireModeration',
-    on: settings.requireModeration,
-    toggle: 'moderator-groups',
-    warning: macros.configWarning('requireModeration', 'comments'),
+    label: 'Close Comments Globally' | t('comments'),
+    instructions: 'Stop new comments everywhere. Existing comments stay visible.' | t('comments'),
+    name: 'closed',
+    on: settings.closed,
+    warning: macros.configWarning('closed', 'comments'),
 }) }}
-
-<div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
-    {% set groups = [{ label: 'None' | t('comments'), value: '' }] %}
-    {% for group in craft.app.userGroups.getAllGroups() %}
-        {% set groups = groups | merge([{ label: group.name, value: group.uid }]) %}
-    {% endfor %}
-
-    {{ forms.selectField({
-        label: 'Moderator User Group' | t('comments'),
-        instructions: 'Select the user group that should be classified as moderators. This will determine who notifications should be sent to.' | t('comments'),
-        id: 'moderatorUserGroup',
-        name: 'moderatorUserGroup',
-        value: settings.moderatorUserGroup,
-        errors: settings.getErrors('moderatorUserGroup'),
-        options: groups,
-        warning: macros.configWarning('moderatorUserGroup', 'comments'),
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: 'Exclude Moderator Comments' | t('comments'),
-        instructions: 'Comments from any user in the moderator group will not require moderation themselves.' | t('comments'),
-        name: 'moderatorExcluded',
-        on: settings.moderatorExcluded,
-        warning: macros.configWarning('moderatorExcluded', 'comments'),
-    }) }}
-</div>
-
-<hr>
 
 {{ forms.textField({
     label: 'Auto-close Comments' | t('comments'),
+    instructions: 'Close comments on elements this many days after their post date. Leave blank to keep them open.' | t('comments'),
     id: 'autoCloseDays',
     name: 'autoCloseDays',
-    instructions: 'Comments can be automatically closed on elements older than the provided amount of days. This uses the "Post Date" of an element. Leave empty to disable.' | t('comments'),
     value: settings.autoCloseDays,
     warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}
 
-{{ forms.textField({
-    label: 'Maximum Reply Depth' | t('comments'),
-    id: 'maxReplyDepth',
-    name: 'maxReplyDepth',
-    instructions: 'Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.' | t('comments'),
-    value: settings.maxReplyDepth,
-    warning: macros.configWarning('maxReplyDepth', 'comments'),
+{{ forms.selectField({
+    label: 'Control Panel Sort' | t('comments'),
+    instructions: 'The default sort used when opening the Comments index.' | t('comments'),
+    name: 'sortDefaultKey',
+    value: settings.sortDefaultKey,
+    options: [
+        { label: 'Date Posted' | t('comments'), value: 'commentDate' },
+        { label: 'Date Updated' | t('app'), value: 'dateUpdated' },
+        { label: 'Thread' | t('comments'), value: 'thread' },
+        { label: 'Status' | t('comments'), value: 'status' },
+    ],
+    warning: macros.configWarning('sortDefaultKey', 'comments'),
 }) }}
 
-{{ forms.textField({
-    label: 'Maximum Comments per-user' | t('comments'),
-    id: 'maxUserComments',
-    name: 'maxUserComments',
-    instructions: 'Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.' | t('comments'),
-    value: settings.maxUserComments,
-    warning: macros.configWarning('maxUserComments', 'comments'),
+{{ forms.selectField({
+    label: 'Sort Direction' | t('comments'),
+    name: 'sortDefaultDirection',
+    value: settings.sortDefaultDirection,
+    options: [
+        { label: 'Descending' | t('app'), value: 'desc' },
+        { label: 'Ascending' | t('app'), value: 'asc' },
+    ],
+    warning: macros.configWarning('sortDefaultDirection', 'comments'),
 }) }}
-
-<a class="fieldtoggle" data-target="structure-info">{{ 'Structure Info' | t('comments') }}</a>
-
-<div id="structure-info" class="hidden">
-    <p class="warning with-icon">{{ 'These values should not be altered manually. If for some reason they are empty, you can run the following command to re-generate these values: <code>php craft comments/base/resave-structure</code>' | t('comments') | raw }}</p>
-
-    {# Preserve structureUid on save - the field below is display-only (no name) so we submit it via hidden input to avoid it being dropped when project config is written. #}
-    <input type="hidden" name="structureUid" value="{{ settings.structureUid ?? '' }}">
-
-    {{ forms.textField({
-        label: 'Structure UID' | t('comments'),
-        id: 'structureUid',
-        instructions: 'The UID for the internal structure used by Comments.' | t('comments'),
-        value: settings.structureUid,
-        warning: macros.configWarning('structureUid', 'comments'),
-    }) }}
-
-    {{ forms.textField({
-        label: 'Structure ID' | t('comments'),
-        id: 'structureId',
-        instructions: 'The ID for the internal structure used by Comments.' | t('comments'),
-        value: settings.getStructureId(),
-        warning: macros.configWarning('structureId', 'comments'),
-    }) }}
-</div>
 

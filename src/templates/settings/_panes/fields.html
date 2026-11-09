@@ -1,0 +1,27 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% set publicFieldOptions = [] %}
+
+{% for field in craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment').getCustomFields() %}
+    {% set publicFieldOptions = publicFieldOptions | merge([{ label: field.name, value: field.handle }]) %}
+{% endfor %}
+
+{% if publicFieldOptions %}
+    {{ forms.checkboxGroupField({
+        label: 'Public Fields' | t('comments'),
+        instructions: 'Choose the custom fields visitors can submit through public forms and the API. All other fields can only be edited in the control panel.' | t('comments'),
+        name: 'publicFields',
+        options: publicFieldOptions,
+        values: settings.publicFields,
+        warning: macros.configWarning('publicFields', 'comments'),
+    }) }}
+{% endif %}
+
+{{ forms.fieldLayoutDesignerField({
+    label: 'Comment Field Layout' | t('comments'),
+    instructions: 'Choose the fields and tabs available on Comment elements in the control panel and public comment form.' | t('comments'),
+    fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
+    customizableTabs: true,
+    customizableUi: false,
+}) }}

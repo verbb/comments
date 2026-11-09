@@ -1,0 +1,66 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% set interactionOptions = [] %}
+{% for option in craft.comments.getInteractionModeOptions() %}
+    {% set interactionOptions = interactionOptions | merge([{ label: option.label | t('comments'), value: option.value }]) %}
+{% endfor %}
+
+{{ forms.selectField({
+    first: true,
+    label: 'Interaction Mode' | t('comments'),
+    instructions: 'How visitors can react to a comment.' | t('comments'),
+    name: 'interactionMode',
+    value: settings.interactionMode,
+    options: interactionOptions,
+    warning: macros.configWarning('interactionMode', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Allow Guest Interactions' | t('comments'),
+    instructions: 'Let signed-out visitors react to comments too.' | t('comments'),
+    name: 'allowGuestVoting',
+    on: settings.allowGuestVoting,
+    warning: macros.configWarning('allowGuestVoting', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Reporting' | t('comments') }}</h3>
+
+{{ forms.lightswitchField({
+    label: 'Allow Reporting' | t('comments'),
+    instructions: 'Let signed-in visitors report a comment for a moderator to look at.' | t('comments'),
+    name: 'allowFlagging',
+    on: settings.allowFlagging,
+    toggle: 'reporting-fields',
+    warning: macros.configWarning('allowFlagging', 'comments'),
+}) }}
+
+<div id="reporting-fields"{% if not settings.allowFlagging %} class="hidden"{% endif %}>
+    {{ forms.lightswitchField({
+        label: 'Allow Guest Reports' | t('comments'),
+        instructions: 'Let signed-out visitors report comments too.' | t('comments'),
+        name: 'allowGuestFlagging',
+        on: settings.allowGuestFlagging,
+        warning: macros.configWarning('allowGuestFlagging', 'comments'),
+    }) }}
+
+    {{ forms.editableTableField({
+        label: 'Report Reasons' | t('comments'),
+        instructions: 'The reasons visitors choose from when reporting a comment, each with a short explanation.' | t('comments'),
+        id: 'reportReasons',
+        name: 'reportReasons',
+        cols: {
+            label: { type: 'singleline', heading: 'Label' | t('comments') },
+            description: { type: 'singleline', heading: 'Explanation' | t('comments') },
+            value: { type: 'singleline', heading: 'Value' | t('comments') },
+        },
+        rows: settings.reportReasons,
+        allowAdd: true,
+        allowDelete: true,
+        allowReorder: true,
+        warning: macros.configWarning('reportReasons', 'comments'),
+    }) }}
+
+</div>

@@ -1,0 +1,51 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.textField({
+    first: true,
+    label: 'Template Folder Override' | t('comments'),
+    instructions: 'A folder in your site’s templates. Copy only the templates you want to change into a `frontend` folder inside it, and Comments uses its own for the rest.' | t('comments'),
+    id: 'templateFolderOverride',
+    name: 'templateFolderOverride',
+    placeholder: '_comments',
+    value: settings.templateFolderOverride,
+    warning: macros.configWarning('templateFolderOverride', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'CSS & JavaScript' | t('comments') }}</h3>
+
+<div class="readable">
+    <blockquote class="note warning">
+        {{ 'If you disable the bundled CSS, your site must provide all comment styling. If you disable the bundled JavaScript, your site must provide the complete public interaction behaviour, including any rich-editor integration.' | t('comments') }}
+    </blockquote>
+</div>
+
+{{ forms.lightswitchField({
+    label: 'Load Bundled CSS' | t('comments'),
+    instructions: 'Load the bundled stylesheet when rendering comments.' | t('comments'),
+    name: 'outputDefaultCss',
+    on: settings.outputDefaultCss,
+    warning: macros.configWarning('outputDefaultCss', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Load Bundled JavaScript' | t('comments'),
+    instructions: 'Load the bundled interaction runtime and, when rich authoring is enabled, its editor integration.' | t('comments'),
+    name: 'outputDefaultJs',
+    on: settings.outputDefaultJs,
+    warning: macros.configWarning('outputDefaultJs', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Loading' | t('comments') }}</h3>
+
+{{ forms.lightswitchField({
+    label: 'Load Comments When Reached' | t('comments'),
+    instructions: 'Only load the comments and form as a visitor scrolls near them. Pages load faster, but comments aren’t in the page’s initial HTML, which search engines may read.' | t('comments'),
+    name: 'lazyLoad',
+    on: settings.lazyLoad,
+    warning: macros.configWarning('lazyLoad', 'comments'),
+}) }}

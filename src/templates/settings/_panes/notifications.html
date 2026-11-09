@@ -1,149 +1,126 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
+<h3>{{ 'Delivery' | t('comments') }}</h3>
+
 {{ forms.lightswitchField({
-    label: 'Use Queue for Notifications' | t('comments'),
-    instructions: 'Whether to use Craft‘s queue system to trigger emails. This is highly recommended to prevent slow comment submission for your users.' | t('comments'),
+    first: true,
+    label: 'Send Notifications Through the Queue' | t('comments'),
+    instructions: 'Send guest email and notification events outside the visitor request using Craft’s queue. Recommended for production sites.' | t('comments'),
     id: 'useQueueForNotifications',
     name: 'useQueueForNotifications',
     on: settings.useQueueForNotifications,
     warning: macros.configWarning('useQueueForNotifications', 'comments'),
 }) }}
 
-{{ forms.lightswitchField({
-    first: true,
-    label: "Enable Author Notifications" | t('comments'),
-    instructions: "Authors receive an email for every new comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
-    id: 'notificationAuthorEnabled',
-    name: 'notificationAuthorEnabled',
-    on: settings.notificationAuthorEnabled,
-    warning: macros.configWarning('notificationAuthorEnabled', 'comments'),
-}) }}
-
-{{ forms.lightswitchField({
-    label: "Enable Reply Notifications" | t('comments'),
-    instructions: "Users receive an email when someone replies to their comment. Edit the content of this email through [System Messages]({link})." | t('comments', { link: url('utilities/system-messages') }),
-    id: 'notificationReplyEnabled',
-    name: 'notificationReplyEnabled',
-    on: settings.notificationReplyEnabled,
-    warning: macros.configWarning('notificationReplyEnabled', 'comments'),
-}) }}
-
 <hr>
 
-<h3>{{ 'Subscribing' | t('comments') }}</h3>
+<h3>{{ 'Participants' | t('comments') }}</h3>
 
-{{ forms.lightswitchField({
-    label: "Auto-Subscribe Users to all Comments" | t('comments'),
-    instructions: "Whether to automatically subscribe users to notifications after they have commented, whenever a comment in made on an element. For example, any time another user makes a comment on an entry, all users who have also commented will receive a notification." | t('comments'),
-    id: 'notificationSubscribeAuto',
-    name: 'notificationSubscribeAuto',
-    on: settings.notificationSubscribeAuto,
-    warning: macros.configWarning('notificationSubscribeAuto', 'comments'),
-}) }}
+<p class="light">{{ 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed: Comments fires an event naming them, for your site or a notifications plugin to deliver.' | t('comments') }}</p>
 
-{{ forms.lightswitchField({
-    label: "Auto-Subscribe Users to Replies only on their Comments" | t('comments'),
-    instructions: "Whether to automatically subscribe to notifications on comments that the user owns. This means, any time another user replies to a comment they own, they'll receive a notification." | t('comments'),
-    id: 'notificationSubscribeDefault',
-    name: 'notificationSubscribeDefault',
-    on: settings.notificationSubscribeDefault,
-    warning: macros.configWarning('notificationSubscribeDefault', 'comments'),
-}) }}
-
-{{ forms.lightswitchField({
-    label: "Allow Subscriber Notifications" | t('comments'),
-    instructions: "Users can subscribe to any comment made on an element. This will display a 'Subscribe' button at the top of your comments thread. Shown only for logged in users." | t('comments'),
-    id: 'notificationSubscribeEnabled',
-    name: 'notificationSubscribeEnabled',
-    on: settings.notificationSubscribeEnabled,
-    warning: macros.configWarning('notificationSubscribeEnabled', 'comments'),
-}) }}
-
-{{ forms.lightswitchField({
-    label: "Allow Per-Comment Subscriber Notifications" | t('comments'),
-    instructions: "Users can subscribe to a specific thread of comments made on an element. This will display a 'Subscribe' button for each comment. Shown only for logged in users." | t('comments'),
-    id: 'notificationSubscribeCommentEnabled',
-    name: 'notificationSubscribeCommentEnabled',
-    on: settings.notificationSubscribeCommentEnabled,
-    warning: macros.configWarning('notificationSubscribeCommentEnabled', 'comments'),
-}) }}
-
-<hr>
-
-<h3>{{ 'Moderators' | t('comments') }}</h3>
-
-{{ forms.lightswitchField({
-    first: true,
-    label: "Enable Moderator Notifications" | t('comments'),
-    instructions: "Whether a nominated user group should receive an email when a new comment has been made, and needs to be moderated. Note this will override author notifications, who shouldn't receive the notification until its been approved." | t('comments'),
-    id: 'notificationModeratorEnabled',
-    name: 'notificationModeratorEnabled',
-    on: settings.notificationModeratorEnabled,
-    warning: macros.configWarning('notificationModeratorEnabled', 'comments'),
-}) }}
-
-{{ forms.lightswitchField({
-    first: true,
-    label: "Enable Moderator Edited Notifications" | t('comments'),
-    instructions: "Whether moderators should receive a notification when a user edits their own comment, and needs to be moderated." | t('comments'),
-    id: 'notificationModeratorEditEnabled',
-    name: 'notificationModeratorEditEnabled',
-    on: settings.notificationModeratorEditEnabled,
-    warning: macros.configWarning('notificationModeratorEditEnabled', 'comments'),
-}) }}
-
-{{ forms.lightswitchField({
-    label: "Enable Moderator-Approved Notifications" | t('comments'),
-    instructions: "Authors receive an email when the moderator has approved a comment." | t('comments'),
-    id: 'notificationModeratorApprovedEnabled',
-    name: 'notificationModeratorApprovedEnabled',
-    on: settings.notificationModeratorApprovedEnabled,
-    warning: macros.configWarning('notificationModeratorApprovedEnabled', 'comments'),
-}) }}
-
-<hr>
-
-<h3>{{ 'Administrators' | t('comments') }}</h3>
-
-{{ forms.editableTableField({
-    label: 'Comment Administrators' | t('comments'),
-    instructions: 'Enter the email address of any administrators, used for the below settings.' | t('comments'),
-    name: 'notificationAdmins',
-    id: 'notificationAdmins',
-    cols: {
-        email: {
-            type: 'singleline',
-            heading: 'Email Address' | t('comments'),
+{{ forms.checkboxSelectField({
+    label: 'Participant Notifications' | t('comments'),
+    instructions: 'Choose which comment events notify people taking part in the discussion.' | t('comments'),
+    name: 'participantNotifications',
+    values: settings.participantNotifications,
+    options: [
+        {
+            label: 'New comments to the owner author' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_OWNER'),
         },
-        enabled: {
-            type: 'lightswitch',
-            heading: 'Enabled' | t('comments'),
-            thin: true,
+        {
+            label: 'Direct replies to a comment author' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_REPLY'),
         },
-    },
-    rows: settings.notificationAdmins,
-    errors: settings.getErrors('notificationAdmins'),
-    warning: macros.configWarning('notificationAdmins', 'comments'),
-    allowAdd: true,
-    allowDelete: true,
-    allowReorder: true,
+        {
+            label: 'Mentions in an approved comment' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_MENTION'),
+        },
+        {
+            label: 'Approval of a pending comment' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_APPROVED'),
+        },
+    ],
+    warning: macros.configWarning('participantNotifications', 'comments'),
 }) }}
 
-{{ forms.lightswitchField({
-    label: 'Enable Admin Notifications' | t('comments'),
-    instructions: 'Admins will receive an email whenever someone makes a comment on an element. Edit the content of this email through [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }),
-    id: 'notificationAdminEnabled',
-    name: 'notificationAdminEnabled',
-    on: settings.notificationAdminEnabled,
-    warning: macros.configWarning('notificationAdminEnabled', 'comments'),
+<p class="light">{{ 'Guest email content can be edited in [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }) | md }}</p>
+
+<hr>
+
+<h3>{{ 'Subscriptions' | t('comments') }}</h3>
+
+{{ forms.checkboxSelectField({
+    label: 'Available Subscriptions' | t('comments'),
+    instructions: 'Choose the subscription controls available to commenters. Guests can only subscribe to a whole discussion, and confirm their address first.' | t('comments'),
+    name: 'subscriptionTypes',
+    values: settings.subscriptionTypes,
+    options: [
+        {
+            label: 'Whole discussion' | t('comments'),
+            value: 'conversation',
+        },
+        {
+            label: 'Replies to individual comments' | t('comments'),
+            value: 'replies',
+        },
+    ],
+    warning: macros.configWarning('subscriptionTypes', 'comments'),
 }) }}
 
-{{ forms.lightswitchField({
-    label: 'Enable Flagged Notifications' | t('comments'),
-    instructions: 'Admins will receive an email whenever someone flags a comment. Edit the content of this email through [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }),
-    id: 'notificationFlaggedEnabled',
-    name: 'notificationFlaggedEnabled',
-    on: settings.notificationFlaggedEnabled,
-    warning: macros.configWarning('notificationFlaggedEnabled', 'comments'),
+{{ forms.selectField({
+    label: 'Default Subscription After Commenting' | t('comments'),
+    instructions: 'Optionally subscribe signed-in commenters by default. An explicit opt-out is always preserved.' | t('comments'),
+    name: 'subscriptionDefault',
+    value: settings.subscriptionDefault,
+    options: [
+        { label: 'Do not subscribe automatically' | t('comments'), value: 'none' },
+        { label: 'Replies to their comment' | t('comments'), value: 'replies' },
+        { label: 'The whole discussion' | t('comments'), value: 'conversation' },
+    ],
+    warning: macros.configWarning('subscriptionDefault', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Staff' | t('comments') }}</h3>
+
+{{ forms.checkboxSelectField({
+    label: 'Staff Notifications' | t('comments'),
+    instructions: 'Choose which events name the moderator group selected under Moderation. Comments doesn’t email staff: your site or a notifications plugin delivers these.' | t('comments'),
+    name: 'staffNotifications',
+    values: settings.staffNotifications,
+    options: [
+        {
+            label: 'New comments awaiting approval' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_MODERATOR_PENDING'),
+        },
+        {
+            label: 'Pending comments edited by their author' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_MODERATOR_EDITED'),
+        },
+        {
+            label: 'Every new comment' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_STAFF_NEW'),
+        },
+        {
+            label: 'New reports' | t('comments'),
+            value: constant('verbb\\comments\\models\\Settings::NOTIFICATION_STAFF_REPORTED'),
+        },
+    ],
+    warning: macros.configWarning('staffNotifications', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Email Template' | t('comments') }}</h3>
+
+{{ forms.textField({
+    label: 'HTML Email Template' | t('comments'),
+    instructions: 'Optional site template used to wrap the emails Comments sends guests.' | t('comments'),
+    id: 'templateEmail',
+    name: 'templateEmail',
+    value: settings.templateEmail,
+    warning: macros.configWarning('templateEmail', 'comments'),
 }) }}
