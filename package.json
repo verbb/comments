@@ -1,0 +1,26 @@
+{
+    "name": "verbb-comments-cp",
+    "private": true,
+    "workspaces": [
+        "docs"
+    ],
+    "type": "module",
+    "scripts": {
+        "build": "npm run build:frontend && npm run build:cp",
+        "build:frontend": "npm run typecheck:frontend && vite build --config vite.frontend.config.ts",
+        "build:cp": "npm run typecheck:cp && vite build --config vite.cp.config.ts",
+        "screenshots": "npm --prefix screenshots run screenshots --",
+        "typecheck:frontend": "tsc -p tsconfig.frontend.json",
+        "typecheck:cp": "tsc -p tsconfig.cp.json",
+        "dev:plugin-docs": "npm run docs:dev --prefix docs"
+    },
+    "dependencies": {
+        "@verbb/plugin-kit-web": "file:../../../plugin-kit/plugin-kit/plugin-kit-web",
+        "@verbb/protect": "file:../../../protect/craft5/plugin/packages/protect"
+    },
+    "devDependencies": {
+        "@verbb/editor": "file:../../../editor/craft5/plugin/packages/editor",
+        "typescript": "^5.7.3",
+        "vite": "^8.3.5"
+    }
+}

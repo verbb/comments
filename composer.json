@@ -2,7 +2,7 @@
     "name": "verbb/comments",
     "description": "Add comments to your site.",
     "type": "craft-plugin",
-    "version": "3.0.15",
+    "version": "4.0.0-beta.1",
     "keywords": [
         "craft",
         "cms",
@@ -24,16 +24,59 @@
             "homepage": "https://verbb.io"
         }
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../../editor/craft5/plugin",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../../protect/craft5/plugin",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
+        "craftcms/cms": "^5.10.0",
         "theiconic/name-parser": "^1.0",
-        "verbb/base": "^3.0.0"
+        "verbb/base": "^3.0.20",
+        "verbb/editor": "*@dev",
+        "verbb/protect": "*@dev"
+    },
+    "require-dev": {
+        "craftcms/cms": "^5.10.0",
+        "craftcms/generator": "^2.0.0",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin": "^3.0",
+        "vlucas/phpdotenv": "^5.6",
+        "yiisoft/yii2-shell": "^2.0.3"
     },
     "autoload": {
         "psr-4": {
             "verbb\\comments\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "craftcms/plugin-installer": true,
+            "pestphp/pest-plugin": true,
+            "yiisoft/yii2-composer": true
+        }
+    },
+    "scripts": {
+        "test": "ddev test",
+        "test:all": "ddev test --suite=all",
+        "test:perf": "ddev test --suite=performance"
     },
     "extra": {
         "name": "Comments",

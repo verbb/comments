@@ -2,9 +2,31 @@
 .env.php
 .env.sh
 .env
+.env.testing
+.env.testing.local
+
+# TEST ARTIFACTS
+/tests/_craft/storage/*
+!/tests/_craft/storage/.gitkeep
+/tests/_craft/web/*
+!/tests/_craft/web/.gitkeep
+
+# TEST RUNTIME
+/tests/_craft/config/license.key
+/tests/_craft/config/project
+/tests/runtime/web/cpresources
+/tests/runtime/web/user-photos
+/.phpunit.result.cache
+/.ddev/docker-compose.plugin-sources.yaml
+/.ddev/docker-compose.tests-local.yaml
+
+# LOCAL OUTPUT
+/output/
+/.playwright-cli/
 
 # COMPOSER
 /vendor
+/composer.lock
 
 # BUILD FILES
 /bower_components/*
@@ -29,3 +51,14 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+/.cache/
+
+/.ddev/docker-compose.tests-local.yaml
+
+/.phpunit.result.cache
+
+# DOCS (local VitePress preview only)
+/docs/node_modules
+/docs/.vitepress/cache
+/docs/.vitepress/dist
