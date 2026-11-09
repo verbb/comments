@@ -1,10 +1,10 @@
 # Events
-Events can be used to extend the functionality of Comments.
+Comments provides a collection of events for extending its functionality. Modules and plugins can register event listeners, typically in their `init()` methods, to modify Comments’ behaviour. For events in the browser, see the [JavaScript API](docs:template-guides/javascript-api#browser-events).
 
-## Comment related events
+## Comment Related Events
 
-### The `beforeSaveComment` event
-Plugins can get notified before a comment is saved. Event handlers can prevent the comment from getting sent by setting `$event->isValid` to false.
+### The `beforeSaveComment` Event
+The event that is triggered before a comment is saved, whether it's new or being edited. Event handlers can prevent the comment from being saved by setting `$event->isValid` to false.
 
 ```php
 use craft\events\ModelEvent;
@@ -17,8 +17,8 @@ Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(ModelEvent $event
 });
 ```
 
-### The `afterSaveComment` event
-Plugins can get notified after a comment has been saved
+### The `afterSaveComment` Event
+The event that is triggered after a comment has been saved. Moderation decisions change a comment's state without saving it, so use [`afterChangeState`](#the-afterchangestate-event) to follow those.
 
 ```php
 use craft\events\ModelEvent;
@@ -31,135 +31,53 @@ Event::on(Comment::class, Comment::EVENT_AFTER_SAVE, function(ModelEvent $event)
 ```
 
 
-## Flag related events
+## Notification Related Events
 
-### The `beforeSaveFlag` event
-Plugins can get notified before a flag is saved
+### The `afterNotify` Event
+The event that is triggered with the people who have a user account and should hear about a comment, once the comment is in the state that notifies them. Comments doesn't email people with an account, so listen for this event to tell them through your site, a notifications plugin, or whatever channel suits you. It runs from the same queue job as guest emails, after checking that the comment hasn't changed state since it was queued.
+
+The event is a `NotifyEvent`, with the comment as `$event->comment`, the element it's on as `$event->element`, and the users to tell as `$event->recipients`. Each person appears once in an event. For the participant types, the comment's own author and anyone who has stopped comment emails aren't included, and each person is named in only one of them for a comment. The staff types name every member of the **Moderator User Group**. `$event->type` says what happened, as one of these `Notifications::TYPE_*` values:
+
+| Type | Constant | Recipients |
+| --- | --- | --- |
+| `author` | `TYPE_AUTHOR` | The author of the element, about a new comment on it |
+| `reply` | `TYPE_REPLY` | The author of the comment being replied to |
+| `mention` | `TYPE_MENTION` | A person mentioned in the comment |
+| `moderator-approved` | `TYPE_MODERATOR_APPROVED` | The comment's author, once it's approved |
+| `subscribe` | `TYPE_SUBSCRIBE` | People following the discussion or the comment being replied to |
+| `moderator` | `TYPE_MODERATOR` | The moderator group, about a comment waiting for review |
+| `moderator-edit` | `TYPE_MODERATOR_EDIT` | The moderator group, about a waiting comment its author edited |
+| `admin` | `TYPE_ADMIN` | The moderator group, about any new comment |
+| `flag` | `TYPE_FLAG` | The moderator group, about a comment being reported |
+
+Each type only fires while its [participant or staff notification](docs:feature-tour/notifications-and-subscriptions) is turned on, or for `subscribe`, while subscriptions are available. This example emails moderators about comments waiting for review, using Craft's mailer:
 
 ```php
-use verbb\comments\events\FlagEvent;
-use verbb\comments\services\Flags;
+use Craft;
+use verbb\comments\events\NotifyEvent;
+use verbb\comments\services\Notifications;
 use yii\base\Event;
 
-Event::on(Flags::class, Flags::EVENT_BEFORE_SAVE_FLAG, function(FlagEvent $event) {
-    // Do something
+Event::on(Notifications::class, Notifications::EVENT_AFTER_NOTIFY, function(NotifyEvent $event) {
+    if ($event->type !== Notifications::TYPE_MODERATOR) {
+        return;
+    }
+
+    foreach ($event->recipients as $user) {
+        Craft::$app->getMailer()->compose()
+            ->setTo($user)
+            ->setSubject('A comment is waiting for review')
+            ->setTextBody($event->comment->getCpEditUrl())
+            ->send();
+    }
 });
 ```
 
-### The `afterSaveFlag` event
-Plugins can get notified after a flag has been saved
+### Guest Email Events
+The events below are for emails Comments sends to guests. Each receives an `EmailEvent`, with the message as `$event->mail`, the recipient as `$event->user`, the element as `$event->element` and the comment as `$event->comment`. You can change the message, or set `$event->isValid` to `false` to stop it being sent to that person. The guest confirmation email doesn't have an event.
 
-```php
-use verbb\comments\events\FlagEvent;
-use verbb\comments\services\Flags;
-use yii\base\Event;
-
-Event::on(Flags::class, Flags::EVENT_AFTER_SAVE_FLAG, function(FlagEvent $event) {
-    // Do something
-});
-```
-
-### The `beforeDeleteFlag` event
-Plugins can get notified before an flag is deleted
-
-```php
-use verbb\comments\events\FlagEvent;
-use verbb\comments\services\Flags;
-use yii\base\Event;
-
-Event::on(Flags::class, Flags::EVENT_BEFORE_DELETE_FLAG, function(FlagEvent $event) {
-    // Do something
-});
-```
-
-### The `afterDeleteFlag` event
-Plugins can get notified after a flag has been deleted
-
-```php
-use verbb\comments\events\FlagEvent;
-use verbb\comments\services\Flags;
-use yii\base\Event;
-
-Event::on(Flags::class, Flags::EVENT_AFTER_DELETE_FLAG, function(FlagEvent $event) {
-    // Do something
-});
-```
-
-
-## Vote related events
-
-### The `beforeSaveVote` event
-Plugins can get notified before a vote is saved
-
-```php
-use verbb\comments\events\VoteEvent;
-use verbb\comments\services\Votes;
-use yii\base\Event;
-
-Event::on(Votes::class, Votes::EVENT_BEFORE_SAVE_VOTE, function(VoteEvent $event) {
-    // Do something
-});
-```
-
-### The `afterSaveVote` event
-Plugins can get notified after a vote has been saved
-
-```php
-use verbb\comments\events\VoteEvent;
-use verbb\comments\services\Votes;
-use yii\base\Event;
-
-Event::on(Votes::class, Votes::EVENT_AFTER_SAVE_VOTE, function(VoteEvent $event) {
-    // Do something
-});
-```
-
-### The `beforeDeleteVote` event
-Plugins can get notified before a vote is deleted
-
-```php
-use verbb\comments\events\VoteEvent;
-use verbb\comments\services\Votes;
-use yii\base\Event;
-
-Event::on(Votes::class, Votes::EVENT_BEFORE_DELETE_VOTE, function(VoteEvent $event) {
-    // Do something
-});
-```
-
-### The `afterDeleteVote` event
-Plugins can get notified after a vote has been deleted
-
-```php
-use verbb\comments\events\VoteEvent;
-use verbb\comments\services\Votes;
-use yii\base\Event;
-
-Event::on(Votes::class, Votes::EVENT_AFTER_DELETE_VOTE, function(VoteEvent $event) {
-    // Do something
-});
-```
-
-
-
-## Notification related events
-
-### The `beforeSendAuthorEmail` event
-Plugins can get notified before the author's email is sent
-
-```php
-use verbb\comments\events\EmailEvent;
-use verbb\comments\services\Comments as CommentsService;
-use yii\base\Event;
-
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_AUTHOR_EMAIL, function(EmailEvent $event) {
-    // Prevent sending
-    $event->isValid = false;
-});
-```
-
-### The `beforeSendReplyEmail` event
-Plugins can get notified before a reply email is sent
+### The `beforeSendReplyEmail` Event
+The event that is triggered before a guest is emailed about a reply to their comment.
 
 ```php
 use verbb\comments\events\EmailEvent;
@@ -172,22 +90,8 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_REPLY_EMAIL
 });
 ```
 
-### The `beforeSendModeratorEmail` event
-Plugins can get notified before each moderator's email is sent
-
-```php
-use verbb\comments\events\EmailEvent;
-use verbb\comments\services\Comments as CommentsService;
-use yii\base\Event;
-
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_EMAIL, function(EmailEvent $event) {
-    // Prevent sending
-    $event->isValid = false;
-});
-```
-
-### The `beforeSendModeratorApprovedEmail` event
-Plugins can get notified before the moderator approved email is sent
+### The `beforeSendModeratorApprovedEmail` Event
+The event that is triggered before a guest is emailed that their pending comment was approved.
 
 ```php
 use verbb\comments\events\EmailEvent;
@@ -200,8 +104,8 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_MODERATOR_A
 });
 ```
 
-### The `beforeSendSubscribeEmail` event
-Plugins can get notified before a subscribed element's email is sent. This is the email that is sent to all subscribers of an element, when a comment is made.
+### The `beforeSendSubscribeEmail` Event
+The event that is triggered before each guest subscriber is emailed about a new comment on a discussion they follow.
 
 ```php
 use verbb\comments\events\EmailEvent;
@@ -214,16 +118,20 @@ Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_SUBSCRIBE_E
 });
 ```
 
-### The `beforeSendAdminEmail` event
-Plugins can get notified before the admin email is sent
+## Moderation Related Events
+
+### The `afterChangeState` Event
+The event that is triggered after a comment's moderation state changes, such as when it's approved, removed or marked as spam, from the control panel, an element's Comments field, the site or GraphQL. The change doesn't save the comment's element, so `Comment::EVENT_AFTER_SAVE` doesn't fire for it. When a moderator makes a decision on the comment's page, any edits are saved first, which does fire the save events.
 
 ```php
-use verbb\comments\events\EmailEvent;
-use verbb\comments\services\Comments as CommentsService;
+use verbb\comments\events\ModerationEvent;
+use verbb\comments\services\Moderation;
 use yii\base\Event;
 
-Event::on(CommentsService::class, CommentsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function(EmailEvent $event) {
-    // Prevent sending
-    $event->isValid = false;
+Event::on(Moderation::class, Moderation::EVENT_AFTER_CHANGE_STATE, function(ModerationEvent $event) {
+    $comment = $event->comment;
+    $previousState = $event->previousState;
+    $state = $event->state;
+    $actor = $event->actor;
 });
 ```

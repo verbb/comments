@@ -1,5 +1,20 @@
 # GraphQL
-Comments supports accessing [Comment](docs:developers/comment) objects via GraphQL. Be sure to read about [Craft's GraphQL support](https://craftcms.com/docs/4.x/graphql.html).
+Comments supports accessing [Comment](docs:developers/comment) objects via GraphQL. Be sure to read about [Craft's GraphQL support](https://craftcms.com/docs/5.x/development/graphql.html).
+
+## Schema Permissions
+Choose what a schema can do under the **Comments** heading when editing it.
+
+| Permission | What It Allows |
+| --- | --- |
+| View comments (`comments:read`) | The `comments`, `comment` and `commentConversation` queries. |
+| Create comments (`comments:edit`) | The `createComment` mutation. |
+| Save comments (`comments:save`) | The `saveComment`, `voteComment`, `flagComment` and `subscribeComment` mutations. |
+| Delete comments (`comments:delete`) | The `deleteComment` mutation. |
+| Moderate comments (`comments:moderate`) | The `moderateComment` mutation. |
+
+Some mutations are also left out of the schema while their feature is off. `voteComment` needs an **Interaction Mode** other than None, `flagComment` needs **Allow Reporting**, and `subscribeComment` needs at least one of the **Available Subscriptions**. The `comment` and `commentId` fields of a vote or report need **View comments**, and fields about users need the schema to be able to view users.
+
+On a public schema, queries only ever return approved comments that haven't been deleted by their author or trashed, whatever arguments are supplied. This also applies to the `children` and `parent` fields.
 
 ## Comments
 
@@ -11,7 +26,6 @@ Comments supports accessing [Comment](docs:developers/comment) objects via Graph
     comments (ownerId: 2460, limit: 2, orderBy: "commentDate DESC") {
         commentDate @formatDateTime (format: "Y-m-d")
         name
-        email
         comment
     }
 }
@@ -24,44 +38,41 @@ Comments supports accessing [Comment](docs:developers/comment) objects via Graph
             {
                 "commentDate": "2019-01-23",
                 "name": "Test User",
-                "email": "some-user@gmail.com",
                 "comment": "Hey there, this is a great article, love your work!"
             },
             {
                 "commentDate": "2019-01-23",
                 "name": "John Smith",
-                "email": "john-user@gmail.com",
                 "comment": "Thanks, appreciate your comments! 😀"
-            },
+            }
         ]
     }
 }
 ```
 :::
 
-### The `comments` query
+### The `comments` Query
 This query is used to query for [Comment](docs:developers/comment) objects. You can also use the singular `comment` to fetch a single node.
 
 | Argument | Type | Description
 | - | - | -
 | `id`| `[QueryArgument]` | Narrows the query results based on the elements’ IDs.
 | `uid`| `[String]` | Narrows the query results based on the elements’ UIDs.
-| `status`| `[String]` | Narrows the query results based on the elements’ statuses.
-| `archived`| `Boolean` | Narrows the query results to only elements that have been archived.
-| `trashed`| `Boolean` | Narrows the query results to only elements that have been soft-deleted.
+| `status`| `[String]` | Narrows the query results based on the elements’ statuses, such as `approved`, `pending` or `author-removed`. Only on schemas that can query inactive elements.
+| `archived`| `Boolean` | Narrows the query results to only elements that have been archived. Only on schemas that can query inactive elements.
+| `trashed`| `Boolean` | Narrows the query results to only elements that have been soft-deleted. Only on schemas that can query inactive elements.
 | `site`| `[String]` | Determines which site(s) the elements should be queried in. Defaults to the current (requested) site.
 | `siteId`| `[QueryArgument]` | Determines which site(s) the elements should be queried in. Defaults to the current (requested) site.
 | `unique`| `Boolean` | Determines whether only elements with unique IDs should be returned by the query.
 | `preferSites`| `[QueryArgument]` | Determines which site should be selected when querying multi-site elements.
-| `enabledForSite`| `Boolean` | Narrows the query results based on whether the elements are enabled in the site they’re being queried in, per the `site` argument.
 | `search`| `String` | Narrows the query results to only elements that match a search query.
-| `relatedTo`| `[QueryArgument]` | Narrows the query results to elements that relate to the provided element IDs. This argument is ignored, if `relatedToAll` is also used.
+| `relatedTo`| `[QueryArgument]` | Narrows the query results to elements that relate to the provided element IDs.
+| `notRelatedTo`| `[QueryArgument]` | Narrows the query results to elements that don’t relate to the provided element IDs.
 | `relatedToAssets`| `[AssetCriteriaInput]` | Narrows the query results to elements that relate to an asset list defined with this argument.
 | `relatedToEntries`| `[EntryCriteriaInput]` | Narrows the query results to elements that relate to an entry list defined with this argument.
 | `relatedToUsers`| `[UserCriteriaInput]` | Narrows the query results to elements that relate to a use list defined with this argument.
 | `relatedToCategories`| `[CategoryCriteriaInput]` | Narrows the query results to elements that relate to a category list defined with this argument.
 | `relatedToTags`| `[TagCriteriaInput]` | Narrows the query results to elements that relate to a tag list defined with this argument.
-| `relatedToAll`| `[QueryArgument]` | Narrows the query results to elements that relate to *all* of the provided element IDs. Using this argument will cause `relatedTo` argument to be ignored. **This argument is deprecated.** `relatedTo: ["and", ...ids]` should be used instead.
 | `fixedOrder`| `Boolean` | Causes the query results to be returned in the order specified by the `id` argument.
 | `inReverse`| `Boolean` | Causes the query results to be returned in reverse order.
 | `dateCreated`| `[String]` | Narrows the query results based on the elements’ creation dates.
@@ -70,26 +81,20 @@ This query is used to query for [Comment](docs:developers/comment) objects. You 
 | `limit`| `Int` | Sets the limit for paginated results.
 | `orderBy`| `String` | Sets the field the returned elements should be ordered by.
 | `siteSettingsId`| `[QueryArgument]` | Narrows the query results based on the unique identifier for an element-site relation.
-| `withStructure`| `Boolean` | Explicitly determines whether the query should join in the structure data.
-| `structureId`| `Int` | Determines which structure data should be joined into the query.
-| `level`| `Int` | Narrows the query results based on the elements’ level within the structure.
-| `hasDescendants`| `Boolean` | Narrows the query results based on whether the elements have any descendants in their structure.
-| `ancestorOf`| `Int` | Narrows the query results to only elements that are ancestors of another element in its structure, provided by its ID.
-| `ancestorDist`| `Int` | Narrows the query results to only elements that are up to a certain distance away from the element in its structure specified by `ancestorOf`.
-| `descendantOf`| `Int` | Narrows the query results to only elements that are descendants of another element in its structure provided by its ID.
-| `descendantDist`| `Int` | Narrows the query results to only elements that are up to a certain distance away from the element in its structure specified by `descendantOf`.
-| `leaves`| `Boolean` | Narrows the query results based on whether the elements are “leaves” in their structure (element with no descendants).
-| `nextSiblingOf`| `Int` | Narrows the query results to only the entry that comes immediately after another element in its structure, provided by its ID.
-| `prevSiblingOf`| `Int` | Narrows the query results to only the entry that comes immediately before another element in its structure, provided by its ID.
-| `positionedAfter`| `Int` | Narrows the query results to only entries that are positioned after another element in its structure, provided by its ID.
-| `positionedBefore`| `Int` | Narrows the query results to only entries that are positioned before another element in its structure, provided by its ID.
-| `ownerId`| `Int` | Narrows the query results based on the owner element the comment was made on, per the owners’ IDs.
-| `commentDate`| `String` | Narrows the query results based on the comments’ commented date.
-| `name`| `String` | Narrows the query results based on the comments’ full name.
-| `email`| `String` | Narrows the query results based on the comments’ email.
-| `comment`| `String` | Narrows the query results based on the comments’ actual comment text.
+| `ownerId`| `[QueryArgument]` | Narrows the query results based on the owner element the comment was made on, per the owners’ IDs.
+| `userId`| `[QueryArgument]` | Narrows the query results based on the comment’s authors.
+| `commentDate`| `[String]` | Narrows the query results based on the comments’ commented date.
+| `name`| `[String]` | Narrows the query results based on the comments’ full name.
+| `comment`| `[String]` | Narrows the query results based on the comments’ actual comment text.
+| `conversationId`| `[QueryArgument]` | Narrows the query results to a conversation.
+| `identityId`| `[QueryArgument]` | Narrows the query results based on commenter identities.
+| `moderationState`| `[String]` | Narrows the query results by moderation state.
+| `rootId`| `[QueryArgument]` | Narrows the query results to a thread, by the ID of the comment at the top of it.
+| `adjacencyParentId`| `[QueryArgument]` | Narrows the query results to direct replies of a comment. Pass `":empty:"` for top-level comments.
 
-### The `CommentInterface` interface
+The table covers the arguments most useful for comments. Craft's other general element arguments, such as `ref` and `relatedToAll`, are also accepted, and your GraphQL explorer lists the full set for your schema.
+
+### The `CommentInterface` Interface
 This is the interface implemented by all comments.
 
 | Field | Type | Description
@@ -102,64 +107,95 @@ This is the interface implemented by all comments.
 | `uri`| `String` | The element’s URI.
 | `enabled`| `Boolean` | Whether the element is enabled or not.
 | `archived`| `Boolean` | Whether the element is archived or not.
+| `siteHandle`| `String` | The handle of the site the element is associated with.
 | `siteId`| `Int` | The ID of the site the element is associated with.
 | `siteSettingsId`| `ID` | The unique identifier for an element-site relation.
 | `language`| `String` | The language of the site element is associated with.
 | `searchScore`| `String` | The element’s search score, if the `search` parameter was used when querying for the element.
 | `trashed`| `Boolean` | Whether the element has been soft-deleted or not.
-| `status`| `String` | The element’s status.
+| `status`| `String` | The comment’s stored status, which is `approved`, `pending`, `spam` or `removed`.
 | `dateCreated`| `DateTime` | The date the element was created.
 | `dateUpdated`| `DateTime` | The date the element was last updated.
-| `lft`| `Int` | The element’s left position within its structure.
-| `rgt`| `Int` | The element’s right position within its structure.
-| `level`| `Int` | The element’s level within its structure
-| `root`| `Int` | The element’s structure’s root ID.
-| `structureId`| `Int` | The element’s structure ID.
-| `children`| `[CommentInterface]` | The node’s children.
-| `parent`| `CommentInterface` | The node’s parent.
-| `prev`| `CommentInterface` | Returns the previous element relative to this one, from a given set of criteria.
-| `next`| `CommentInterface` | Returns the next element relative to this one, from a given set of criteria.
 | `ownerId`| `Int` | The ID of the element that owns the comment.
+| `userId`| `Int` | The ID of the author of this comment, on schemas that can read users.
+| `user`| `UserInterface` | The comment’s author, on schemas that can read users.
 | `commentDate`| `DateTime` | The comment's post date.
-| `comment`| `String` | The actual comment text.
-| `name`| `String` | The full name for the comment’s author.
-| `email`| `String` | The email for the comment’s author.
-| `url`| `String` | The url the comment was made on.
-| `votes`| `Int` | The number of total votes for this comment.
+| `comment`| `String` | The comment’s plain text. A rich comment has its text here without formatting.
+| `contentFormat`| `String` | How the comment was written: `plain` or `editor`.
+| `contentHtml`| `String` | The rendered HTML of a rich comment. Null for plain text comments.
+| `editorContent`| `String` | The Editor JSON of a rich comment, to edit it. Null for plain text comments.
+| `editedAt`| `DateTime` | When the comment’s content last changed after it was posted.
+| `moderationState`| `String` | The comment’s moderation state. Public schemas only ever return `approved` comments.
+| `rootId`| `Int` | The ID of the comment at the top of this comment’s thread.
+| `depth`| `Int` | How many replies deep the comment is. Top-level comments are 0.
+| `gifUrl`| `String` | The URL of a GIF shown with the comment, if it has one.
+| `name`| `String` | The guest’s name. Null for comments by signed-in users.
+| `url`| `String` | The URL of the page the comment was made from.
+| `children`| `[CommentInterface]` | The comment’s direct replies. Accepts the same arguments as the `comments` query.
+| `parent`| `CommentInterface` | The comment this is a reply to.
+| `votes`| `Int` | The comment’s net score, which is its upvotes minus its downvotes.
 | `upvotes`| `Int` | The number of upvotes for this comment.
 | `downvotes`| `Int` | The number of downvotes for this comment.
-| `flags`| `Int` | The number of flags for this comment.
+| `flags`| `Int` | The number of open reports for this comment.
 
-### The `FlagInterface` interface
-This is the interface implemented by all flags.
+The commenter’s email address isn’t available through GraphQL.
+
+### The `commentConversation` Query
+This query returns the state and totals of the discussion on an element, such as for showing a comment count without fetching the comments. It needs the **View comments** permission, and returns null if the element doesn't exist, isn't public or has comments turned off. `siteId` defaults to the primary site.
+
+```graphql
+{
+    commentConversation (ownerId: 2460) {
+        ownerId
+        siteId
+        commentCount
+        lastActivityAt
+        open
+    }
+}
+```
 
 | Field | Type | Description
 | - | - | -
-| `id`| `ID` | The ID of the entity.
-| `sessionId`| `ID` | The session ID from which the vote was submitted.
-| `lastIp`| `String` | The last known IP address of the voter.
+| `ownerId`| `Int!` | The ID of the element the conversation is on.
+| `siteId`| `Int!` | The ID of the site the conversation is on.
+| `commentCount`| `Int!` | The number of published comments.
+| `lastActivityAt`| `DateTime` | When the latest published comment was made.
+| `open`| `Boolean!` | Whether new comments can be posted.
 
-### The `VoteInterface` interface
-This is the interface implemented by all votes.
+### The `VoteInterface` Interface
+This is the interface returned by `voteComment`.
 
 | Field | Type | Description
 | - | - | -
-| `id`| `ID` | The ID of the entity.
-| `sessionId`| `ID` | The session ID from which the vote was submitted.
-| `lastIp`| `String` | The last known IP address of the voter.
-| `upvote`| `Boolean` | Whether the vote is positive.
-| `downvote`| `Boolean` | Whether the vote is negative.
+| `commentId`| `ID` | The ID of the comment the vote is applied to, on schemas that can read comments.
+| `comment`| `CommentInterface` | The comment the vote is applied to, on schemas that can read comments.
+| `userId`| `Int` | The ID of the submitter of this vote, on schemas that can read users.
+| `user`| `UserInterface` | The vote’s submitter, on schemas that can read users.
+| `upvote`| `Boolean` | True if the vote is now an upvote.
+| `downvote`| `Boolean` | True if the vote is now a downvote. If neither is true, the vote was taken back.
 
+`id`, `sessionId` and `lastIp` are also on this interface, but they're always null.
+
+### The `FlagInterface` Interface
+This is the interface returned by `flagComment`, describing a report.
+
+| Field | Type | Description
+| - | - | -
+| `commentId`| `ID` | The ID of the reported comment, on schemas that can read comments.
+| `comment`| `CommentInterface` | The reported comment, on schemas that can read comments.
+| `userId`| `Int` | The ID of the user who sent the report, on schemas that can read users.
+
+`id`, `sessionId` and `lastIp` are also on this interface, but they're always null.
 
 ### Custom Fields
-If you’ve added custom fields to your Comments Form (**Comments** → **Settings** → **Comments Form** → **Form Layout**), you can query them by handle within a GraphQL fragment. If you added a `summary` Plain Text field, for example, your query might look like this:
+If you’ve added custom fields to the Comment element (**Comments** → **Settings** → **Comment Fields** → **Comment Field Layout**), you can query them by handle within a GraphQL fragment. If you added a `summary` Plain Text field, for example, your query might look like this:
 
 ```graphql
 {
     comments (ownerId: 2460, limit: 2, orderBy: "commentDate DESC") {
         commentDate @formatDateTime (format: "Y-m-d")
         name
-        email
         comment
         ... on Comment {
             summary
@@ -168,18 +204,37 @@ If you’ve added custom fields to your Comments Form (**Comments** → **Settin
 }
 ```
 
+Mutations only accept custom fields selected under **Public Fields** in the Comments settings.
+
 ## Mutations
 
+Mutations act as whoever is making the request, which is the signed-in user for a session or a guest otherwise. Guests can only comment, vote or report comments if your settings allow it. The [GraphQL Authentication](https://plugins.craftcms.com/graphql-authentication) plugin's tokens are also recognised.
+
+### Protection
+
+While **Enable Protection** is on, `createComment` and `saveComment` run Comments' [spam checks](docs:feature-tour/anti-spam) before saving. First send a GET request to `comments/api/v1/protection?ownerId=…&siteId=…&channel=headless` on your site. `siteId` defaults to the current site, and you include `commentId` when preparing an edit. Pass the signed preparation from the response, and any required provider token, as `protection`:
+
+```json
+{
+    "version": 1,
+    "preparation": "SIGNED_PREPARATION_FROM_RESPONSE",
+    "challenges": {
+        "turnstile": "CLIENT_PROVIDER_TOKEN"
+    }
+}
+```
+
+The input type is `CommentsProtectionEvidence`. For reCAPTCHA v3, use the `recaptchaV3` challenge field. Omit `challenges` when no provider is enabled. Honeypot, minimum form time and JavaScript checks aren't applied to these requests, but replay protection, rate limits, challenges and Akismet are. Get fresh preparation after every attempted submission. Preparation doesn't grant authorisation, so schema permissions, author permissions and validation still apply.
+
 ### createComment
-Saves a new nested visitor comment.
+Saves a new comment on the element given as `ownerId`, or a reply when given a `parentId`. To post a rich comment while **Authoring Mode** is **Rich (Editor)**, send the Editor's JSON as `editorContent`. Custom fields selected under **Public Fields** are accepted as arguments too.
 
 ```graphql
-mutation NewComment($newParentId: ID, $ownerId: ID, $name: String, $email: String, $comment: String) {
-    saveComment(newParentId: $newParentId, ownerId: $ownerId, name: $name, email: $email, comment: $comment) {
+mutation NewComment($parentId: ID, $ownerId: ID, $siteId: ID, $name: String, $email: String, $comment: String, $protection: CommentsProtectionEvidence) {
+    createComment(parentId: $parentId, ownerId: $ownerId, siteId: $siteId, name: $name, email: $email, comment: $comment, protection: $protection) {
         id
         ownerId
         name
-        email
         comment
     }
 }
@@ -190,23 +245,25 @@ Query variables:
 ```json
 {
     "ownerId": 7,
-    "newParentId": 30,
+    "siteId": 1,
+    "parentId": 30,
     "name": "Matt",
     "email": "matt@pixelandtonic.com",
     "comment": "Here’s a nested comment."
 }
 ```
 
+`siteId` defaults to the primary site. `name` and `email` are for guests, so leave them out for a signed-in user. The new comment is moderated like any other, so check its `moderationState` before showing it as published.
+
 ### saveComment
-Edit an existing comment.
+Edit the content of an existing comment, identified by `id` or `uid`. Only the comment's author can use this, within the **Author Edit Window**, and only while the comment is approved or pending. The author, owner element, parent and dates can't be changed. A rich comment needs `editorContent`, as it can't be replaced with plain text. `siteId` defaults to the primary site. An edit goes through moderation the same way a new comment does, so it can return to pending.
 
 ```graphql
-mutation UpdateComment($id: ID, $comment: String) {
-    saveComment(id: $id, comment: $comment) {
+mutation UpdateComment($id: ID, $comment: String, $protection: CommentsProtectionEvidence) {
+    saveComment(id: $id, comment: $comment, protection: $protection) {
         id
         ownerId
         name
-        email
         comment
     }
 }
@@ -222,13 +279,14 @@ Query variables:
 ```
 
 ### voteComment
-Upvote a comment:
+Upvote a comment with `upvote: true`. Anything else counts as a downvote, which is refused unless **Interaction Mode** is **Upvotes and downvotes**. Repeat the same vote to take it back, or send the other one to change it. The `downvote` and `siteId` arguments are accepted but have no effect. Only approved comments can be voted on, and each person can vote 60 times a minute.
 
 ```graphql
-mutation UpvoteComment($id: ID!, $upvote: Boolean) {
+mutation VoteComment($id: ID!, $upvote: Boolean) {
     voteComment(id: $id, upvote: $upvote) {
-        id
-        
+        upvote
+        downvote
+
         comment {
             flags
             upvotes
@@ -247,13 +305,12 @@ Query variables:
 }
 ```
 
-Downvote a comment:
+### flagComment
+Report a comment to the moderators. `reason` is only kept if it matches the value of one of your **Report Reasons**, and both `reason` and `details` are optional. Repeat to withdraw the report. The `siteId` argument is accepted but has no effect. Only approved comments can be reported, and each person can make 3 reports every 10 minutes.
 
 ```graphql
-mutation DownvoteComment($id: ID!, $downvote: Boolean) {
-    voteComment(id: $id, downvote: $downvote) {
-        id
-        
+mutation FlagComment($id: ID!, $reason: String, $details: String) {
+    flagComment(id: $id, reason: $reason, details: $details) {
         comment {
             flags
             upvotes
@@ -268,75 +325,49 @@ Query variables:
 ```json
 {
     "id": 34,
-    "downvote": true
-}
-```
-
-### flagComment
-Flag a comment for moderation:
-
-```graphql
-mutation FlagComment($id: ID!) {
-    flagComment(id: $id) {
-        id
-
-        comment {
-            flags
-            upvotes
-            downvotes
-        }
-    }
-}
-```
-
-Query variables:
-
-```json
-{
-    "id": 34
+    "reason": "spam",
+    "details": "This is the third time they've posted this link."
 }
 ```
 
 ### subscribeComment
-Subscribe to an element’s comment notifications:
+Subscribe to an element’s comment notifications. This needs a signed-in user, an element with comments turned on, and **Whole discussion** among the **Available Subscriptions**. It returns a message saying what happened. Repeat to toggle on and off. `siteId` is optional and defaults to the primary site.
 
 ```graphql
-mutation SubscribeComment($ownerId: ID!) {
-    subscribeComment(ownerId: $ownerId)
+mutation SubscribeComment($ownerId: ID!, $siteId: ID!) {
+    subscribeComment(ownerId: $ownerId, siteId: $siteId)
 }
 ```
-
-Repeat to toggle on/off.
-
-Query variables:
-
-```json
-{
-    "ownerId": 34
-}
-```
-
-Subscribe to a specific comment thread, where `commentId` is the beginning of that thread:
-
-```graphql
-mutation SubscribeThread($ownerId: ID!, $commentId: ID) {
-    subscribeComment(ownerId: $ownerId, commentId: $commentId)
-}
-```
-
-Repeat to toggle on/off.
 
 Query variables:
 
 ```json
 {
     "ownerId": 34,
+    "siteId": 1
+}
+```
+
+To subscribe to the replies to a specific comment, add its `commentId`. This needs **Replies to individual comments** among the **Available Subscriptions**.
+
+```graphql
+mutation SubscribeThread($ownerId: ID!, $siteId: ID!, $commentId: ID) {
+    subscribeComment(ownerId: $ownerId, siteId: $siteId, commentId: $commentId)
+}
+```
+
+Query variables:
+
+```json
+{
+    "ownerId": 34,
+    "siteId": 1,
     "commentId": 95
 }
 ```
 
 ### deleteComment
-Delete a comment:
+Delete your own comment, within the **Author Edit Window**. This hides it, and any approved replies stay in place under a placeholder. Users with the **Delete comments** user permission can still only delete their own comments this way. `siteId` is optional, as the comment is found on whichever site it was made on. The mutation returns `true`, including when no comment has that ID.
 
 ```graphql
 mutation DeleteComment($id: ID!) {
@@ -349,5 +380,27 @@ Query variables:
 ```json
 {
     "id": 34
+}
+```
+
+### moderateComment
+Moderate a comment, with an `action` of `approve`, `remove`, `restore`, `spam` or `notSpam`, and an optional `reason` for its history. This needs the **Moderate comments** schema permission and a signed-in user with the **Moderate comments** user permission (`comments-moderate`). Removing also needs **Trash other users’ comments** (`comments-trash`). It can't be used on a public schema, or on your own comment, and returns the moderated comment.
+
+```graphql
+mutation ModerateComment($id: ID!, $action: String!, $reason: String) {
+    moderateComment(id: $id, action: $action, reason: $reason) {
+        id
+        moderationState
+    }
+}
+```
+
+Query variables:
+
+```json
+{
+    "id": 34,
+    "action": "approve",
+    "reason": "Reviewed by the community team."
 }
 ```

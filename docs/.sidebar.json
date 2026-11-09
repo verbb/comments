@@ -4,8 +4,10 @@
         "collapsable": false,
         "children": [
             "get-started/installation-setup",
+            "get-started/adding-comments-to-an-entry",
             "get-started/requirements",
-            "get-started/configuration"
+            "get-started/configuration",
+            "get-started/upgrading-from-comments-3"
         ]
     },
     {
@@ -13,20 +15,27 @@
         "collapsable": false,
         "children": [
             "feature-tour/control-panel",
+            "feature-tour/moderation",
+            "feature-tour/interactions",
+            "feature-tour/rich-authoring",
+            "feature-tour/notifications-and-subscriptions",
             "feature-tour/anti-spam",
             "feature-tour/security",
-            "feature-tour/permissions",
-            "feature-tour/giphy"
+            "feature-tour/permissions"
         ]
     },
     {
         "title": "Template Guides",
         "collapsable": false,
         "children": [
-            "template-guides/available-variables",
             "template-guides/rendering-comments",
+            "template-guides/loading-comment-assets",
             "template-guides/custom-templates",
-            "template-guides/custom-fields"
+            "template-guides/custom-fields",
+            "template-guides/displaying-and-protecting-comments",
+            "template-guides/working-without-javascript",
+            "template-guides/javascript-api",
+            "template-guides/finding-user-votes"
         ]
     },
     {
@@ -44,7 +53,8 @@
             "developers/flag",
             "developers/vote",
             "developers/events",
-            "developers/graphql"
+            "developers/graphql",
+            "developers/console-commands"
         ]
     }
 ]
