@@ -18,6 +18,7 @@ class m250227_000000_comments_url extends Migration
     public function safeDown(): bool
     {
         echo "m220420_000000_stencil_add_entryid cannot be reverted.\n";
+
         return false;
     }
 }

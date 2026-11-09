@@ -3,11 +3,12 @@ namespace verbb\comments\migrations;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\migrations\support\V3Schema;
+use verbb\comments\services\Comments as CommentsService;
 
 use Craft;
 use craft\db\Migration;
 use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 
 class Install extends Migration
@@ -21,11 +22,18 @@ class Install extends Migration
         $this->createIndexes();
         $this->addForeignKeys();
 
-        // Don't make the same config changes twice
-        $installed = (Craft::$app->getProjectConfig()->get('plugins.comments', true) !== null);
-        $configExists = (Craft::$app->getProjectConfig()->get('comments', true) !== null);
+        // Keep the upgrade migration as the canonical v4 schema definition so
+        // fresh installs and upgraded sites cannot drift apart.
+        $v4Schema = new m400000_000001_prepare(['db' => $this->db]);
 
-        if (!$installed && !$configExists) {
+        if (!$v4Schema->safeUp()) {
+            return false;
+        }
+
+        // Preserve layouts supplied by project config, but don't let an existing plugin entry suppress the default layout.
+        $configExists = Craft::$app->getProjectConfig()->get(CommentsService::CONFIG_FIELDLAYOUT_KEY, true) !== null;
+
+        if (!$configExists) {
             Comments::$plugin->getComments()->saveFieldLayout();
         }
 
@@ -51,7 +59,7 @@ class Install extends Migration
             'ownerId' => $this->integer(),
             'ownerSiteId' => $this->integer(),
             'userId' => $this->integer(),
-            'status' => $this->enum('status', ['approved', 'pending', 'spam', 'trashed']),
+            'status' => $this->string(16)->notNull(),
             'comment' => $this->text(),
             'gifUrl' => $this->text(),
             'name' => $this->string(),
@@ -65,44 +73,6 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->archiveTableIfExists('{{%comments_flags}}');
-        $this->createTable('{{%comments_flags}}', [
-            'id' => $this->primaryKey(),
-            'commentId' => $this->integer(),
-            'userId' => $this->integer(),
-            'sessionId' => $this->string(32),
-            'lastIp' => $this->string(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->archiveTableIfExists('{{%comments_votes}}');
-        $this->createTable('{{%comments_votes}}', [
-            'id' => $this->primaryKey(),
-            'commentId' => $this->integer(),
-            'userId' => $this->integer(),
-            'sessionId' => $this->string(32),
-            'lastIp' => $this->string(),
-            'upvote' => $this->boolean(),
-            'downvote' => $this->boolean(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->archiveTableIfExists('{{%comments_subscribe}}');
-        $this->createTable('{{%comments_subscribe}}', [
-            'id' => $this->primaryKey(),
-            'ownerId' => $this->integer(),
-            'ownerSiteId' => $this->integer(),
-            'userId' => $this->integer(),
-            'commentId' => $this->integer(),
-            'subscribed' => $this->boolean(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
     }
 
     public function createIndexes(): void
@@ -111,14 +81,6 @@ class Install extends Migration
         $this->createIndex(null, '{{%comments_comments}}', 'ownerId', false);
         $this->createIndex(null, '{{%comments_comments}}', 'ownerSiteId', false);
         $this->createIndex(null, '{{%comments_comments}}', 'userId', false);
-        $this->createIndex(null, '{{%comments_flags}}', 'commentId', false);
-        $this->createIndex(null, '{{%comments_flags}}', 'userId', false);
-        $this->createIndex(null, '{{%comments_votes}}', 'commentId', false);
-        $this->createIndex(null, '{{%comments_votes}}', 'userId', false);
-        $this->createIndex(null, '{{%comments_subscribe}}', 'ownerId', false);
-        $this->createIndex(null, '{{%comments_subscribe}}', 'ownerSiteId', false);
-        $this->createIndex(null, '{{%comments_subscribe}}', 'userId', false);
-        $this->createIndex(null, '{{%comments_subscribe}}', 'commentId', false);
     }
 
     public function addForeignKeys(): void
@@ -127,40 +89,55 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%comments_comments}}', 'ownerId', '{{%elements}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%comments_comments}}', 'ownerSiteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%comments_comments}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey(null, '{{%comments_flags}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
-        $this->addForeignKey(null, '{{%comments_flags}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey(null, '{{%comments_votes}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
-        $this->addForeignKey(null, '{{%comments_votes}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey(null, '{{%comments_subscribe}}', 'ownerId', '{{%elements}}', 'id', 'CASCADE', null);
-        $this->addForeignKey(null, '{{%comments_subscribe}}', 'ownerSiteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%comments_subscribe}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
-        $this->addForeignKey(null, '{{%comments_subscribe}}', 'commentId', '{{%comments_comments}}', 'id', 'CASCADE', null);
     }
 
     public function dropTables(): void
     {
-        $this->dropTableIfExists('{{%comments_comments}}');
-        $this->dropTableIfExists('{{%comments_flags}}');
-        $this->dropTableIfExists('{{%comments_votes}}');
-        $this->dropTableIfExists('{{%comments_subscribe}}');
+        foreach ([
+            V3Schema::LOG,
+            V3Schema::MAP,
+            V3Schema::ARCHIVE_STRUCTURE,
+            ...array_values(V3Schema::ARCHIVE_TABLES),
+            '{{%comments_assets}}',
+            '{{%comments_mentions}}',
+            '{{%comments_restrictions}}',
+            '{{%comments_moderatornotes}}',
+            '{{%comments_moderationactions}}',
+            '{{%comments_subscriptions}}',
+            '{{%comments_reports}}',
+            '{{%comments_interactions}}',
+            '{{%comments_flags}}',
+            '{{%comments_votes}}',
+            '{{%comments_subscribe}}',
+            '{{%comments_comments}}',
+            '{{%comments_identities}}',
+            '{{%comments_conversations}}',
+        ] as $table) {
+            $this->dropTableIfExists($table);
+        }
     }
 
     public function dropForeignKeys(): void
     {
-        if ($this->db->tableExists('{{%comments_comments}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_comments}}', $this);
-        }
-
-        if ($this->db->tableExists('{{%comments_flags}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_flags}}', $this);
-        }
-
-        if ($this->db->tableExists('{{%comments_votes}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_votes}}', $this);
-        }
-
-        if ($this->db->tableExists('{{%comments_subscribe}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%comments_subscribe}}', $this);
+        foreach ([
+            '{{%comments_assets}}',
+            '{{%comments_mentions}}',
+            '{{%comments_restrictions}}',
+            '{{%comments_moderatornotes}}',
+            '{{%comments_moderationactions}}',
+            '{{%comments_subscriptions}}',
+            '{{%comments_reports}}',
+            '{{%comments_interactions}}',
+            '{{%comments_flags}}',
+            '{{%comments_votes}}',
+            '{{%comments_subscribe}}',
+            '{{%comments_comments}}',
+            '{{%comments_identities}}',
+            '{{%comments_conversations}}',
+        ] as $table) {
+            if ($this->db->tableExists($table)) {
+                $this->dropAllForeignKeysToTable($table);
+            }
         }
     }
 

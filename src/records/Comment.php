@@ -10,13 +10,17 @@ use yii\db\ActiveQueryInterface;
 
 class Comment extends ActiveRecord
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function tableName(): string
     {
         return '{{%comments_comments}}';
     }
+
+
+    // Public Methods
+    // =========================================================================
 
     public function getElement(): ActiveQueryInterface
     {
@@ -36,5 +40,25 @@ class Comment extends ActiveRecord
     public function getUser(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
+    }
+
+    public function getConversation(): ActiveQueryInterface
+    {
+        return $this->hasOne(Conversation::class, ['id' => 'conversationId']);
+    }
+
+    public function getIdentity(): ActiveQueryInterface
+    {
+        return $this->hasOne(Identity::class, ['id' => 'identityId']);
+    }
+
+    public function getParentComment(): ActiveQueryInterface
+    {
+        return $this->hasOne(self::class, ['id' => 'parentId']);
+    }
+
+    public function getRootComment(): ActiveQueryInterface
+    {
+        return $this->hasOne(self::class, ['id' => 'rootId']);
     }
 }
