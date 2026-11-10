@@ -53,7 +53,7 @@ Comments load straight away when the URL asks for something specific, such as [a
 
 Comments vary by visitor, because they show who can edit what, the form has a CSRF token, and moderators see more than others. That's why `craft.comments.render()` can't be put inside a `{% cache %}` tag, or behind a full-page cache or CDN, by itself, as the first visitor's version would be shown to everyone.
 
-The `sharedCache` option renders a version that's safe to share. It has the public comments and nothing about the person viewing it, so there's no form, CSRF token, voting or report controls, and comments show their date rather than “2 hours ago”, which would go stale. Once the page has loaded, the browser asks `comments/api/v1/viewer-controls` for the parts belonging to that visitor and puts them in place. That response is marked `private, no-store`, so it isn't cached.
+The `sharedCache` option renders a version that's safe to share. It has the public comments and nothing about the person viewing it, so there's no form, CSRF token, voting or report controls, and comments show their date rather than “2 hours ago”, which would go stale. Once the page has loaded, the browser asks the `comments/frontend-api/viewer-controls` action for the parts belonging to that visitor and puts them in place. That response is marked `private, no-store`, so it isn't cached.
 
 ```twig
 {% cache %}
@@ -71,7 +71,7 @@ Comments posted after the page was cached arrive along with those private contro
 
 Every comment has an anchor of `#comment-123`, using its ID. Without JavaScript, the date on each comment links to it, and with JavaScript, the comment's **···** menu has **Copy link**. Links work wherever the comment is, whether that's past the first page, below a collapsed reply or deeper than replies are shown.
 
-With JavaScript, opening a link with that hash finds the comment on the page, or fetches its thread from `comments/api/v1/thread` when it isn't there, then scrolls to it and highlights it. This works on a cached page too. Adding `?comment=123` does the same on the server, putting the comment's thread at the top of the list in the page's HTML, which is how visitors without JavaScript reach it. The server ignores this parameter when you're using `sharedCache`, and leaves it to the hash.
+With JavaScript, opening a link with that hash finds the comment on the page, or fetches its thread from the `comments/frontend-api/thread` action when it isn't there, then scrolls to it and highlights it. This works on a cached page too. Adding `?comment=123` does the same on the server, putting the comment's thread at the top of the list in the page's HTML, which is how visitors without JavaScript reach it. The server ignores this parameter when you're using `sharedCache`, and leaves it to the hash.
 
 `comment.getPermalink()` gives you a full URL with both, as long as the element has a URL of its own:
 

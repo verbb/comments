@@ -48,7 +48,7 @@ This runs one query for each comment, and only finds approved comments, so moder
 
 ## Customising the Inputs
 
-Override `_composer/custom-fields` to change how inputs are drawn. It outputs the comment box first, then loops over `composer.publicFields`, where each row has:
+Override `_editor/custom-fields` to change how inputs are drawn. It outputs the comment box first, with the Editor waiting to replace it when [rich authoring](docs:feature-tour/rich-authoring) is on, then loops over `editor.publicFields`, where each row has:
 
 | Key | What It Is |
 | --- | --- |
@@ -62,8 +62,8 @@ Override `_composer/custom-fields` to change how inputs are drawn. It outputs th
 The one thing your input has to do is use the right `name`, which is `fields[myFieldHandle]`, with `[]` on the end if it takes several values. For example, to replace the input for a Number field with the handle `rating` with a choice of stars, change the loop in your copy so that field gets its own markup and the others keep the default:
 
 ```twig
-{# Partial: the loop in templates/_comments/frontend/_composer/custom-fields.twig #}
-{% for field in composer.publicFields %}
+{# Partial: the loop in templates/_comments/frontend/_editor/custom-fields.twig #}
+{% for field in editor.publicFields %}
     {% if field.handle == 'rating' %}
         <fieldset class="comments__field">
             <legend class="comments__field-label">{{ field.label }}</legend>
@@ -81,7 +81,7 @@ The one thing your input has to do is use the right `name`, which is `fields[myF
 {% endfor %}
 ```
 
-A form with a file input needs `enctype="multipart/form-data"`. The default `_composer/form` adds it whenever `composer.hasFileInputs` is true, and your own forms need to do the same. An Assets field's input takes its name from the field, with `[]` so it can hold several files:
+A form with a file input needs `enctype="multipart/form-data"`. The default `_editor/form` adds it whenever `editor.hasFileInputs` is true, and your own forms need to do the same. An Assets field's input takes its name from the field, with `[]` so it can hold several files:
 
 ```twig
 <input type="file" name="fields[myFieldHandle][]" multiple>

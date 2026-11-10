@@ -1,13 +1,17 @@
 # Rich Authoring
-By default, visitors write comments in a plain text box. Rich authoring replaces it with the Editor, so they can format what they write, mention people and add images or files. It suits a community that writes longer comments or needs to refer to code and quotes. A plain box suits a site that wants short replies and as little as possible to moderate.
+Visitors write comments in a comment editor that starts as a single line beside their avatar and opens when they click into it. With rich authoring, which is the default, they can format what they write in the Editor, mention people and add images or files. It suits a community that writes longer comments or needs to refer to code and quotes. Plain authoring keeps the same comment editor without the Editor and saves plain text, which suits a site that wants short replies and as little as possible to moderate.
 
-Turn it on by setting **Authoring Mode** to **Rich (Editor)** under **Comments** → **Settings** → **Authoring**, or with the [`authoringMode`](docs:get-started/configuration#authoringmode) setting. The Editor is installed with Comments, so there's nothing else to set up. Commenters can use bold, italic, strikethrough, lists, quotes, code and links.
+Choose between them with **Authoring Mode** under **Comments** → **Settings** → **Authoring**, or with the [`authoringMode`](docs:get-started/configuration#authoringmode) setting. The Editor is installed with Comments, so there's nothing else to set up. With **Rich (Editor)**, commenters can use bold, italic, strikethrough, lists, quotes, code and links.
 
-![The rich comment composer for a signed-in visitor, with formatting controls, some bold text and a mention suggestion open.](../../screenshots/site/rich-composer.png)
+![The rich comment editor for a signed-in visitor, with formatting controls, some bold text and a mention suggestion open.](../../screenshots/site/rich-editor.png)
 
-The setting decides how new comments are written. Each comment keeps the format it was written in, so changing the mode doesn't affect how existing comments display, and a rich comment can't be turned into a plain one by editing it.
+The setting decides how new comments are written. Each comment keeps the format it was written in, so changing the mode doesn't affect how existing comments display. A rich comment keeps its formatting when its author edits it, even after you switch to plain authoring.
 
-Guests get the Editor with its formatting, while mentions and attachments need a visitor to be signed in. Without JavaScript, or until the Editor has loaded, visitors see a plain text box and can still post. A rich comment can't be edited that way, and trying shows an error rather than flattening it to plain text.
+Replies open in place under the comment, with "Replying to" and the person's name at the top and a Cancel button beside **Reply**. Guests give their name and email at the top of the editor, and get the Editor with its formatting, while mentions and attachments need a visitor to be signed in. In either mode, ⌘↵ or Ctrl+Enter posts, and an unsent comment is kept in the browser as a draft.
+
+The Editor only loads when it's needed. Every visitor starts with Comments' own lightweight editor, which looks the same, and with rich authoring the Editor loads and takes over when someone clicks into it, opens a reply or edits a comment, bringing across anything they've typed. Pages where nobody can post, and pages where nobody starts writing, never load it. With plain authoring it only loads to edit a comment that was written with rich authoring, so that its formatting is kept.
+
+Without JavaScript, or if the Editor can't load, visitors write in the plain box and can still post. A rich comment can't be edited without JavaScript, and trying shows an error rather than flattening it to plain text.
 
 ## Mentions
 **Allow Mentions** is on by default. A signed-in commenter types `@` and at least two characters of a name, and picks from the suggestions. Suggestions are limited to people connected to the discussion: anyone who has commented on the element as a registered user, the element's author, and members of the **Moderator User Group**. This keeps your whole user list private, and keeps a mention from reaching someone with no connection to the page.

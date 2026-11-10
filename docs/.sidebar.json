@@ -30,6 +30,7 @@
         "children": [
             "template-guides/rendering-comments",
             "template-guides/loading-comment-assets",
+            "template-guides/theming",
             "template-guides/custom-templates",
             "template-guides/custom-fields",
             "template-guides/displaying-and-protecting-comments",

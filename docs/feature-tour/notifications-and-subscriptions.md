@@ -1,7 +1,7 @@
 # Notifications and Subscriptions
 Comments tells people when something happens in a discussion they're part of, and tells staff when something needs attention. How each person hears about it depends on whether they have an account.
 
-Guests have no account or other way to hear from your site, so Comments emails them, once they've confirmed their address. People with a user account, including your moderators, aren't emailed by Comments. Instead, Comments fires the [`afterNotify` event](docs:developers/events#the-afternotify-event) naming who should hear about each comment, and your site or a notifications plugin delivers the message in whatever way suits it, such as an email, an in-app notice or a Slack message. Without anything listening for that event, people with an account aren't told.
+Guests have no account or other way to hear from your site, so Comments emails them, once they've confirmed their address. People with a user account aren't emailed by Comments. Instead, Comments fires the [`afterNotify` event](docs:developers/events#the-afternotify-event) naming who should hear about each comment, and your site or a notifications plugin delivers the message in whatever way suits it, such as an email, an in-app notice or a Slack message. Without anything listening for that event, people with an account aren't told. The one exception is your moderators, whom Comments can also email about new, waiting and reported comments if you turn on [Email the Moderator Group](#emailing-the-moderator-group).
 
 Set this up under **Comments** → **Settings** → **Notifications**. Guest emails and the event are handled through Craft's queue by default, so posting a comment stays quick. Make sure your site's queue is running, and find any failed emails in Craft's queue manager.
 
@@ -48,7 +48,7 @@ The link leads to a small page at `/comments/manage` that works without an accou
 This page is rendered by the plugin and isn't one of the [templates you can override](docs:template-guides/custom-templates).
 
 ## Staff Notifications
-**Staff Notifications** name the members of the **Moderator User Group**, chosen under **Comments** → **Settings** → **Moderation**, in the [`afterNotify` event](docs:developers/events#the-afternotify-event). Comments doesn't email staff, because they have accounts and the control panel, where the Comments navigation counts what's waiting for them. All four are off by default.
+**Staff Notifications** name the members of the **Moderator User Group**, chosen under **Comments** → **Settings** → **Moderation**, in the [`afterNotify` event](docs:developers/events#the-afternotify-event). Staff have accounts and the control panel, where the Comments navigation counts what's waiting for them, so by default Comments only fires the event and leaves delivery to your site. All four are off by default.
 
 | Notification | When | Setting Value | Event Type |
 | --- | --- | --- | --- |
@@ -57,10 +57,15 @@ This page is rendered by the plugin and isn't one of the [templates you can over
 | Every new comment | Any comment is posted, whatever its status | `staff-new` | `admin` |
 | New reports | A visitor reports a comment | `staff-reported` | `flag` |
 
-Without a moderator group, the event still fires for these, but names nobody.
+Nobody in the group is told about something they did themselves, so a moderator isn't named for their own comment, their edit to it, or a report they made. Without a moderator group, the event still fires for these, but names nobody.
 
-## Customising Guest Emails
-Edit the wording of each guest email in Craft's **Utilities** → **System Messages**. Comments adds a message for replies, for each kind of subscription, for approval, and for confirming an address. Messages are rendered in a Twig sandbox, with `comment`, `element` and `user`, the recipient, available. The sandbox allows an element's common properties such as `id`, `title` and `url`, its custom fields, and these properties of `comment`: `ownerId`, `ownerSiteId`, `userId`, `name`, `email`, `gifUrl`, `commentDate`, `comment`, `rawComment`, `excerpt`, `timeAgo`, `author`, `authorName`, `authorEmail`, `owner`, `user` and `cpEditUrl`. The guest confirmation message has only `siteName` and `confirmUrl`.
+### Emailing the Moderator Group
+If you'd like your moderators emailed without writing an event listener, turn on **Email the Moderator Group**, beside **Staff Notifications** under **Comments** → **Settings** → **Notifications**. Comments then emails each member of the group about the staff notifications you've chosen, so with **New comments awaiting approval** and **New reports** ticked, your moderators get an email when a comment is held for review and when one is reported. The people emailed are exactly the ones the event names, and the event still fires, so a listener you already have keeps working alongside it.
+
+Each email links to the comment in the control panel. They're sent through the queue like guest emails, and checked again just before sending, so nobody is emailed about a comment that's no longer waiting, has been removed or deleted, or whose reports have been dealt with in the meantime. Element authors, mentioned people and followers with an account are still only named in the event.
+
+## Customising Emails
+Edit the wording of each email in Craft's **Utilities** → **System Messages**. Comments adds a message for replies, for each kind of subscription, for approval, and for confirming an address, which go to guests, and one for each staff notification, which go to the moderator group when **Email the Moderator Group** is on. Messages are rendered in a Twig sandbox, with `comment`, `element` and `user`, the recipient, available. The sandbox allows an element's common properties such as `id`, `title` and `url`, its custom fields, and these properties of `comment`: `ownerId`, `ownerSiteId`, `userId`, `name`, `email`, `gifUrl`, `commentDate`, `comment`, `rawComment`, `excerpt`, `timeAgo`, `author`, `authorName`, `authorEmail`, `owner`, `user` and `cpEditUrl`. The guest confirmation message has only `siteName` and `confirmUrl`.
 
 ```twig
 Hi {{ user.friendlyName }},
@@ -74,4 +79,4 @@ Hi {{ user.friendlyName }},
 
 To change the layout around the message, set **HTML Email Template** to a template in your site. It receives the rendered message as `body`, along with the same variables.
 
-Modules and plugins can change or cancel the reply, subscription and approval emails using [events](docs:developers/events#notification-related-events).
+Modules and plugins can change or cancel the reply, subscription, approval and moderator group emails using [events](docs:developers/events#email-events).

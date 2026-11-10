@@ -6,7 +6,7 @@ Set these under **Keyword Filters** in **Comments** → **Settings** → **Spam*
 
 | Filter | What Happens to a Match |
 | --- | --- |
-| **Moderated Keywords** | The comment is marked as `pending`. |
+| **Moderated Keywords** | The comment is marked as `pending`, with the reason **Keyword filter**, even for a Trusted commenter. |
 | **Spam Keywords** | The comment is marked as `spam`. |
 | **Banned Keywords** | The comment isn't submitted, and the visitor sees an error. |
 

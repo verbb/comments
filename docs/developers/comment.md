@@ -275,7 +275,7 @@ Returns the rendered HTML of a rich comment, or an empty value for a plain comme
 
 **Returns:** `string`
 
-Returns a human-friendly string of how long ago a comment was made, such as `2 minutes ago`.
+Returns a human-friendly string of how long ago a comment was made, such as `2 minutes ago`, in the current site's language.
 :::
 
 ::: reference
@@ -378,6 +378,41 @@ Returns the number of upvotes made on this comment.
 **Returns:** `int`
 
 Returns the number of downvotes made on this comment.
+:::
+
+::: reference
+### `hasVoted()`
+
+**Returns:** `bool`
+
+Returns true if the current visitor has voted on this comment, or liked it when **Interaction Mode** only allows likes. Signed-in users are recognised by their account, and guests by the browser they voted from. When **Interaction Mode** is None, this is always false.
+
+```twig
+{% if comment.hasVoted() %}
+    <p>Thanks for your vote.</p>
+{% endif %}
+```
+:::
+
+::: reference
+### `hasUpvoted()`
+
+**Returns:** `bool`
+
+Returns true if the current visitor has upvoted or liked this comment.
+:::
+
+::: reference
+### `hasDownvoted()`
+
+**Returns:** `bool`
+
+Returns true if the current visitor has downvoted this comment. This is always false when **Interaction Mode** only allows likes, even for a downvote made before it changed.
+
+```twig
+<button type="button" {{ comment.hasUpvoted() ? 'aria-pressed="true"' }}>Upvote</button>
+<button type="button" {{ comment.hasDownvoted() ? 'aria-pressed="true"' }}>Downvote</button>
+```
 :::
 
 ::: reference

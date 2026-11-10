@@ -165,9 +165,9 @@ These are explained in [Rich Authoring](docs:feature-tour/rich-authoring).
 ::: reference
 #### `authoringMode`
 
-**Type:** `string` · **Default:** `'plain'`
+**Type:** `string` · **Default:** `'rich'`
 
-How visitors write comments. Supported values are `plain` for a text box, and `rich` for the Editor, with formatting and optional mentions and attachments.
+How visitors write comments. Supported values are `rich` for the Editor, with formatting and optional mentions and attachments, and `plain` for the same comment editor without the Editor, saving plain text.
 :::
 
 ::: reference
@@ -298,7 +298,7 @@ These are explained in [Notifications and Subscriptions](docs:feature-tour/notif
 
 **Type:** `bool` · **Default:** `true`
 
-Whether guest emails and the [`afterNotify` event](docs:developers/events#the-afternotify-event) are handled through Craft's queue rather than during the visitor's request, which keeps commenting fast. Turning this off suits a local environment with no queue runner. Emails asking a guest to confirm their address always use the queue.
+Whether emails and the [`afterNotify` event](docs:developers/events#the-afternotify-event) are handled through Craft's queue rather than during the visitor's request, which keeps commenting fast. Turning this off suits a local environment with no queue runner. Emails asking a guest to confirm their address always use the queue.
 :::
 
 ::: reference
@@ -330,7 +330,15 @@ What a signed-in user is subscribed to after commenting. Supported values are `n
 
 **Type:** `array` · **Default:** `[]`
 
-The events that name the members of [`moderatorUserGroup`](#moderatorusergroup) in the [`afterNotify` event](docs:developers/events#the-afternotify-event). Comments doesn't email staff. Supported values are `moderator-pending` for a comment awaiting approval, `moderator-edited` for a pending comment edited by its author, `staff-new` for every new comment, and `staff-reported` for every new report.
+The events that name the members of [`moderatorUserGroup`](#moderatorusergroup) in the [`afterNotify` event](docs:developers/events#the-afternotify-event), and that email them when [`emailModeratorGroup`](#emailmoderatorgroup) is on. Supported values are `moderator-pending` for a comment awaiting approval, `moderator-edited` for a pending comment edited by its author, `staff-new` for every new comment, and `staff-reported` for every new report.
+:::
+
+::: reference
+#### `emailModeratorGroup`
+
+**Type:** `bool` · **Default:** `false`
+
+Whether Comments also emails the members of [`moderatorUserGroup`](#moderatorusergroup) about the [`staffNotifications`](#staffnotifications) that are turned on, using the staff messages in **Utilities** → **System Messages**. They're the same people the event names. Other people with an account are only named in the event, whatever this is set to.
 :::
 
 ::: reference
@@ -338,7 +346,7 @@ The events that name the members of [`moderatorUserGroup`](#moderatorusergroup) 
 
 **Type:** `string|null` · **Default:** `null`
 
-A site template that wraps the emails Comments sends guests, in place of Craft's own. It receives the rendered message as `body`, along with `comment`, `element`, `user` and `language`.
+A site template that wraps the emails Comments sends guests and the moderator group, in place of Craft's own. It receives the rendered message as `body`, along with `comment`, `element`, `user` and `language`.
 :::
 
 ### Moderation
@@ -358,7 +366,7 @@ Whether new comments have to be approved before they're public.
 
 **Type:** `string|null` · **Default:** `null`
 
-The UID of the user group whose members are your moderators. They're named in the [`staffNotifications`](#staffnotifications) events, their comments can skip moderation with [`moderatorExcluded`](#moderatorexcluded), and they're among the people who can be mentioned.
+The UID of the user group whose members are your moderators. They're named in the [`staffNotifications`](#staffnotifications) events and emailed about them if [`emailModeratorGroup`](#emailmoderatorgroup) is on, their comments can skip moderation with [`moderatorExcluded`](#moderatorexcluded), and they're among the people who can be mentioned.
 :::
 
 ::: reference
@@ -632,7 +640,7 @@ The order comments are shown in on the public site, unless a visitor chooses ano
 
 **Type:** `string` · **Default:** `'light'`
 
-The colour theme for public comments and the Editor. Supported values are `light`, `dark`, `auto`, which follows the visitor's colour-scheme preference, and `none`, which outputs no default CSS at all.
+The colour theme for public comments and the Editor. Supported values are `light`, `dark`, `auto`, which follows the visitor's colour-scheme preference, and `none`, which outputs no default CSS at all. To adjust a theme's colours and spacing, see [Theming](docs:template-guides/theming).
 :::
 
 ::: reference
@@ -706,7 +714,7 @@ Whether the bundled stylesheet is loaded when comments are rendered. Turn this o
 
 **Type:** `bool` · **Default:** `true`
 
-Whether the bundled JavaScript is loaded when comments are rendered, along with the Editor for rich authoring. Turn this off only when your site supplies all of that behaviour. See [Loading Comment Assets](docs:template-guides/loading-comment-assets).
+Whether the bundled JavaScript is loaded when comments are rendered. Turn this off when your site supplies that behaviour itself, including when it bundles Comments' own script into its build. The thread still says where to load the Editor from, so rich authoring keeps working once your site loads the script. See [Loading Comment Assets](docs:template-guides/loading-comment-assets#bundling-the-script-into-your-own-build).
 :::
 
 ::: reference

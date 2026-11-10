@@ -17,11 +17,11 @@ If you've set **Template Folder Override**, the files in that folder stop being 
 | `_includes/header` | `frontend/_conversation/header` |
 | `_includes/comment` | `frontend/_comment/comment`, with `_comment/author`, `_comment/content`, `_comment/actions` and `_comment/replies` |
 | `_includes/avatar` | `frontend/_comment/author` |
-| `_includes/form` | `frontend/_composer/form` |
+| `_includes/form` | `frontend/_editor/form` |
 | `_includes/footer` | None. Pagination is in `frontend/_shared/pagination` |
-| `form-fields/index`, `form-fields/field`, `form-fields/elements/comment`, `form-fields/fields/*` | `frontend/_composer/custom-fields`, a single file for the comment box and every custom field |
+| `form-fields/index`, `form-fields/field`, `form-fields/elements/comment`, `form-fields/fields/*` | `frontend/_editor/custom-fields`, a single file for the comment box and every custom field |
 
-The variables are different too. Templates receive prepared `conversation`, `comment`, `composer` and `viewer` objects rather than a `commentsQuery` and the plugin's `settings`, and `comment` isn't a Comment element. [Custom Templates](docs:template-guides/custom-templates) lists what each template gets, and the attributes the JavaScript needs.
+The variables are different too. Templates receive prepared `conversation`, `comment`, `editor` and `viewer` objects rather than a `commentsQuery` and the plugin's `settings`, and `comment` isn't a Comment element. [Custom Templates](docs:template-guides/custom-templates) lists what each template gets, and the attributes the JavaScript needs.
 
 ```twig
 {# Comments 3: includes needed a special function #}
@@ -94,7 +94,7 @@ Your own comment forms need the new protection fields, or they'll be rejected. R
 | `comments/comments/trash` | `comments/frontend-api/remove`, which a signed-in author can use for their own comment, and which hides it rather than changing its status |
 | `comments/comments/get-js-variables` | None |
 | `comments/comments/giphy-search` | None |
-| `html` in the JSON response from `comments/comments/save` | None. The response has `id`, `comment` and `notice`. Use the `comments/api/v1/*` endpoints for rendered markup |
+| `html` in the JSON response from `comments/comments/save` | None. The response has `id`, `comment` and `notice`. Use the `comments/frontend-api/*` actions for rendered markup |
 
 ### Custom Fields on Public Forms
 Visitors can only submit custom fields you've selected. Until you've done this, values for your custom fields are ignored on public forms, GraphQL and the API, so check this if your forms have any. Go to **Comments** → **Settings** → **Comment Fields** and tick them under **Public Fields**, or set them in your config file.
@@ -122,7 +122,7 @@ These settings no longer exist. **Comments** → **Settings** → **Upgrade Repo
 | `enableGravatar` | Guests show the **Placeholder Avatar** |
 | `showCustomFieldNames`, `showCustomFieldInstructions` | Public forms always show field labels and instructions |
 | `indexSidebarLimit`, `indexSidebarGroup`, `indexSidebarIndividualElements` | The Comments index has fixed sources for each element type, and a condition builder for anything narrower |
-| `notificationAdmins` | Staff aren't emailed. Choose a **Moderator User Group** and deliver its notifications from the `afterNotify` event, as described under [Notifications for People With an Account](#notifications-for-people-with-an-account) |
+| `notificationAdmins` | Comments no longer emails a list of addresses. Add those people to your **Moderator User Group** and turn on **Email the Moderator Group**, or deliver to them from the `afterNotify` event, as described under [Notifications for People With an Account](#notifications-for-people-with-an-account) |
 
 These settings are translated for you, and their old names are removed the next time settings are saved. If they're in `config/comments.php`, they keep working until you move them to their new names.
 
@@ -153,22 +153,26 @@ Comments with the `trashed` status now have the `removed` status, which is a mod
 Guests only get emails once they've confirmed their address, including replies to their own comments. Comments 3 emailed any address it was given. Guests who gave an address before upgrading stop getting emails until they confirm one, which they're offered when they comment, or can do by subscribing to a discussion. See [Notifications and Subscriptions](docs:feature-tour/notifications-and-subscriptions#guests).
 
 ### Notifications for People With an Account
-Comments only emails guests. Element authors, commenters with an account, mentioned people and staff aren't emailed by Comments, whether they're told about a reply, a mention, an approval, a discussion they follow, or a comment waiting for review. Instead, Comments fires `Notifications::EVENT_AFTER_NOTIFY` naming who should hear about each comment, and your site or a notifications plugin delivers it. Until something listens for that event, people with an account aren't told about comments at all.
+Comments emails guests and, if you choose, your moderator group, but nobody else with an account. Element authors, commenters with an account and mentioned people aren't emailed by Comments, whether they're told about a reply, a mention, an approval or a discussion they follow. Instead, Comments fires `Notifications::EVENT_AFTER_NOTIFY` naming who should hear about each comment, and your site or a notifications plugin delivers it. Until something listens for that event, these people aren't told about comments at all.
 
-The settings that chose who is told carry over, as described under [Removed Settings](#removed-settings). Staff notifications name the members of the **Moderator User Group**, so choose one if you haven't. The **Additional Notification Recipients** list (`notificationAdmins`) has no replacement, because those addresses had no account to name. If people outside your moderator group need to hear about new comments or reports, add them to that group, or send to them from your own event listener.
+The settings that chose who is told carry over, as described under [Removed Settings](#removed-settings). Staff notifications name the members of the **Moderator User Group** in the same event, so choose one if you haven't. To keep emailing your moderators without writing any code, turn on **Email the Moderator Group** (`emailModeratorGroup`) under **Comments** → **Settings** → **Notifications**, as described in [Emailing the Moderator Group](docs:feature-tour/notifications-and-subscriptions#emailing-the-moderator-group).
 
-These system messages are removed, along with any customised wording in **Utilities** → **System Messages**: the author, mention, moderator, moderator edit, admin and flag notifications. The reply, subscription and approval messages remain, and are only sent to guests.
+The upgrade turns **Email the Moderator Group** on for you when Comments 3 was emailing your moderator group, which it did when a group was chosen and either **New comments awaiting approval** or **Pending comments edited by their author** (`notificationModeratorEnabled` or `notificationModeratorEditEnabled`) was on. Once it's on, the group is emailed about every staff notification you've ticked. If you also had new-comment or report emails on, those now go to the group too, where Comments 3 sent them to the **Additional Notification Recipients** instead. Check the setting and your staff notifications after upgrading. Unlike Comments 3, a moderator isn't emailed about their own comment or report.
 
-These PHP events are removed with them, and the remaining `beforeSend…` events only fire for guest emails:
+The **Additional Notification Recipients** list (`notificationAdmins`) has no replacement, because those addresses had no account to name. If people outside your moderator group need to hear about new comments or reports, add them to that group and turn on **Email the Moderator Group**, or send to them from your own event listener. The upgrade doesn't turn the setting on for a site that only emailed these addresses, because its moderator group might be different people.
+
+The author and mention system messages are removed, along with any customised wording in **Utilities** → **System Messages**. The moderator, moderator edit, admin and flag messages stay, with any wording you'd customised, and are used for the moderator group's emails. The admin and flag messages now go to the group's members rather than to a list of addresses, so check that their wording still suits, and that they only use the variables listed in [Customising Emails](docs:feature-tour/notifications-and-subscriptions#customising-emails). The reply, subscription and approval messages remain, and are only sent to guests.
+
+These PHP events are removed with them:
 
 | Comments 3 | Comments 4 |
 | --- | --- |
 | `beforeSendAuthorEmail` | `afterNotify` with the `author` type |
-| `beforeSendModeratorEmail` | `afterNotify` with the `moderator` or `moderator-edit` type |
-| `beforeSendAdminEmail` | `afterNotify` with the `admin` type |
-| `beforeSendFlagEmail` | `afterNotify` with the `flag` type |
+| `beforeSendModeratorEmail` | `beforeSendStaffEmail` for the moderator group's emails, or `afterNotify` with the `moderator` or `moderator-edit` type |
+| `beforeSendAdminEmail` | `beforeSendStaffEmail`, or `afterNotify` with the `admin` type |
+| `beforeSendFlagEmail` | `beforeSendStaffEmail`, or `afterNotify` with the `flag` type |
 
-A listener that emails moderators looks like this. Put it in a module's or plugin's `init()` method:
+To deliver notifications another way, or to people the settings don't cover, listen for the event. This listener emails moderators about comments waiting for review. Put it in a module's or plugin's `init()` method:
 
 ```php
 use Craft;
@@ -238,6 +242,7 @@ These don't need anything from you, but are worth reviewing.
 - **Notifications through the queue:** `useQueueForNotifications` defaults to on, for sites that never saved the old default, so make sure your queue runs. A failed email now fails its job, so it shows up in the queue manager.
 - **Comments fields:** a Comments field's values carry over. An element set to enabled follows its source setting, as it did, and one set to disabled stays off. The field also has a **Closed** option, and shows a summary of what's waiting on the element. Owner elements no longer get a Comments sidebar of their own, so add the field to any layout where editors need it, ideally on its own tab. See [Comments Field](docs:feature-tour/control-panel#comments-field).
 - **Moderating:** moderation happens in the Comments index, under the **Needs review**, **Reported** and **Spam** sources, and on each comment's page, where the decisions sit in the sidebar and its history and notes are on an **Activity** tab. A comment layout's **Comment Form** tab is renamed **Content**. Removing a comment asks for a reason, and marking a comment as not spam returns it to **Needs review** rather than publishing it. See [Moderation](docs:feature-tour/moderation).
+- **Authoring mode:** upgraded sites keep plain-text comments, so commenters see no change in what they can write. New installs start with rich authoring, which adds formatting and optional mentions and attachments. To switch, choose **Rich (Editor)** for **Authoring Mode** under **Comments** → **Settings** → **Authoring**, or set `'authoringMode' => 'rich'` in `config/comments.php`. See [Rich Authoring](docs:feature-tour/rich-authoring).
 - **Rate limits:** votes, reports and guest subscriptions now have their own limits. A site behind a proxy or CDN needs [`trustedHosts`](docs:feature-tour/security#client-ip-addresses) set, or everyone will share a limit.
 
 ## Running the Upgrade

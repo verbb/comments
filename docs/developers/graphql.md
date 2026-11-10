@@ -16,6 +16,10 @@ Some mutations are also left out of the schema while their feature is off. `vote
 
 On a public schema, queries only ever return approved comments that haven't been deleted by their author or trashed, whatever arguments are supplied. This also applies to the `children` and `parent` fields.
 
+Commenters' email addresses, IP addresses and browsers aren't available through GraphQL. `orderBy` can't use the columns that hold them either, or what spam protection recorded, unless the request comes from a signed-in admin, as sorting by a value can reveal it.
+
+A guest's identity is the same on every comment they make, so a public schema can't filter or sort comments by `identityId`, which would gather everything one guest has written across your site. Whether a comment has been reported is for moderators, so the `flags` count is only on schemas with the **Moderate comments** permission, and only answered for someone who can moderate comments, on a schema that isn't public, as for [`moderateComment`](#moderatecomment).
+
 ## Comments
 
 ### Example
@@ -87,7 +91,7 @@ This query is used to query for [Comment](docs:developers/comment) objects. You 
 | `name`| `[String]` | Narrows the query results based on the comments’ full name.
 | `comment`| `[String]` | Narrows the query results based on the comments’ actual comment text.
 | `conversationId`| `[QueryArgument]` | Narrows the query results to a conversation.
-| `identityId`| `[QueryArgument]` | Narrows the query results based on commenter identities.
+| `identityId`| `[QueryArgument]` | Narrows the query results based on commenter identities. Not on public schemas.
 | `moderationState`| `[String]` | Narrows the query results by moderation state.
 | `rootId`| `[QueryArgument]` | Narrows the query results to a thread, by the ID of the comment at the top of it.
 | `adjacencyParentId`| `[QueryArgument]` | Narrows the query results to direct replies of a comment. Pass `":empty:"` for top-level comments.
@@ -102,9 +106,6 @@ This is the interface implemented by all comments.
 | `id`| `ID` | The ID of the entity.
 | `uid`| `String` | The UID of the entity.
 | `_count`| `Int` | Return a number of related elements for a field.
-| `title`| `String` | The element’s title.
-| `slug`| `String` | The element’s slug.
-| `uri`| `String` | The element’s URI.
 | `enabled`| `Boolean` | Whether the element is enabled or not.
 | `archived`| `Boolean` | Whether the element is archived or not.
 | `siteHandle`| `String` | The handle of the site the element is associated with.
@@ -129,31 +130,104 @@ This is the interface implemented by all comments.
 | `rootId`| `Int` | The ID of the comment at the top of this comment’s thread.
 | `depth`| `Int` | How many replies deep the comment is. Top-level comments are 0.
 | `gifUrl`| `String` | The URL of a GIF shown with the comment, if it has one.
-| `name`| `String` | The guest’s name. Null for comments by signed-in users.
+| `name`| `String` | The guest’s name. Null for comments by signed-in users. Use `author` for the name the thread shows.
+| `author`| `CommentAuthor!` | Who wrote the comment, [as the thread shows them](#showing-who-wrote-a-comment).
+| `viewer`| `CommentViewer!` | What the person making the request can do with the comment, and how they voted. See [What the Viewer Can Do](#what-the-viewer-can-do).
 | `url`| `String` | The URL of the page the comment was made from.
 | `children`| `[CommentInterface]` | The comment’s direct replies. Accepts the same arguments as the `comments` query.
 | `parent`| `CommentInterface` | The comment this is a reply to.
 | `votes`| `Int` | The comment’s net score, which is its upvotes minus its downvotes.
 | `upvotes`| `Int` | The number of upvotes for this comment.
 | `downvotes`| `Int` | The number of downvotes for this comment.
-| `flags`| `Int` | The number of open reports for this comment.
+| `flags`| `Int` | The number of open reports for this comment. Only on schemas with **Moderate comments**, and null unless the request is from someone who can moderate comments, on a schema that isn't public.
 
 The commenter’s email address isn’t available through GraphQL.
 
+### Showing Who Wrote a Comment
+
+Every comment has an `author` with the name, initials, avatar and badges the thread shows next to it. It's available on any schema that can view comments, including a public one, so a headless front end can show “Alex Morgan” without giving the schema access to users, which would also expose your users' details. A guest's name is the one they gave, and a member's never falls back to their email address.
+
+```graphql
+{
+    comments (ownerId: 2460, adjacencyParentId: ":empty:") {
+        id
+        contentHtml
+        comment
+        author {
+            name
+            initials
+            avatarUrl
+            isGuest
+            badges { type label }
+        }
+    }
+}
+```
+
+| Field | Type | Description
+| - | - | -
+| `name`| `String!` | The name shown on the comment. A guest without a name is “Guest”.
+| `initials`| `String!` | Up to two initials from the name, for an avatar without a photo.
+| `avatarUrl`| `String` | The author's photo, or your placeholder avatar. Null when **Show Avatar** is off, or there's neither.
+| `isGuest`| `Boolean!` | Whether the comment was made without an account.
+| `badges`| `[CommentBadge!]!` | The comment's badges, each with a `type` of `owner` or `staff` and the `label` from your badge settings.
+
+The `user` field still needs a schema that can view users, for when you want the account itself.
+
+### What the Viewer Can Do
+
+Every comment also has a `viewer`, which says what the person making the request can do with it, so a headless front end can show the same controls the default templates would and leave out ones that would fail. These follow the same rules as the default templates and the mutations. The person is whoever is signed in for the request, through a session or a [GraphQL Authentication](https://plugins.craftcms.com/graphql-authentication) token, or a guest otherwise.
+
+```graphql
+{
+    comments (ownerId: 2460) {
+        id
+        viewer {
+            canReply
+            canEdit
+            canDelete
+            canVote
+            canDownvote
+            canReport
+            vote
+        }
+    }
+}
+```
+
+| Field | Type | Description
+| - | - | -
+| `canReply`| `Boolean!` | Whether they can reply to it.
+| `canEdit`| `Boolean!` | Whether they can change it with `saveComment`, as its author within the **Author Edit Window**.
+| `canDelete`| `Boolean!` | Whether they can delete it with `deleteComment`, as its author.
+| `canVote`| `Boolean!` | Whether they can upvote or like it.
+| `canDownvote`| `Boolean!` | Whether they can downvote it, which needs the **Upvotes and downvotes** interaction mode.
+| `canReport`| `Boolean!` | Whether they can report it.
+| `vote`| `String` | How they voted on it, which is `upvote`, `downvote`, or null if they haven't.
+
+`viewer` is worked out for all the comments in a response together, so asking for it on a page of comments doesn't add a query per comment. Because the answer depends on who's asking, Craft's GraphQL cache isn't used for any query that includes a `viewer` field.
+
+Craft also adds `title`, `slug` and `uri` to every element type, but comments don't have a title, slug or URI of their own, so these are always null. Use `ownerId` to find the element a comment belongs to, and that element's `uri` for its page.
+
 ### The `commentConversation` Query
-This query returns the state and totals of the discussion on an element, such as for showing a comment count without fetching the comments. It needs the **View comments** permission, and returns null if the element doesn't exist, isn't public or has comments turned off. `siteId` defaults to the primary site.
+This query returns the state, totals and rules of the discussion on an element, such as for showing a comment count without fetching the comments, or deciding which parts of a comment form to show. It needs the **View comments** permission, and returns null if the element doesn't exist, isn't public or has comments turned off. `siteId` defaults to the primary site.
 
 ```graphql
 {
     commentConversation (ownerId: 2460) {
-        ownerId
-        siteId
         commentCount
         lastActivityAt
         open
+        interactionMode
+        maxLength
+        guestPolicy { allowed nameAndEmail canVote canReport }
+        reportReasons { value label description }
+        viewer { isGuest canComment canVote canReport }
     }
 }
 ```
+
+For a guest on a site that only lets members comment, `viewer.canComment` is false, and a front end can show a sign-in link in place of the form.
 
 | Field | Type | Description
 | - | - | -
@@ -162,6 +236,13 @@ This query returns the state and totals of the discussion on an element, such as
 | `commentCount`| `Int!` | The number of published comments.
 | `lastActivityAt`| `DateTime` | When the latest published comment was made.
 | `open`| `Boolean!` | Whether new comments can be posted.
+| `interactionMode`| `String!` | How people can vote, which is `like`, `updown` for upvotes and downvotes, or `none`.
+| `maxLength`| `Int` | The most characters a comment can have, from **Maximum Comment Length**, or null for no limit.
+| `guestPolicy`| `CommentGuestPolicy!` | What guests can do here: whether they're `allowed` to comment, whether they give their name and email (`nameAndEmail`, which is `required`, `optional` or `none`), and whether they `canVote` and `canReport`.
+| `reportReasons`| `[CommentReportReason!]!` | Your **Report Reasons**, each with the `value` to send as `reason` to `flagComment`, its translated `label` and its `description`. Empty while reporting is off.
+| `viewer`| `CommentConversationViewer!` | What the person making the request can do here: whether they're a guest (`isGuest`), and whether they can post a new comment (`canComment`), vote (`canVote`) and report comments (`canReport`). Each comment's own [`viewer`](#what-the-viewer-can-do) says what they can do with that comment.
+
+`canComment` takes everything into account, including closing dates, whether guests are allowed and **Maximum Comments per User**.
 
 ### The `VoteInterface` Interface
 This is the interface returned by `voteComment`.
@@ -175,7 +256,7 @@ This is the interface returned by `voteComment`.
 | `upvote`| `Boolean` | True if the vote is now an upvote.
 | `downvote`| `Boolean` | True if the vote is now a downvote. If neither is true, the vote was taken back.
 
-`id`, `sessionId` and `lastIp` are also on this interface, but they're always null.
+`id` is also on this interface, but it's always null.
 
 ### The `FlagInterface` Interface
 This is the interface returned by `flagComment`, describing a report.
@@ -186,7 +267,7 @@ This is the interface returned by `flagComment`, describing a report.
 | `comment`| `CommentInterface` | The reported comment, on schemas that can read comments.
 | `userId`| `Int` | The ID of the user who sent the report, on schemas that can read users.
 
-`id`, `sessionId` and `lastIp` are also on this interface, but they're always null.
+`id` is also on this interface, but it's always null.
 
 ### Custom Fields
 If you’ve added custom fields to the Comment element (**Comments** → **Settings** → **Comment Fields** → **Comment Field Layout**), you can query them by handle within a GraphQL fragment. If you added a `summary` Plain Text field, for example, your query might look like this:
@@ -212,7 +293,7 @@ Mutations act as whoever is making the request, which is the signed-in user for 
 
 ### Protection
 
-While **Enable Protection** is on, `createComment` and `saveComment` run Comments' [spam checks](docs:feature-tour/anti-spam) before saving. First send a GET request to `comments/api/v1/protection?ownerId=…&siteId=…&channel=headless` on your site. `siteId` defaults to the current site, and you include `commentId` when preparing an edit. Pass the signed preparation from the response, and any required provider token, as `protection`:
+While **Enable Protection** is on, `createComment` and `saveComment` run Comments' [spam checks](docs:feature-tour/anti-spam) before saving. First send a GET request to the `comments/frontend-api/protection` action on your site, such as `/actions/comments/frontend-api/protection?ownerId=…&siteId=…&channel=headless`. `siteId` defaults to the current site, and you include `commentId` when preparing an edit. Pass the signed preparation from the response, and any required provider token, as `protection`:
 
 ```json
 {
@@ -225,6 +306,8 @@ While **Enable Protection** is on, `createComment` and `saveComment` run Comment
 ```
 
 The input type is `CommentsProtectionEvidence`. For reCAPTCHA v3, use the `recaptchaV3` challenge field. Omit `challenges` when no provider is enabled. Honeypot, minimum form time and JavaScript checks aren't applied to these requests, but replay protection, rate limits, challenges and Akismet are. Get fresh preparation after every attempted submission. Preparation doesn't grant authorisation, so schema permissions, author permissions and validation still apply.
+
+A front end on another domain can fetch the preparation from the browser. The `protection` action answers cross-origin requests the same way Craft's GraphQL API does, following Craft's `allowedGraphqlOrigins` setting. By default any origin can read it, without cookies, so the preparation is a guest's. List your front end's origins in `allowedGraphqlOrigins` to allow only those, with cookies, so a signed-in visitor's preparation matches their session. Set it to `false`, or turn GraphQL off, and the action sends no cross-origin headers. None of the other frontend API actions answer cross-origin requests, and the preparation only carries spam-check evidence, which a script on a server could fetch anyway, not any permission.
 
 ### createComment
 Saves a new comment on the element given as `ownerId`, or a reply when given a `parentId`. To post a rich comment while **Authoring Mode** is **Rich (Editor)**, send the Editor's JSON as `editorContent`. Custom fields selected under **Public Fields** are accepted as arguments too.
@@ -288,7 +371,6 @@ mutation VoteComment($id: ID!, $upvote: Boolean) {
         downvote
 
         comment {
-            flags
             upvotes
             downvotes
         }
@@ -312,7 +394,6 @@ Report a comment to the moderators. `reason` is only kept if it matches the valu
 mutation FlagComment($id: ID!, $reason: String, $details: String) {
     flagComment(id: $id, reason: $reason, details: $details) {
         comment {
-            flags
             upvotes
             downvotes
         }

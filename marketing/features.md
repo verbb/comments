@@ -82,11 +82,11 @@ Want it to look like the rest of your site? Override only the templates you need
 <!-- feature-media -->
 ## Room to say more
 
-Turn on rich authoring and commenters can format what they write, quote and share code, mention people in the discussion and attach images and files to a volume you choose. Drafts are kept in the browser, so a refreshed page doesn't cost anyone their reply.
+With rich authoring, commenters can format what they write, quote and share code, mention people in the discussion and attach images and files to a volume you choose. Drafts are kept in the browser, so a refreshed page doesn't cost anyone their reply.
 
-Mentions only suggest people connected to the discussion, so your user list stays private. Prefer short and simple? The plain text box is the default.
+Mentions only suggest people connected to the discussion, so your user list stays private. Rich authoring is on for new installs, and the editor only loads once someone starts writing, so a page of comments stays light. If you'd rather keep things short and simple, switch to plain text and the same editor works without any formatting.
 
-![The rich comment composer, with formatting controls, some bold text and a mention suggestion open.](../screenshots/site/rich-composer.png)
+![The rich comment editor, with formatting controls, some bold text and a mention suggestion open.](../screenshots/site/rich-editor.png)
 
 <!-- feature-media-end -->
 

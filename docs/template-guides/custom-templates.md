@@ -25,7 +25,47 @@ templates/
 
 Reload a page with comments and you'll see your version. Every template you haven't copied still comes from the plugin. Overrides can use `.twig`, `.html` or anything else in Craft's `defaultTemplateExtensions`.
 
-Includes work the same way, so `{% include '_comment/author' %}` finds your copy first and the plugin's otherwise. This also means they don't look in the rest of your site's templates. If your override includes a partial of your own, put it inside your `frontend` folder too.
+Includes, imports and embeds in your overrides work the same way, so `{% include '_comment/author' %}` finds your copy first and the plugin's otherwise. Every template name resolves inside your `frontend` folder, not from the root of your site's templates, so anything your overrides include or import has to live there too. That keeps the comment templates self-contained, so they render the same when the browser fetches part of the page.
+
+For example, to use a file of macros in an override, put it in your `frontend` folder:
+
+```
+templates/
+└── _comments/
+    └── frontend/
+        ├── _comment/
+        │   └── author.twig
+        └── _macros/
+            └── people.twig
+```
+
+Then import it by its path inside `frontend`, as you would any other template:
+
+```twig
+{# templates/_comments/frontend/_comment/author.twig #}
+{% import '_macros/people' as people %}
+```
+
+A macro file elsewhere in your site's templates, such as `templates/_macros/people.twig`, can't be imported from an override, and Twig reports that it can't find the template.
+
+## Changing the Wording
+
+You don't need an override to change what a message says. The text Comments shows, on your site and in the control panel, goes through Craft's translations in the `comments` category, so you can replace it with a static translation file in your project. A few general control panel labels, such as **Status** and **Date Updated**, are Craft's own and use its `app` category, and relative times such as “3 hours ago” come from Craft's date formatting in the site's language.
+
+Suppose you want “Comment submitted for moderation.” to say something friendlier. Create `translations/en/comments.php` in your project's root folder, next to `templates/`, and return the messages you want to change, keyed by the original English text:
+
+```php
+<?php
+
+return [
+    'Comment submitted for moderation.' => 'Thanks! A moderator will check your comment soon.',
+    'Be the first to comment.' => 'Nobody has said anything yet.',
+];
+```
+
+Copy each key exactly as it appears in `vendor/verbb/comments/src/translations/en/comments.php`, including its punctuation, and leave out anything you don't want to change. The folder is named after the site's language, and `en` covers every English site, such as `en-US` and `en-GB`. For a site in another language, use its folder, such as `translations/de/comments.php`, and your messages replace Comments' own translations for that language.
+
+The emails Comments sends are edited under **Utilities** → **System Messages** instead, as described in [Customising Emails](docs:feature-tour/notifications-and-subscriptions#customising-emails).
 
 ## The Templates
 
@@ -40,11 +80,11 @@ Everything is included from `conversation`, so you can override at whichever lev
 | `_conversation/list` | The list of top-level comments, the empty message, the placeholder for lazy loading and the link to load more. |
 | `_conversation/empty` | The message when there are no comments yet. |
 | `_conversation/notice` | The message in place of the form when comments are closed, or guests can't comment. |
-| `_composer/region` | What goes at the top of the thread, which is the form for a signed-in visitor, the **Join the conversation** card for a guest, or the notice. |
-| `_composer/form` | The form for a comment, reply or edit. |
-| `_composer/guest-fields` | The guest's name and email fields, and the offer of reply emails. |
-| `_composer/custom-fields` | The comment box or Editor, and any [Public Fields](docs:template-guides/custom-fields). |
-| `_composer/empty` | An empty template used to clear a reply or edit form. |
+| `_editor/region` | What goes at the top of the thread, which is the form for a signed-in visitor, the **Join the conversation** card for a guest, or the notice. |
+| `_editor/form` | The form for a comment, reply or edit. |
+| `_editor/guest-fields` | The guest's name and email fields, and the offer of reply emails. |
+| `_editor/custom-fields` | The comment box, the Editor waiting to replace it with rich authoring, and any [Public Fields](docs:template-guides/custom-fields). |
+| `_editor/empty` | An empty template used to clear a reply or edit form. |
 | `_comment/comment` | One comment, including its replies. This also handles placeholders. |
 | `_comment/author` | The avatar, name, badges, date, short public field values and “Edited” label. |
 | `_comment/content` | The comment's text, or rich content and any GIF. |
@@ -61,15 +101,15 @@ The page at `frontend/manage.twig`, which handles [unsubscribe links and email c
 
 Templates don't receive Comment elements or the plugin's settings. They receive prepared objects, which hold only what's safe and relevant for the person viewing the page.
 
-The whole page, from `conversation` down, gets these variables. Parts of the page are also rendered by themselves when the browser fetches them, with only some of the variables, so check for anything that might be missing with `??` or `default` if your site has Twig's strict variables on. A comment always has `comment`, `conversation`, `viewer`, `composer` and `instance`, and a reply or edit form has `composer`, `conversation`, `viewer`, `instance` and `form`.
+The whole page, from `conversation` down, gets these variables. Parts of the page are also rendered by themselves when the browser fetches them, with only some of the variables, so check for anything that might be missing with `??` or `default` if your site has Twig's strict variables on. A comment always has `comment`, `conversation`, `viewer`, `editor` and `instance`, and a reply or edit form has `editor`, `conversation`, `viewer`, `instance` and `form`.
 
 | Variable | What It Is |
 | --- | --- |
 | `conversation` | The discussion and its URLs. |
 | `viewer` | Who's looking, and what they can do. |
-| `composer` | The form for a comment. |
+| `editor` | The form for a comment. |
 | `comment` | The comment being rendered, in `_comment/*`. |
-| `form` | The form's mode in `_composer/form`, which is `create`, `reply` or `edit`. |
+| `form` | The form's mode in `_editor/form`, which is `create`, `reply` or `edit`. |
 | `instance` | A unique ID for this set of comments, for building `id` attributes. |
 | `sharedCache` | Whether this render has to be safe to share between visitors, which is also true while lazy loading. |
 | `reportReasons` | The **Report Reasons**, each with a `value`, `label` and `description`. |
@@ -123,18 +163,18 @@ These are the properties of `conversation` that are most useful in a custom temp
 | `actions` | What the visitor can do, from `reply`, `edit`, `remove`, `interact`, `interact-down` and `report`. |
 | `moderationActions` | What they can do as a moderator, from `moderate-approve`, `moderate-keep`, `moderate-remove`, `moderate-restore`, `moderate-spam` and `moderate-not-spam`. |
 | `interaction` | Vote details, which are `mode`, `allowsDownvote`, `usesScore`, `upvotes`, `downvotes`, `score` and the visitor's own `viewer` vote. It's null when interactions are off, or the comment isn't approved. |
-| `contextualComposer` | A reply or edit form opened by the server for a visitor without JavaScript. |
+| `contextualEditor` | A reply or edit form opened by the server for a visitor without JavaScript. |
 
 `comment.commentDate` and `comment.editedAt` are strings, so use Twig's `date` filter on them. `timeAgo` is null in a shared-cache render, because it would go stale. `contentHtml` has already been made safe when it's rendered, so output it with `| raw` as the default template does. The `flag` link opens the **Report this comment** form.
 
-### `composer`
+### `editor`
 
 | Property | What It Is |
 | --- | --- |
 | `mode`, `operationId` | `create`, `reply` or `edit`, and an ID for this submission. |
 | `ownerId`, `siteId`, `parentCommentId`, `editCommentId`, `parentAuthorName` | What's being commented on, and who's being replied to. |
 | `initialPlainContent`, `initialEditorContent` | The existing text when editing, or what was typed when a form comes back with an error. |
-| `richAuthoring`, `contentFormat`, `getEditorOptions()`, `draftKey`, `maxLength` | Whether to show the Editor, and what it needs. |
+| `richAuthoring`, `contentFormat`, `getEditorOptions()`, `editorAsset`, `draftKey`, `maxLength` | Whether the form swaps in the Editor, where to load it from, and what it needs. |
 | `showGuestFields`, `guestRequireEmailName`, `guestName`, `guestEmail`, `offerReplyEmails` | The guest fields, and a returning guest's details. |
 | `publicFields`, `hasFileInputs` | The custom fields to show, and whether the form needs `enctype="multipart/form-data"`. |
 | `redirectTemplate`, `cancelHref` | Where the form goes after posting without JavaScript, and a link to cancel. |
@@ -167,9 +207,9 @@ If you override `_comment/comment`, you must handle this, or visitors will see a
                 {% include '_comment/review' %}
             {% endif %}
 
-            <div class="comments__contextual-composer" data-comments-region="contextual-composer" data-comments-comment-uid="{{ comment.uid }}">
-                {% if comment.contextualComposer %}
-                    {% include '_composer/form' with { composer: comment.contextualComposer, form: comment.contextualComposer.mode } %}
+            <div class="comments__contextual-editor" data-comments-region="contextual-editor" data-comments-comment-uid="{{ comment.uid }}">
+                {% if comment.contextualEditor %}
+                    {% include '_editor/form' with { editor: comment.contextualEditor, form: comment.contextualEditor.mode } %}
                 {% endif %}
             </div>
         {% endif %}
@@ -193,11 +233,11 @@ Fragments go into these regions, which should stay in place:
 | --- | --- | --- |
 | `data-comments-region="header"` | The outermost element of `_conversation/header` | Replaced by a fresh header, so the attribute has to be on that template's outermost element. |
 | `data-comments-region="list"` | `conversation` | `_conversation/list`. |
-| `data-comments-region="composer"` | `conversation` | `_composer/region`, which is the form, the **Join the conversation** card or a notice. |
+| `data-comments-region="editor"` | `conversation` | `_editor/region`, which is the form, the **Join the conversation** card or a notice. |
 | `data-comments-region="feedback"` | `conversation` | Must hold an element with the `comments__feedback` class, for messages. |
 | `data-comments-region="live"` | `conversation` | Announcements for screen readers. |
 | `data-comments-region="report-dialog"` | `conversation` | `_report/form`. |
-| `data-comments-region="contextual-composer"` | `_comment/comment` | A reply or edit form. It also needs `data-comments-comment-uid`. |
+| `data-comments-region="contextual-editor"` | `_comment/comment` | A reply or edit form. It also needs `data-comments-comment-uid`. |
 
 ### Comments and Replies
 
@@ -224,7 +264,7 @@ Buttons and links are found through `data-comments-action`, most with `data-comm
 | `toggle-held` | The moderator's **Hide held** button, with `data-comments-label-hide` and `data-comments-label-show`. |
 | `copy-link` | The **Copy link** button, with the comment's anchor in `data-comments-link`. |
 | `toggle-date` | The link around a comment's `time`, which switches to the date in `data-comments-full-date` when tapped. |
-| `cancel-composer`, `cancel-report` | **Cancel** buttons. |
+| `cancel-editor`, `cancel-report` | **Cancel** buttons. |
 
 Anything with `data-comments-js-only` is hidden until the JavaScript has started, as long as you're using the bundled CSS or have kept that rule.
 
@@ -234,30 +274,41 @@ These are intercepted when they're submitted, so keep their markers:
 
 | Marker | Form |
 | --- | --- |
-| `data-comments-form="create"`, `"reply"` or `"edit"`, with `data-comments-operation-id` | `_composer/form`, whose value comes from `form`. |
+| `data-comments-form="create"`, `"reply"` or `"edit"`, with `data-comments-operation-id` | `_editor/form`, whose value comes from `form`. |
 | `data-comments-form="report"` | `_report/form`, which has to be inside a `<dialog data-comments-report-dialog>`. |
 | `data-comments-form="subscribe"` | The form in `_conversation/subscribe`. |
 | `comments__vote-form` class | Each vote form in `_comment/actions`. |
 | `comments__moderate-form` class | Each moderation form in `_comment/actions` and `_comment/review`. |
 
-`_composer/form` must keep its hidden fields and `{{ csrfInput() }}`, `{{ redirectInput(composer.redirectTemplate) }}` and `{{ craft.comments.protect(composer.ownerId, composer.siteId, composer.editCommentId) }}`, which are also what makes it work [without JavaScript](docs:template-guides/working-without-javascript). The comment box needs to be named `fields[comment]`, and guest fields `fields[name]` and `fields[email]`. A field error is placed after the input with the same name.
+`_editor/form` must keep its hidden fields and `{{ csrfInput() }}`, `{{ redirectInput(editor.redirectTemplate) }}` and `{{ craft.comments.protect(editor.ownerId, editor.siteId, editor.editCommentId) }}`, which are also what makes it work [without JavaScript](docs:template-guides/working-without-javascript). The comment box needs to be named `fields[comment]`, and guest fields `fields[name]` and `fields[email]`. A field error is placed after the input with the same name.
 
 ### Rich Authoring
 
-When `composer.richAuthoring` is true, `_composer/custom-fields` outputs the Editor as a `<verbb-editor>` element, with a plain box beside it for visitors without JavaScript. Keep these if you override that template. This is a trimmed version of the default, which also sets the Editor's label, character limit, draft and submit button:
+Every form starts as the plugin's own editor, which is a `textarea` in a frame drawn to match the Editor's. It's what visitors without JavaScript post with, and all that plain authoring uses. The bundled script adds the character limit, a draft kept in the browser, ⌘↵ and a **Post** button that waits for some text. It looks for these parts of `_editor/form`, and leaves out whatever an override doesn't have:
+
+| Part | What It's For |
+| --- | --- |
+| `comments__frame` | The frame around the box, which the script collapses to one line for a form with `data-comments-collapsible`. |
+| `comments__frame-foot` | The row with **Cancel** and **Post**, where the draft note and character count go. |
+| `comments__submit`, with a `comments__submit-label` inside | **Post**, which is greyed out until there's something to post. |
+| `data-comments-draft-key`, `data-comments-limit` on the form | Where the draft is kept, and the character limit. |
+
+When `editor.richAuthoring` is true, `_editor/custom-fields` also outputs the Editor as a `<verbb-editor>` element inside a `<template data-comments-editor>`, which keeps it inert until a visitor clicks into the box, opens a reply or edits a comment. Then the script loads the Editor from the form's `data-comments-editor-module` and `data-comments-editor-css` attributes, swaps it in for the box and brings across whatever was typed. Keep these if you override that template. This is a trimmed version of the default, which also sets the Editor's label, character limit, draft and submit button:
 
 ```twig
-<input type="hidden" name="contentFormat" value="{{ composer.contentFormat }}">
+<input type="hidden" name="contentFormat" value="{{ editor.contentFormat }}">
 <input type="hidden" name="fields[editorContent]" value="">
-<verbb-editor
-    data-editor-root
-    data-options="{{ composer.getEditorOptions() | merge(composer.initialEditorContent ? { content: composer.initialEditorContent | json_decode } : {}) | json_encode | e('html_attr') }}"
-></verbb-editor>
-<textarea class="comments__textarea comments__textarea-fallback" name="fields[comment]">{{ composer.initialPlainContent ?? '' }}</textarea>
+<template data-comments-editor>
+    <verbb-editor
+        data-editor-root
+        data-options="{{ editor.getEditorOptions() | json_encode | e('html_attr') }}"
+    ></verbb-editor>
+</template>
+<textarea class="comments__textarea comments__textarea-fallback" name="fields[comment]">{{ editor.initialPlainContent ?? '' }}</textarea>
 ```
 
-The `textarea` is what visitors use without JavaScript, and the bundled CSS hides `comments__textarea-fallback` once the Editor is running. Don't output `composer.getEditorOptions()` in a page that's cached for everyone, because it can hold a CSRF token for the signed-in visitor.
+`editor.getEditorOptions()` includes the comment being edited, and the bundled CSS hides the plain editor's parts once the Editor is running. Don't output `editor.getEditorOptions()` in a page that's cached for everyone, because it can hold a CSRF token for the signed-in visitor.
 
 ## Shared Caching
 
-If you use [shared caching](docs:template-guides/rendering-comments#caching-comments), keep the `sharedCache` checks in `conversation`, `_conversation/header` and `_composer/region`. They leave out anything personal, such as the form and its CSRF token, which arrives once the page has loaded. Anything personal you add to an override should do the same.
+If you use [shared caching](docs:template-guides/rendering-comments#caching-comments), keep the `sharedCache` checks in `conversation`, `_conversation/header` and `_editor/region`. They leave out anything personal, such as the form and its CSRF token, which arrives once the page has loaded. Anything personal you add to an override should do the same.

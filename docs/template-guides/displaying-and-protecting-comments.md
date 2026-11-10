@@ -81,7 +81,7 @@ This form works by itself without any JavaScript, until you turn on **Require Ja
 
 ## Headless and GraphQL
 
-Request `comments/api/v1/protection` with `ownerId`, `siteId`, optionally `commentId`, and `channel=headless`. Generate this URL with Craft's URL helper, such as `siteUrl('comments/api/v1/protection')`, so that it works with both query-string and pretty routing. The response has `manifest`, `hiddenInputs`, `expiresAt` and protocol `version`, and is marked as private and uncacheable. Use the same signed-in identity or session for preparing and submitting.
+Request the `comments/frontend-api/protection` controller action with `ownerId`, `siteId`, optionally `commentId`, and `channel=headless`. Generate this URL with Craft's URL helper, such as `actionUrl('comments/frontend-api/protection')`, so that it works with both query-string and pretty routing. The response has `manifest`, `hiddenInputs`, `expiresAt` and protocol `version`, and is marked as private and uncacheable. Use the same signed-in identity or session for preparing and submitting.
 
 For a browser using your own front end, mount the manifest with `@verbb/protect` and submit the evidence it returns. A client that isn't a browser has to get any required provider token through its own trusted flow, as the headless channel doesn't turn off configured challenges. It does leave out the honeypot, minimum form time and JavaScript checks, while replay protection, rate limits, challenges and Akismet still apply. GraphQL uses the `protection` input documented under [GraphQL](docs:developers/graphql#mutations).
 

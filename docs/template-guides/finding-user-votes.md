@@ -31,6 +31,8 @@ A vote is a record with these properties:
 
 Guests' votes aren't connected to a user, so they aren't included. A vote that's been taken back doesn't appear.
 
+To check one comment for the person viewing the page, such as to show a vote button as already pressed, use [`hasVoted()`, `hasUpvoted()` and `hasDownvoted()`](docs:developers/comment#hasvoted) on the comment. They recognise guests as well as signed-in users.
+
 ## Calls Used in This Task
 
 ### `craft.comments.getUserVotes(userId)`

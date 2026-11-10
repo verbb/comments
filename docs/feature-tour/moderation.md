@@ -28,6 +28,7 @@ A comment can wait for review for several reasons, and the index's **Reason** co
 - **Pre-moderation** means every comment on the site waits for a moderator.
 - **Held commenter** means the person who wrote it has the **Held** review setting, described under [Commenters](#commenters).
 - **Possible spam** means spam protection wasn't sure about it and held it for you rather than rejecting it.
+- **Keyword filter** means it contains one of your [Moderated Keywords](docs:feature-tour/security#keyword-filters). A comment caught by the **Spam Keywords** has this reason under **Spam**.
 - **Edited** means it was approved, then edited by its author while moderation applied to them, so it's waiting for review again.
 - **Held by a moderator** means someone moved it back to Pending.
 
@@ -116,7 +117,7 @@ A review setting decides how one person's comments are moderated, whatever the s
 
 | Review Setting | Effect |
 | --- | --- |
-| Trusted | Their comments skip review and appear straight away, even under pre-moderation. Spam checks still apply. |
+| Trusted | Their comments skip review and appear straight away, even under pre-moderation. Spam checks and keyword filters still apply. |
 | Normal | Their comments follow the site's moderation setting. This is the default. |
 | Held | Every comment they post or edit waits for a moderator, until you change this. |
 | Blocked | They can't post or edit. Their existing comments stay as they are. |
