@@ -14,33 +14,17 @@ class CommentsHelper
     // Static Methods
     // =========================================================================
 
+    /**
+     * How long ago something happened, such as "3 hours ago", in the language of the current site.
+     * Craft's formatter does the wording, which Yii translates. The interval is read as a time in
+     * the past whichever way round it was worked out, so a clock slightly ahead never says "in 2 seconds".
+     */
     public static function humanDurationFromInterval(DateInterval $dateInterval): string
     {
-        if ($dateInterval->y) {
-            return $dateInterval->y == 1 ? Craft::t('app', '1 year ago') : Craft::t('app', '{num} years ago', ['num' => $dateInterval->y]);
-        }
+        $interval = clone $dateInterval;
+        $interval->invert = 0;
 
-        if ($dateInterval->m) {
-            return $dateInterval->m == 1 ? Craft::t('app', '1 month ago') : Craft::t('app', '{num} months ago', ['num' => $dateInterval->m]);
-        }
-
-        if ($dateInterval->d) {
-            return $dateInterval->d == 1 ? Craft::t('app', '1 day ago') : Craft::t('app', '{num} days ago', ['num' => $dateInterval->d]);
-        }
-
-        if ($dateInterval->h) {
-            return $dateInterval->h == 1 ? Craft::t('app', '1 hour ago') : Craft::t('app', '{num} hours ago', ['num' => $dateInterval->h]);
-        }
-
-        if ($dateInterval->i) {
-            return $dateInterval->i == 1 ? Craft::t('app', '1 minute ago') : Craft::t('app', '{num} minutes ago', ['num' => $dateInterval->i]);
-        }
-
-        if ($dateInterval->s) {
-            return $dateInterval->s == 1 ? Craft::t('app', '1 second ago') : Craft::t('app', '{num} seconds ago', ['num' => $dateInterval->s]);
-        }
-
-        return '';
+        return Craft::$app->getFormatter()->asRelativeTime($interval);
     }
 
     /**
