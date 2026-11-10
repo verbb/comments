@@ -20,7 +20,8 @@ use craft\elements\User;
  *
  * Pending/Spam do not trigger participant notifications. Approval may trigger delayed public ones.
  * Guests, who have no account or other channel, are emailed. Everyone with an account, staff included,
- * is passed to `EVENT_AFTER_NOTIFY` for the site or a notifications plugin to tell.
+ * is passed to `EVENT_AFTER_NOTIFY` for the site or a notifications plugin to tell. The one exception is
+ * the opt-in Email the Moderator Group setting, which also emails the staff that event names.
  */
 class Notifications extends Component
 {
@@ -117,7 +118,9 @@ class Notifications extends Component
         $settings = CommentsPlugin::$plugin->getSettings();
 
         if ($settings->isStaffNotificationEnabled(Settings::NOTIFICATION_STAFF_REPORTED)) {
-            $this->queue(self::TYPE_FLAG, $comment);
+            // The reporter is left out of the staff they're telling.
+            $reporterUserId = CommentsPlugin::$plugin->getIdentities()->getById((int)$report->identityId)?->userId;
+            $this->queue(self::TYPE_FLAG, $comment, null, $reporterUserId ? (int)$reporterUserId : null);
         }
     }
 
@@ -133,7 +136,7 @@ class Notifications extends Component
     /**
      * Queue or send a single notification type. Uses Craft Queue when settings request it.
      */
-    public function queue(string $type, Comment $comment, ?int $mentionedIdentityId = null): void
+    public function queue(string $type, Comment $comment, ?int $mentionedIdentityId = null, ?int $actorUserId = null): void
     {
         $settings = CommentsPlugin::$plugin->getSettings();
 
@@ -143,19 +146,23 @@ class Notifications extends Component
                 'siteId' => $comment->siteId ? (int)$comment->siteId : null,
                 'type' => $type,
                 'mentionedIdentityId' => $mentionedIdentityId,
+                'actorUserId' => $actorUserId,
             ]));
 
             return;
         }
 
         try {
-            CommentsPlugin::$plugin->getComments()->triggerNotificationEmail($type, $comment, $mentionedIdentityId);
+            CommentsPlugin::$plugin->getComments()->triggerNotificationEmail($type, $comment, $mentionedIdentityId, $actorUserId);
         } catch (NotificationDeliveryException) {
             // Already logged. Without a queue job to fail, this shouldn't undo the comment being saved.
         }
     }
 
-    public function notifyAccountHolders(string $type, Comment $comment, ?ElementInterface $element, array $recipients): void
+    /**
+     * Name account holders in the event, once each, and return who was named.
+     */
+    public function notifyAccountHolders(string $type, Comment $comment, ?ElementInterface $element, array $recipients): array
     {
         $unique = [];
 
@@ -173,6 +180,8 @@ class Notifications extends Component
                 'recipients' => array_values($unique),
             ]));
         }
+
+        return array_values($unique);
     }
 
     public function queueMentionNotifications(Comment $comment, array $identityIds): void

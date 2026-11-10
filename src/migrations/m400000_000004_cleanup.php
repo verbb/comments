@@ -181,6 +181,22 @@ class m400000_000004_cleanup extends Migration
 
         $projectConfig->remove('plugins.comments.settings.structureUid');
 
+        // Comments 3 only had plain text. New installs default to rich authoring, so an upgraded site
+        // records the mode it has always had rather than switching to Editor by itself.
+        if ($projectConfig->get('plugins.comments.settings.authoringMode') === null) {
+            $projectConfig->set('plugins.comments.settings.authoringMode', 'plain');
+        }
+
+        // Comments 3 emailed the moderator group about comments waiting for review. Comments 4 only names
+        // staff in an event unless Email the Moderator Group is on, so a site that relied on that email
+        // keeps it. Checked before the settings are next saved, which drops the Comments 3 names.
+        if (
+            $projectConfig->get('plugins.comments.settings.emailModeratorGroup') === null
+            && V3SettingsReview::emailedModeratorGroup(V3SettingsReview::currentValues())
+        ) {
+            $projectConfig->set('plugins.comments.settings.emailModeratorGroup', true);
+        }
+
         // "Comment Form" read as the public form now that this tab sits in the control panel's editor, which opens on Content.
         $layoutsKey = CommentsService::CONFIG_FIELDLAYOUT_KEY;
 

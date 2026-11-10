@@ -42,16 +42,35 @@ final class V3SettingsReview
         return $inUse;
     }
 
+    /**
+     * Whether Comments 3 emailed the moderator group, which it did for comments waiting for review and
+     * edits to them, once a group was chosen. Its new-comment and flag emails went to the addresses in
+     * `notificationAdmins` instead, which Comments 4 has no way to reach, so they don't count.
+     */
+    public static function emailedModeratorGroup(array $values): bool
+    {
+        if (empty($values['moderatorUserGroup'])) {
+            return false;
+        }
+
+        return (bool)($values['notificationModeratorEnabled'] ?? false)
+            || (bool)($values['notificationModeratorEditEnabled'] ?? false);
+    }
+
     public static function record(V3UpgradeLog $log): void
     {
-        $values = array_merge(
+        foreach (self::retiredInUse(self::currentValues()) as $setting) {
+            $log->add('settings.retired.' . $setting, V3UpgradeLog::WARNING);
+        }
+    }
+
+    /** The site's Comments 3 settings, with `config/comments.php` over project config, as Craft reads them. */
+    public static function currentValues(): array
+    {
+        return array_merge(
             Craft::$app->getProjectConfig()->get('plugins.comments.settings', true) ?? [],
             Craft::$app->getConfig()->getConfigFromFile('comments'),
         );
-
-        foreach (self::retiredInUse($values) as $setting) {
-            $log->add('settings.retired.' . $setting, V3UpgradeLog::WARNING);
-        }
     }
 
 

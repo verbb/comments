@@ -41,6 +41,30 @@ return [
     "Your comment has been approved on the post \"{{ element.title }}\".\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
+  'comments_moderator_notification_heading' => 'When a comment is waiting for review, to the moderator group:',
+  'comments_moderator_notification_subject' => 'A comment is waiting for review on {{ siteName }}',
+  'comments_moderator_notification_body' => "Hi {{user.friendlyName}},\n\n" .
+    "A comment on \"{{ element.title }}\" is waiting for review.\n\n" .
+    "{{comment.cpEditUrl}}",
+
+  'comments_moderator_edit_notification_heading' => 'When a comment waiting for review is edited, to the moderator group:',
+  'comments_moderator_edit_notification_subject' => 'A comment waiting for review was edited on {{ siteName }}',
+  'comments_moderator_edit_notification_body' => "Hi {{user.friendlyName}},\n\n" .
+    "A comment on \"{{ element.title }}\" was edited by its author and is waiting for review.\n\n" .
+    "{{comment.cpEditUrl}}",
+
+  'comments_admin_notification_heading' => 'When any comment is posted, to the moderator group:',
+  'comments_admin_notification_subject' => '"{{ element.title }}" has a new comment on {{ siteName }}',
+  'comments_admin_notification_body' => "Hi {{user.friendlyName}},\n\n" .
+    "A new comment has been posted on \"{{ element.title }}\".\n\n" .
+    "{{comment.cpEditUrl}}",
+
+  'comments_flag_notification_heading' => 'When a comment is reported, to the moderator group:',
+  'comments_flag_notification_subject' => 'A comment on "{{ element.title }}" was reported on {{ siteName }}',
+  'comments_flag_notification_body' => "Hi {{user.friendlyName}},\n\n" .
+    "A comment on \"{{ element.title }}\" has been reported.\n\n" .
+    "{{comment.cpEditUrl}}",
+
   //
   // Strings
   //
@@ -69,6 +93,7 @@ return [
   'Allow guest users to react to other users’ comments.' => 'Allow guest users to react to other users’ comments.',
   'Allow Mentions' => 'Allow Mentions',
   'Allowed File Types' => 'Allowed File Types',
+  'Also email the moderator group’s members about the staff notifications chosen above. Edit the wording in [System Messages]({link}). Element authors, mentioned people and followers with an account are still only named in the event.' => 'Also email the moderator group’s members about the staff notifications chosen above. Edit the wording in [System Messages]({link}). Element authors, mentioned people and followers with an account are still only named in the event.',
   'An owner element is required.' => 'An owner element is required.',
   'Apply' => 'Apply',
   'Approval of a pending comment' => 'Approval of a pending comment',
@@ -197,6 +222,7 @@ return [
   'Email is required.' => 'Email is required.',
   'Email me when someone replies. We’ll ask you to confirm your address first.' => 'Email me when someone replies. We’ll ask you to confirm your address first.',
   'Email Template' => 'Email Template',
+  'Email the Moderator Group' => 'Email the Moderator Group',
   'Enable Akismet' => 'Enable Akismet',
   'Enable Exact Keyword Matching' => 'Enable Exact Keyword Matching',
   'Enable Protection' => 'Enable Protection',
@@ -529,7 +555,7 @@ return [
   'Choose a reason' => 'Choose a reason',
   'Choose a reason for removing this comment.' => 'Choose a reason for removing this comment.',
   'Choose which comment events notify people taking part in the discussion.' => 'Choose which comment events notify people taking part in the discussion.',
-  'Choose which events name the moderator group selected under Moderation. Comments doesn’t email staff: your site or a notifications plugin delivers these.' => 'Choose which events name the moderator group selected under Moderation. Comments doesn’t email staff: your site or a notifications plugin delivers these.',
+  'Choose which events name the moderator group selected under Moderation, for your site or a notifications plugin to deliver.' => 'Choose which events name the moderator group selected under Moderation, for your site or a notifications plugin to deliver.',
   'Comment approved.' => 'Comment approved.',
   'Comment as a guest' => 'Comment as a guest',
   'Comment deleted permanently.' => 'Comment deleted permanently.',
@@ -538,7 +564,7 @@ return [
   'Comment restored.' => 'Comment restored.',
   'Comment returned to Needs review.' => 'Comment returned to Needs review.',
   'Comments are hidden from visitors.' => 'Comments are hidden from visitors.',
-  'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed: Comments fires an event naming them, for your site or a notifications plugin to deliver.' => 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed: Comments fires an event naming them, for your site or a notifications plugin to deliver.',
+  'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed. Comments fires an event naming them, for your site or a notifications plugin to deliver.' => 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed. Comments fires an event naming them, for your site or a notifications plugin to deliver.',
   'Comments held for review' => 'Comments held for review',
   'Comments on this site wait for a moderator before they appear.' => 'Comments on this site wait for a moderator before they appear.',
   'Copy link' => 'Copy link',
@@ -597,7 +623,7 @@ return [
   'Off-topic' => 'Off-topic',
   'Oldest' => 'Oldest',
   'Only spam can be deleted permanently.' => 'Only spam can be deleted permanently.',
-  'Optional site template used to wrap the emails Comments sends guests.' => 'Optional site template used to wrap the emails Comments sends guests.',
+  'Optional site template used to wrap the emails Comments sends guests and the moderator group.' => 'Optional site template used to wrap the emails Comments sends guests and the moderator group.',
   'Optional. Only moderators see this.' => 'Optional. Only moderators see this.',
   'Optional. Recorded in the history, and only moderators see it.' => 'Optional. Recorded in the history, and only moderators see it.',
   'Personal information' => 'Personal information',
@@ -635,7 +661,7 @@ return [
   'Review setting saved for {count} commenters.' => 'Review setting saved for {count} commenters.',
   'Review setting saved.' => 'Review setting saved.',
   'Save review setting' => 'Save review setting',
-  'Send guest email and notification events outside the visitor request using Craft’s queue. Recommended for production sites.' => 'Send guest email and notification events outside the visitor request using Craft’s queue. Recommended for production sites.',
+  'Send emails and notification events outside the visitor request using Craft’s queue. Recommended for production sites.' => 'Send emails and notification events outside the visitor request using Craft’s queue. Recommended for production sites.',
   'Send report' => 'Send report',
   'Show Reported Comments' => 'Show Reported Comments',
   'Show held' => 'Show held',

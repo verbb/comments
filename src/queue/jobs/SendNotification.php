@@ -18,6 +18,7 @@ class SendNotification extends BaseJob
     public ?int $siteId = null;
     public string $type;
     public ?int $mentionedIdentityId = null;
+    public ?int $actorUserId = null;
 
 
     // Public Methods
@@ -44,6 +45,7 @@ class SendNotification extends BaseJob
             $this->type,
             $comment,
             $this->mentionedIdentityId,
+            $this->actorUserId,
         );
 
         $this->setProgress($queue, 1);

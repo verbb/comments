@@ -59,8 +59,18 @@ class Comments extends Component
     public const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
     public const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
     public const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
+    public const EVENT_BEFORE_SEND_STAFF_EMAIL = 'beforeSendStaffEmail';
 
     public const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
+
+    // The system message for each staff notification, when the moderator group is emailed. These keep
+    // Comments 3's keys, so a site's customised wording and translations carry over.
+    private const STAFF_EMAIL_MESSAGES = [
+        Notifications::TYPE_ADMIN => 'comments_admin_notification',
+        Notifications::TYPE_MODERATOR => 'comments_moderator_notification',
+        Notifications::TYPE_MODERATOR_EDIT => 'comments_moderator_edit_notification',
+        Notifications::TYPE_FLAG => 'comments_flag_notification',
+    ];
 
 
     // Properties
@@ -938,7 +948,7 @@ class Comments extends Component
         return false;
     }
 
-    public function triggerNotificationEmail($type, $comment, ?int $mentionedIdentityId = null): void
+    public function triggerNotificationEmail($type, $comment, ?int $mentionedIdentityId = null, ?int $actorUserId = null): void
     {
         // A queued notification can run well after the comment changed.
         if (!$this->_isStillRelevant($type, $comment)) {
@@ -950,7 +960,7 @@ class Comments extends Component
         $this->_deliveryFailures = 0;
 
         if (in_array($type, ['admin', 'flag', 'moderator', 'moderator-edit'], true)) {
-            $this->notifyStaff($type, $comment);
+            $this->notifyStaff($type, $comment, $actorUserId);
         } elseif ($type === 'author') {
             $this->notifyElementAuthor($comment);
         } elseif ($type === 'reply') {
@@ -970,11 +980,30 @@ class Comments extends Component
 
     /**
      * New comments, comments waiting for review, edits to them and reports go to the moderator group as
-     * an event. Staff have accounts and the control panel, so Comments doesn't email them.
+     * an event. Staff have accounts and the control panel, so Comments only emails them when Email the
+     * Moderator Group is on, and then exactly the people the event named.
+     *
+     * Whoever caused the notification is left out: the author of a new or edited comment, and the
+     * person who made a report.
      */
-    public function notifyStaff(string $type, Comment $comment): void
+    public function notifyStaff(string $type, Comment $comment, ?int $actorUserId = null): void
     {
-        CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders($type, $comment, $comment->getOwner(), $this->getModeratorRecipients());
+        $element = $comment->getOwner();
+        $actorUserId = $type === 'flag' ? $actorUserId : $comment->userId;
+        $recipients = array_filter(
+            $this->getModeratorRecipients(),
+            fn($recipient) => !$actorUserId || !$recipient instanceof User || (int)$recipient->id !== (int)$actorUserId,
+        );
+        $named = CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders($type, $comment, $element, $recipients);
+        $messageKey = self::STAFF_EMAIL_MESSAGES[$type] ?? null;
+
+        if (!$messageKey || !$element || !CommentsPlugin::$plugin->getSettings()->emailModeratorGroup) {
+            return;
+        }
+
+        foreach ($named as $recipient) {
+            $this->_mail($messageKey, self::EVENT_BEFORE_SEND_STAFF_EMAIL, $comment, $element, $recipient);
+        }
     }
 
     /**
@@ -1084,7 +1113,7 @@ class Comments extends Component
             return;
         }
 
-        $this->_mailGuest('comments_reply_notification', self::EVENT_BEFORE_SEND_REPLY_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($parentIdentity, $comment));
+        $this->_mail('comments_reply_notification', self::EVENT_BEFORE_SEND_REPLY_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($parentIdentity, $comment));
     }
 
     public function sendModeratorApprovedNotificationEmail(Comment $comment): void
@@ -1118,7 +1147,7 @@ class Comments extends Component
         $recipient = $this->_guestRecipient($authorIdentity);
 
         if ($recipient) {
-            $this->_mailGuest('comments_moderator_approved_notification', self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($authorIdentity, $comment));
+            $this->_mail('comments_moderator_approved_notification', self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($authorIdentity, $comment));
         }
     }
 
@@ -1243,7 +1272,7 @@ class Comments extends Component
                 ? 'comments_subscriber_notification_comment'
                 : 'comments_subscriber_notification_element';
 
-            $this->_mailGuest(
+            $this->_mail(
                 $emailKey,
                 self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL,
                 $comment,
@@ -1504,9 +1533,10 @@ class Comments extends Component
     }
 
     /**
-     * Email one guest, letting `beforeSend…` listeners change or stop it.
+     * Email one guest or moderator, letting `beforeSend…` listeners change or stop it. Guest emails carry
+     * a link to stop them; staff email is the site's choice, made in the settings.
      */
-    private function _mailGuest(string $key, string $eventName, Comment $comment, ElementInterface $element, User $recipient, string $stopEmailsUrl, array $variables = []): void
+    private function _mail(string $key, string $eventName, Comment $comment, ElementInterface $element, User $recipient, ?string $stopEmailsUrl = null, array $variables = []): void
     {
         try {
             $message = $this->_renderEmail($key, $variables + [
@@ -1530,12 +1560,13 @@ class Comments extends Component
             }
 
             if (Craft::$app->getMailer()->send($message)) {
-                CommentsPlugin::info('Comment email sent to a guest.');
+                CommentsPlugin::info('Comment email sent: {key}.', ['key' => $key]);
             } else {
-                $this->_reportDeliveryFailure('Unable to send a comment email to a guest.');
+                $this->_reportDeliveryFailure('Unable to send a comment email: {key}.', ['key' => $key]);
             }
         } catch (Throwable $e) {
-            $this->_reportDeliveryFailure('Error sending a comment email to a guest: {message} {file}:{line}.', [
+            $this->_reportDeliveryFailure('Error sending a comment email ({key}): {message} {file}:{line}.', [
+                'key' => $key,
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -1554,6 +1585,10 @@ class Comments extends Component
             'author', 'reply', 'subscribe', 'mention', 'moderator-approved' => $state === ModerationState::Approved && !$comment->authorRemovedAt,
             'moderator', 'moderator-edit' => $state === ModerationState::Pending,
             default => true,
+            // Every new comment, spam included, until a moderator or its author removes it.
+            'admin' => $state !== ModerationState::Removed && !$comment->authorRemovedAt,
+            // Kept, removed or marked as spam since, there's no report left to look at.
+            'flag' => $state === ModerationState::Approved && !$comment->authorRemovedAt && $comment->getFlags() > 0,
         };
     }
 

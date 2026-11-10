@@ -306,6 +306,16 @@ class Comments extends Plugin
     }
 
     private function _registerVariables(): void
+            // Only sent with Email the Moderator Group on. Comments 3's keys, so customised wording carries over.
+            foreach (['comments_moderator_notification', 'comments_moderator_edit_notification', 'comments_admin_notification', 'comments_flag_notification'] as $key) {
+                $event->messages[] = [
+                    'key' => $key,
+                    'heading' => Craft::t('comments', $key . '_heading'),
+                    'subject' => Craft::t('comments', $key . '_subject'),
+                    'body' => Craft::t('comments', $key . '_body'),
+                ];
+            }
+
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             $event->sender->set('comments', CommentsVariable::class);

@@ -149,6 +149,8 @@ class Settings extends Model
         self::NOTIFICATION_MENTION,
     ];
     public array $staffNotifications = [];
+    // Also email the moderator group about the staff notifications above, rather than only naming them in the event.
+    public bool $emailModeratorGroup = false;
     public array $subscriptionTypes = [];
     public array $publicFields = [];
     public string $subscriptionDefault = self::SUBSCRIPTION_DEFAULT_NONE;

@@ -6,7 +6,7 @@
 {{ forms.lightswitchField({
     first: true,
     label: 'Send Notifications Through the Queue' | t('comments'),
-    instructions: 'Send guest email and notification events outside the visitor request using Craft’s queue. Recommended for production sites.' | t('comments'),
+    instructions: 'Send emails and notification events outside the visitor request using Craft’s queue. Recommended for production sites.' | t('comments'),
     id: 'useQueueForNotifications',
     name: 'useQueueForNotifications',
     on: settings.useQueueForNotifications,
@@ -17,7 +17,7 @@
 
 <h3>{{ 'Participants' | t('comments') }}</h3>
 
-<p class="light">{{ 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed: Comments fires an event naming them, for your site or a notifications plugin to deliver.' | t('comments') }}</p>
+<p class="light">{{ 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed. Comments fires an event naming them, for your site or a notifications plugin to deliver.' | t('comments') }}</p>
 
 {{ forms.checkboxSelectField({
     label: 'Participant Notifications' | t('comments'),
@@ -88,7 +88,7 @@
 
 {{ forms.checkboxSelectField({
     label: 'Staff Notifications' | t('comments'),
-    instructions: 'Choose which events name the moderator group selected under Moderation. Comments doesn’t email staff: your site or a notifications plugin delivers these.' | t('comments'),
+    instructions: 'Choose which events name the moderator group selected under Moderation, for your site or a notifications plugin to deliver.' | t('comments'),
     name: 'staffNotifications',
     values: settings.staffNotifications,
     options: [
@@ -112,13 +112,22 @@
     warning: macros.configWarning('staffNotifications', 'comments'),
 }) }}
 
+{{ forms.lightswitchField({
+    label: 'Email the Moderator Group' | t('comments'),
+    instructions: 'Also email the moderator group’s members about the staff notifications chosen above. Edit the wording in [System Messages]({link}). Element authors, mentioned people and followers with an account are still only named in the event.' | t('comments', { link: url('utilities/system-messages') }),
+    id: 'emailModeratorGroup',
+    name: 'emailModeratorGroup',
+    on: settings.emailModeratorGroup,
+    warning: macros.configWarning('emailModeratorGroup', 'comments'),
+}) }}
+
 <hr>
 
 <h3>{{ 'Email Template' | t('comments') }}</h3>
 
 {{ forms.textField({
     label: 'HTML Email Template' | t('comments'),
-    instructions: 'Optional site template used to wrap the emails Comments sends guests.' | t('comments'),
+    instructions: 'Optional site template used to wrap the emails Comments sends guests and the moderator group.' | t('comments'),
     id: 'templateEmail',
     name: 'templateEmail',
     value: settings.templateEmail,
