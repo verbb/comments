@@ -51,6 +51,7 @@ class QueryProfiler
             'queries' => count($queries),
             'duplicatePatterns' => array_sum(array_map(static fn(int $count): int => max(0, $count - 1), $patterns)),
             'topPatterns' => array_slice($patterns, 0, 5, true),
+            'patterns' => $patterns,
         ];
     }
 

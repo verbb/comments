@@ -50,6 +50,9 @@ class Conversations extends Component
     /** Request-local resolved config cache. */
     private array $configCache = [];
 
+    /** Request-local answers to whether the current person can comment on an owner. */
+    private array $commentingCache = [];
+
 
     // Public Methods
     // =========================================================================
@@ -577,12 +580,38 @@ class Conversations extends Component
         return $result;
     }
 
+    /**
+     * Whether the current person can comment on an owner. Every comment's Reply asks this, and with
+     * **Maximum Comments Per User** set it counts their comments, so it's worked out once per owner and
+     * person in a request rather than once per comment.
+     */
+    public function canComment(?ElementInterface $owner): bool
+    {
+        if (!$owner || !isset($owner->id, $owner->siteId)) {
+            return false;
+        }
+
+        $user = CommentsPlugin::$plugin->getService()->getUser();
+        $key = $this->_ownerKey((int)$owner->id, (int)$owner->siteId) . ':' . ($user->id ?? 'guest');
+
+        return $this->commentingCache[$key] ??= CommentsPlugin::$plugin->getSettings()->canComment($owner);
+    }
+
+    /**
+     * Forget who can comment where, as a saved comment can change how many someone has.
+     */
+    public function clearCommentingCache(): void
+    {
+        $this->commentingCache = [];
+    }
+
     /** Clear request-local caches (tests / long-running workers). */
     public function clearCaches(): void
     {
         $this->byOwnerCache = [];
         $this->byIdCache = [];
         $this->configCache = [];
+        $this->commentingCache = [];
     }
 
 

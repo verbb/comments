@@ -30,6 +30,13 @@ class Reports extends Component
     public const REASON_LEGACY = 'legacy';
 
 
+    // Properties
+    // =========================================================================
+
+    // Comments whose reports changed during this request, so counts a query loaded earlier are stale.
+    private array $_changedCommentIds = [];
+
+
     // Public Methods
     // =========================================================================
 
@@ -83,6 +90,7 @@ class Reports extends Component
             'uid' => StringHelper::UUID(),
         ]);
         $record->save(false);
+        $this->_changedCommentIds[$commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
 
         CommentsPlugin::$plugin->getNotifications()->queueForReport($comment, $record);
@@ -109,6 +117,14 @@ class Reports extends Component
             ])
             ->orderBy(['dateCreated' => SORT_ASC, 'id' => SORT_ASC])
             ->all();
+    }
+
+    /**
+     * Whether reports on a comment were made or settled during this request, so counts a query loaded before are stale.
+     */
+    public function hasChangedInRequest(int $commentId): bool
+    {
+        return isset($this->_changedCommentIds[$commentId]);
     }
 
     /** Open report counts keyed by comment ID. */
@@ -161,6 +177,7 @@ class Reports extends Component
         $open->status = ReportStatus::Dismissed->value;
         $open->resolvedAt = Db::prepareDateForDb(new DateTime());
         $open->save(false);
+        $this->_changedCommentIds[$commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
 
         return true;
@@ -209,6 +226,7 @@ class Reports extends Component
         $report->resolvedByUserId = $actor?->id;
         $report->moderationActionId = $moderationActionId;
         $report->save(false);
+        $this->_changedCommentIds[(int)$report->commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
 
         return $report;

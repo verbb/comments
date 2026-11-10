@@ -331,6 +331,14 @@ class CommentQuery extends ElementQuery
             ? []
             : User::find()->id($userIds)->status(null)->indexBy('id')->all();
 
+        // Every comment shows its author's photo, so load them together rather than one query each.
+        // Only users with a photo are passed, so a page without any costs nothing.
+        $usersWithPhotos = array_values(array_filter($users, static fn(User $user): bool => (bool)$user->photoId));
+
+        if ($usersWithPhotos !== []) {
+            Craft::$app->getElements()->eagerLoadElements(User::class, $usersWithPhotos, ['photo']);
+        }
+
         $ownerRows = (new Query())
             ->select(['id', 'type'])
             ->from([Table::ELEMENTS])

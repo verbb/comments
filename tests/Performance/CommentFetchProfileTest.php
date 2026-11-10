@@ -4,6 +4,7 @@ use Tests\Support\Fixtures\PerformanceCorpusFixture;
 use Tests\Support\Performance\QueryProfiler;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\models\CommentSubmission;
 
 it('profiles fetching comments for an owner element', function() {
     $entry = CommentsFixtureFactory::entry();
@@ -67,10 +68,74 @@ it('profiles Frontend::buildConversationView query count for 50 canonical roots'
     });
 
     expect($profile['resultSize'])->toBeNull();
-    expect($profile['queries'])->toBeLessThanOrEqual(120);
-    // Reply previews batch via Conversations::getReplyPreviewMap(); avatar/author lookups remain per comment.
-    expect($profile['duplicatePatterns'])->toBeLessThanOrEqual(100);
+    // Reply previews, authors, report counts and vote totals are each fetched once for the page.
+    expect($profile['queries'])->toBeLessThanOrEqual(20);
+    expect($profile['duplicatePatterns'])->toBe(0);
     expect($profile['durationMs'])->toBeLessThan(10000);
+})->group('perf');
+
+it('keeps authors’ photos, report counts and reply checks batched for a moderator', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->requireModeration = false;
+    $settings->participantNotifications = [];
+    $settings->staffNotifications = [];
+    $handle = 'perfPhotos' . bin2hex(random_bytes(4));
+    $path = sys_get_temp_dir() . '/' . $handle;
+    $filesystem = new craft\fs\Local(['name' => $handle, 'handle' => $handle, 'path' => $path, 'hasUrls' => true, 'url' => 'https://assets.example.test/' . $handle . '/']);
+    expect(Craft::$app->getFs()->saveFilesystem($filesystem))->toBeTrue();
+    $volume = new craft\models\Volume(['name' => $handle, 'handle' => $handle, 'fsHandle' => $handle]);
+    expect(Craft::$app->getVolumes()->saveVolume($volume))->toBeTrue();
+
+    try {
+        $entry = CommentsFixtureFactory::entry('Perf photos owner');
+
+        // Ten authors with photos, two comments each, read by the admin, who moderates.
+        for ($i = 0; $i < 10; $i++) {
+            $file = tempnam(sys_get_temp_dir(), 'comments-perf-photo-');
+            file_put_contents($file, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
+            $photo = new craft\elements\Asset([
+                'tempFilePath' => $file,
+                'filename' => "face{$i}.png",
+                'newFolderId' => Craft::$app->getAssets()->getRootFolderByVolumeId((int)$volume->id)->id,
+                'volumeId' => $volume->id,
+                'avoidFilenameConflicts' => true,
+            ]);
+            $photo->setScenario(craft\elements\Asset::SCENARIO_CREATE);
+            expect(Craft::$app->getElements()->saveElement($photo))->toBeTrue();
+
+            $author = CommentsFixtureFactory::user('perfPhotoAuthor');
+            Craft::$app->getDb()->createCommand()->update(craft\db\Table::USERS, ['photoId' => $photo->id], ['id' => $author->id])->execute();
+
+            foreach ([1, 2] as $n) {
+                Comments::$plugin->getComments()->create(new CommentSubmission([
+                    'ownerId' => $entry->id,
+                    'siteId' => $entry->siteId,
+                    'content' => "Comment {$n} by author {$i}",
+                    'userId' => (int)$author->id,
+                ]));
+            }
+        }
+
+        // Reply checks count the viewer's comments when this is set.
+        $settings->maxUserComments = 100;
+        Comments::$plugin->getConversations()->clearCaches();
+
+        $profile = QueryProfiler::profile(static fn() => Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId, null, 50));
+        $matching = static fn(string $needle): int => array_sum(array_filter($profile['patterns'], static fn(string $sql): bool => str_contains($sql, $needle), ARRAY_FILTER_USE_KEY));
+
+        // One query loads every author's photo, and each author's avatar URL is built once rather than
+        // once per comment, because every transformed URL looks up the transform index.
+        expect($matching('INNER JOIN `assets` `assets`'))->toBe(1)
+            ->and($matching('FROM `imagetransformindex` WHERE'))->toBe(10)
+            // Moderators' Keep and Remove use the report counts loaded with the comments.
+            ->and($matching('FROM `comments_reports` WHERE (`commentId`=?)'))->toBe(0)
+            // Whether the viewer can comment counts their comments for the form and the page's replies, not once per comment.
+            ->and($matching('`comments_comments`.`userId`'))->toBeLessThanOrEqual(3);
+    } finally {
+        Craft::$app->getVolumes()->deleteVolume($volume);
+        Craft::$app->getFs()->removeFilesystem($filesystem);
+        craft\helpers\FileHelper::removeDirectory($path);
+    }
 })->group('perf');
 
 it('profiles a 10k-comment owner query using the direct corpus fixture', function() {

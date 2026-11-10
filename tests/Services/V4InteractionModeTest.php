@@ -124,3 +124,67 @@ it('batches interaction totals for a page of comments', function() {
     expect($state[(int)$comment->id]['viewer'])->toBeNull();
     expect($state[(int)$comment->id]['score'])->toBe(0);
 });
+
+it('tells a template whether the visitor has voted on a comment, and which way', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->interactionMode = InteractionMode::UpDown->value;
+    [, $comment] = makeApprovedComment('Has voted owner');
+    $voter = CommentsFixtureFactory::user('hasVoted');
+    $interactions = Comments::$plugin->getInteractions();
+    $identityId = (int)Comments::$plugin->getIdentities()->getOrCreateForUser($voter)->id;
+    $votes = static fn(): array => [$comment->hasVoted(), $comment->hasUpvoted(), $comment->hasDownvoted()];
+    Craft::$app->getUser()->setIdentity($voter);
+
+    expect($votes())->toBe([false, false, false]);
+
+    $interactions->set((int)$comment->id, $identityId, InteractionType::Upvote);
+    expect($votes())->toBe([true, true, false]);
+
+    $interactions->set((int)$comment->id, $identityId, InteractionType::Downvote);
+    expect($votes())->toBe([true, false, true]);
+
+    // Someone else's vote isn't the visitor's.
+    Craft::$app->getUser()->setIdentity(CommentsFixtureFactory::user('hasNotVoted'));
+    expect($votes())->toBe([false, false, false]);
+
+    // A downvote from before the site switched to likes isn't one the visitor has.
+    Craft::$app->getUser()->setIdentity($voter);
+    $settings->interactionMode = InteractionMode::Like->value;
+    expect($votes())->toBe([false, false, false]);
+
+    $interactions->set((int)$comment->id, $identityId, InteractionType::Upvote);
+    expect($votes())->toBe([true, true, false]);
+
+    $settings->interactionMode = InteractionMode::None->value;
+    expect($votes())->toBe([false, false, false]);
+});
+
+it('reuses the vote totals a query loaded, unless the votes changed since', function() {
+    Comments::$plugin->getSettings()->interactionMode = InteractionMode::UpDown->value;
+    [$entry, $comment] = makeApprovedComment('Interaction loaded totals');
+    $interactions = Comments::$plugin->getInteractions();
+    $voter = (int)Comments::$plugin->getIdentities()->getOrCreateForUser(CommentsFixtureFactory::user('loadedTotals'))->id;
+    // A vote from an earlier request, so this one hasn't seen it change.
+    (new verbb\comments\records\Interaction(['commentId' => $comment->id, 'identityId' => $voter, 'type' => 'upvote', 'uid' => craft\helpers\StringHelper::UUID()]))->save(false);
+    $totalsQueries = static function(Closure $run): int {
+        $profile = Tests\Support\Performance\QueryProfiler::profile($run);
+
+        return array_sum(array_filter($profile['topPatterns'], static fn(string $sql): bool => str_contains($sql, 'COUNT(*) AS `total`'), ARRAY_FILTER_USE_KEY));
+    };
+
+    // Loaded with the comment, so the totals aren't counted again, whether given the comment or its ID.
+    $loaded = verbb\comments\elements\Comment::find()->id($comment->id)->one();
+    $state = null;
+    expect($totalsQueries(function() use ($interactions, $loaded, &$state) {
+        $state = $interactions->getPresentationState([$loaded], null) + $interactions->getPresentationState([(int)$loaded->id], null);
+    }))->toBe(0)
+        ->and($state[(int)$comment->id]['upvotes'])->toBe(1)
+        ->and($interactions->getPresentationState([999999999], null)[999999999]['upvotes'])->toBe(0);
+
+    // A vote since then makes the loaded totals stale, so they're counted.
+    $interactions->toggle((int)$comment->id, $voter, InteractionType::Downvote);
+    expect($totalsQueries(function() use ($interactions, $loaded, $voter, &$state) {
+        $state = $interactions->getPresentationState([$loaded], $voter);
+    }))->toBe(1)
+        ->and($state[(int)$comment->id])->toBe(['upvotes' => 0, 'downvotes' => 1, 'score' => -1, 'viewer' => 'downvote']);
+});

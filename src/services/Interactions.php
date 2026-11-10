@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\services;
 
+use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\elements\Comment;
 use verbb\comments\enums\InteractionType;
 use verbb\comments\records\Interaction as InteractionRecord;
 
@@ -18,11 +20,19 @@ use InvalidArgumentException;
  */
 class Interactions extends Component
 {
+    // Properties
+    // =========================================================================
+
+    // Comments whose interactions changed during this request, so totals a query loaded earlier are stale.
+    private array $_changedCommentIds = [];
+
+
     // Public Methods
     // =========================================================================
 
     public function set(int $commentId, int $identityId, InteractionType $type): InteractionRecord
     {
+        $this->_changedCommentIds[$commentId] = true;
         $existing = InteractionRecord::findOne([
             'commentId' => $commentId,
             'identityId' => $identityId,
@@ -69,6 +79,7 @@ class Interactions extends Component
 
     public function remove(int $commentId, int $identityId): bool
     {
+        $this->_changedCommentIds[$commentId] = true;
         $existing = InteractionRecord::findOne([
             'commentId' => $commentId,
             'identityId' => $identityId,
@@ -202,20 +213,52 @@ class Interactions extends Component
     }
 
     /**
-     * Batched presentation state for a set of Comments: totals plus the viewer's own interaction.
-     *
-     * Identity may be null for anonymous viewers, in which case only totals are populated.
+     * Whether votes on a comment changed during this request, so totals a query loaded before are stale.
      */
-    public function getPresentationState(array $commentIds, ?int $identityId): array
+    public function hasChangedInRequest(int $commentId): bool
     {
-        $totals = $this->getTotals($commentIds);
-        $viewerState = $identityId !== null
-            ? $this->getViewerState($commentIds, $identityId)
+        return isset($this->_changedCommentIds[$commentId]);
+    }
+
+    /**
+     * Batched presentation state for a set of comments: totals plus the viewer's own interaction.
+     *
+     * A comment query loads totals with the comments, so only comments without them, or whose votes
+     * changed during this request, are counted again. An ID finds the comment this request loaded through
+     * the render cache. Identity may be null for anonymous viewers, in which case only totals are populated.
+     */
+    public function getPresentationState(array $comments, ?int $identityId): array
+    {
+        $totals = [];
+        $countIds = [];
+
+        foreach ($comments as $comment) {
+            $commentId = (int)($comment instanceof Comment ? $comment->id : $comment);
+
+            if (!$commentId) {
+                continue;
+            }
+
+            $comment = $comment instanceof Comment ? $comment : CommentsPlugin::$plugin->getRenderCache()->getComment($commentId);
+
+            if ($comment instanceof Comment && $comment->hasInteractionTotals()) {
+                $totals[$commentId] = ['upvote' => $comment->getUpvotes(), 'downvote' => $comment->getDownvotes()];
+            } else {
+                $totals[$commentId] = null;
+                $countIds[] = $commentId;
+            }
+        }
+
+        // One query for whatever wasn't already loaded, keeping the order the comments came in.
+        $counted = $countIds !== [] ? $this->getTotals($countIds) : [];
+        $viewerState = $identityId !== null && $totals !== []
+            ? $this->getViewerState(array_keys($totals), $identityId)
             : [];
 
         $result = [];
 
         foreach ($totals as $commentId => $counts) {
+            $counts ??= $counted[$commentId];
             $viewer = $viewerState[$commentId] ?? null;
 
             $result[$commentId] = [

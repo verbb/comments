@@ -11,6 +11,7 @@ use verbb\comments\elements\conditions\CommentCondition;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\enums\ContentFormat;
 use verbb\comments\enums\HeldReason;
+use verbb\comments\enums\InteractionType;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\SubscriptionType;
 use verbb\comments\exceptions\CommentValidationException;
@@ -975,7 +976,8 @@ class Comment extends Element
     {
         $settings = Comments::$plugin->getSettings();
 
-        $canReply = $settings->canComment($this->getOwner());
+        // The same for every comment on the owner, so it's asked once per request.
+        $canReply = Comments::$plugin->getConversations()->canComment($this->getOwner());
 
         if ($canReply && is_numeric($settings->maxReplyDepth)) {
             $maxReplyDepth = (int)$settings->maxReplyDepth;
@@ -1083,6 +1085,24 @@ class Comment extends Element
         return Comments::$plugin->getReports()->getOpenForIdentity((int)$this->id, (int)$identity->id) !== null;
     }
 
+    /**
+     * Whether the current visitor has voted on this comment, or liked it when Interaction Mode only allows likes.
+     */
+    public function hasVoted(): bool
+    {
+        return $this->_viewerInteraction() !== null;
+    }
+
+    public function hasUpvoted(): bool
+    {
+        return $this->_viewerInteraction() === InteractionType::Upvote;
+    }
+
+    public function hasDownvoted(): bool
+    {
+        return $this->_viewerInteraction() === InteractionType::Downvote;
+    }
+
     public function isFlagged(): bool
     {
         return $this->getFlags() > 0;
@@ -1090,7 +1110,8 @@ class Comment extends Element
 
     public function getFlags(): int
     {
-        if ($this->_openReportCount !== null) {
+        // The count its query loaded, unless a report was made or settled during this request.
+        if ($this->_openReportCount !== null && !Comments::$plugin->getReports()->hasChangedInRequest((int)$this->id)) {
             return $this->_openReportCount;
         }
 
@@ -1130,6 +1151,15 @@ class Comment extends Element
             'upvote' => (int)($totals['upvote'] ?? 0),
             'downvote' => (int)($totals['downvote'] ?? 0),
         ];
+    }
+
+    /**
+     * Whether a query loaded this comment's vote totals with it, and no vote has changed them since,
+     * so reading them costs nothing.
+     */
+    public function hasInteractionTotals(): bool
+    {
+        return $this->_interactionTotals !== null && !Comments::$plugin->getInteractions()->hasChangedInRequest((int)$this->id);
     }
 
     public function setOpenReportCount(int $count): void
@@ -1415,6 +1445,9 @@ class Comment extends Element
 
         $previousStatus = $this->_previousStatus;
         $previousCommentText = $this->_previousCommentText;
+
+        // Its author may now have reached Maximum Comments Per User.
+        Comments::$plugin->getConversations()->clearCommentingCache();
 
         if ($this->skipAfterSaveSideEffects) {
             parent::afterSave($isNew);
@@ -1875,13 +1908,31 @@ class Comment extends Element
 
     private function _getInteractionTotals(): array
     {
-        if ($this->_interactionTotals !== null) {
+        if ($this->hasInteractionTotals()) {
             return $this->_interactionTotals;
         }
 
         $totals = Comments::$plugin->getInteractions()->getTotals([(int)$this->id]);
 
         return $totals[(int)$this->id] ?? ['upvote' => 0, 'downvote' => 0];
+    }
+
+    /**
+     * The current visitor's vote, if the Interaction Mode still offers it. A downvote kept from
+     * before the site switched to likes isn't one the visitor can see, or take back.
+     */
+    private function _viewerInteraction(): ?InteractionType
+    {
+        $mode = Comments::$plugin->getSettings()->resolveInteractionMode();
+        $identity = $mode->isEnabled() ? $this->_resolveViewerIdentity() : null;
+
+        if (!$identity) {
+            return null;
+        }
+
+        $type = InteractionType::tryFrom((string)Comments::$plugin->getInteractions()->getForIdentity((int)$this->id, (int)$identity->id)?->type);
+
+        return $type && $mode->allows($type) ? $type : null;
     }
 
     private function _resolveViewerIdentity(): ?\verbb\comments\records\Identity

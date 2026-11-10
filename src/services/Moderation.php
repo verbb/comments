@@ -268,7 +268,8 @@ class Moderation extends Component
 
     public function hasOpenReports(Comment $comment): bool
     {
-        return (CommentsPlugin::$plugin->getReports()->getOpenCounts([(int)$comment->id])[(int)$comment->id] ?? 0) > 0;
+        // A comment from a query already has its count, which saves a query per comment on a moderator's page.
+        return $comment->getFlags() > 0;
     }
 
     public function setState(Comment|int $comment, ModerationState $state, ?User $actor = null): Comment
@@ -518,14 +519,15 @@ class Moderation extends Component
     public function recordAuthorEdit(Comment $comment, ModerationState $fromState): void
     {
         $toState = $this->currentState($comment);
-        $actor = Craft::$app->getUser()->getIdentity();
+        // The author who edited it, which for GraphQL can be a user signed in only by a token.
+        $actor = CommentsPlugin::$plugin->getService()->getUser();
 
         $this->_recordAction(
             commentId: (int)$comment->id,
             action: self::ACTION_AUTHOR_EDIT,
             fromState: $fromState,
             toState: $toState,
-            actor: $actor,
+            actor: $actor instanceof User ? $actor : null,
             reason: null,
         );
 
