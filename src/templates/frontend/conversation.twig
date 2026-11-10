@@ -15,9 +15,19 @@
     data-comments-enhanced="1"
     data-comments-discard-message="{{ 'Discard what you’ve written?' | t('comments') }}"
     data-comments-copied-message="{{ 'Link copied.' | t('comments') }}"
-    data-comments-failed-message="{{ 'Something went wrong. Your comment hasn’t been lost, so please try again.' | t('comments') }}"
+    data-comments-failed-message="{{ 'Something went wrong. Please try again.' | t('comments') }}"
     data-comments-retry-label="{{ 'Try again' | t('comments') }}"
     data-comments-uploading-message="{{ 'Please wait for your upload to finish.' | t('comments') }}"
+    data-comments-editor-labels="{{ {
+        writeFirst: 'Write something first.' | t('comments'),
+        tooLong: 'Too long by {count} characters' | t('comments'),
+        charactersLeft: '{count} characters left' | t('comments'),
+        charactersOf: '{count} of {limit} characters' | t('comments'),
+        draftSaved: 'Draft saved' | t('comments'),
+        draftRestored: 'Restored your draft from {time}.' | t('comments'),
+        discard: 'Discard' | t('comments'),
+        posting: 'Posting…' | t('comments'),
+    } | json_encode | e('html_attr') }}"
     {% if sharedCache %}data-comments-shared-cache="1"{% endif %}
     {% if conversation.lazy %}data-comments-lazy="1"{% endif %}
     {% if editorAsset ?? false %}data-comments-editor-module="{{ editorAsset.module }}" data-comments-editor-css="{{ editorAsset.css }}"{% endif %}
@@ -28,10 +38,10 @@
 
     {% include '_conversation/header' %}
 
-    {# The composer comes first, so joining in doesn't mean scrolling past everything. #}
-    <div data-comments-region="composer"{% if sharedCache %} data-comments-private-hydrate="1"{% endif %}>
+    {# The editor comes first, so joining in doesn't mean scrolling past everything. #}
+    <div data-comments-region="editor"{% if sharedCache %} data-comments-private-hydrate="1"{% endif %}>
         {% if not sharedCache %}
-            {% include '_composer/region' %}
+            {% include '_editor/region' %}
         {% endif %}
     </div>
 

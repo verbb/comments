@@ -1,63 +1,57 @@
-{% set fieldId = fieldId ?? (instance ~ '-' ~ (form ?? composer.mode)) %}
+{% set formMode = form ?? editor.mode %}
+{% set fieldId = fieldId ?? (instance ~ '-' ~ formMode) %}
 {% set fieldLayout = craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment') %}
 {% set commentField = fieldLayout.getFirstElementByType('verbb\\comments\\fieldlayoutelements\\CommentsField') %}
-{# A label is blank by default in the field layout, but a form field always needs one. #}
+{# A label is blank by default in the field layout, but a form field always needs one. It names the box
+   for screen readers; the placeholder says what to write. #}
 {% set label = commentField and commentField.label != '__blank__' ? commentField.label : 'Your comment' | t('comments') %}
 {% set instructions = commentField ? commentField.instructions : null %}
 {% set required = commentField ? commentField.required : true %}
+{% set placeholder = instructions ?: ({
+    create: 'Add to the conversation…' | t('comments'),
+    reply: 'Reply to {name}…' | t('comments', { name: editor.parentAuthorShortName ?? editor.parentAuthorName ?? 'Guest' | t('comments') }),
+    edit: 'Edit your comment…' | t('comments'),
+}[formMode] ?? null) %}
+{% set submitLabel = submitLabel ?? 'Post' | t('comments') %}
 
-<div class="comments__field comments__field-comment">
-    <label class="comments__field-label" id="{{ fieldId }}-comment-label" for="{{ fieldId }}-comment-body">
-        {{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}
-    </label>
+<label class="comments__visually-hidden" id="{{ fieldId }}-comment-label" for="{{ fieldId }}-comment-body">{{ label }}</label>
 
-    {% if composer.richAuthoring %}
-        {% set formMode = form ?? composer.mode %}
-        <input type="hidden" name="contentFormat" value="{{ composer.contentFormat }}">
-        <input type="hidden" name="fields[editorContent]" value="">
-        {# Editor's composer: the toolbar, uploads, character limit, draft and Post button are its own. #}
-        <verbb-editor
-            data-editor-root
-            data-options="{{ composer.getEditorOptions() | merge(composer.initialEditorContent ? { content: composer.initialEditorContent | json_decode } : {}) | json_encode | e('html_attr') }}"
-            aria-labelledby="{{ fieldId }}-comment-label"
-            submit-label="{{ formMode == 'edit' ? 'Save comment' | t('comments') : (formMode == 'reply' ? 'Post reply' | t('comments') : 'Post comment' | t('comments')) }}"
-            {% if composer.draftKey %}draft-key="{{ composer.draftKey }}"{% endif %}
-            {% if composer.maxLength %}limit="{{ composer.maxLength }}"{% endif %}
-            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
-            {% if required %}required{% endif %}
-            {% if formMode == 'create' %}collapsible{% endif %}
-        >
-            {% if formMode == 'create' and (viewer.isLoggedIn ?? false) and viewer.name %}
-                <span slot="header" class="comments__posting-as">
-                    {{ 'Posting as {name}' | t('comments', { name: viewer.name }) }}
-                    {% if viewer.badge %}<span class="comments__badge">{{ viewer.badge }}</span>{% endif %}
-                </span>
-            {% elseif formMode == 'reply' and composer.parentAuthorName %}
-                <span slot="header" class="comments__posting-as">{{ 'Replying to {name}' | t('comments', { name: composer.parentAuthorName }) }}</span>
-            {% endif %}
-            {% if formMode != 'create' %}
-                <button slot="actions" type="button" class="verbb-editor__button" data-comments-action="cancel-composer">{{ 'Cancel' | t('comments') }}</button>
-            {% endif %}
-        </verbb-editor>
-        {# Shown instead of the editor when JavaScript isn't running. #}
-        <textarea
-            id="{{ fieldId }}-comment-body"
-            class="comments__textarea comments__textarea-fallback"
-            name="fields[comment]"
-            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
-        >{{ composer.initialPlainContent ?? '' }}</textarea>
-    {% else %}
-        <textarea
-            id="{{ fieldId }}-comment-body"
-            class="comments__textarea"
-            name="fields[comment]"
-            {% if instructions %}placeholder="{{ instructions }}"{% endif %}
-            {% if required %}required{% endif %}
-        >{{ composer.initialPlainContent ?? '' }}</textarea>
-    {% endif %}
-</div>
+{# Rich authoring swaps Editor in once someone starts writing, which keeps Editor off the page
+   until it's wanted. It brings its own toolbar, character limit, draft, ⌘↵ and Post button. Until then,
+   or if it never arrives, the plain box below posts as plain text. #}
+{% if editor.richAuthoring %}
+<input type="hidden" name="contentFormat" value="{{ editor.contentFormat }}">
+<input type="hidden" name="fields[editorContent]" value="">
+<template data-comments-editor>
+    <verbb-editor
+        data-editor-root
+        data-options="{{ editor.getEditorOptions() | json_encode | e('html_attr') }}"
+        aria-labelledby="{{ fieldId }}-comment-label"
+        submit-label="{{ submitLabel }}"
+        {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+        {% if formMode == 'reply' and editor.parentAuthorName %}reply-to="{{ editor.parentAuthorName }}"{% endif %}
+        {% if editor.draftKey %}draft-key="{{ editor.draftKey }}"{% endif %}
+        {% if editor.maxLength %}limit="{{ editor.maxLength }}"{% endif %}
+        {% if required %}required{% endif %}
+        {% if collapsible ?? false %}collapsible{% endif %}
+    ></verbb-editor>
+</template>
+{% endif %}
 
-{% for field in composer.publicFields %}
+{# What everyone writes in, with or without JavaScript. The script adds the character limit, a draft
+   kept in the browser, ⌘↵ and a Post button that waits for some text. #}
+<textarea
+    id="{{ fieldId }}-comment-body"
+    class="comments__textarea comments__textarea-fallback"
+    name="fields[comment]"
+    rows="{{ (collapsible ?? false) ? 1 : 3 }}"
+    {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+    {% if required %}required{% endif %}
+>{{ editor.initialPlainContent ?? '' }}</textarea>
+
+{% if editor.publicFields %}
+<div class="comments__editor-fields" data-comments-slot="footer">
+{% for field in editor.publicFields %}
     {% set inputId = fieldId ~ '-' ~ field.handle %}
     {% set inputName = 'fields[' ~ field.handle ~ ']' %}
     {% set describedBy = field.instructions ? 'aria-describedby="' ~ inputId ~ '-instructions"' : '' %}
@@ -104,10 +98,12 @@
             {% elseif field.type == 'textarea' %}
                 <textarea id="{{ inputId }}" class="comments__textarea" name="{{ inputName }}" {% if field.required %}required{% endif %} {{ describedBy | raw }}>{{ field.values | first }}</textarea>
             {% elseif field.type == 'file' %}
-                <input id="{{ inputId }}" class="comments__input" name="{{ inputName }}[]" type="file" {% if field.multiple %}multiple{% endif %} {% if field.required and not composer.editCommentId %}required{% endif %} {{ describedBy | raw }}>
+                <input id="{{ inputId }}" class="comments__input" name="{{ inputName }}[]" type="file" {% if field.multiple %}multiple{% endif %} {% if field.required and not editor.editCommentId %}required{% endif %} {{ describedBy | raw }}>
             {% else %}
                 <input id="{{ inputId }}" class="comments__input" name="{{ inputName }}" type="{{ field.type }}" value="{{ field.values | first }}" {% if field.required %}required{% endif %} {{ describedBy | raw }}>
             {% endif %}
         </div>
     {% endif %}
 {% endfor %}
+</div>
+{% endif %}

@@ -22,21 +22,27 @@
                             aria-pressed="{{ interaction.viewer == 'upvote' ? 'true' : 'false' }}"
                         >
                             {% if interaction.allowsDownvote %}
-                                <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4l5 6h-3v6H8v-6H5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                                <svg class="comments__icon comments__icon--up" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                             {% else %}
-                                <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16.5s-6-3.6-6-8A3.4 3.4 0 0 1 10 6a3.4 3.4 0 0 1 6 2.5c0 4.4-6 8-6 8z" fill="currentColor" fill-opacity="{{ interaction.viewer == 'upvote' ? '1' : '0' }}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                                <svg class="comments__icon comments__icon--heart" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></svg>
                             {% endif %}
-                            <span class="comments__visually-hidden">{{ interaction.allowsDownvote ? 'Upvote' | t('comments') : 'Like' | t('comments') }}</span>
-                            {% if interaction.upvotes > 0 %}<span class="comments__vote-count">{{ interaction.upvotes }}</span>{% endif %}
+                            {# A like reads "Like" until it has a count to show instead. #}
+                            <span class="{{ interaction.allowsDownvote or interaction.upvotes > 0 ? 'comments__visually-hidden' : 'comments__vote-label' }}">{{ interaction.allowsDownvote ? 'Upvote' | t('comments') : 'Like' | t('comments') }}</span>
+                            {% if not interaction.usesScore and interaction.upvotes > 0 %}<span class="comments__vote-count">{{ interaction.upvotes }}</span>{% endif %}
                         </button>
                     </form>
                 {% elseif not interaction.usesScore and interaction.upvotes > 0 %}
                     {# Someone who can't like still sees the count as the Like button shows it, just not pressable. #}
                     <span class="comments__vote-total">
-                        <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16.5s-6-3.6-6-8A3.4 3.4 0 0 1 10 6a3.4 3.4 0 0 1 6 2.5c0 4.4-6 8-6 8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                        <svg class="comments__icon comments__icon--heart" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></svg>
                         <span class="comments__visually-hidden">{{ 'Likes' | t('comments') }}: </span>
                         <span class="comments__vote-count">{{ interaction.upvotes }}</span>
                     </span>
+                {% endif %}
+
+                {# Up/down voting reads up, net score, down. #}
+                {% if interaction.usesScore %}
+                    <span class="comments__score"><span class="comments__visually-hidden">{{ 'Score' | t('comments') }}: </span>{{ interaction.score }}</span>
                 {% endif %}
 
                 {% if 'interact-down' in comment.actions %}
@@ -53,22 +59,18 @@
                             data-comments-comment-uid="{{ comment.uid }}"
                             aria-pressed="{{ interaction.viewer == 'downvote' ? 'true' : 'false' }}"
                         >
-                            <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16l5-6h-3V4H8v6H5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                            <svg class="comments__icon comments__icon--down" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
                             <span class="comments__visually-hidden">{{ 'Downvote' | t('comments') }}</span>
-                            {% if interaction.downvotes > 0 %}<span class="comments__vote-count">{{ interaction.downvotes }}</span>{% endif %}
                         </button>
                     </form>
                 {% endif %}
 
-                {% if interaction.usesScore and interaction.score != 0 %}
-                    <span class="comments__score"><span class="comments__visually-hidden">{{ 'Score' | t('comments') }}: </span>{{ interaction.score }}</span>
-                {% endif %}
             </div>
         {% endif %}
 
         {% if 'reply' in comment.actions %}
             <button type="button" class="comments__action" data-comments-action="reply" data-comments-comment-uid="{{ comment.uid }}" data-comments-js-only>
-                <svg class="comments__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5L3.5 9.5 8 14M4 9.5h7.5a5 5 0 0 1 5 5v1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="comments__icon comments__icon--reply" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 17-5-5 5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
                 {{ 'Reply' | t('comments') }}
             </button>
             <noscript><a class="comments__action-link" href="{{ comment.hrefs.reply }}">{{ 'Reply' | t('comments') }}</a></noscript>
@@ -78,7 +80,7 @@
             {# A disclosure, so it opens without JavaScript too. #}
             <details class="comments__menu">
                 <summary class="comments__action comments__menu-toggle">
-                    <span aria-hidden="true">···</span>
+                    <svg class="comments__icon comments__icon--more" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>
                     <span class="comments__visually-hidden">{{ 'More actions' | t('comments') }}</span>
                 </summary>
                 <div class="comments__menu-items">
@@ -110,6 +112,12 @@
                         </form>
                     {% endif %}
 
+                    {% if menuModeration %}
+                        {# Moderator actions sit apart under their own heading, so "Remove" reads as theirs. #}
+                        <div class="comments__menu-group" role="group" aria-labelledby="comment-{{ comment.id }}-moderator-actions">
+                            <span class="comments__menu-heading" id="comment-{{ comment.id }}-moderator-actions">{{ 'Moderator' | t('comments') }}</span>
+                    {% endif %}
+
                     {% for moderationAction in menuModeration %}
                         <form method="post" action="{{ conversation.moderateAction }}" class="comments__moderate-form">
                             {{ csrfInput() }}
@@ -121,9 +129,13 @@
                                 data-comments-action="moderate"
                                 data-comments-moderation-action="{{ moderationAction }}"
                                 data-comments-comment-uid="{{ comment.uid }}"
-                            >{{ { 'moderate-remove': 'Remove (moderator)' | t('comments'), 'moderate-spam': 'Mark as spam (moderator)' | t('comments') }[moderationAction] ?? moderationAction }}</button>
+                            >{{ { 'moderate-remove': 'Remove' | t('comments'), 'moderate-spam': 'Mark as spam' | t('comments') }[moderationAction] ?? moderationAction }}</button>
                         </form>
                     {% endfor %}
+
+                    {% if menuModeration %}
+                        </div>
+                    {% endif %}
                 </div>
             </details>
         {% endif %}

@@ -221,14 +221,19 @@ class Comments extends Plugin
     private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            // Query-param actions align with the browser apiBase helper (e.g. conversation?ownerId=).
             $event->rules = array_merge($event->rules, [
+                'comments/manage' => 'comments/subscriptions/manage',
+
+                // Deprecated: the bundled script calls `comments/frontend-api/*` action URLs instead, which
+                // don't depend on caches honouring `no-store` and can't be shadowed by an element's URI.
+                // These site URLs stay as aliases for custom clients until a versioned headless JSON API
+                // replaces them.
                 'comments/api/v1/conversation' => 'comments/frontend-api/conversation',
                 'comments/api/v1/roots' => 'comments/frontend-api/roots',
                 'comments/api/v1/replies' => 'comments/frontend-api/replies',
                 'comments/api/v1/viewer-controls' => 'comments/frontend-api/viewer-controls',
                 'comments/api/v1/protection' => 'comments/frontend-api/protection',
-                'comments/api/v1/composer' => 'comments/frontend-api/composer',
+                'comments/api/v1/editor' => 'comments/frontend-api/editor',
                 'comments/api/v1/create' => 'comments/frontend-api/create',
                 'comments/api/v1/remove' => 'comments/frontend-api/remove',
                 'comments/api/v1/interaction' => 'comments/frontend-api/interaction',
@@ -236,7 +241,6 @@ class Comments extends Plugin
                 'comments/api/v1/report' => 'comments/frontend-api/report',
                 'comments/api/v1/subscription' => 'comments/frontend-api/subscription',
                 'comments/api/v1/thread' => 'comments/frontend-api/thread',
-                'comments/manage' => 'comments/subscriptions/manage',
             ]);
         });
     }
@@ -302,10 +306,6 @@ class Comments extends Plugin
                 'body' => Craft::t('comments', 'comments_guest_confirmation_body'),
             ];
 
-        });
-    }
-
-    private function _registerVariables(): void
             // Only sent with Email the Moderator Group on. Comments 3's keys, so customised wording carries over.
             foreach (['comments_moderator_notification', 'comments_moderator_edit_notification', 'comments_admin_notification', 'comments_flag_notification'] as $key) {
                 $event->messages[] = [
@@ -316,6 +316,10 @@ class Comments extends Plugin
                 ];
             }
 
+        });
+    }
+
+    private function _registerVariables(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             $event->sender->set('comments', CommentsVariable::class);
@@ -396,20 +400,6 @@ class Comments extends Plugin
             );
         });
 
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
-            $label = Craft::t('comments', 'Comments');
-
-            $event->queries[$label] = [
-                'comments:read' => ['label' => Craft::t('comments', 'View comments')],
-            ];
-
-            $event->mutations[$label] = [
-                'comments:edit' => ['label' => Craft::t('comments', 'Create comments')],
-                'comments:save' => ['label' => Craft::t('comments', 'Save comments')],
-                'comments:delete' => ['label' => Craft::t('comments', 'Delete comments')],
-                'comments:moderate' => ['label' => Craft::t('comments', 'Moderate comments')],
-            ];
-        });
         // A `viewer` field answers for whoever's asking, which Craft's result cache doesn't vary by,
         // and votes don't clear it. A query asking for one is neither served from the cache nor saved
         // to it, so one person's permissions or votes never reach another.
@@ -430,6 +420,20 @@ class Comments extends Plugin
             Event::on(Gql::class, Gql::EVENT_AFTER_EXECUTE_GQL_QUERY, $restore);
         });
 
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
+            $label = Craft::t('comments', 'Comments');
+
+            $event->queries[$label] = [
+                'comments:read' => ['label' => Craft::t('comments', 'View comments')],
+            ];
+
+            $event->mutations[$label] = [
+                'comments:edit' => ['label' => Craft::t('comments', 'Create comments')],
+                'comments:save' => ['label' => Craft::t('comments', 'Save comments')],
+                'comments:delete' => ['label' => Craft::t('comments', 'Delete comments')],
+                'comments:moderate' => ['label' => Craft::t('comments', 'Moderate comments')],
+            ];
+        });
     }
 
     private function _registerProjectConfigEventHandlers(): void

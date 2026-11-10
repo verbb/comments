@@ -532,6 +532,40 @@ it('shows how long ago a comment was made, unless the page is cached for everyon
     expect($frontend->buildCommentViewsForComments([$comment], 0)[0]->timeAgo)->toBeNull();
 });
 
+it('says how long ago a comment was made in the site’s language', function() {
+    $entry = CommentsFixtureFactory::entry('Time ago language owner');
+    $comment = gapsComment($entry);
+    $language = Craft::$app->language;
+    // Craft builds the formatter for the site's language when a site request starts.
+    $useLanguage = static function(string $language): void {
+        Craft::$app->language = $language;
+        Craft::$app->set('locale', fn() => Craft::$app->getI18n()->getLocaleById(Craft::$app->language));
+        Craft::$app->set('formattingLocale', fn() => craft\helpers\App::createFormattingLocale());
+        Craft::$app->set('formatter', fn() => Craft::$app->getFormattingLocale()->getFormatter());
+    };
+
+    try {
+        $useLanguage('de-DE');
+
+        $comment->commentDate = new DateTime('-3 days -2 hours');
+        expect($comment->getTimeAgo())->toBe('vor 3 Tagen');
+
+        $comment->commentDate = new DateTime('-1 hour -5 minutes');
+        expect($comment->getTimeAgo())->toBe('vor einer Stunde')
+            ->and(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0]->timeAgo)->toBe('vor einer Stunde');
+
+        // A clock a moment ahead still reads as the past.
+        $comment->commentDate = new DateTime('+90 seconds');
+        expect($comment->getTimeAgo())->toBe('vor einer Minute');
+
+        $useLanguage('en-US');
+        $comment->commentDate = new DateTime('-3 days -2 hours');
+        expect($comment->getTimeAgo())->toBe('3 days ago');
+    } finally {
+        $useLanguage($language);
+    }
+});
+
 // D4: guest subscriptions
 // =========================================================================
 
@@ -871,7 +905,7 @@ it('never shows a commenter’s email address as their name', function() {
 });
 
 it('only gives the edit form to someone who can edit the comment', function() {
-    $entry = CommentsFixtureFactory::entry('Composer owner');
+    $entry = CommentsFixtureFactory::entry('Editor owner');
     $comment = gapsComment($entry, 'Private text', null, (int)gapsUser()->id);
     Comments::$plugin->getModeration()->remove($comment, $this->admin);
 
@@ -879,7 +913,7 @@ it('only gives the edit form to someone who can edit the comment', function() {
     $request = Craft::$app->getRequest();
     $request->setQueryParams(['mode' => 'edit', 'ownerId' => $entry->id, 'siteId' => $entry->siteId, 'commentUid' => $comment->uid]);
 
-    expect(fn() => (new verbb\comments\controllers\FrontendApiController('frontend-api', Comments::$plugin))->actionComposer())
+    expect(fn() => (new verbb\comments\controllers\FrontendApiController('frontend-api', Comments::$plugin))->actionEditor())
         ->toThrow(yii\web\NotFoundHttpException::class);
 });
 

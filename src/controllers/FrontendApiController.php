@@ -17,6 +17,7 @@ use verbb\comments\services\Protection;
 use verbb\comments\services\Subscriptions;
 
 use Craft;
+use craft\helpers\StringHelper;
 use craft\web\Controller;
 
 use yii\base\UserException;
@@ -33,7 +34,7 @@ class FrontendApiController extends Controller
         'roots',
         'replies',
         'viewer-controls',
-        'composer',
+        'editor',
         'protection',
         'create',
         'subscription',
@@ -62,8 +63,11 @@ class FrontendApiController extends Controller
 
         // Envelope responses are always JSON regardless of Accept negotiation.
         $this->response->format = Response::FORMAT_JSON;
-        // These responses include viewer state or single-use preparation evidence.
-        $this->response->getHeaders()->set('Cache-Control', 'private, no-store');
+        // These responses include viewer state or single-use preparation evidence, and they're fragments
+        // of a page rather than pages in their own right, so search engines shouldn't list them.
+        $this->response->getHeaders()
+            ->set('Cache-Control', 'private, no-store')
+            ->set('X-Robots-Tag', 'noindex');
 
         return true;
     }
@@ -85,9 +89,9 @@ class FrontendApiController extends Controller
         }
 
         $viewer = $frontend->buildViewerView($conversation);
-        $composer = $frontend->buildComposerView($conversation);
+        $editor = $frontend->buildEditorView($conversation);
 
-        return $this->asJson($frontend->buildEnvelope('ok', $frontend->conversationReadFragments($conversation, $viewer, $composer), [
+        return $this->asJson($frontend->buildEnvelope('ok', $frontend->conversationReadFragments($conversation, $viewer, $editor), [
             'resource' => $conversation->conversationUid,
             'rootsNext' => $conversation->rootsNext,
         ]));
@@ -112,13 +116,13 @@ class FrontendApiController extends Controller
         }
 
         $viewer = $frontend->buildViewerView($conversation);
-        $composer = $frontend->buildComposerView($conversation);
+        $editor = $frontend->buildEditorView($conversation);
         $context = [
             'contractVersion' => $frontend::CONTRACT_VERSION,
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'apiBase' => $frontend->getApiUrl(''),
         ];
@@ -174,7 +178,7 @@ class FrontendApiController extends Controller
             'instance' => $conversation?->instanceId ?? ('comments-' . $comment->ownerId),
             'conversation' => $conversation,
             'viewer' => $conversation ? $frontend->buildViewerView($conversation) : null,
-            'composer' => $conversation ? $frontend->buildComposerView($conversation) : null,
+            'editor' => $conversation ? $frontend->buildEditorView($conversation) : null,
             'theme' => $conversation?->theme ?? 'light',
             'comment' => $commentView,
         ];
@@ -191,7 +195,7 @@ class FrontendApiController extends Controller
         $ownerId = (int)$this->request->getRequiredParam('ownerId');
         $siteId = (int)($this->request->getParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id);
         $frontend = Comments::$plugin->getFrontend();
-        // Hydrate private viewer state (actions, subscribe, composer) onto shared-cache shells.
+        // Hydrate private viewer state (actions, subscribe, editor) onto shared-cache shells.
         $conversation = $frontend->buildConversationView($ownerId, $siteId, $this->_resolveSortParam(), $this->_resolveRootLimit(), null, false);
 
         if (!$conversation) {
@@ -199,22 +203,22 @@ class FrontendApiController extends Controller
         }
 
         $viewer = $frontend->buildViewerView($conversation);
-        $composer = $frontend->buildComposerView($conversation);
+        $editor = $frontend->buildEditorView($conversation);
 
         return $this->asJson($frontend->buildEnvelope(
             'ok',
-            $frontend->viewerControlFragments($conversation, $viewer, $composer),
+            $frontend->viewerControlFragments($conversation, $viewer, $editor),
         ));
     }
 
-    public function actionComposer(): Response
+    public function actionEditor(): Response
     {
         $this->response->headers->set('Cache-Control', 'private, no-store');
 
         $mode = (string)$this->request->getRequiredParam('mode');
 
         if (!in_array($mode, ['create', 'reply', 'edit'], true)) {
-            return $this->_apiError(Craft::t('comments', 'Invalid composer mode.'));
+            return $this->_apiError(Craft::t('comments', 'Invalid editor mode.'));
         }
 
         $ownerId = (int)$this->request->getRequiredParam('ownerId');
@@ -246,19 +250,19 @@ class FrontendApiController extends Controller
         }
 
         $viewer = $frontend->buildViewerView($conversation);
-        $composer = $frontend->buildComposerView($conversation, $mode, $targetComment);
+        $editor = $frontend->buildEditorView($conversation, $mode, $targetComment);
         $context = [
             'contractVersion' => $frontend::CONTRACT_VERSION,
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'form' => $mode,
         ];
 
         return $this->asJson($frontend->buildEnvelope('ok', [
-            $frontend->renderFragment('composer', 'replace', $resourceUid, '_composer/form', $context),
+            $frontend->renderFragment('editor', 'replace', $resourceUid, '_editor/form', $context),
         ], [
             'resource' => $resourceUid,
         ]));
@@ -267,6 +271,16 @@ class FrontendApiController extends Controller
     public function actionProtection(): Response
     {
         $this->response->getHeaders()->set('Cache-Control', 'private, no-store');
+        $this->_allowGraphqlOrigins();
+
+        // A browser asking whether it may send a cross-origin request gets only the headers above.
+        if ($this->request->getIsOptions()) {
+            $this->response->format = Response::FORMAT_RAW;
+            $this->response->data = '';
+
+            return $this->response;
+        }
+
         $ownerId = (int)$this->request->getRequiredParam('ownerId');
         $siteId = (int)$this->request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id);
         $commentId = (int)$this->request->getParam('commentId', 0);
@@ -555,7 +569,7 @@ class FrontendApiController extends Controller
                 'instance' => $conversation->instanceId,
                 'conversation' => $conversation,
                 'viewer' => $frontend->buildViewerView($conversation),
-                'composer' => $frontend->buildComposerView($conversation),
+                'editor' => $frontend->buildEditorView($conversation),
                 'theme' => $conversation->theme,
                 'comment' => $thread,
             ]),
@@ -583,14 +597,14 @@ class FrontendApiController extends Controller
         }
 
         $viewer = $frontend->buildViewerView($conversation);
-        $composer = $frontend->buildComposerView($conversation);
+        $editor = $frontend->buildEditorView($conversation);
         $commentView = $frontend->buildCommentViewPublic($comment, (int)($comment->depth ?? 0));
         $context = [
             'contractVersion' => $frontend::CONTRACT_VERSION,
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'comment' => $commentView,
         ];
@@ -602,7 +616,7 @@ class FrontendApiController extends Controller
 
         if ($mutation === 'updated') {
             $fragments[] = $frontend->renderFragment('comment', 'replace', (string)$comment->uid, '_comment/comment', $context);
-            $fragments[] = $frontend->renderFragment('composer', 'replace', (string)$comment->uid, '_composer/empty', $context);
+            $fragments[] = $frontend->renderFragment('editor', 'replace', (string)$comment->uid, '_editor/empty', $context);
         } elseif ($parentId > 0) {
             $parent = Comment::find()->id($parentId)->status(null)->one();
 
@@ -618,14 +632,14 @@ class FrontendApiController extends Controller
 
                 $parentContext = [...$context, 'comment' => $parentView];
                 $fragments[] = $frontend->renderFragment('comment', 'replace', (string)$parent->uid, '_comment/comment', $parentContext);
-                $fragments[] = $frontend->renderFragment('composer', 'replace', (string)$parent->uid, '_composer/empty', $parentContext);
+                $fragments[] = $frontend->renderFragment('editor', 'replace', (string)$parent->uid, '_editor/empty', $parentContext);
             }
         } else {
             if ($isVisible) {
                 $fragments[] = $frontend->renderFragment('comment', 'insert', (string)$comment->uid, '_comment/comment', $context);
             }
 
-            $fragments[] = $frontend->renderFragment('composer', 'replace', $conversation->conversationUid, '_composer/form', [...$context, 'form' => 'create']);
+            $fragments[] = $frontend->renderFragment('editor', 'replace', $conversation->conversationUid, '_editor/form', [...$context, 'form' => 'create']);
         }
 
         // The count in the heading has probably changed, and a first comment has only just made a conversation.
@@ -656,7 +670,7 @@ class FrontendApiController extends Controller
                 'instance' => $conversation->instanceId,
                 'conversation' => $conversation,
                 'viewer' => $frontend->buildViewerView($conversation),
-                'composer' => $frontend->buildComposerView($conversation),
+                'editor' => $frontend->buildEditorView($conversation),
                 'theme' => $conversation->theme,
                 'comment' => $frontend->buildCommentViewPublic($comment, (int)($comment->depth ?? 0)),
             ]),
@@ -681,6 +695,48 @@ class FrontendApiController extends Controller
         }
 
         return $this->redirect($this->request->getReferrer() ?: '/');
+    }
+
+    /**
+     * Answer cross-origin requests as Craft's GraphQL endpoint does, following `allowedGraphqlOrigins`,
+     * and never more widely. A headless front end on another origin can call GraphQL, but its
+     * `createComment` and `saveComment` mutations need evidence from here, so without this they'd
+     * fail whenever protection is on.
+     *
+     * This exposes nothing a server-side script couldn't already fetch, since the evidence is only
+     * anti-spam preparation and grants no permission. With the default `*`, browsers don't send
+     * cookies, so the preparation is a guest's. Credentials are only allowed for an origin the site
+     * lists, as GraphQL allows them. With GraphQL turned off or `allowedGraphqlOrigins` set to `false`,
+     * nothing is added, and a CORS filter a site has attached to this action keeps its own headers.
+     */
+    private function _allowGraphqlOrigins(): void
+    {
+        $generalConfig = Craft::$app->getConfig()->getGeneral();
+        $allowedOrigins = $generalConfig->allowedGraphqlOrigins;
+
+        if (!$generalConfig->enableGql || $allowedOrigins === false) {
+            return;
+        }
+
+        $headers = $this->response->getHeaders();
+        $headers->setDefault('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Craft-Authorization, X-Craft-Token');
+
+        if (!is_array($allowedOrigins)) {
+            $headers->setDefault('Access-Control-Allow-Origin', '*');
+
+            return;
+        }
+
+        $headers->add('Vary', 'Origin');
+
+        foreach (StringHelper::split((string)$this->request->getOrigin()) as $origin) {
+            if (in_array($origin, $allowedOrigins, true)) {
+                $headers->setDefault('Access-Control-Allow-Origin', $origin);
+                $headers->setDefault('Access-Control-Allow-Credentials', 'true');
+
+                return;
+            }
+        }
     }
 
     private function _apiError(string|UserException $error): Response

@@ -1,34 +1,18 @@
 import '../css/comments-frontend.css';
 
+import { dispatchCommentsEvent } from './events';
 import { bindInstance } from './instance-controller';
 import { CONTRACT_VERSION } from './types/envelope';
+import type { CommentsController, CommentsRuntime } from './types/public';
 
-export type CommentsController = {
-  root: HTMLElement;
-  conversationUid: string;
-  refresh: (options?: { reason?: string }) => void;
-  openComposer: (options: { mode: string; commentUid?: string }) => void;
-  closeComposer: (options?: { reason?: string }) => void;
-  destroy: () => void;
-};
+export type * from './types/public';
 
-const controllers = new WeakMap<HTMLElement, CommentsController>();
-let observer: MutationObserver | null = null;
+const ROOT_SELECTOR = '[data-comments-root][data-comments-contract]';
+// Shared by every copy of this file on the page, whichever build it came from, so a second copy can
+// find the first. A symbol can't clash with a site's own `window.Comments`.
+const RUNTIME_KEY = Symbol.for('verbb.comments.runtime');
 
-function dispatch(root: HTMLElement, name: string, detail: Record<string, unknown>): void {
-  root.dispatchEvent(new CustomEvent(name, {
-    bubbles: true,
-    composed: true,
-    detail: {
-      contractVersion: CONTRACT_VERSION,
-      root,
-      instanceId: root.dataset.commentsInstance ?? '',
-      conversationUid: root.dataset.commentsConversationUid ?? '',
-      source: 'api',
-      ...detail,
-    },
-  }));
-}
+type RuntimeHost = Window & { [RUNTIME_KEY]?: CommentsRuntime };
 
 function apiBaseFromRoot(root: HTMLElement): string {
   const fromDataset = root.dataset.commentsApiBase;
@@ -36,117 +20,150 @@ function apiBaseFromRoot(root: HTMLElement): string {
     return fromDataset;
   }
 
-  // Default site-relative API root when not injected by Twig yet.
-  return '/comments/api/v1/';
-}
-
-function createController(root: HTMLElement): CommentsController {
-  const controller = bindInstance(root, { apiBase: apiBaseFromRoot(root) });
-  controllers.set(root, controller);
-  dispatch(root, 'comments:mounted', { controller });
-  return controller;
-}
-
-function mountRoot(root: Element): CommentsController | null {
-  if (!(root instanceof HTMLElement)) {
-    return null;
-  }
-
-  if (root.dataset.commentsContract !== String(CONTRACT_VERSION)) {
-    return null;
-  }
-
-  if (controllers.has(root)) {
-    return controllers.get(root) ?? null;
-  }
-
-  return createController(root);
+  // The template always gives the action URL, which knows the site's action trigger. This only
+  // covers an overridden template that leaves it out.
+  return new URL('/actions/comments/frontend-api', window.location.href).toString();
 }
 
 function findRoots(scope: ParentNode = document): HTMLElement[] {
-  const roots = Array.from(scope.querySelectorAll<HTMLElement>('[data-comments-root][data-comments-contract]'));
-  if (scope instanceof HTMLElement && scope.matches('[data-comments-root][data-comments-contract]')) roots.unshift(scope);
+  const roots = Array.from(scope.querySelectorAll<HTMLElement>(ROOT_SELECTOR));
+  if (scope instanceof HTMLElement && scope.matches(ROOT_SELECTOR)) roots.unshift(scope);
   return roots;
 }
 
-export const Comments = {
-  mount(scope?: ParentNode): CommentsController[] {
-    const mounted: CommentsController[] = [];
+/**
+ * Whether the runtime starts this thread by itself. `data-comments-auto-mount="false"` on the root or
+ * any element around it, `<html>` included, leaves it for the site to start with `Comments.mount()`.
+ */
+function autoMounts(root: HTMLElement): boolean {
+  return root.closest('[data-comments-auto-mount]')?.getAttribute('data-comments-auto-mount') !== 'false';
+}
 
-    for (const root of findRoots(scope ?? document)) {
-      const controller = mountRoot(root);
-      if (controller) {
-        mounted.push(controller);
-      }
+function createRuntime(): CommentsRuntime {
+  const controllers = new WeakMap<HTMLElement, CommentsController>();
+  let observer: MutationObserver | null = null;
+
+  function mountRoot(root: Element): CommentsController | null {
+    if (!(root instanceof HTMLElement)) {
+      return null;
     }
 
-    return mounted;
-  },
-
-  destroy(scope?: ParentNode): void {
-    const roots = scope ? findRoots(scope) : findRoots(document);
-
-    for (const root of roots) {
-      const controller = controllers.get(root);
-      controller?.destroy();
-      controllers.delete(root);
+    if (root.dataset.commentsContract !== String(CONTRACT_VERSION)) {
+      return null;
     }
-  },
 
-  get(root: Element): CommentsController | undefined {
-    return root instanceof HTMLElement ? controllers.get(root) : undefined;
-  },
-};
+    const existing = controllers.get(root);
+    if (existing) {
+      return existing;
+    }
 
-function ensureObserver(): void {
-  if (observer || typeof MutationObserver === 'undefined') {
-    return;
+    const controller = bindInstance(root, { apiBase: apiBaseFromRoot(root) });
+    controllers.set(root, controller);
+    dispatchCommentsEvent(root, 'comments:mounted', {}, { controller });
+    return controller;
   }
 
-  observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (node instanceof HTMLElement) {
-          if (node.matches('[data-comments-root][data-comments-contract]')) {
-            mountRoot(node);
-          } else {
-            Comments.mount(node);
+  const runtime: CommentsRuntime = {
+    mount(scope) {
+      const mounted: CommentsController[] = [];
+
+      for (const root of findRoots(scope ?? document)) {
+        const controller = mountRoot(root);
+        if (controller) {
+          mounted.push(controller);
+        }
+      }
+
+      return mounted;
+    },
+
+    destroy(scope) {
+      for (const root of findRoots(scope ?? document)) {
+        controllers.get(root)?.destroy();
+        controllers.delete(root);
+      }
+    },
+
+    get(root) {
+      return root instanceof HTMLElement ? controllers.get(root) : undefined;
+    },
+  };
+
+  /** What starts without being asked: the threads in `scope` that haven't opted out. */
+  function autoMount(scope: ParentNode = document): void {
+    for (const root of findRoots(scope)) {
+      if (autoMounts(root)) {
+        mountRoot(root);
+      }
+    }
+  }
+
+  function ensureObserver(): void {
+    if (observer || typeof MutationObserver === 'undefined') {
+      return;
+    }
+
+    observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLElement) {
+            autoMount(node);
+          }
+        }
+
+        // A thread a site started itself is still stopped here, as nothing else would clean it up.
+        for (const node of mutation.removedNodes) {
+          if (node instanceof HTMLElement) {
+            runtime.destroy(node);
           }
         }
       }
+    });
 
-      for (const node of mutation.removedNodes) {
-        if (node instanceof HTMLElement) {
-          Comments.destroy(node);
-        }
-      }
-    }
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  function onReady(): void {
+    autoMount();
+    ensureObserver();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+  } else {
+    onReady();
+  }
+
+  // Turbo Drive swaps page bodies without a full reload, so threads are stopped before Turbo caches
+  // the page and started again on the new one.
+  document.addEventListener('turbo:before-cache', () => {
+    runtime.destroy();
   });
 
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('turbo:load', () => {
+    autoMount();
+  });
+
+  return Object.freeze(runtime);
 }
 
-function onReady(): void {
-  Comments.mount();
-  ensureObserver();
+const host = window as RuntimeHost;
+const running = host[RUNTIME_KEY];
+
+if (running) {
+  // Two copies would both start every thread and handle every click, so a vote would count twice
+  // and cancel itself out. The one already running keeps the page, and this copy hands it over.
+  console.warn(
+    'Comments: the comments script has loaded twice on this page, so this copy won\'t start any threads. '
+    + 'If your site bundles comments-frontend.js itself, turn off Load Bundled JavaScript (outputDefaultJs) in the Comments settings.',
+  );
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', onReady);
-} else {
-  onReady();
+export const Comments: CommentsRuntime = running ?? createRuntime();
+
+if (!running) {
+  host[RUNTIME_KEY] = Comments;
+  window.Comments = Comments;
 }
-
-// Turbo Drive swaps page bodies without a full reload — remount comment instances.
-document.addEventListener('turbo:before-cache', () => {
-  Comments.destroy();
-});
-
-document.addEventListener('turbo:load', () => {
-  Comments.mount();
-});
-
-Object.freeze(Comments);
-(window as unknown as { Comments: typeof Comments }).Comments = Comments;
 
 export default Comments;

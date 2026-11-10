@@ -13,8 +13,8 @@ it('builds contract v1 envelope arrays with typed fragments', function() {
     expect($conversation)->not->toBeNull();
 
     $viewer = $frontend->buildViewerView($conversation);
-    $composer = $frontend->buildComposerView($conversation);
-    $fragments = $frontend->conversationReadFragments($conversation, $viewer, $composer);
+    $editor = $frontend->buildEditorView($conversation);
+    $fragments = $frontend->conversationReadFragments($conversation, $viewer, $editor);
 
     $envelope = $frontend->buildEnvelope('ok', $fragments, [
         'resource' => $conversation->conversationUid,
@@ -71,7 +71,7 @@ it('paginates roots via cursor through the frontend conversation view', function
             'instance' => $pageTwo->instanceId,
             'conversation' => $pageTwo,
             'viewer' => $frontend->buildViewerView($pageTwo),
-            'composer' => $frontend->buildComposerView($pageTwo),
+            'editor' => $frontend->buildEditorView($pageTwo),
             'theme' => $pageTwo->theme,
         ]),
     ], [
@@ -102,7 +102,7 @@ it('builds create-response envelope fragments after Comments::create()', functio
     $frontend = Comments::$plugin->getFrontend();
     $conversation = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
     $viewer = $frontend->buildViewerView($conversation);
-    $composer = $frontend->buildComposerView($conversation);
+    $editor = $frontend->buildEditorView($conversation);
     $comment = $result->comment;
 
     $context = [
@@ -110,14 +110,14 @@ it('builds create-response envelope fragments after Comments::create()', functio
         'instance' => $conversation->instanceId,
         'conversation' => $conversation,
         'viewer' => $viewer,
-        'composer' => $composer,
+        'editor' => $editor,
         'theme' => $conversation->theme,
         'comment' => $frontend->buildCommentViewPublic($comment, 0),
     ];
 
     $envelope = $frontend->buildEnvelope('ok', [
         $frontend->renderFragment('comment', 'insert', (string)$comment->uid, '_comment/comment', $context),
-        $frontend->renderFragment('composer', 'replace', $conversation->conversationUid, '_composer/form', [
+        $frontend->renderFragment('editor', 'replace', $conversation->conversationUid, '_editor/form', [
             ...$context,
             'form' => 'create',
         ]),
@@ -131,20 +131,20 @@ it('builds create-response envelope fragments after Comments::create()', functio
     expect($envelope['resource'])->toBe((string)$comment->uid);
     expect($envelope['fragments'][0]['type'])->toBe('comment');
     expect($envelope['fragments'][0]['html'])->toContain('API created comment');
-    expect($envelope['fragments'][1]['type'])->toBe('composer');
-    expect($composer->saveAction)->toContain('comments/api/v1/create');
+    expect($envelope['fragments'][1]['type'])->toBe('editor');
+    expect($editor->saveAction)->toContain('comments/frontend-api/create')->not->toContain('api/v1');
     expect($conversation->saveAction)->toContain('comments/comments/save');
 });
 
-it('builds reply and edit composer views with parent and prefill metadata', function() {
-    $entry = CommentsFixtureFactory::entry('API composer modes');
+it('builds reply and edit editor views with parent and prefill metadata', function() {
+    $entry = CommentsFixtureFactory::entry('API editor modes');
     $admin = Craft::$app->getUser()->getIdentity();
     Comments::$plugin->getSettings()->requireModeration = false;
 
     $root = Comments::$plugin->getComments()->create(new CommentSubmission([
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
-        'content' => 'Composer parent',
+        'content' => 'Editor parent',
         'userId' => (int)$admin->id,
     ]))->comment;
 
@@ -152,14 +152,14 @@ it('builds reply and edit composer views with parent and prefill metadata', func
     $conversation = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
     expect($conversation)->not->toBeNull();
 
-    $replyComposer = $frontend->buildComposerView($conversation, 'reply', $root);
-    expect($replyComposer->mode)->toBe('reply');
-    expect($replyComposer->parentCommentId)->toBe((int)$root->id);
+    $replyView = $frontend->buildEditorView($conversation, 'reply', $root);
+    expect($replyView->mode)->toBe('reply');
+    expect($replyView->parentCommentId)->toBe((int)$root->id);
 
-    $editComposer = $frontend->buildComposerView($conversation, 'edit', $root);
-    expect($editComposer->mode)->toBe('edit');
-    expect($editComposer->editCommentId)->toBe((int)$root->id);
-    expect($editComposer->initialPlainContent)->toBe('Composer parent');
+    $editView = $frontend->buildEditorView($conversation, 'edit', $root);
+    expect($editView->mode)->toBe('edit');
+    expect($editView->editCommentId)->toBe((int)$root->id);
+    expect($editView->initialPlainContent)->toBe('Editor parent');
 });
 
 it('batches reply previews for multiple parents', function() {
@@ -213,11 +213,11 @@ it('author-removes a comment through the comments service', function() {
     expect($removed->authorRemovedAt)->not->toBeNull();
 });
 
-it('generates site API URLs through the frontend helper', function() {
+it('generates action URLs for the browser runtime through the frontend helper', function() {
     $frontend = Comments::$plugin->getFrontend();
 
-    expect($frontend->getApiUrl(''))->toContain('comments/api/v1/');
-    expect($frontend->getApiUrl('create'))->toContain('comments/api/v1/create');
+    expect($frontend->getApiUrl(''))->toContain('comments/frontend-api')->not->toContain('api/v1');
+    expect($frontend->getApiUrl('create'))->toContain('comments/frontend-api/create')->not->toContain('api/v1');
     expect($frontend->getApiUrl('conversation', ['ownerId' => 5, 'siteId' => 1]))
         ->toContain('ownerId=5')
         ->toContain('siteId=1');
@@ -259,7 +259,7 @@ it('strips viewer actions from shared-cache conversation shells', function() {
     expect($shared->roots[0]->permalink)->toBe('#comment-' . $private->roots[0]->id);
 });
 
-it('builds viewer-control hydration fragments with private actions and composer', function() {
+it('builds viewer-control hydration fragments with private actions and editor', function() {
     $entry = CommentsFixtureFactory::entry('API viewer hydrate owner');
     $admin = Craft::$app->getUser()->getIdentity();
     Comments::$plugin->getSettings()->requireModeration = false;
@@ -274,8 +274,8 @@ it('builds viewer-control hydration fragments with private actions and composer'
     $frontend = Comments::$plugin->getFrontend();
     $conversation = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
     $viewer = $frontend->buildViewerView($conversation);
-    $composer = $frontend->buildComposerView($conversation);
-    $fragments = $frontend->viewerControlFragments($conversation, $viewer, $composer);
+    $editor = $frontend->buildEditorView($conversation);
+    $fragments = $frontend->viewerControlFragments($conversation, $viewer, $editor);
 
     expect($fragments)->toHaveCount(4);
     expect($fragments[3]['type'])->toBe('reportDialog');

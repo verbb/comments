@@ -12,7 +12,7 @@ use verbb\comments\enums\SubscriptionType;
 use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\helpers\EditorContexts;
 use verbb\comments\models\FrontendCommentView;
-use verbb\comments\models\FrontendComposerView;
+use verbb\comments\models\FrontendEditorView;
 use verbb\comments\models\FrontendConversationView;
 use verbb\comments\models\FrontendEnvelope;
 use verbb\comments\models\FrontendViewerView;
@@ -114,6 +114,12 @@ class Frontend extends Component
     /** The public fields shown on a comment's meta line, per setting. */
     private array $_metaFields = [];
 
+    /**
+     * Avatar URLs for this request, by user and photo. A transformed URL costs a transform-index lookup,
+     * and a queued job while the transform isn't generated, so each author's is built once, not per comment.
+     */
+    private array $_avatarUrls = [];
+
 
     // Public Methods
     // =========================================================================
@@ -165,7 +171,7 @@ class Frontend extends Component
         $conversation->rootLimit = $rootLimit;
 
         $viewer = $this->buildViewerView($conversation);
-        $composer = $this->buildComposerView($conversation);
+        $editor = $this->buildEditorView($conversation);
         $reportTargetId = null;
 
         if (!$sharedCache && !$lazy && $targetId) {
@@ -192,13 +198,14 @@ class Frontend extends Component
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'apiBase' => $this->getApiUrl(''),
             'sharedCache' => $sharedCache || $lazy,
             'reportReasons' => self::reportReasons(),
             'reportTargetId' => $reportTargetId,
-            'editorAsset' => $lazy ? $this->_editorAsset() : null,
+            // Only rich authoring needs Editor, and only once someone starts writing.
+            'editorAsset' => CommentsPlugin::$plugin->getSettings()->isRichAuthoringEnabled() ? $this->_editorAsset() : null,
             'flash' => $flash,
         ]);
 
@@ -229,11 +236,14 @@ class Frontend extends Component
         return is_dir($path) ? $path : null;
     }
 
+    /**
+     * An action URL for the browser runtime, such as `actions/comments/frontend-api/create`. With no path,
+     * it's the base the script adds each endpoint to. Action URLs are built on the current site's base
+     * URL, so they keep its language, and every request names its `siteId` as well.
+     */
     public function getApiUrl(string $path = '', array $params = []): string
     {
-        $url = UrlHelper::siteUrl('comments/api/v1/' . ltrim($path, '/'), $params);
-
-        return rtrim($url, '/') . (str_ends_with($path, '/') || $path === '' ? '/' : '');
+        return UrlHelper::actionUrl(rtrim('comments/frontend-api/' . ltrim($path, '/'), '/'), $params);
     }
 
     public function renderPartial(string $partial, array $context = []): string
@@ -270,14 +280,14 @@ class Frontend extends Component
     public function viewerControlFragments(
         FrontendConversationView $conversation,
         FrontendViewerView $viewer,
-        FrontendComposerView $composer,
+        FrontendEditorView $editor,
     ): array {
         $context = [
             'contractVersion' => self::CONTRACT_VERSION,
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'apiBase' => $this->getApiUrl(''),
             'sharedCache' => false,
@@ -287,20 +297,20 @@ class Frontend extends Component
         return [
             $this->renderFragment('conversationHeader', 'replace', $conversation->conversationUid, '_conversation/header', $context),
             $this->renderFragment('rootList', 'replace', $conversation->conversationUid, '_conversation/list', $context),
-            $this->renderFragment('viewerControls', 'replace', $conversation->conversationUid, '_composer/region', $context),
+            $this->renderFragment('viewerControls', 'replace', $conversation->conversationUid, '_editor/region', $context),
             // Holds a CSRF token, so it isn't in a page cached for everyone.
             $this->renderFragment('reportDialog', 'replace', $conversation->conversationUid, '_report/form', $context),
         ];
     }
 
-    public function conversationReadFragments(FrontendConversationView $conversation, FrontendViewerView $viewer, FrontendComposerView $composer): array
+    public function conversationReadFragments(FrontendConversationView $conversation, FrontendViewerView $viewer, FrontendEditorView $editor): array
     {
         $context = [
             'contractVersion' => self::CONTRACT_VERSION,
             'instance' => $conversation->instanceId,
             'conversation' => $conversation,
             'viewer' => $viewer,
-            'composer' => $composer,
+            'editor' => $editor,
             'theme' => $conversation->theme,
             'apiBase' => $this->getApiUrl(''),
         ];
@@ -496,18 +506,20 @@ class Frontend extends Component
         ]);
     }
 
-    public function buildComposerView(
+    public function buildEditorView(
         FrontendConversationView $conversation,
         string $mode = 'create',
         ?Comment $targetComment = null,
-    ): FrontendComposerView {
+    ): FrontendEditorView {
         $settings = CommentsPlugin::$plugin->getSettings();
         $viewerUser = Craft::$app->getUser()->getIdentity();
-        $richAuthoring = $settings->isRichAuthoringEnabled();
+        // A comment written while rich authoring was on keeps its formatting when it's edited later.
+        $richAuthoring = $settings->isRichAuthoringEnabled()
+            || ($mode === 'edit' && $targetComment?->isEditorContent());
         $guestIdentity = $viewerUser ? null : CommentsPlugin::$plugin->getIdentities()->findGuestForRequest();
         $publicFields = $this->_publicFieldViews($mode === 'edit' ? $targetComment : null);
 
-        // Enhanced JS posts to the v1 API; legacy non-JS forms keep conversation.saveAction.
+        // The script posts to the frontend API's action; forms without JavaScript keep conversation.saveAction.
         $saveAction = $conversation->apiSaveAction ?: $conversation->saveAction;
 
         $editorContext = match ($mode) {
@@ -515,7 +527,7 @@ class Frontend extends Component
             default => 'comments.reply',
         };
 
-        $composer = new FrontendComposerView([
+        $editor = new FrontendEditorView([
             'contractVersion' => self::CONTRACT_VERSION,
             'mode' => $mode,
             'operationId' => StringHelper::UUID(),
@@ -525,6 +537,7 @@ class Frontend extends Component
             'siteId' => $conversation->siteId,
             'contentFormat' => $richAuthoring ? ContentFormat::Editor->value : ContentFormat::Plain->value,
             'richAuthoring' => $richAuthoring,
+            'editorAsset' => $richAuthoring ? $this->_editorAsset() : null,
             'editorContext' => $editorContext,
             'showGuestFields' => !$viewerUser && $settings->allowGuest && ($settings->guestShowEmailName || $settings->guestRequireEmailName),
             'guestRequireEmailName' => (bool)$settings->guestRequireEmailName,
@@ -538,23 +551,28 @@ class Frontend extends Component
         ]);
 
         if ($mode === 'reply' && $targetComment) {
-            $composer->parentCommentId = (int)$targetComment->id;
-            $composer->parentAuthorName = $targetComment->userId && ($author = $targetComment->getUser())
+            $editor->parentCommentId = (int)$targetComment->id;
+            $author = $targetComment->userId ? $targetComment->getUser() : null;
+            $editor->parentAuthorName = $author
                 ? CommentsHelper::publicUserName($author)
                 : ($targetComment->getAuthorName() ?: Craft::t('comments', 'Guest'));
+            // "Reply to Alex…" reads better with a first name, when the account has one to give.
+            $editor->parentAuthorShortName = $author && $author->firstName && $editor->parentAuthorName !== Craft::t('comments', 'Member')
+                ? $author->firstName
+                : $editor->parentAuthorName;
         }
 
         if ($mode === 'edit' && $targetComment) {
-            $composer->editCommentId = (int)$targetComment->id;
-            $composer->initialPlainContent = (string)($targetComment->comment ?? '');
+            $editor->editCommentId = (int)$targetComment->id;
+            $editor->initialPlainContent = (string)($targetComment->comment ?? '');
 
             if ($targetComment->isEditorContent()) {
-                $composer->initialEditorContent = $targetComment->getEditorFormContent();
+                $editor->initialEditorContent = $targetComment->getEditorFormContent();
             }
         }
 
         // Per person, so a shared computer never offers one visitor another's draft.
-        $composer->draftKey = implode(':', [
+        $editor->draftKey = implode(':', [
             'comments',
             $conversation->siteId,
             $conversation->ownerId,
@@ -562,12 +580,12 @@ class Frontend extends Component
             $targetComment ? (int)$targetComment->id : 'new',
             $viewerUser ? (int)$viewerUser->id : 'guest',
         ]);
-        $composer->maxLength = $settings->securityMaxLength ? (int)$settings->securityMaxLength : null;
+        $editor->maxLength = $settings->securityMaxLength ? (int)$settings->securityMaxLength : null;
 
-        $composer->redirectTemplate = str_replace('__ID__', '{id}', $composer->redirectTemplate);
-        $this->_restorePostedValues($composer);
+        $editor->redirectTemplate = str_replace('__ID__', '{id}', $editor->redirectTemplate);
+        $this->_restorePostedValues($editor);
 
-        return $composer;
+        return $editor;
     }
 
     public function buildCommentViewPublic(
@@ -651,6 +669,70 @@ class Frontend extends Component
     }
 
     /**
+     * Each comment's author as the thread shows them to anyone, keyed by comment ID: their public name,
+     * initials, avatar and badges. GraphQL uses this so a public schema can show who wrote a comment
+     * without being able to read users, which would expose the user directory. Staff badges are looked
+     * up for all the comments at once.
+     */
+    public function publicAuthorsFor(array $comments): array
+    {
+        $staffIds = $this->_staffUserIds($comments);
+        $authors = [];
+
+        foreach ($comments as $comment) {
+            $name = $this->_publicAuthorName($comment) ?: Craft::t('comments', 'Guest');
+
+            $authors[(int)$comment->id] = [
+                'name' => $name,
+                'initials' => Commenters::initials($name),
+                'avatarUrl' => $this->_avatarUrl($comment),
+                'isGuest' => !$comment->userId,
+                'badges' => $this->_badgesFor($comment, $staffIds),
+            ];
+        }
+
+        return $authors;
+    }
+
+    /**
+     * What the current viewer can do with each comment, and how they voted on it, keyed by comment ID.
+     * The thread's own buttons come from the same rules, so a headless client using GraphQL offers
+     * the same actions. Votes are looked up for all the comments at once.
+     */
+    public function viewerStatesFor(array $comments): array
+    {
+        $viewer = CommentsPlugin::$plugin->getService()->getUser();
+        $votes = [];
+
+        if ($comments !== [] && CommentsPlugin::$plugin->getSettings()->resolveInteractionMode()->isEnabled()) {
+            $votes = CommentsPlugin::$plugin->getInteractions()->getPresentationState($comments, $this->_currentIdentityId());
+        }
+
+        $states = [];
+
+        foreach ($comments as $comment) {
+            $actions = $this->_viewerActions($comment, $this->_publicState($comment));
+
+            $states[(int)$comment->id] = [
+                'canReply' => in_array('reply', $actions, true),
+                // Authors can still edit a comment that's waiting, which the thread doesn't show them.
+                'canEdit' => $comment->canEdit(),
+                // The same check as the `deleteComment` mutation, which only takes an author's own comment.
+                'canDelete' => $viewer instanceof User
+                    && (int)$comment->userId === (int)$viewer->id
+                    && !$comment->authorRemovedAt
+                    && $comment->canDelete($viewer),
+                'canVote' => in_array('interact', $actions, true),
+                'canDownvote' => in_array('interact-down', $actions, true),
+                'canReport' => in_array('report', $actions, true),
+                'vote' => $votes[(int)$comment->id]['viewer'] ?? null,
+            ];
+        }
+
+        return $states;
+    }
+
+    /**
      * A comment with the thread it belongs to: its root at the top, then only the replies leading down
      * to it alongside the usual previews. Replies are loaded from there as normal.
      *
@@ -705,16 +787,15 @@ class Frontend extends Component
     // =========================================================================
 
     /**
-     * What a browser needs to load rich authoring for itself, once there's a form to use it in.
+     * What a browser needs to load Editor for itself. Every form starts as the plugin's own plain
+     * editor, and a rich one loads Editor when someone starts writing in it, opens a reply or edits
+     * a comment. Plain authoring never loads it, except to edit a comment that was written rich.
+     *
+     * It's given even with Load Bundled JavaScript off, because a site that bundles the runtime itself
+     * still needs to know where Editor is. The runtime only loads it if the page hasn't already.
      */
-    private function _editorAsset(): ?array
+    private function _editorAsset(): array
     {
-        $settings = CommentsPlugin::$plugin->getSettings();
-
-        if (!$settings->outputDefaultJs || !$settings->isRichAuthoringEnabled()) {
-            return null;
-        }
-
         $assets = Craft::$app->getAssetManager();
         $editorPath = (new EditorAsset())->sourcePath;
 
@@ -738,7 +819,7 @@ class Frontend extends Component
         $target = CommentsPlugin::$plugin->getComments()->getCommentById($targetId);
 
         if ($target) {
-            $node->contextualComposer = $this->buildComposerView($conversation, $mode, $target);
+            $node->contextualEditor = $this->buildEditorView($conversation, $mode, $target);
         }
     }
 
@@ -799,7 +880,7 @@ class Frontend extends Component
     /**
      * When a form posted without JavaScript comes back with an error, nothing typed into it is lost.
      */
-    private function _restorePostedValues(FrontendComposerView $composer): void
+    private function _restorePostedValues(FrontendEditorView $editor): void
     {
         $request = Craft::$app->getRequest();
 
@@ -808,17 +889,17 @@ class Frontend extends Component
         }
 
         if (
-            (int)$request->getBodyParam('parentId') !== (int)$composer->parentCommentId
-            || (int)$request->getBodyParam('commentId') !== (int)$composer->editCommentId
+            (int)$request->getBodyParam('parentId') !== (int)$editor->parentCommentId
+            || (int)$request->getBodyParam('commentId') !== (int)$editor->editCommentId
         ) {
             return;
         }
 
-        $composer->initialPlainContent = (string)$request->getBodyParam('fields.comment', $composer->initialPlainContent ?? '');
-        $composer->guestName = (string)$request->getBodyParam('fields.name', $composer->guestName ?? '');
-        $composer->guestEmail = (string)$request->getBodyParam('fields.email', $composer->guestEmail ?? '');
+        $editor->initialPlainContent = (string)$request->getBodyParam('fields.comment', $editor->initialPlainContent ?? '');
+        $editor->guestName = (string)$request->getBodyParam('fields.name', $editor->guestName ?? '');
+        $editor->guestEmail = (string)$request->getBodyParam('fields.email', $editor->guestEmail ?? '');
 
-        foreach ($composer->publicFields as &$field) {
+        foreach ($editor->publicFields as &$field) {
             $posted = $request->getBodyParam('fields.' . $field['handle']);
 
             if ($posted !== null && $field['type'] !== 'file') {
@@ -1066,6 +1147,17 @@ class Frontend extends Component
     }
 
     /**
+     * The name the thread shows for a comment's author. An account's name never falls back to its
+     * email address.
+     */
+    private function _publicAuthorName(Comment $comment): ?string
+    {
+        return $comment->userId && ($author = $comment->getUser())
+            ? CommentsHelper::publicUserName($author)
+            : $comment->getAuthorName();
+    }
+
+    /**
      * Moderators see unmoderated Comments inline so they can act without leaving the page.
      *
      * Null means public visibility (approved only).
@@ -1095,10 +1187,11 @@ class Frontend extends Component
      */
     private function _viewerIdentity(): ?IdentityRecord
     {
-        $viewerUser = Craft::$app->getUser()->getIdentity();
+        // Someone a GraphQL token signs in has no session, so they're asked for the same way as an edit.
+        $viewerUser = CommentsPlugin::$plugin->getService()->getUser();
         $identities = CommentsPlugin::$plugin->getIdentities();
 
-        return $viewerUser ? $identities->getOrCreateForUser($viewerUser) : $identities->findGuestForRequest();
+        return $viewerUser instanceof User ? $identities->getOrCreateForUser($viewerUser) : $identities->findGuestForRequest();
     }
 
     /**
@@ -1178,9 +1271,7 @@ class Frontend extends Component
             $contentHtml = (string)$comment->getRenderedBodyHtml();
         }
 
-        $authorName = $comment->userId && ($author = $comment->getUser())
-            ? CommentsHelper::publicUserName($author)
-            : $comment->getAuthorName();
+        $authorName = $this->_publicAuthorName($comment);
 
         return new FrontendCommentView([
             'contractVersion' => self::CONTRACT_VERSION,
@@ -1340,11 +1431,17 @@ class Frontend extends Component
         return preg_match('#^https?://#i', $url) ? $url : null;
     }
 
+    /**
+     * A plain comment's text, keeping the line breaks and paragraphs its author wrote, which the template
+     * turns into `<br>`s. Runs of spaces close up, and more than one blank line becomes one.
+     */
     private function _plainContent(Comment $comment): string
     {
         $text = (string)($comment->bodyContent ?? $comment->comment ?? $comment->content ?? '');
-        $text = strip_tags($text);
-        $text = preg_replace('/\s+/u', ' ', $text) ?? $text;
+        $text = str_replace(["\r\n", "\r"], "\n", strip_tags($text));
+        $text = preg_replace('/[^\S\n]+/u', ' ', $text) ?? $text;
+        $text = preg_replace('/ ?\n ?/u', "\n", $text) ?? $text;
+        $text = preg_replace('/\n{3,}/u', "\n\n", $text) ?? $text;
 
         return trim($text);
     }
@@ -1358,7 +1455,21 @@ class Frontend extends Component
         $author = $comment->getAuthor();
         $url = $author instanceof User ? $this->_viewerAvatarUrl($author) : null;
 
-        return $url ?? CommentsPlugin::$plugin->getSettings()->getPlaceholderAvatar()?->getUrl(['width' => 64, 'height' => 64, 'mode' => 'fit']);
+        if ($url !== null) {
+            return $url;
+        }
+
+        // Every guest and author without a photo shares the placeholder, so it's built once too.
+        $placeholder = CommentsPlugin::$plugin->getSettings()->getPlaceholderAvatar();
+
+        if (!$placeholder) {
+            return null;
+        }
+
+        $key = 'placeholder:' . $placeholder->id;
+        $this->_avatarUrls[$key] ??= $placeholder->getUrl(['width' => 64, 'height' => 64, 'mode' => 'fit']);
+
+        return $this->_avatarUrls[$key];
     }
 
     private function _viewerAvatarUrl(?User $user): ?string
@@ -1367,13 +1478,18 @@ class Frontend extends Component
             return null;
         }
 
-        $photo = $user->getPhoto();
-
-        if (!$photo) {
+        if (!$user->photoId) {
             return null;
         }
 
-        return $photo->getUrl(['width' => 64, 'height' => 64, 'mode' => 'fit']);
+        // Keyed by the photo too, so a photo changed during the request isn't served from the old one.
+        $key = $user->id . ':' . $user->photoId;
+
+        if (!array_key_exists($key, $this->_avatarUrls)) {
+            $this->_avatarUrls[$key] = $user->getPhoto()?->getUrl(['width' => 64, 'height' => 64, 'mode' => 'fit']);
+        }
+
+        return $this->_avatarUrls[$key];
     }
 
     private function _viewerActions(Comment $comment, string $state): array
@@ -1384,7 +1500,9 @@ class Frontend extends Component
 
         $actions = [];
         $settings = CommentsPlugin::$plugin->getSettings();
-        $viewer = Craft::$app->getUser()->getIdentity();
+        // The same viewer `canEdit()` and `canReply()` use, including someone signed in by a GraphQL token.
+        $viewer = CommentsPlugin::$plugin->getService()->getUser();
+        $viewer = $viewer instanceof User ? $viewer : null;
 
         if ($comment->canReply()) {
             $actions[] = 'reply';

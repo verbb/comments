@@ -1,7 +1,7 @@
 import type { Editor } from '@verbb/editor';
 
-/** The parts of Editor's `<verbb-editor>` composer that Comments uses. */
-export interface VerbbEditorComposer extends HTMLElement {
+/** The parts of Editor's `<verbb-editor>` element that Comments uses. */
+export interface VerbbEditorElement extends HTMLElement {
   readonly editor: Editor | null;
   readonly value: string;
   requestSubmit(): void;

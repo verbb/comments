@@ -13,6 +13,7 @@
 /package-lock.json export-ignore
 /phpunit.craft.xml export-ignore
 /tsconfig.frontend.json export-ignore
+/tsconfig.types.json export-ignore
 /vite.frontend.config.ts export-ignore
 /src/resources/src export-ignore
 *.map export-ignore

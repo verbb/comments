@@ -142,8 +142,8 @@ it('fills in a public field when editing', function() {
 
         $frontend = Comments::$plugin->getFrontend();
         $conversation = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
-        $composer = $frontend->buildComposerView($conversation, 'edit', Comment::find()->id($comment->id)->one());
-        $byHandle = array_column($composer->publicFields, 'values', 'handle');
+        $editor = $frontend->buildEditorView($conversation, 'edit', Comment::find()->id($comment->id)->one());
+        $byHandle = array_column($editor->publicFields, 'values', 'handle');
 
         expect($byHandle[$fields['city']->handle])->toBe(['Hobart'])
             ->and($byHandle[$fields['tags']->handle])->toBe(['two']);
@@ -293,7 +293,7 @@ it('gives the browser the same conversation ID every time, even before there is 
 
     // What the browser fetches for a cached page has to land in that page.
     $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
-    $fragments = $frontend->viewerControlFragments($view, $frontend->buildViewerView($view), $frontend->buildComposerView($view));
+    $fragments = $frontend->viewerControlFragments($view, $frontend->buildViewerView($view), $frontend->buildEditorView($view));
 
     expect(array_column($fragments, 'type'))->toBe(['conversationHeader', 'rootList', 'viewerControls', 'reportDialog'])
         ->and($fragments[2]['resourceUid'])->toBe($first)
@@ -307,7 +307,7 @@ it('tells someone comments are closed on a cached page too', function() {
     $frontend = Comments::$plugin->getFrontend();
 
     $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
-    $fragments = $frontend->viewerControlFragments($view, $frontend->buildViewerView($view), $frontend->buildComposerView($view));
+    $fragments = $frontend->viewerControlFragments($view, $frontend->buildViewerView($view), $frontend->buildEditorView($view));
 
     expect($fragments[2]['html'])->toContain('Comments are closed');
 });
@@ -482,7 +482,7 @@ it('lets a site override one template and keeps the rest of the plugin’s', fun
 
         // The partial it copied, inside everything it didn't.
         expect($html)->toContain('site-empty')
-            ->and($html)->toContain('data-comments-region="composer"')
+            ->and($html)->toContain('data-comments-region="editor"')
             ->and($html)->toContain('comments__header');
 
         // Only for the plugin's own rendering: the site's templates go back to resolving as normal.
@@ -491,6 +491,39 @@ it('lets a site override one template and keeps the rest of the plugin’s', fun
     } finally {
         Comments::$plugin->getSettings()->templateFolderOverride = null;
         craft\helpers\FileHelper::removeDirectory($root);
+    }
+});
+
+it('resolves imports in an override inside its frontend folder, not the rest of the site’s templates', function() {
+    $entry = CommentsFixtureFactory::entry('Override imports');
+    $folder = 'comments-override-' . bin2hex(random_bytes(3));
+    $templates = Craft::$app->getPath()->getSiteTemplatesPath();
+    $root = $templates . DIRECTORY_SEPARATOR . $folder;
+    $siteMacros = '_macros-' . bin2hex(random_bytes(3));
+    craft\helpers\FileHelper::createDirectory($root . '/frontend/_conversation');
+    craft\helpers\FileHelper::createDirectory($root . '/frontend/_macros');
+    craft\helpers\FileHelper::createDirectory($templates . '/' . $siteMacros);
+    file_put_contents($root . '/frontend/_macros/notes.twig', '{% macro empty() %}<p class="macro-empty">From a macro.</p>{% endmacro %}');
+    file_put_contents($templates . '/' . $siteMacros . '/notes.twig', '{% macro empty() %}<p class="site-macro">From the site.</p>{% endmacro %}');
+    file_put_contents($root . '/frontend/_conversation/empty.twig', "{% import '_macros/notes' as notes %}{{ notes.empty() }}");
+    $frontend = Comments::$plugin->getFrontend();
+
+    try {
+        Comments::$plugin->getSettings()->templateFolderOverride = $folder;
+
+        expect((string)$frontend->render((int)$entry->id, ['siteId' => (int)$entry->siteId]))->toContain('macro-empty');
+
+        // A path from the site's templates folder isn't looked up.
+        craft\helpers\FileHelper::createDirectory($root . '-site/frontend/_conversation');
+        file_put_contents($root . '-site/frontend/_conversation/empty.twig', "{% import '{$siteMacros}/notes' as notes %}{{ notes.empty() }}");
+        Comments::$plugin->getSettings()->templateFolderOverride = $folder . '-site';
+
+        expect(fn() => (string)$frontend->render((int)$entry->id, ['siteId' => (int)$entry->siteId]))->toThrow(Twig\Error\LoaderError::class);
+    } finally {
+        Comments::$plugin->getSettings()->templateFolderOverride = null;
+        craft\helpers\FileHelper::removeDirectory($root);
+        craft\helpers\FileHelper::removeDirectory($root . '-site');
+        craft\helpers\FileHelper::removeDirectory($templates . '/' . $siteMacros);
     }
 });
 

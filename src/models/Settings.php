@@ -159,8 +159,8 @@ class Settings extends Model
     // Permissions
     public array $permissions = [];
 
-    // Authoring
-    public string $authoringMode = AuthoringMode::Plain->value;
+    // Authoring. New installs start with Editor; the upgrade from v3 writes `plain` so existing sites keep theirs.
+    public string $authoringMode = AuthoringMode::Rich->value;
     public string $editorTheme = 'light';
     public bool $allowMentions = true;
     public bool $allowAttachments = false;

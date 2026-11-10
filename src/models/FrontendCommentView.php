@@ -48,7 +48,7 @@ class FrontendCommentView extends Model
     public array $hrefs = [];
 
     /** A reply or edit form the server has opened here, because JavaScript isn't running. */
-    public ?FrontendComposerView $contextualComposer = null;
+    public ?FrontendEditorView $contextualEditor = null;
 
     /** Stands in for a hidden comment so the visible replies beneath it stay connected. */
     public bool $placeholder = false;

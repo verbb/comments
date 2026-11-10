@@ -197,12 +197,26 @@ it('lets a moderator keep a reported comment from the site, and nobody else', fu
     Comments::$plugin->getReports()->create((int)$reported->id, (int)$reporter->id, 'spam');
 
     $member = httpBrowser(httpUser('httpMember', []));
-    $refused = $member->post('/comments/api/v1/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
+    $refused = $member->post('/actions/comments/frontend-api/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
 
     expect($refused['data']['status'] ?? null)->toBe('error')
         ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeTrue();
 
     $moderator = httpBrowser(httpUser('httpSiteModerator', ['comments-view', 'comments-moderate']));
+    $kept = $moderator->post('/actions/comments/frontend-api/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
+
+    expect($kept['data']['status'] ?? null)->toBe('ok', $kept['body'])
+        ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeFalse();
+});
+
+it('still answers on the deprecated comments/api/v1 site URLs', function() {
+    Comments::$plugin->getSettings()->allowFlagging = true;
+    $reported = httpComment('Reported through the old URL');
+    $reporter = Comments::$plugin->getIdentities()->createHistoricalGuest('Reporter', null);
+    Comments::$plugin->getReports()->create((int)$reported->id, (int)$reporter->id, 'spam');
+
+    // Custom clients written against the old site URLs keep working until the headless API replaces them.
+    $moderator = httpBrowser(httpUser('httpAliasModerator', ['comments-view', 'comments-moderate']));
     $kept = $moderator->post('/comments/api/v1/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
 
     expect($kept['data']['status'] ?? null)->toBe('ok', $kept['body'])

@@ -5,9 +5,9 @@ function region(root: HTMLElement, name: string): HTMLElement | null {
   return root.querySelector<HTMLElement>(`[data-comments-region="${name}"]`);
 }
 
-function contextualComposer(root: HTMLElement, commentUid: string): HTMLElement | null {
+function contextualEditor(root: HTMLElement, commentUid: string): HTMLElement | null {
   return root.querySelector<HTMLElement>(
-    `[data-comments-region="contextual-composer"][data-comments-comment-uid="${commentUid}"]`,
+    `[data-comments-region="contextual-editor"][data-comments-comment-uid="${commentUid}"]`,
   );
 }
 
@@ -24,10 +24,10 @@ export function isDirtyForm(form: HTMLFormElement | null | undefined): boolean {
     return true;
   }
 
-  // The composer draws its own toolbar and status text, so only what was written counts.
-  const composer = form.querySelector<HTMLElement & { editor?: { getText(): string } | null }>('[data-editor-root]');
-  const text = composer?.editor?.getText() ?? '';
-  return Boolean(text.trim()) && text !== composer?.dataset.commentsInitialText;
+  // Editor draws its own toolbar and status text, so only what was written counts.
+  const editorElement = form.querySelector<HTMLElement & { editor?: { getText(): string } | null }>('[data-editor-root]');
+  const text = editorElement?.editor?.getText() ?? '';
+  return Boolean(text.trim()) && text !== editorElement?.dataset.commentsInitialText;
 }
 
 function parseFragmentHtml(html: string): Document {
@@ -142,8 +142,8 @@ function insertThread(root: HTMLElement, resourceUid: string, html: string): voi
   list.prepend(document.importNode(item, true));
 }
 
-function patchComposer(root: HTMLElement, resourceUid: string, html: string): void {
-  const contextual = contextualComposer(root, resourceUid);
+function patchEditor(root: HTMLElement, resourceUid: string, html: string): void {
+  const contextual = contextualEditor(root, resourceUid);
   if (contextual) {
     destroyForm(contextual);
     contextual.innerHTML = html;
@@ -151,8 +151,8 @@ function patchComposer(root: HTMLElement, resourceUid: string, html: string): vo
   }
 
   // Someone part way through writing a comment keeps what they've written.
-  if (resourceUid === root.dataset.commentsConversationUid && !isDirtyForm(region(root, 'composer')?.querySelector('form'))) {
-    patchRegion(root, 'composer', html);
+  if (resourceUid === root.dataset.commentsConversationUid && !isDirtyForm(region(root, 'editor')?.querySelector('form'))) {
+    patchRegion(root, 'editor', html);
   }
 }
 
@@ -179,9 +179,9 @@ export function applyFragment(root: HTMLElement, fragment: FrontendFragment): vo
         patchRegion(root, 'list', fragment.html);
       }
       break;
-    case 'composer':
+    case 'editor':
     case 'viewerControls':
-      patchComposer(root, fragment.resourceUid, fragment.html);
+      patchEditor(root, fragment.resourceUid, fragment.html);
       break;
     case 'reportDialog':
       patchRegion(root, 'report-dialog', fragment.html);
@@ -223,7 +223,7 @@ function patchRegion(root: HTMLElement, regionName: string, html: string): void 
     return;
   }
 
-  if (regionName === 'composer') {
+  if (regionName === 'editor') {
     destroyForm(target);
   }
 

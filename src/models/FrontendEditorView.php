@@ -4,11 +4,12 @@ namespace verbb\comments\models;
 use verbb\comments\helpers\EditorContexts;
 
 use craft\base\Model;
+use craft\helpers\Json;
 
 /**
- * Transient composer shell for canonical frontend forms — one instance per render.
+ * Transient editor shell for canonical frontend forms — one instance per render.
  */
-class FrontendComposerView extends Model
+class FrontendEditorView extends Model
 {
     // Properties
     // =========================================================================
@@ -19,7 +20,7 @@ class FrontendComposerView extends Model
     public string $mode = 'create';
 
     public string $operationId;
-    /** Primary form action — v1 API when enhanced JS is active. */
+    /** Primary form action, the frontend API's action URL that the script posts to. */
     public string $saveAction;
     /** Legacy Craft action URL for non-JS POST fallback. */
     public string $legacySaveAction = '';
@@ -50,6 +51,8 @@ class FrontendComposerView extends Model
     public ?int $parentCommentId = null;
     /** Who a reply answers, for "Replying to". */
     public ?string $parentAuthorName = null;
+    /** Their first name where the account has one, for the "Reply to Alex…" placeholder. */
+    public ?string $parentAuthorShortName = null;
 
     /** Comment element ID when editing an existing comment. */
     public ?int $editCommentId = null;
@@ -59,21 +62,35 @@ class FrontendComposerView extends Model
     /** Canonical Editor JSON for rich edit prefill. */
     public ?string $initialEditorContent = null;
 
-    /** Where the composer keeps an unsent draft in the browser, per person and per thing replied to. */
+    /** Where the editor keeps an unsent draft in the browser, per person and per thing replied to. */
     public ?string $draftKey = null;
 
-    /** The site's Maximum Comment Length, shown as the composer's character limit. */
+    /** The site's Maximum Comment Length, shown as the editor's character limit. */
     public ?int $maxLength = null;
+
+    /**
+     * Where the browser loads Editor from, for a rich editor only. Everyone starts in the plain box,
+     * and the script swaps Editor in once someone starts writing.
+     */
+    public ?array $editorAsset = null;
 
 
     // Public Methods
     // =========================================================================
 
     /**
-     * Asked for by the template, so a shared page that leaves the form out never issues a CSRF token.
+     * Options for Editor's `<verbb-editor>`, which a rich form swaps in once someone starts writing. Asked for
+     * by the template, so a shared page that leaves the form out never issues a CSRF token.
      */
     public function getEditorOptions(): array
     {
-        return EditorContexts::browserOptions($this->editorContext, $this->ownerId, $this->siteId, $this->editCommentId);
+        $options = EditorContexts::browserOptions($this->editorContext, $this->ownerId, $this->siteId, $this->editCommentId);
+        $content = $this->initialEditorContent ? Json::decodeIfJson($this->initialEditorContent) : null;
+
+        if (is_array($content)) {
+            $options['content'] = $content;
+        }
+
+        return $options;
     }
 }

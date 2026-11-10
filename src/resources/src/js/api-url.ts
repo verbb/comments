@@ -1,4 +1,4 @@
-/** Preserve Craft's query-string route when pretty URLs are disabled. */
+/** An endpoint under the action URL the template gives, keeping Craft's query-string route when pretty URLs are off. */
 export function frontendApiUrl(base: string, path: string): URL {
     const url = new URL(base);
     if (url.searchParams.has('p')) {

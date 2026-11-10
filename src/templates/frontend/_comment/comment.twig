@@ -23,12 +23,12 @@
             {% include '_comment/review' %}
         {% endif %}
         <div
-            class="comments__contextual-composer"
-            data-comments-region="contextual-composer"
+            class="comments__contextual-editor"
+            data-comments-region="contextual-editor"
             data-comments-comment-uid="{{ comment.uid }}"
         >
-            {% if comment.contextualComposer %}
-                {% include '_composer/form' with { composer: comment.contextualComposer, form: comment.contextualComposer.mode } %}
+            {% if comment.contextualEditor %}
+                {% include '_editor/form' with { editor: comment.contextualEditor, form: comment.contextualEditor.mode } %}
             {% endif %}
         </div>
         {% endif %}

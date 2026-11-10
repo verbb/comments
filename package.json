@@ -7,11 +7,12 @@
     "type": "module",
     "scripts": {
         "build": "npm run build:frontend && npm run build:cp",
-        "build:frontend": "npm run typecheck:frontend && vite build --config vite.frontend.config.ts",
+        "build:frontend": "npm run typecheck:frontend && vite build --config vite.frontend.config.ts && npm run typecheck:types",
         "build:cp": "npm run typecheck:cp && vite build --config vite.cp.config.ts",
         "screenshots": "npm --prefix screenshots run screenshots --",
         "typecheck:frontend": "tsc -p tsconfig.frontend.json",
         "typecheck:cp": "tsc -p tsconfig.cp.json",
+        "typecheck:types": "tsc -p tsconfig.types.json",
         "dev:plugin-docs": "npm run docs:dev --prefix docs"
     },
     "dependencies": {

@@ -856,8 +856,9 @@ class Comments extends Component
         }
 
         if ($settings->outputDefaultJs) {
-            // First, because scripts run in the order they're registered and comments mount editors as they start.
-            // Without a form on the page yet, the browser fetches it once the comments are reached.
+            // The thread's script loads Editor itself, and only when someone starts writing in a rich editor.
+            // Plain authoring never needs it. A template override that leaves out where to load it from gets
+            // it with the page instead.
             if ($settings->isRichAuthoringEnabled() && !str_contains((string)$markup, 'data-comments-editor-module')) {
                 $view->registerAssetBundle(EditorAsset::class);
             }
@@ -1584,11 +1585,11 @@ class Comments extends Component
         return match ($type) {
             'author', 'reply', 'subscribe', 'mention', 'moderator-approved' => $state === ModerationState::Approved && !$comment->authorRemovedAt,
             'moderator', 'moderator-edit' => $state === ModerationState::Pending,
-            default => true,
             // Every new comment, spam included, until a moderator or its author removes it.
             'admin' => $state !== ModerationState::Removed && !$comment->authorRemovedAt,
             // Kept, removed or marked as spam since, there's no report left to look at.
             'flag' => $state === ModerationState::Approved && !$comment->authorRemovedAt && $comment->getFlags() > 0,
+            default => true,
         };
     }
 

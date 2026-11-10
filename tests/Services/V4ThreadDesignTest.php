@@ -45,9 +45,9 @@ function threadRender($entry): string
         'instance' => $view->instanceId,
         'conversation' => $view,
         'viewer' => $frontend->buildViewerView($view),
-        'composer' => $frontend->buildComposerView($view),
+        'editor' => $frontend->buildEditorView($view),
         'theme' => $view->theme,
-        'apiBase' => '/comments/api/v1/',
+        'apiBase' => Comments::$plugin->getFrontend()->getApiUrl(''),
         'sharedCache' => false,
         'reportReasons' => $frontend::reportReasons(),
     ]);
@@ -113,17 +113,17 @@ it('gives people with no avatar their initials on a colour that stays theirs', f
         ->and(threadRender($entry))->toContain('comments__avatar--initials');
 });
 
-it('puts the composer first, says who’s posting, and offers guests a way in', function() {
+it('puts the editor first, says who’s posting, and offers guests a way in', function() {
     $settings = Comments::$plugin->getSettings();
     $settings->allowGuest = true;
-    $entry = CommentsFixtureFactory::entry('Thread composer owner');
+    $entry = CommentsFixtureFactory::entry('Thread editor owner');
     threadPost($entry, 'First!');
 
     $html = threadRender($entry);
     $admin = Craft::$app->getUser()->getIdentity();
 
-    expect(strpos($html, 'data-comments-region="composer"'))->toBeLessThan(strpos($html, 'data-comments-region="list"'))
-        ->and($html)->toContain('Posting as ' . verbb\comments\helpers\CommentsHelper::publicUserName($admin));
+    expect(strpos($html, 'data-comments-region="editor"'))->toBeLessThan(strpos($html, 'data-comments-region="list"'))
+        ->and($html)->toContain('Posting as <b>' . craft\helpers\Html::encode(verbb\comments\helpers\CommentsHelper::publicUserName($admin)) . '</b>');
 
     $user = Craft::$app->getUser();
     $user->setIdentity(null);

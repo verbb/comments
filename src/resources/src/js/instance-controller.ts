@@ -1,43 +1,45 @@
-import { destroyForm, initForm, isUploading, prepareForm, setPosting } from './editor-bridge';
+import { editorElementOf, destroyForm, initForm, isUploading, prepareForm, setPosting, wantsEditor } from './editor-bridge';
+import {
+  clearEditorDraft,
+  destroyEditors,
+  enhanceEditor,
+  handleEditorEvent,
+  hasVerbbEditorDraft,
+  plainBox,
+  refreshEditor,
+  refuseSubmit,
+  setEditorPosting,
+  type EditorLabels,
+} from './editor-frame';
 import { frontendApiUrl } from './api-url';
 import { mountProtections, destroyProtections, prepareProtection, protectionSubmitted } from './protection';
 import { applyFragments, isDirtyForm } from './fragments';
 import { envelopeMessage, isEnvelopeError } from './envelope';
+import { dispatchCommentsEvent } from './events';
 import { requestEnvelope } from './request';
-import { CONTRACT_VERSION } from './types/envelope';
-
-export type CommentsController = {
-  root: HTMLElement;
-  conversationUid: string;
-  refresh: (options?: { reason?: string; sort?: string }) => void;
-  openComposer: (options: { mode: string; commentUid?: string }) => void;
-  closeComposer: (options?: { reason?: string }) => void;
-  destroy: () => void;
-};
-
+import type { CommentsController, CommentsEditorMode, CommentsEventDetailMap, CommentsEventName, CommentsFormErrors } from './types/public';
 
 type InstanceOptions = {
   apiBase: string;
 };
 
-function dispatch(root: HTMLElement, name: string, detail: Record<string, unknown>): void {
-  root.dispatchEvent(new CustomEvent(name, {
-    bubbles: true,
-    composed: true,
-    detail: {
-      contractVersion: CONTRACT_VERSION,
-      root,
-      instanceId: root.dataset.commentsInstance ?? '',
-      conversationUid: root.dataset.commentsConversationUid ?? '',
-      controller: controllers.get(root),
-      source: 'api',
-      ...detail,
-    },
-  }));
+function dispatch<K extends CommentsEventName>(root: HTMLElement, name: K, detail: CommentsEventDetailMap[K]): void {
+  dispatchCommentsEvent(root, name, detail, { controller: controllers.get(root) });
+}
+
+/** A form value as the events report it: text, or nothing. */
+function formValue(body: FormData, name: string): string | null {
+  const value = body.get(name);
+
+  return typeof value === 'string' ? value : null;
 }
 
 const controllers = new WeakMap<HTMLElement, CommentsController>();
+// Shared by every thread on the page, so Editor loads once however many there are.
 const editorLoads = new Map<string, Promise<void>>();
+// How long an opening reply or edit waits for an Editor bundle the page loads itself. The plain box
+// stays usable meanwhile, and Editor still takes over if it turns up later.
+const EDITOR_WAIT_MS = 8000;
 
 function apiUrl(base: string, path: string, params: Record<string, string | number | undefined> = {}): string {
   const url = frontendApiUrl(base, path);
@@ -84,10 +86,25 @@ function focusComment(root: HTMLElement, uid: string | null | undefined): boolea
   return Boolean(article);
 }
 
+/**
+ * The first thing to fill in: a guest's empty name or address, then what they're writing. Protect's
+ * trap field is left alone, and so is anything hidden, such as the plain box behind Editor.
+ */
 function focusFirstField(scope: ParentNode | null | undefined): void {
-  scope?.querySelector<HTMLElement>(
-    '[contenteditable="true"], input:not([type="hidden"]), textarea:not([hidden]), select',
-  )?.focus();
+  if (!scope) {
+    return;
+  }
+
+  const fields = Array.from(scope.querySelectorAll<HTMLElement>(
+    '[contenteditable="true"], input:not([type="hidden"]), textarea, select',
+  )).filter((field) => field.getClientRects().length > 0 && !field.closest('[data-comments-protection], .protect-honeypot'));
+  const emptyRequired = fields.find((field) => field instanceof HTMLInputElement && field.required && !field.value);
+  // Focusing Editor's element itself puts the caret in its text, which may not be its first focusable part.
+  const form = scope.querySelector<HTMLFormElement>('form[data-comments-editor-mounted]')
+    ?? (scope instanceof HTMLFormElement && scope.dataset.commentsEditorMounted ? scope : null);
+  const editorElement = form ? editorElementOf(form) : null;
+
+  (emptyRequired ?? editorElement ?? fields[0])?.focus();
 }
 
 /**
@@ -119,11 +136,20 @@ function setBusy(el: Element | null | undefined, busy: boolean): void {
     return;
   }
 
-  if (busy) {
-    el.setAttribute('aria-busy', 'true');
-  } else {
-    el.removeAttribute('aria-busy');
-  }
+  // A menu item closes with its menu, so the menu's own button shows the wait instead.
+  const targets = [el, el.closest('.comments__menu')?.querySelector('.comments__menu-toggle')];
+
+  targets.forEach((target) => {
+    if (!target) {
+      return;
+    }
+
+    if (busy) {
+      target.setAttribute('aria-busy', 'true');
+    } else {
+      target.removeAttribute('aria-busy');
+    }
+  });
 }
 
 function clearFormErrors(form: HTMLFormElement): void {
@@ -141,7 +167,9 @@ function clearFormErrors(form: HTMLFormElement): void {
 }
 
 /**
- * Say what's wrong next to each field, and take the author to the first of them.
+ * Say what's wrong next to each field, and take the author to the first of them. `message` stands in
+ * for a field's own message if it has none, and goes at the top of the form if no field can be found.
+ * The same markup serves the server's errors and a site's own, through `controller.showFormErrors()`.
  */
 function showFormErrors(form: HTMLFormElement, message: string, fieldErrors: Record<string, string[]> = {}): void {
   clearFormErrors(form);
@@ -174,6 +202,10 @@ function showFormErrors(form: HTMLFormElement, message: string, fieldErrors: Rec
 
   if (first) {
     focusFirstField((first as HTMLElement).parentElement ?? form);
+    return;
+  }
+
+  if (!message) {
     return;
   }
 
@@ -217,7 +249,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
   // Starts as what the page was rendered with, so what loads later keeps the same order and size.
   let currentSort: string | undefined = root.dataset.commentsSort;
   const rootLimit = root.dataset.commentsLimit;
-  let composerOpener: string | null = null;
+  let editorOpener: string | null = null;
   let feedbackTimer: number | undefined;
 
   const controller: CommentsController = {
@@ -226,11 +258,22 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     refresh(opts) {
       void refreshConversation(opts?.reason ?? 'refresh', opts?.sort);
     },
-    openComposer(opts) {
-      void openComposer(opts.mode, opts.commentUid);
+    openEditor(opts) {
+      void openEditor(opts.mode, opts.commentUid);
     },
-    closeComposer(opts) {
-      closeComposer(opts?.reason ?? 'user-cancel');
+    closeEditor(opts) {
+      closeEditor(opts?.reason ?? 'user-cancel');
+    },
+    showFormErrors(form, errors: CommentsFormErrors) {
+      const fieldErrors = errors.fieldErrors ?? {};
+      const message = errors.message ?? '';
+
+      showFormErrors(form, message, fieldErrors);
+      // The field's own description is read when focus lands there, and the live region covers the rest.
+      announce(Object.values(fieldErrors)[0]?.[0] ?? message);
+    },
+    clearFormErrors(form) {
+      clearFormErrors(form);
     },
     destroy() {
       abort.abort();
@@ -240,6 +283,8 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       root.removeEventListener('click', onClick);
       root.removeEventListener('change', onChange);
       root.removeEventListener('submit', onSubmit);
+      root.removeEventListener('editor-reply-cancel', onReplyCancel);
+      destroyEditors(root);
       dispatch(root, 'comments:destroyed', {});
     },
   };
@@ -397,7 +442,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     return true;
   }
 
-  async function refreshConversation(reason: string, sort?: string): Promise<void> {
+  async function refreshConversation(reason: string, sort?: string, control?: Element | null): Promise<void> {
     if (!ownerId) {
       return;
     }
@@ -407,6 +452,11 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     }
 
     dispatch(root, 'comments:request-start', { operationId: null, reason });
+
+    // The list is replaced when the response arrives, so only the control needs clearing.
+    const list = root.querySelector('.comments__list');
+    setBusy(control, true);
+    setBusy(list, true);
 
     try {
       const envelope = await requestEnvelope(
@@ -425,6 +475,9 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       const message = error instanceof Error ? error.message : 'Refresh failed.';
       showFeedback(root, message, true, true);
       dispatch(root, 'comments:request-error', { reason, message });
+    } finally {
+      setBusy(control, false);
+      setBusy(list, false);
     }
   }
 
@@ -459,7 +512,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
 
     try {
       const envelope = await requestEnvelope(
-        apiUrl(options.apiBase, 'replies', { commentUid, ...(limit ? { limit } : {}) }),
+        apiUrl(options.apiBase, 'replies', { commentUid, siteId, ...(limit ? { limit } : {}) }),
         root,
         { signal: abort.signal },
       );
@@ -479,6 +532,11 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     dispatch(root, 'comments:request-start', { operationId: null, reason });
     setBusy(control, true);
 
+    // The site the thread belongs to, so what comes back is drawn for it.
+    if (siteId && !body.has('siteId')) {
+      body.set('siteId', siteId);
+    }
+
     try {
       const envelope = await requestEnvelope(apiUrl(options.apiBase, path), root, {
         method: 'POST',
@@ -497,7 +555,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     }
   }
 
-  async function openComposer(mode: string, commentUid?: string, control?: HTMLElement): Promise<void> {
+  async function openEditor(mode: string, commentUid?: string, control?: HTMLElement): Promise<void> {
     const openForm = root.querySelector<HTMLFormElement>('[data-comments-form="reply"], [data-comments-form="edit"]');
 
     // There's one reply or edit form at a time, and opening another can't quietly lose what's in this one.
@@ -505,15 +563,16 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       return;
     }
 
-    closeComposer('replaced', false);
-    composerOpener = control ? controlSelector(control) : null;
+    closeEditor('replaced', false);
+    editorOpener = control ? controlSelector(control) : null;
+    // Opening a reply or an edit is the moment to fetch Editor, alongside the form.
+    prefetchEditor();
     setBusy(control, true);
-    dispatch(root, 'comments:composer-opened', { mode, commentUid: commentUid ?? null });
-    dispatch(root, 'comments:request-start', { operationId: null, reason: 'composer-open' });
+    dispatch(root, 'comments:request-start', { operationId: null, reason: 'editor-open' });
 
     try {
       const envelope = await requestEnvelope(
-        apiUrl(options.apiBase, 'composer', {
+        apiUrl(options.apiBase, 'editor', {
           ownerId,
           siteId,
           mode,
@@ -523,92 +582,237 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
         { signal: abort.signal },
       );
 
-      await applyEnvelopeResponse(envelope, 'composer-open');
-      focusFirstField(root.querySelector(`[data-comments-region="contextual-composer"][data-comments-comment-uid="${commentUid}"]`));
+      if (!await applyEnvelopeResponse(envelope, 'editor-open')) {
+        return;
+      }
+
+      const host = mode === 'create'
+        ? root.querySelector<HTMLElement>('[data-comments-region="editor"]')
+        : root.querySelector<HTMLElement>(`[data-comments-region="contextual-editor"][data-comments-comment-uid="${commentUid}"]`);
+      const form = host?.querySelector<HTMLFormElement>('form[data-comments-form]');
+
+      if (!host || !form) {
+        return;
+      }
+
+      // Opened means ready: the form is in the page, with Editor running if it writes in one,
+      // which keeps an edited comment's formatting. A page that neither has Editor nor says where to load
+      // it from gets the plain box straight away. The detail stays plain data, so it can be logged;
+      // there's only ever one reply or edit form to find.
+      mountEditors(host);
+
+      if (wantsEditor(form) && (customElements.get('verbb-editor') || editorModule(form))) {
+        await upgradeForm(form);
+      } else if (wantsEditor(form)) {
+        void upgradeForm(form);
+      }
+
+      focusFirstField(form);
+      dispatch(root, 'comments:editor-opened', { mode, commentUid: commentUid ?? null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not open composer.';
+      const message = error instanceof Error ? error.message : 'Could not open the editor.';
       showFeedback(root, message, true);
-      dispatch(root, 'comments:request-error', { reason: 'composer-open', message });
+      dispatch(root, 'comments:request-error', { reason: 'editor-open', message });
     } finally {
       setBusy(control, false);
     }
   }
 
-  function closeComposer(reason: string, restoreFocus = true): void {
+  function closeEditor(reason: string, restoreFocus = true): void {
     const activeForm = root.querySelector<HTMLFormElement>('[data-comments-form="reply"], [data-comments-form="edit"]');
-    const host = activeForm?.closest('[data-comments-region="contextual-composer"]');
+    const host = activeForm?.closest('[data-comments-region="contextual-editor"]');
 
     if (host instanceof HTMLElement) {
       destroyForm(host);
+      destroyEditors(host);
       destroyProtections(host);
       host.innerHTML = '';
 
-      if (restoreFocus && composerOpener) {
-        root.querySelector<HTMLElement>(composerOpener)?.focus();
+      if (restoreFocus && editorOpener) {
+        root.querySelector<HTMLElement>(editorOpener)?.focus();
       }
 
-      dispatch(root, 'comments:composer-closed', { reason });
+      dispatch(root, 'comments:editor-closed', { reason });
     }
   }
 
   /**
-   * A page that waited to load its comments hasn't downloaded rich authoring yet either.
+   * Cancel on the editor at the top clears it. A member's goes back to one line, and a guest's closes
+   * back to the Join card.
    */
-  async function loadEditor(): Promise<void> {
-    const { commentsEditorModule: module, commentsEditorCss: css } = root.dataset;
-
-    if (module) {
-      if (css && !document.querySelector(`link[href="${css}"]`)) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = css;
-        document.head.append(link);
-      }
-
-      let loading = editorLoads.get(module);
-
-      if (!loading) {
-        loading = new Promise<void>((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = module;
-          script.type = 'module';
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error('Rich authoring could not be loaded.'));
-          document.head.append(script);
-        });
-        editorLoads.set(module, loading);
-      }
-
-      await loading;
+  function cancelNewComment(form: HTMLFormElement): void {
+    if (isDirtyForm(form) && !window.confirm(root.dataset.commentsDiscardMessage ?? 'Discard your changes?')) {
+      return;
     }
 
+    form.reset();
+    clearEditorDraft(form);
+    refreshEditor(form);
+    clearFormErrors(form);
+
+    const guest = form.closest<HTMLDetailsElement>('details.comments__join-guest');
+
+    if (guest) {
+      guest.open = false;
+      guest.querySelector<HTMLElement>(':scope > summary')?.focus();
+    } else {
+      root.querySelector<HTMLElement>('.comments__heading')?.focus();
+    }
+  }
+
+  /** Where this form, or failing that the thread, says Editor's bundle is. */
+  function editorModule(form?: HTMLFormElement | null): string | undefined {
+    return form?.dataset.commentsEditorModule || root.dataset.commentsEditorModule || undefined;
+  }
+
+  /**
+   * Editor's bundle, which the page either loads itself or leaves to us to load once someone's about to
+   * write in a rich editor. Without it, people carry on in the plain box.
+   */
+  async function loadEditor(form?: HTMLFormElement | null): Promise<void> {
+    if (customElements.get('verbb-editor')) {
+      return;
+    }
+
+    const module = editorModule(form);
+    const css = form?.dataset.commentsEditorCss || root.dataset.commentsEditorCss;
+
+    if (!module) {
+      await Promise.race([
+        customElements.whenDefined('verbb-editor'),
+        new Promise((_, reject) => window.setTimeout(() => reject(new Error('Editor did not load.')), EDITOR_WAIT_MS)),
+      ]);
+
+      return;
+    }
+
+    if (css && !document.querySelector(`link[href="${css}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = css;
+      document.head.append(link);
+    }
+
+    let loading = editorLoads.get(module);
+
+    if (!loading) {
+      loading = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = module;
+        script.type = 'module';
+        script.onload = () => resolve();
+        script.onerror = () => {
+          // Another try can load it, if the network comes back.
+          editorLoads.delete(module);
+          script.remove();
+          reject(new Error('Editor could not be loaded.'));
+        };
+        document.head.append(script);
+      });
+      editorLoads.set(module, loading);
+    }
+
+    await loading;
     await customElements.whenDefined('verbb-editor');
   }
 
+  /**
+   * Starts fetching Editor ahead of need, when a rich thread's visitor heads for an editor, Reply or
+   * Edit. Nothing changes on the page until they actually start.
+   */
+  function prefetchEditor(form?: HTMLFormElement | null): void {
+    if (!customElements.get('verbb-editor') && editorModule(form)) {
+      loadEditor(form).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Swap a rich form's plain box for Editor, loading Editor first if it isn't here yet.
+   * Whatever was typed meanwhile comes along.
+   */
+  async function upgradeForm(form: HTMLFormElement): Promise<void> {
+    if (form.dataset.commentsEditorMounted || !wantsEditor(form)) {
+      return;
+    }
+
+    try {
+      await loadEditor(form);
+    } catch {
+      // The plain box stays usable if it doesn't arrive.
+      return;
+    }
+
+    if (abort.signal.aborted || !form.isConnected || form.dataset.commentsEditorMounted || form.dataset.commentsSubmitting) {
+      return;
+    }
+
+    const editorElement = initForm(form, { theme: root.dataset.commentsTheme });
+
+    if (editorElement) {
+      form.dataset.commentsEditorMounted = '1';
+      // Editor collapses itself from here on.
+      form.querySelector('.comments__frame')?.removeAttribute('data-comments-collapsed');
+
+      // What the author started with, so leaving with nothing new to lose doesn't ask first.
+      if (editorElement.dataset.commentsInitialText === undefined) {
+        editorElement.dataset.commentsInitialText = editorElement.editor?.getText() ?? '';
+      }
+    }
+  }
+
+  function editorLabels(): Partial<EditorLabels> {
+    try {
+      const labels: unknown = JSON.parse(root.dataset.commentsEditorLabels ?? '{}');
+      return labels && typeof labels === 'object' ? labels as Partial<EditorLabels> : {};
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Every form starts in the plugin's own editor. Editor only takes over a rich form here when it
+   * already has a reason to: a draft only Editor can bring back, or an override that puts
+   * `<verbb-editor>` straight into the form.
+   */
   function mountEditors(scope: ParentNode): void {
-    if (!scope.querySelector('[data-editor-root]')) {
-      return;
-    }
+    scope.querySelectorAll<HTMLFormElement>('form[data-comments-form]').forEach((form) => {
+      if (!['create', 'reply', 'edit'].includes(form.dataset.commentsForm ?? '')) {
+        return;
+      }
 
-    if (!window.VerbbEditor) {
-      // The plain box underneath stays usable if it doesn't arrive.
-      loadEditor().then(() => mountEditors(scope)).catch(() => undefined);
+      enhanceEditor(form, editorLabels(), announce);
 
-      return;
-    }
-
-    scope.querySelectorAll<HTMLFormElement>('[data-comments-form]').forEach((form) => {
-      const composer = initForm(form, { theme: root.dataset.commentsTheme });
-
-      if (composer) {
-        form.dataset.commentsEditorMounted = '1';
-
-        // What the author started with, so leaving with nothing new to lose doesn't ask first.
-        if (composer.dataset.commentsInitialText === undefined) {
-          composer.dataset.commentsInitialText = composer.editor?.getText() ?? '';
-        }
+      if (form.querySelector('verbb-editor[data-editor-root]') || (wantsEditor(form) && hasVerbbEditorDraft(form))) {
+        void upgradeForm(form);
       }
     });
+  }
+
+  /** Someone heading for, or starting in, a rich editor, Reply or Edit. */
+  function onIntent(event: Event): void {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const form = target.closest<HTMLFormElement>('form[data-comments-editor-frame]');
+
+    if (form && wantsEditor(form) && !form.dataset.commentsEditorMounted && target.closest('.comments__frame')) {
+      // Only the text itself swaps, because moving a guest's details into Editor's frame would take
+      // the keyboard out of whichever field they're filling in.
+      if (event.type === 'focusin' && target === plainBox(form)) {
+        void upgradeForm(form);
+      } else {
+        prefetchEditor(form);
+      }
+
+      return;
+    }
+
+    if (event.type !== 'focusin' && target.closest('[data-comments-action="reply"], [data-comments-action="edit"], .comments__join-guest > summary')) {
+      prefetchEditor();
+    }
   }
 
   function announce(message: string): void {
@@ -662,22 +866,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       return;
     }
 
-    const before = new CustomEvent('comments:action-before', {
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-      detail: {
-        contractVersion: CONTRACT_VERSION,
-        controller,
-        root,
-        instanceId: root.dataset.commentsInstance ?? '',
-        conversationUid: controller.conversationUid,
-        action,
-        source: 'user',
-      },
-    });
-
-    if (!root.dispatchEvent(before)) {
+    if (!dispatchCommentsEvent(root, 'comments:action-before', { action }, { controller, source: 'user', cancelable: true })) {
       return;
     }
 
@@ -710,13 +899,19 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
 
     if (action === 'reply' || action === 'edit') {
       event.preventDefault();
-      void openComposer(action, actionEl.dataset.commentsCommentUid, actionEl);
+      void openEditor(action, actionEl.dataset.commentsCommentUid, actionEl);
       return;
     }
 
-    if (action === 'cancel-composer') {
+    if (action === 'cancel-editor') {
       event.preventDefault();
-      closeComposer('user-cancel');
+      const form = actionEl.closest<HTMLFormElement>('form[data-comments-form]');
+
+      if (form?.dataset.commentsForm === 'create') {
+        cancelNewComment(form);
+      } else {
+        closeEditor('user-cancel');
+      }
       return;
     }
 
@@ -786,7 +981,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     if (action === 'sort' && root.dataset.commentsEnhanced === '1') {
       event.preventDefault();
       const sort = actionEl.dataset.commentsSort ?? '';
-      void refreshConversation('sort', sort).then(() => {
+      void refreshConversation('sort', sort, actionEl).then(() => {
         dispatch(root, 'comments:sorted', { sort });
       });
       return;
@@ -825,7 +1020,81 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     }
   }
 
+  /**
+   * The × on Editor's "Replying to" chip. A reply here only exists in place under its comment, so
+   * cancelling it closes the form, as Cancel does.
+   */
+  function onReplyCancel(event: Event): void {
+    if (event.target instanceof Element && event.target.closest('[data-comments-form="reply"]')) {
+      event.preventDefault();
+      closeEditor('user-cancel');
+    }
+  }
+
   // An open menu closes when the reader clicks elsewhere or presses Escape.
+  function visibleMenuItems(menu: Element): HTMLElement[] {
+    return Array.from(menu.querySelectorAll<HTMLElement>('.comments__menu-item'))
+      .filter((item) => item.getClientRects().length > 0);
+  }
+
+  // The ··· menu works like a menu button: Enter, Space or an arrow opens it on an item, the arrows,
+  // Home and End move through it, Escape closes it and returns to the button, and Tab leaves it closed.
+  function onMenuKeydown(event: KeyboardEvent): void {
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    const menu = target?.closest<HTMLDetailsElement>('.comments__menu');
+    const toggle = menu?.querySelector<HTMLElement>('.comments__menu-toggle');
+
+    if (!target || !menu || !toggle) {
+      return;
+    }
+
+    if (target === toggle) {
+      if (!['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (menu.open && (event.key === 'Enter' || event.key === ' ')) {
+        menu.open = false;
+
+        return;
+      }
+
+      closeMenus(menu);
+      menu.open = true;
+      const items = visibleMenuItems(menu);
+      (event.key === 'ArrowUp' ? items[items.length - 1] : items[0])?.focus();
+
+      return;
+    }
+
+    const items = visibleMenuItems(menu);
+    const index = items.indexOf(target);
+
+    if (index === -1) {
+      return;
+    }
+
+    const next: Record<string, HTMLElement | undefined> = {
+      ArrowDown: items[(index + 1) % items.length],
+      ArrowUp: items[(index - 1 + items.length) % items.length],
+      Home: items[0],
+      End: items[items.length - 1],
+    };
+
+    if (next[event.key]) {
+      event.preventDefault();
+      next[event.key]?.focus();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      menu.open = false;
+      toggle.focus();
+    } else if (event.key === 'Tab') {
+      menu.open = false;
+    }
+  }
+
   function closeMenus(except?: Element | null): void {
     root.querySelectorAll('.comments__menu[open]').forEach((menu) => {
       if (menu !== except) {
@@ -864,10 +1133,20 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       return;
     }
 
+    // A listener that ran first, on the form itself or while capturing, has already stopped this.
+    if (event.defaultPrevented) {
+      return;
+    }
+
     event.preventDefault();
 
     if (form.matches('[data-comments-form="create"], [data-comments-form="reply"], [data-comments-form="edit"]')) {
       if (form.dataset.commentsSubmitting === '1') return;
+
+      // Nothing to post yet, or too much of it.
+      if (refuseSubmit(form)) {
+        return;
+      }
 
       // What's still uploading isn't in the document yet, so posting now would lose it.
       if (isUploading(form)) {
@@ -875,16 +1154,34 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
         return;
       }
 
-      form.dataset.commentsSubmitting = '1';
+      // Editor's content goes into the form's inputs first, so a site's checks read what will be posted.
       prepareForm(form);
 
       const operationId = form.dataset.commentsOperationId ?? null;
-      const formMode = form.dataset.commentsForm ?? 'create';
+      const formMode = (form.dataset.commentsForm ?? 'create') as CommentsEditorMode;
       const submit = form.querySelector('[type="submit"]');
+      // For a reply this is the comment being answered, and for an edit the comment itself.
       const parentUid = form.closest<HTMLElement>('[data-comments-comment]')?.dataset.commentsCommentUid;
+
+      // The site's last word before anything is sent, such as its own validation. PHP still checks
+      // everything when the post arrives, so this can only refuse a post, never allow one.
+      const allowed = dispatchCommentsEvent(root, 'comments:submit-before', {
+        form,
+        mode: formMode,
+        commentUid: parentUid ?? null,
+        formData: new FormData(form),
+      }, { controller, source: 'user', cancelable: true });
+
+      if (!allowed) {
+        return;
+      }
+
+      form.dataset.commentsSubmitting = '1';
       dispatch(root, 'comments:request-start', { operationId });
       setBusy(submit, true);
+      // One for Editor's element, if it's running, and one for the plugin's own frame.
       setPosting(form, true);
+      setEditorPosting(form, true);
       clearFormErrors(form);
 
       try {
@@ -903,13 +1200,14 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
         });
 
         if (!isEnvelopeError(envelope)) {
+          clearEditorDraft(form);
           form.reset();
           destroyForm(form);
         }
         if (await applyEnvelopeResponse(envelope, formMode, form)) {
           // To what they just wrote, or back to where they were if it isn't public yet.
           if (!focusComment(root, envelope.resource) && !focusComment(root, parentUid)) {
-            focusFirstField(root.querySelector('[data-comments-region="composer"]'));
+            focusFirstField(root.querySelector('[data-comments-region="editor"]'));
           }
 
           if (formMode === 'edit') {
@@ -927,7 +1225,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Submit failed.';
         showFormErrors(form, message);
-        // The composer keeps the text and offers to try again.
+        // The editor keeps the text and offers to try again.
         setPosting(form, false, message);
         announce(message);
         dispatch(root, 'comments:request-error', { message });
@@ -935,6 +1233,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
         delete form.dataset.commentsSubmitting;
         setBusy(submit, false);
         setPosting(form, false);
+        setEditorPosting(form, false);
       }
 
       return;
@@ -944,7 +1243,7 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       void postMutation('report', new FormData(form), 'report', form.querySelector('[type="submit"]'), form).then((ok) => {
         if (ok) {
           closeReportDialog();
-          dispatch(root, 'comments:report-submitted', { commentId: new FormData(form).get('commentId') });
+          dispatch(root, 'comments:report-submitted', { commentId: formValue(new FormData(form), 'commentId') });
         }
       });
       return;
@@ -971,8 +1270,8 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       void postMutation('interaction', body, 'interact', form.querySelector('button')).then((ok) => {
         if (ok) {
           dispatch(root, 'comments:interaction-changed', {
-            commentId: body.get('commentId'),
-            type: body.get('type'),
+            commentId: formValue(body, 'commentId'),
+            type: formValue(body, 'type'),
           });
         }
       });
@@ -984,8 +1283,8 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
       void postMutation('moderate', body, 'moderate', form.querySelector('button')).then((ok) => {
         if (ok) {
           dispatch(root, 'comments:comment-moderated', {
-            commentId: body.get('commentId'),
-            moderationAction: body.get('moderationAction'),
+            commentId: formValue(body, 'commentId'),
+            moderationAction: formValue(body, 'moderationAction'),
           });
         }
       });
@@ -1002,8 +1301,19 @@ export function bindInstance(root: HTMLElement, options: InstanceOptions): Comme
     }
   }, { signal: abort.signal });
   root.addEventListener('click', onClick);
+  root.addEventListener('keydown', onMenuKeydown, { signal: abort.signal });
   root.addEventListener('change', onChange);
   root.addEventListener('submit', onSubmit);
+  root.addEventListener('editor-reply-cancel', onReplyCancel);
+
+  // The editor's own keys and states, and the moments a rich one fetches or swaps in Editor.
+  for (const type of ['input', 'keydown', 'click', 'focusin', 'focusout']) {
+    root.addEventListener(type, handleEditorEvent, { signal: abort.signal });
+  }
+
+  for (const type of ['focusin', 'pointerdown', 'pointerover']) {
+    root.addEventListener(type, onIntent, { signal: abort.signal });
+  }
 
   const start = (): Promise<void> => hydratePrivateViewerControls().then(revealDeepLink);
 

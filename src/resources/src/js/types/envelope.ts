@@ -7,7 +7,7 @@ export type FragmentType =
   | 'replies'
   | 'thread'
   | 'reportDialog'
-  | 'composer'
+  | 'editor'
   | 'viewerControls';
 
 export type FrontendFragment = {

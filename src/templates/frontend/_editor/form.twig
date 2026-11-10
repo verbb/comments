@@ -1,0 +1,91 @@
+{% set formMode = form ?? editor.mode %}
+{% set fieldId = instance ~ '-' ~ formMode ~ '-' ~ (editor.parentCommentId ?? editor.editCommentId ?? 'new') %}
+{% set isMember = viewer.isLoggedIn ?? false %}
+{# A member's new comment starts as one line. Replies and edits open ready to write, and so does a guest's
+   form, because they've just asked for it. #}
+{% set collapsible = formMode == 'create' and isMember %}
+{% set submitLabel = { create: 'Post' | t('comments'), reply: 'Reply' | t('comments'), edit: 'Save comment' | t('comments') }[formMode] ?? 'Post' | t('comments') %}
+{% set replyingTo = formMode == 'reply' ? editor.parentAuthorName : null %}
+{% set postingAs = isMember and viewer.name %}
+
+<form
+    class="comments__editor comments__editor--{{ formMode }}"
+    method="post"
+    accept-charset="UTF-8"
+    data-comments-form="{{ formMode }}"
+    data-comments-operation-id="{{ editor.operationId }}"
+    {% if collapsible %}data-comments-collapsible{% endif %}
+    {% if editor.draftKey %}data-comments-draft-key="{{ editor.draftKey }}"{% endif %}
+    {% if editor.maxLength %}data-comments-limit="{{ editor.maxLength }}"{% endif %}
+    {% if editor.editorAsset %}data-comments-editor-module="{{ editor.editorAsset.module }}" data-comments-editor-css="{{ editor.editorAsset.css }}"{% endif %}
+    {% if editor.hasFileInputs %}enctype="multipart/form-data"{% endif %}
+>
+    <input type="hidden" name="action" value="comments/comments/save">
+    <input type="hidden" name="elementId" value="{{ editor.ownerId }}">
+    <input type="hidden" name="siteId" value="{{ editor.siteId }}">
+    <input type="hidden" name="parentId" value="{{ editor.parentCommentId ?? '' }}">
+    <input type="hidden" name="commentId" value="{{ editor.editCommentId ?? '' }}">
+    <input type="hidden" name="commentsOperationId" value="{{ editor.operationId }}">
+    {{ csrfInput() }}
+    {{ redirectInput(editor.redirectTemplate) }}
+    {{ craft.comments.protect(editor.ownerId, editor.siteId, editor.editCommentId) }}
+
+    <div class="comments__editor-row">
+        {% if isMember and (viewer.avatarUrl ?? false) %}
+            <img class="comments__avatar" src="{{ viewer.avatarUrl }}" alt="" width="36" height="36">
+        {% elseif isMember %}
+            <span class="comments__avatar comments__avatar--initials" data-tone="{{ viewer.avatarTone }}" aria-hidden="true">{{ viewer.initials }}</span>
+        {% else %}
+            <span class="comments__avatar comments__avatar--guest" aria-hidden="true">
+                <svg class="comments__icon comments__icon--user" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4.5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+            </span>
+        {% endif %}
+
+        {# The plugin's own editor, which works without JavaScript and is all plain authoring ever uses.
+           A rich form swaps in Editor once someone starts writing, and whatever's marked
+           `data-comments-slot` moves into it. #}
+        <div class="comments__frame">
+            {% if replyingTo or postingAs or editor.showGuestFields %}
+                <div class="comments__frame-head">
+                    {% if replyingTo %}
+                        <p class="comments__frame-reply">
+                            <svg class="comments__frame-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 17-5-5 5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+                            {% set parts = 'Replying to {name}' | t('comments') | split('{name}') %}
+                            <span class="comments__frame-reply-text">{{ parts | first }}<b>{{ replyingTo }}</b>{{ parts[1:] | join('{name}') }}</span>
+                            <button type="button" class="comments__frame-reply-cancel" data-comments-action="cancel-editor" data-comments-js-only aria-label="{{ 'Cancel reply' | t('comments') }}">
+                                <svg class="comments__frame-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                            </button>
+                        </p>
+                    {% endif %}
+
+                    {% if postingAs %}
+                        {% set parts = 'Posting as {name}' | t('comments') | split('{name}') %}
+                        <p class="comments__posting-as" data-comments-slot="header">
+                            <span>{{ parts | first }}<b>{{ viewer.name }}</b>{{ parts[1:] | join('{name}') }}</span>
+                            {% if viewer.badge %}<span class="comments__badge">{{ viewer.badge }}</span>{% endif %}
+                        </p>
+                    {% endif %}
+
+                    {% if editor.showGuestFields %}
+                        {% include '_editor/guest-fields' %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% include '_editor/custom-fields' %}
+
+            <div class="comments__frame-foot">
+                <button type="button" class="comments__cancel verbb-editor__button" data-comments-action="cancel-editor" data-comments-slot="actions" data-comments-js-only>{{ 'Cancel' | t('comments') }}</button>
+                {# A member's own new comment has nothing to go back to without JavaScript. #}
+                {% if formMode != 'create' or not isMember %}
+                    <noscript><a class="comments__cancel" href="{{ editor.cancelHref }}">{{ 'Cancel' | t('comments') }}</a></noscript>
+                {% endif %}
+                {# The label hides on a narrow editor, which shows the arrow instead. #}
+                <button class="comments__submit" type="submit" aria-label="{{ submitLabel }}">
+                    <span class="comments__submit-label">{{ submitLabel }}</span>
+                    <svg class="comments__frame-icon comments__submit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
