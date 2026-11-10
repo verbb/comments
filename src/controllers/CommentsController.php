@@ -316,7 +316,8 @@ class CommentsController extends Controller
         if ($this->request->getAcceptsJson()) {
             $notice = '';
 
-            if ($result->moderationState->value === 'pending') {
+            // Spam is held the same as pending, as far as the visitor is told.
+            if ($result->moderationState !== ModerationState::Approved) {
                 $notice = Craft::t('comments', 'Your comment has been posted and is under review.', [], $currentSite->language);
             }
 
@@ -328,7 +329,7 @@ class CommentsController extends Controller
             ]);
         }
 
-        Craft::$app->getSession()->setFlash(Frontend::FLASH_NOTICE, $result->moderationState->value === 'pending'
+        Craft::$app->getSession()->setFlash(Frontend::FLASH_NOTICE, $result->moderationState !== ModerationState::Approved
             ? Craft::t('comments', 'Your comment has been posted and is under review.', [], $currentSite->language)
             : Craft::t('comments', 'Comment posted.'));
 

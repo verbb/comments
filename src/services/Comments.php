@@ -1477,7 +1477,9 @@ class Comments extends Component
 
     /**
      * A held commenter waits for review whatever the site does, and a trusted one skips pre-moderation.
-     * Spam protection has already had its say, and neither setting softens what it found.
+     * Spam protection and the keyword filters have already had their say, and neither setting softens
+     * what they found. Their holds carry their own reason, so only a comment waiting for pre-moderation
+     * alone is approved for a trusted commenter.
      */
     private function _applyReviewSetting(Comment $comment, int $identityId, ?int $conversationId): void
     {

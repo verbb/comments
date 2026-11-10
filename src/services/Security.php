@@ -3,6 +3,7 @@ namespace verbb\comments\services;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
 
 use craft\base\Component;
@@ -16,16 +17,25 @@ class Security extends Component
     {
         $settings = Comments::$plugin->getSettings();
 
-        // Check for content where a comment should be marked as pending.
+        // Check for content where a comment should be marked as pending. The keyword becomes the reason, which
+        // also stops a Trusted commenter's review setting approving it. A comment already held for something
+        // more particular than site-wide pre-moderation or an edit keeps that reason.
         if ($this->_findInElementContent($comment, $settings->securityModeration)) {
+            $wasHeldFor = $comment->moderationState === ModerationState::Pending->value ? HeldReason::tryFrom((string)$comment->heldReason) : null;
+
             $comment->status = Comment::STATUS_PENDING;
             $comment->moderationState = ModerationState::Pending->value;
+
+            if (in_array($wasHeldFor, [null, HeldReason::PreModeration, HeldReason::Edited], true)) {
+                $comment->heldReason = HeldReason::Keyword->value;
+            }
         }
 
         // Check for content where a comment should be marked as spam.
         if ($this->_findInElementContent($comment, $settings->securitySpamlist)) {
             $comment->status = Comment::STATUS_SPAM;
             $comment->moderationState = ModerationState::Spam->value;
+            $comment->heldReason = HeldReason::Keyword->value;
         }
 
         // Check for content where a comment should be blocked.

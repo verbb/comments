@@ -116,6 +116,119 @@ it('lets trusted commenters skip pre-moderation, unless a hold applies', functio
         ->and(reviewState(reviewPost($entry, (int)$member->id))['moderationState'])->toBe('pending');
 });
 
+it('holds a trusted commenter’s comment that matches a Moderated Keyword, with or without pre-moderation', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->securityModeration = "zqheldword";
+    $entry = CommentsFixtureFactory::entry('Trusted keyword owner');
+    $member = CommentsFixtureFactory::user('trustedKeyword');
+    Comments::$plugin->getModeration()->setReviewSetting(reviewIdentity($member), ReviewSetting::Trusted);
+
+    foreach ([true, false] as $requireModeration) {
+        $settings->requireModeration = $requireModeration;
+        Comments::$plugin->getConversations()->clearCaches();
+
+        $clean = reviewPost($entry, (int)$member->id, 'Nothing to see here');
+        $held = reviewPost($entry, (int)$member->id, 'This mentions zqheldword');
+
+        expect(reviewState($clean))->toBe(['moderationState' => 'approved', 'heldReason' => null])
+            ->and(reviewState($held))->toBe(['moderationState' => 'pending', 'heldReason' => HeldReason::Keyword->value]);
+    }
+
+    // Moderators see why it waits, in the index and at the top of the comment.
+    $held = Comment::find()->id($held->id)->status(null)->one();
+
+    expect($held->getAttributeHtml('reason'))->toContain('Keyword filter')->toContain('comments-reason--keyword')
+        ->and(Comments::$plugin->getCommentEditor()->reviewNotice($held)['title'])->toBe('Waiting for review: keyword filter')
+        ->and(Comments::$plugin->getCommentEditor()->reviewNotice($held)['text'])->toBe(HeldReason::Keyword->explanation());
+});
+
+it('keeps a more particular reason when a waiting comment also matches a keyword, and marks spam keywords', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->securityModeration = "zqheldword";
+    $settings->securitySpamlist = "zqspamword";
+    $entry = CommentsFixtureFactory::entry('Keyword reason owner');
+    $member = CommentsFixtureFactory::user('heldKeyword');
+    Comments::$plugin->getModeration()->setReviewSetting(reviewIdentity($member), ReviewSetting::Held);
+
+    $commenter = reviewPost($entry, (int)$member->id, 'Held anyway, zqheldword');
+    $spam = reviewPost($entry, (int)CommentsFixtureFactory::user('spamKeyword')->id, 'Buy zqspamword now');
+
+    expect(reviewState($commenter))->toBe(['moderationState' => 'pending', 'heldReason' => HeldReason::Keyword->value])
+        ->and(reviewState($spam))->toBe(['moderationState' => 'spam', 'heldReason' => HeldReason::Keyword->value])
+        ->and(Comments::$plugin->getCommentEditor()->reviewNotice($spam)['text'])->toContain('Spam Keywords');
+
+    // A moderator's hold is more particular than the keyword, so checking it again keeps that reason.
+    $admin = Craft::$app->getUser()->getIdentity();
+    Comments::$plugin->getModeration()->setState($commenter, ModerationState::Approved, $admin);
+    Comments::$plugin->getModeration()->setState($commenter, ModerationState::Pending, $admin);
+    $commenter = Comment::find()->id($commenter->id)->status(null)->one();
+
+    expect(Comments::$plugin->getSecurity()->checkSecurityPolicy($commenter))->toBeTrue()
+        ->and($commenter->moderationState)->toBe(ModerationState::Pending->value)
+        ->and($commenter->heldReason)->toBe(HeldReason::Moderator->value);
+});
+
+it('holds a comment as spam from beforeSaveComment, as the events docs show', function() {
+    // The example from docs/developers/events.md, as written there.
+    $listener = function(craft\events\ModelEvent $event) {
+        /** @var Comment $comment */
+        $comment = $event->sender;
+
+        // Only check new comments, not edits or a moderator's changes.
+        if (!$event->isNew) {
+            return;
+        }
+
+        // Replace this with a call to your own spam service.
+        $isSpam = stripos((string)$comment->comment, 'cheap watches') !== false;
+
+        if ($isSpam) {
+            $comment->moderationState = ModerationState::Spam->value;
+            $comment->status = Comment::STATUS_SPAM;
+            $comment->heldReason = HeldReason::Protection->value;
+        }
+    };
+    yii\base\Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, $listener);
+
+    try {
+        $entry = CommentsFixtureFactory::entry('Spam event owner');
+        $member = CommentsFixtureFactory::user('spamEvent');
+        // A trusted commenter's review setting doesn't undo it either.
+        Comments::$plugin->getModeration()->setReviewSetting(reviewIdentity($member), ReviewSetting::Trusted);
+        $result = Comments::$plugin->getComments()->create(new CommentSubmission([
+            'ownerId' => $entry->id,
+            'siteId' => $entry->siteId,
+            'content' => 'Cheap watches, this way',
+            'userId' => (int)$member->id,
+        ]));
+        $clean = reviewPost($entry, (int)$member->id, 'A real comment');
+
+        expect($result->moderationState)->toBe(ModerationState::Spam)
+            ->and((new Query())->select(['status', 'moderationState', 'heldReason'])->from('{{%comments_comments}}')->where(['id' => $result->comment->id])->one())
+            ->toBe(['status' => 'spam', 'moderationState' => 'spam', 'heldReason' => HeldReason::Protection->value])
+            ->and(Comment::find()->ownerId($entry->id)->ids())->toBe([(int)$clean->id])
+            ->and(Comment::find()->ownerId($entry->id)->status(Comment::STATUS_SPAM)->ids())->toBe([(int)$result->comment->id])
+            ->and(reviewState($clean)['moderationState'])->toBe('approved');
+
+        // A visitor posting the form without JavaScript is told it's under review, as the browser runtime does.
+        Craft::$app->getUser()->setIdentity($member);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        Craft::$app->getRequest()->getHeaders()->set('Accept', 'application/json');
+        Craft::$app->getRequest()->setBodyParams([
+            'ownerId' => $entry->id,
+            'siteId' => $entry->siteId,
+            'fields' => ['comment' => 'More cheap watches'],
+        ]);
+        $response = (new verbb\comments\controllers\CommentsController('comments', Comments::$plugin))->actionSave();
+
+        expect($response->data['notice'] ?? null)->toBe('Your comment has been posted and is under review.')
+            ->and($response->data['comment']['status'] ?? null)->toBe('spam');
+    } finally {
+        yii\base\Event::off(Comment::class, Comment::EVENT_BEFORE_SAVE, $listener);
+        Craft::$app->getRequest()->getHeaders()->remove('Accept');
+    }
+});
+
 it('keeps one site-wide review setting per commenter, with a history', function() {
     $member = CommentsFixtureFactory::user('reviewSetting');
     $identityId = reviewIdentity($member);

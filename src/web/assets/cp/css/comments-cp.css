@@ -51,7 +51,9 @@
     background-color: var(--comments-warn-soft);
 }
 
-.comments-reason--protection {
+/* Both are automatic checks rather than a person's decision. */
+.comments-reason--protection,
+.comments-reason--keyword {
     color: var(--violet-800);
     background-color: var(--violet-100);
 }

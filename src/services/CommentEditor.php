@@ -405,9 +405,11 @@ class CommentEditor extends Component
             return [
                 'tone' => 'spam',
                 'title' => Craft::t('comments', 'Marked as spam'),
-                'text' => $reason === HeldReason::Protection
-                    ? Craft::t('comments', 'Spam protection marked this comment. Not spam sends it to Needs review, and tells the provider it was wrong.')
-                    : Craft::t('comments', 'Hidden from the site. Not spam sends it to Needs review.'),
+                'text' => match ($reason) {
+                    HeldReason::Protection => Craft::t('comments', 'Spam protection marked this comment. Not spam sends it to Needs review, and tells the provider it was wrong.'),
+                    HeldReason::Keyword => Craft::t('comments', 'This comment contains one of the Spam Keywords. Not spam sends it to Needs review.'),
+                    default => Craft::t('comments', 'Hidden from the site. Not spam sends it to Needs review.'),
+                },
                 'lines' => [],
                 'protection' => $protection,
             ];
