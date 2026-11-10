@@ -50,16 +50,6 @@ class Flag extends InterfaceType
                 'type' => Type::id(),
                 'description' => 'The ID of the flag.',
             ],
-            'sessionId' => [
-                'name' => 'sessionId',
-                'type' => Type::id(),
-                'description' => 'The session ID from which the flag was submitted.',
-            ],
-            'lastIp' => [
-                'name' => 'lastIp',
-                'type' => Type::string(),
-                'description' => 'The last known IP address of the person flagging.',
-            ],
         ]), self::getName());
     }
 

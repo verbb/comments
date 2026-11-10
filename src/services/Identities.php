@@ -238,8 +238,15 @@ class Identities extends Component
 
     public function resolveForCurrentRequest(?string $name = null, ?string $email = null): IdentityRecord
     {
-        $user = Craft::$app->getUser()->getIdentity();
+        return $this->resolveForUserOrGuest(Craft::$app->getUser()->getIdentity(), $name, $email);
+    }
 
+    /**
+     * The identity of a user that's already been worked out, or of the guest making the request. GraphQL
+     * passes the user its token signed in, who may have no session at all.
+     */
+    public function resolveForUserOrGuest(?User $user, ?string $name = null, ?string $email = null): IdentityRecord
+    {
         if ($user) {
             return $this->getOrCreateForUser($user);
         }

@@ -27,6 +27,7 @@ use craft\db\Table;
 use craft\events\CreateFieldLayoutFormEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
+use craft\events\ExecuteGqlQueryEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -399,6 +400,26 @@ class Comments extends Plugin
                 'comments:moderate' => ['label' => Craft::t('comments', 'Moderate comments')],
             ];
         });
+        // A `viewer` field answers for whoever's asking, which Craft's result cache doesn't vary by,
+        // and votes don't clear it. A query asking for one is neither served from the cache nor saved
+        // to it, so one person's permissions or votes never reach another.
+        Event::on(Gql::class, Gql::EVENT_BEFORE_EXECUTE_GQL_QUERY, function(ExecuteGqlQueryEvent $event) {
+            $generalConfig = Craft::$app->getConfig()->getGeneral();
+
+            if (!$generalConfig->enableGraphqlCaching || !preg_match('/\bviewer\b/', (string)$event->query)) {
+                return;
+            }
+
+            $generalConfig->enableGraphqlCaching = false;
+
+            $restore = static function() use (&$restore, $generalConfig): void {
+                $generalConfig->enableGraphqlCaching = true;
+                Event::off(Gql::class, Gql::EVENT_AFTER_EXECUTE_GQL_QUERY, $restore);
+            };
+
+            Event::on(Gql::class, Gql::EVENT_AFTER_EXECUTE_GQL_QUERY, $restore);
+        });
+
     }
 
     private function _registerProjectConfigEventHandlers(): void

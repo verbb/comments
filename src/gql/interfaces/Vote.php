@@ -50,16 +50,6 @@ class Vote extends InterfaceType
                 'type' => Type::id(),
                 'description' => 'The ID of the vote.',
             ],
-            'sessionId' => [
-                'name' => 'sessionId',
-                'type' => Type::id(),
-                'description' => 'The session ID from which the vote was submitted.',
-            ],
-            'lastIp' => [
-                'name' => 'lastIp',
-                'type' => Type::string(),
-                'description' => 'The last known IP address of the voter.',
-            ],
             'upvote' => [
                 'name' => 'upvote',
                 'type' => Type::boolean(),

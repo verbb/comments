@@ -20,6 +20,7 @@ use craft\elements\User;
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
 use craft\gql\base\ElementMutationResolver;
+use craft\helpers\Gql;
 
 use yii\base\Model;
 
@@ -255,7 +256,8 @@ class Comment extends ElementMutationResolver
             throw new UserError($e->getMessage());
         }
 
-        $identity = Comments::$plugin->getIdentities()->resolveForCurrentRequest();
+        // The user GraphQL authenticated, who may only have a token and no session.
+        $identity = Comments::$plugin->getIdentities()->resolveForUserOrGuest($currentUser instanceof User ? $currentUser : null);
         $type = Comments::$plugin->getInteractions()->toggleVote((int)$commentId, (int)$identity->id, $upvote);
 
         return $this->_voteModelFromInteraction((int)$commentId, $userId, $type);
@@ -282,7 +284,7 @@ class Comment extends ElementMutationResolver
 
         try {
             Comments::$plugin->getComments()->requireEngagementTarget((int)$commentId, Protection::ENGAGEMENT_REPORT, $this->_siteIdArgument($arguments));
-            $identity = Comments::$plugin->getIdentities()->resolveForCurrentRequest();
+            $identity = Comments::$plugin->getIdentities()->resolveForUserOrGuest($currentUser instanceof User ? $currentUser : null);
             $reason = $arguments['reason'] ?? null;
 
             Comments::$plugin->getReports()->toggle(
@@ -489,6 +491,22 @@ class Comment extends ElementMutationResolver
     }
 
     /**
+     * Craft asks whether a user-bound schema's user can save the comment as an element, which only staff
+     * can. Its author editing it is decided by the same rules as on the site, and only when that author
+     * is also the person Comments identifies for the request.
+     */
+    protected function requireUserAuthorization(ElementInterface $element, string $action): void
+    {
+        $schemaUser = Gql::getSchemaUser();
+
+        if ($action === 'save' && $schemaUser && $element instanceof CommentElement && $element->userId && (int)$element->userId === (int)$schemaUser->id && $element->canEdit()) {
+            return;
+        }
+
+        parent::requireUserAuthorization($element, $action);
+    }
+
+    /**
      * Attempts to use GraphQL query arguments to set the appropriate ID on a Craft element query.
      *
      * If the arguments don’t contain a UID or ID, sets ID to -1 so the element query doesn’t return
@@ -522,6 +540,7 @@ class Comment extends ElementMutationResolver
 
     /**
      * Formats and throws validation errors.
+     */
     private function _throwErrors(array $errors): void
     {
         $validationErrors = [];
@@ -534,7 +553,7 @@ class Comment extends ElementMutationResolver
     }
 
     /**
-     * Returns `true` if the subscription target is a thread and not a non-comment Craft element.
+     * The vote a mutation returns, from the interaction that's now current.
      */
     private function _voteModelFromInteraction(int $commentId, ?int $userId, ?\verbb\comments\enums\InteractionType $type): Vote
     {

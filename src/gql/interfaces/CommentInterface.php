@@ -3,6 +3,8 @@ namespace verbb\comments\gql\interfaces;
 
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;
+use verbb\comments\gql\types\CommentAuthorType;
+use verbb\comments\gql\types\CommentViewerType;
 use verbb\comments\gql\types\generators\CommentGenerator;
 
 use Craft;
@@ -109,7 +111,17 @@ class CommentInterface extends Element
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
-                'description' => 'The full name for the comment‘s author.',
+                'description' => 'The guest’s name. Null for comments by signed-in users. Use `author` for the name the thread shows.',
+            ],
+            'author' => [
+                'name' => 'author',
+                'type' => Type::nonNull(CommentAuthorType::getType()),
+                'description' => 'The comment’s author as the thread shows them: name, initials, avatar and badges. Needs no access to users.',
+            ],
+            'viewer' => [
+                'name' => 'viewer',
+                'type' => Type::nonNull(CommentViewerType::getType()),
+                'description' => 'What the person making the request can do with this comment, and how they voted on it.',
             ],
             'url' => [
                 'name' => 'url',
@@ -142,18 +154,15 @@ class CommentInterface extends Element
                 'type' => Type::int(),
                 'description' => 'The number of downvotes for this comment.',
             ],
-            'flags' => [
-                'name' => 'flags',
-                'type' => Type::int(),
-                'description' => 'The number of flags for this comment.',
-            ],
         ]), self::getName());
     }
 
     protected static function getConditionalFields(): array
     {
+        $fields = [];
+
         if (GqlHelper::canQueryUsers()) {
-            return [
+            $fields = array_merge($fields, [
                 'userId' => [
                     'name' => 'userId',
                     'type' => Type::int(),
@@ -164,9 +173,19 @@ class CommentInterface extends Element
                     'type' => User::getType(),
                     'description' => 'The comment‘s author.',
                 ],
+            ]);
+        }
+
+        // Only moderators see that a comment has been reported, so only a schema that can moderate has
+        // the count, and it's null unless whoever's asking can moderate too, as for `moderateComment`.
+        if (GqlHelper::canSchema('comments', 'moderate')) {
+            $fields['flags'] = [
+                'name' => 'flags',
+                'type' => Type::int(),
+                'description' => 'The number of open reports on this comment. Null unless the request is from someone who can moderate comments, on a schema that isn’t public.',
             ];
         }
 
-        return [];
+        return $fields;
     }
 }

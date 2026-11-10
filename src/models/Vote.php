@@ -14,8 +14,6 @@ class Vote extends Model
     public ?int $id = null;
     public ?int $commentId = null;
     public ?int $userId = null;
-    public ?string $sessionId = null;
-    public ?string $lastIp = null;
     public ?int $upvote = null;
     public ?int $downvote = null;
 

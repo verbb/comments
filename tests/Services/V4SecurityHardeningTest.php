@@ -73,6 +73,38 @@ function hardeningGql(array $scope, string $query, bool $public = false): array
     return Craft::$app->getGql()->executeQuery($schema, $query, debugMode: true);
 }
 
+/**
+ * Runs as GraphQL Authentication does: the token names the user, and there's no session.
+ */
+function hardeningAsTokenUser(?User $user, Closure $run): mixed
+{
+    $plugin = Comments::$plugin;
+    $original = $plugin->getService();
+    $plugin->set('service', new class($user) extends verbb\comments\services\Service {
+        public function __construct(private ?User $tokenUser)
+        {
+            parent::__construct();
+        }
+
+        public function getUser(): ?User
+        {
+            return $this->tokenUser;
+        }
+    });
+    Craft::$app->getUser()->setIdentity(null);
+
+    try {
+        return $run();
+    } finally {
+        $plugin->set('service', $original);
+    }
+}
+
+function hardeningGuestIdentityCount(): int
+{
+    return (int)(new craft\db\Query())->from('{{%comments_identities}}')->where(['type' => 'guest'])->count();
+}
+
 it('removes the retired v3 frontend surface', function() {
     expect(method_exists(CommentsController::class, 'actionTrash'))->toBeFalse()
         ->and(method_exists(CommentsController::class, 'actionGetJsVariables'))->toBeFalse()
@@ -281,39 +313,96 @@ it('lets someone signed in only by a GraphQL token delete their own comment, and
     $author = hardeningUser('gqltoken');
     $other = hardeningUser('gqltokenother');
     $comment = hardeningComment($entry, $author);
-    $plugin = Comments::$plugin;
-    $original = $plugin->getService();
-    // What GraphQL Authentication does: the token names the user, and there's no session.
-    $tokenUser = static function(?User $user) use ($plugin): void {
-        $plugin->set('service', new class($user) extends verbb\comments\services\Service {
-            public function __construct(private ?User $tokenUser)
-            {
-                parent::__construct();
-            }
+    $delete = static fn(): array => hardeningGql(['comments:read', 'comments:delete'], "mutation { deleteComment(id: {$comment->id}) }");
 
-            public function getUser(): ?User
-            {
-                return $this->tokenUser;
-            }
-        });
-    };
-    Craft::$app->getUser()->setIdentity(null);
+    expect(hardeningAsTokenUser($other, $delete)['errors'][0]['message'] ?? null)->toBe('You may only delete your own comments.');
 
-    try {
-        $tokenUser($other);
-        $notAuthor = hardeningGql(['comments:read', 'comments:delete'], "mutation { deleteComment(id: {$comment->id}) }");
-
-        expect($notAuthor['errors'][0]['message'] ?? null)->toBe('You may only delete your own comments.');
-
-        $tokenUser($author);
-        $own = hardeningGql(['comments:read', 'comments:delete'], "mutation { deleteComment(id: {$comment->id}) }");
-    } finally {
-        $plugin->set('service', $original);
-    }
+    $own = hardeningAsTokenUser($author, $delete);
 
     expect($own['errors'] ?? [])->toBe([])
         ->and($own['data']['deleteComment'] ?? null)->toBeTrue()
         ->and(Comment::find()->id($comment->id)->status(null)->one()->authorRemovedAt)->not->toBeNull();
+});
+
+it('votes and reports as the person a GraphQL token signs in, not as a guest', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->interactionMode = 'updown';
+    $settings->allowGuestVoting = false;
+    $settings->allowGuestFlagging = false;
+    $entry = CommentsFixtureFactory::entry('GraphQL token engagement owner');
+    $comment = hardeningComment($entry, hardeningUser('gqltokenengaged'));
+    $member = hardeningUser('gqltokenvoter');
+    $identityId = (int)Comments::$plugin->getIdentities()->getOrCreateForUser($member)->id;
+    $guests = hardeningGuestIdentityCount();
+
+    [$vote, $flag] = hardeningAsTokenUser($member, static fn(): array => [
+        hardeningGql(['comments:read', 'comments:save'], "mutation { voteComment(id: {$comment->id}, upvote: true) { upvote } }"),
+        hardeningGql(['comments:read', 'comments:save'], "mutation { flagComment(id: {$comment->id}) { commentId } }"),
+    ]);
+
+    expect($vote['errors'] ?? [])->toBe([])
+        ->and($vote['data']['voteComment'])->toBe(['upvote' => true])
+        ->and(Comments::$plugin->getInteractions()->getForIdentity((int)$comment->id, $identityId)?->type)->toBe('upvote')
+        ->and($flag['errors'] ?? [])->toBe([])
+        ->and(Comments::$plugin->getReports()->getOpenForIdentity((int)$comment->id, $identityId))->not->toBeNull()
+        ->and(hardeningGuestIdentityCount())->toBe($guests);
+
+    // With no token and no session, it's a guest, and guests can't vote or report here.
+    [$guestVote, $guestFlag] = hardeningAsTokenUser(null, static fn(): array => [
+        hardeningGql(['comments:read', 'comments:save'], "mutation { voteComment(id: {$comment->id}, downvote: true) { downvote } }"),
+        hardeningGql(['comments:read', 'comments:save'], "mutation { flagComment(id: {$comment->id}) { commentId } }"),
+    ]);
+
+    expect($guestVote['errors'][0]['message'] ?? null)->toBe('Must be logged in to vote.')
+        ->and($guestFlag['errors'][0]['message'] ?? null)->toBe('Must be logged in to flag comments.')
+        ->and(Comments::$plugin->getInteractions()->getForIdentity((int)$comment->id, $identityId)?->type)->toBe('upvote');
+});
+
+it('lets someone signed in only by a GraphQL token edit their own comment, and no one else’s', function() {
+    $settings = Comments::$plugin->getSettings();
+    $entry = CommentsFixtureFactory::entry('GraphQL token edit owner');
+    $author = hardeningUser('gqltokeneditor');
+    $other = hardeningUser('gqltokenintruder');
+    $comment = hardeningComment($entry, $author, 'Before');
+    $edit = static fn(string $text): array => hardeningGql(['comments:read', 'comments:save'], "mutation { saveComment(id: {$comment->id}, comment: \"{$text}\") { id comment } }");
+    $stored = static fn(): string => (string)(new craft\db\Query())->select(['comment'])->from('{{%comments_comments}}')->where(['id' => $comment->id])->scalar();
+
+    expect(hardeningAsTokenUser($other, static fn(): array => $edit('Not yours'))['errors'][0]['message'] ?? null)->toBe('You do not have permission to edit this comment.')
+        ->and(hardeningAsTokenUser(null, static fn(): array => $edit('Nobody'))['errors'] ?? [])->not->toBe([])
+        ->and($stored())->toBe('Before');
+
+    // Under pre-moderation the edit waits for review again, and the history says who made it.
+    $settings->requireModeration = true;
+    Comments::$plugin->getConversations()->clearCaches();
+    $own = hardeningAsTokenUser($author, static fn(): array => $edit('After'));
+
+    expect($own['errors'] ?? [])->toBe([])
+        ->and($stored())->toBe('After')
+        ->and((new craft\db\Query())->select(['userId', 'actorType'])->from('{{%comments_moderationactions}}')->where(['commentId' => $comment->id, 'action' => Moderation::ACTION_AUTHOR_EDIT])->one())
+        ->toBe(['userId' => (int)$author->id, 'actorType' => Moderation::ACTOR_USER]);
+});
+
+it('lets an author edit their own comment through a schema that belongs to them, and no one else’s', function() {
+    // Craft 5.12 gives OAuth users a schema of their own, and checks it before an element changes.
+    if (!property_exists(GqlSchema::class, 'user')) {
+        $this->markTestSkipped('User-bound schemas need Craft 5.12.');
+    }
+
+    $entry = CommentsFixtureFactory::entry('GraphQL user schema edit owner');
+    $author = hardeningUser('gqlschemaauthor');
+    $other = hardeningUser('gqlschemaother');
+    $comment = hardeningComment($entry, $author, 'Before');
+    $edit = static function(User $user, string $text) use ($comment): array {
+        Craft::$app->getUser()->setIdentity($user);
+        $schema = new GqlSchema(['name' => 'Authenticated Schema', 'scope' => ['comments:read', 'comments:save'], 'user' => $user]);
+        Craft::$app->getGql()->flushCaches();
+        Craft::$app->getGql()->setActiveSchema($schema);
+
+        return Craft::$app->getGql()->executeQuery($schema, "mutation { saveComment(id: {$comment->id}, comment: \"{$text}\") { comment } }", debugMode: true);
+    };
+
+    expect($edit($other, 'Not yours')['errors'][0]['message'] ?? null)->toBe('Unable to perform the action.')
+        ->and($edit($author, 'After'))->toBe(['data' => ['saveComment' => ['comment' => 'After']]]);
 });
 
 it('votes in the direction GraphQL asks, on the site it names', function() {
