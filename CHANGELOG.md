@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.25 - 2026-11-12
 
 ### Fixed
 - Fixed a moderate-severity missing authorization vulnerability.
