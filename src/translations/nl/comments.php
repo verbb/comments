@@ -44,9 +44,9 @@ return [
     "Er is een nieuwe reactie op de post \"{{ element.title }}\" gemaakt.\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
-  'comments_moderator_notification_comment_heading' => 'Als een reactie is geplaatst, maar goedgekeurd moet worden:',
-  'comments_moderator_notification_comment_subject' => 'Een nieuwe reactie moet gekeurd worden op {{ siteName }}',
-  'comments_moderator_notification_comment_body' => "Hallo {{user.friendlyName}},\n\n" .
+  'comments_moderator_notification_heading' => 'Als een reactie is geplaatst, maar goedgekeurd moet worden:',
+  'comments_moderator_notification_subject' => 'Een nieuwe reactie moet gekeurd worden op {{ siteName }}',
+  'comments_moderator_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "Een nieuwe reactie op de post \"{{ element.title }}\" moet gekeurd worden.\n\n" .
     "{{comment.cpEditUrl}}.",
 
@@ -56,9 +56,9 @@ return [
     "A comment on the post \"{{ element.title }}\" was edited and requires moderation.\n\n" .
     "{{comment.cpEditUrl}}.",
 
-  'comments_moderator_approved_notification_comment_heading' => 'Als een reactie is goedgekeurd:',
-  'comments_moderator_approved_notification_comment_subject' => 'Je reactie is goedgekeurd op {{ siteName }}',
-  'comments_moderator_approved_notification_comment_body' => "Hallo {{user.friendlyName}},\n\n" .
+  'comments_moderator_approved_notification_heading' => 'Als een reactie is goedgekeurd:',
+  'comments_moderator_approved_notification_subject' => 'Je reactie is goedgekeurd op {{ siteName }}',
+  'comments_moderator_approved_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "Je reactie is goedgekeurd onder \"{{ element.title }}\".\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 

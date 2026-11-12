@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix the Dutch moderator and approval notification emails not using their Dutch translations.
+
 ## 2.0.25 - 2026-11-12
 
 ### Fixed
