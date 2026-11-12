@@ -1,0 +1,11 @@
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: tests/mcp/Dockerfile
+      args:
+        PHP_VERSION: ${MCP_TEST_PHP_VERSION:-8.2}
+    volumes:
+      - .:/app:ro
+    command: ["sh", "tests/mcp/run.sh"]
+    network_mode: none
