@@ -18,10 +18,12 @@ Attach comments to entries, products, events, assets, or other Craft elements an
 - Moderate, mark as spam, or reject submissions that match project-defined values.
 
 ## Documentation
+
 Visit the [Comments Plugin page](https://verbb.io/craft-plugins/comments) for all documentation, guides, pricing and developer resources.
 
 ## Support
-Get in touch with us via the [Comments Support page](https://verbb.io/craft-plugins/comments/support) or by [creating a Github issue](https://github.com/verbb/comments/issues)
+
+Get in touch with us via the [Comments Support page](https://verbb.io/craft-plugins/comments/support) or by [creating a GitHub issue](https://github.com/verbb/comments/issues).
 
 <h2></h2>
 

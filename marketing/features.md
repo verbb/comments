@@ -5,7 +5,7 @@ Take control of comments by keeping them alongside your Craft content. The whole
 <!-- feature-section media-size="large" -->
 ## Comment on anything
 
-Attach comments to any supported Craft element — whether it is an entry, product, event or something project-specific. Threaded replies keep conversations readable while votes and flags give the community useful ways to respond.
+Attach comments to any supported Craft element, whether it’s an entry, product, event or something project-specific. Threaded replies keep conversations readable while votes and flags give the community useful ways to respond.
 
 ![Comments awaiting review alongside approved conversations and threaded replies.](../screenshots/comments-overview.png)
 
@@ -16,6 +16,8 @@ Attach comments to any supported Craft element — whether it is an entry, produ
 
 Control moderation, guest participation, notifications and captcha protection. Hold new comments for approval and automatically hide content after enough flags when that suits the community. Optional GIPHY replies and member reputation add more personality when the site calls for them.
 
+Security rules can inspect the submitted comment, email address, URL, user agent and IP address, then hold a match for moderation, mark it as spam or block it completely.
+
 ![The Comments settings area with controls for guests, moderation and reply limits.](../screenshots/comments-settings.png)
 
 <!-- feature-media-end -->
@@ -24,8 +26,6 @@ Control moderation, guest participation, notifications and captcha protection. H
 ## Choose where comments belong
 
 Enable comments for the element groups that should host a conversation, from entry sections and category groups to asset sources, users and supported custom elements. Add the Comment Options field when an author needs to switch commenting on or off for one particular element.
-
-Security rules can inspect the submitted comment, email address, URL, user agent and IP address, then hold a match for moderation, mark it as spam or block it completely.
 <!-- feature-section-end -->
 
 <!-- feature-section media-size="medium" -->
