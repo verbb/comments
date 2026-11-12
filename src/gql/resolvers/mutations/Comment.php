@@ -11,6 +11,7 @@ use verbb\comments\models\Vote;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\elements\User;
 use craft\errors\GqlException;
 use craft\errors\SiteNotFoundException;
 use craft\gql\base\ElementMutationResolver;
@@ -73,6 +74,23 @@ class Comment extends ElementMutationResolver
             $message = !empty($settings->guestNotice) ? $settings->guestNotice : Craft::t('comments', 'Must be logged in to comment.');
 
             throw new UserError($message);
+        }
+
+        // Only trusted callers can choose a comment’s author. Everyone else always comments as themselves, and dropping
+        // the argument also keeps an existing comment’s author intact for the ownership check during validation.
+        if (!$this->_canSetAuthor($currentUser)) {
+            if (!empty($arguments['userId']) && (int)$arguments['userId'] !== (int)($currentUser->id ?? 0)) {
+                throw new UserError(Craft::t('comments', 'Unable to comment as another user.'));
+            }
+
+            unset($arguments['userId']);
+
+            // As on the front-end, guests can’t comment using a registered user’s email
+            if (!$canIdentify && empty($currentUser) && !empty($arguments['email'])) {
+                if (User::find()->email($arguments['email'])->status(null)->exists()) {
+                    throw new UserError(Craft::t('comments', 'Unauthorized.'));
+                }
+            }
         }
 
         $comment = $this->getCommentElement($arguments);
@@ -279,6 +297,7 @@ class Comment extends ElementMutationResolver
         }
 
         $this->requireSchemaAction('comments', 'delete');
+
         $elementService->deleteElementById($commentId);
 
         return true;
@@ -299,6 +318,7 @@ class Comment extends ElementMutationResolver
     {
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']);
         $this->requireSchemaAction('comments', $canIdentify ? 'save' : 'edit');
+
         $elementService = Craft::$app->getElements();
 
         if ($canIdentify) {
@@ -333,7 +353,7 @@ class Comment extends ElementMutationResolver
     {
         if (!empty($arguments['uid'])) {
             $commentQuery->uid($arguments['uid']);
-        } else if (!empty($arguments['id'])) {
+        } elseif (!empty($arguments['id'])) {
             $commentQuery->id($arguments['id']);
         } else {
             // Unable to identify, make sure nothing is returned.
@@ -346,6 +366,20 @@ class Comment extends ElementMutationResolver
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Returns whether the caller can set a comment’s author with the `userId` argument. A logged-in user needs permission
+     * to edit other users’ comments. Without a user, only a private schema token qualifies, as the public schema is open
+     * to anyone.
+     */
+    private function _canSetAuthor(mixed $currentUser): bool
+    {
+        if ($currentUser) {
+            return $currentUser instanceof User && $currentUser->can('comments-edit');
+        }
+
+        return !Craft::$app->getGql()->getActiveSchema()->isPublic;
+    }
 
     /**
      * Formats and throws validation errors.

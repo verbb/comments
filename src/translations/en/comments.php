@@ -297,6 +297,7 @@ return [
   'Toggle whether comments should be allowed for this {element} or not.' => 'Toggle whether comments should be allowed for this {element} or not.',
   'Trashed' => 'Trashed',
   'Trash other users’ comments' => 'Trash other users’ comments',
+  'Unable to comment as another user.' => 'Unable to comment as another user.',
   'Unable to delete comment.' => 'Unable to delete comment.',
   'Unable to modify another user’s comment.' => 'Unable to modify another user’s comment.',
   'Unable to update subscribe status.' => 'Unable to update subscribe status.',
