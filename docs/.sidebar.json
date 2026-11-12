@@ -44,7 +44,8 @@
             "developers/flag",
             "developers/vote",
             "developers/events",
-            "developers/graphql"
+            "developers/graphql",
+            "developers/mcp"
         ]
     }
 ]

@@ -24,6 +24,9 @@ class CommentQuery extends ElementQuery
 
     public ?bool $withStructure = true;
 
+    // API consumers do not need the frontend's owner-wide voting/flag cache.
+    public bool $populateRenderCache = true;
+
     public mixed $ownerId = null;
     public mixed $ownerSiteId = null;
     public mixed $userId = null;
@@ -240,6 +243,10 @@ class CommentQuery extends ElementQuery
     public function populate($rows): array
     {
         $results = parent::populate($rows);
+
+        if (!$this->populateRenderCache) {
+            return $results;
+        }
 
         // Store the comment IDs we're fetching, so we can use them later in render functions
         // to limit DB queries to just this collection of comments (votes, flags.

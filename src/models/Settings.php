@@ -31,6 +31,11 @@ class Settings extends Model
     public bool $indexSidebarIndividualElements = false;
     public array $defaultQueryStatus = [Comment::STATUS_APPROVED];
 
+    // MCP is opt-in and configured in config/comments.php; secrets should use $ENV references.
+    public bool $mcpEnabled = false;
+    public array $mcpTokens = [];
+    public array $mcpAllowedOrigins = [];
+
     // General
     public bool $allowGuest = false;
     public ?string $guestNotice = null;

@@ -17,6 +17,12 @@ Attach comments to entries, products, events, assets, or other Craft elements an
 - Show each registered user's net votes across approved comments.
 - Moderate, mark as spam, or reject submissions that match project-defined values.
 
+## MCP support (local source variant)
+
+This variant adds authenticated MCP tools to read, search, edit, moderate and soft-delete comments. MCP is disabled by default and restricted by token scopes, Craft user permissions and explicit site IDs. See [MCP setup and verification](docs/developers/mcp.md).
+
+The upstream package identity and licensing are unchanged. See [source provenance](UPSTREAM.md).
+
 ## Documentation
 Visit the [Comments Plugin page](https://verbb.io/craft-plugins/comments) for all documentation, guides, pricing and developer resources.
 

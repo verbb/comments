@@ -1,0 +1,852 @@
+{
+  "repository": "https://github.com/verbb/comments",
+  "ref": "craft-5",
+  "revision": "38cac914c8d835dda33efb59a5336fee676af359",
+  "files": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yaml",
+      "sha": "ccaadd676c38d8fbe96976bc40cf22a4b6233d72",
+      "size": 1818
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "sha": "5b42389186648c33f7c87ac07a800c4ba1395ff6",
+      "size": 271
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.yaml",
+      "sha": "41471d01c247389972daf8a6271bb7a2a46eb595",
+      "size": 789
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/support_request.yaml",
+      "sha": "a2f3bcc414a72dac5721babdf9e6b1acac881a08",
+      "size": 893
+    },
+    {
+      "path": ".gitignore",
+      "sha": "0568520ad19a01cee87a8f4fbbbb9206fbc07313",
+      "size": 382
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha": "cd97cf6e4e53ee2900a27ea908cfce75e327c5b5",
+      "size": 48898
+    },
+    {
+      "path": "LICENSE.md",
+      "sha": "f4f3b689b264102f76156a54b1b8118855b5cda2",
+      "size": 2231
+    },
+    {
+      "path": "README.md",
+      "sha": "a4a263c3768cb7eb60691bfa72689352b044bff5",
+      "size": 1831
+    },
+    {
+      "path": "composer.json",
+      "sha": "c4ede9e71c436719ccbb6ff32b95900531342159",
+      "size": 1231
+    },
+    {
+      "path": "config.codekit3",
+      "sha": "d67c76659353e05a3d6884b4d08dd74e43c4623a",
+      "size": 69179
+    },
+    {
+      "path": "docs/.sidebar.json",
+      "sha": "9abb43fdc939f58d63c7dc28aab7716997bc0abe",
+      "size": 1265
+    },
+    {
+      "path": "docs/README.md",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "docs/developers/comment.md",
+      "sha": "003069a570aebac8c2c04883401fb2dd70fda06c",
+      "size": 3986
+    },
+    {
+      "path": "docs/developers/events.md",
+      "sha": "94c2ac4c08d801caffc91456cf6d31b248aa57c5",
+      "size": 5805
+    },
+    {
+      "path": "docs/developers/flag.md",
+      "sha": "c78d10122c378545ea11041912ee6683401ae7f4",
+      "size": 929
+    },
+    {
+      "path": "docs/developers/graphql.md",
+      "sha": "c4ae0aec8b47868a60d0b7dae70897e48bd29f5c",
+      "size": 12742
+    },
+    {
+      "path": "docs/developers/vote.md",
+      "sha": "2a7bf3736990f460f1e6adea68ae1261b2d5b2e4",
+      "size": 1759
+    },
+    {
+      "path": "docs/feature-tour/anti-spam.md",
+      "sha": "b393cf3f37b6ffcfee51141486b48fce45ba9349",
+      "size": 1798
+    },
+    {
+      "path": "docs/feature-tour/control-panel.md",
+      "sha": "1d3fae13ccfb64aab4b42bf29fd94a38dffd4d92",
+      "size": 810
+    },
+    {
+      "path": "docs/feature-tour/giphy.md",
+      "sha": "bcc4e3fd582f77f9e32a8fb1f692f585518443bb",
+      "size": 2153
+    },
+    {
+      "path": "docs/feature-tour/permissions.md",
+      "sha": "d8b4482d5c4ebd142bf45df7668b5ea969cdf4f6",
+      "size": 614
+    },
+    {
+      "path": "docs/feature-tour/security.md",
+      "sha": "a7dc365ec222c2aa4cc625b58eb8679bec2b4df6",
+      "size": 647
+    },
+    {
+      "path": "docs/get-started/configuration.md",
+      "sha": "f418dbe97fe15978f6e40a9e2a9eed0b773b0901",
+      "size": 9404
+    },
+    {
+      "path": "docs/get-started/installation-setup.md",
+      "sha": "b988c9e2d92a83732002c3fc93e60d932e8ed024",
+      "size": 900
+    },
+    {
+      "path": "docs/get-started/requirements.md",
+      "sha": "fea88723317e5ddf1ac0ce6b8f617e65fc8f89f4",
+      "size": 119
+    },
+    {
+      "path": "docs/getting-elements/comment-queries.md",
+      "sha": "af711b3beb6213ee286a61adc03f016209d7aac7",
+      "size": 22849
+    },
+    {
+      "path": "docs/template-guides/available-variables.md",
+      "sha": "e8af757e2cd573b29bc8fe93b5fd6cce09c8f417",
+      "size": 2898
+    },
+    {
+      "path": "docs/template-guides/custom-fields.md",
+      "sha": "75bb0ab55e8ae783a9299793380736a4898a74ff",
+      "size": 2668
+    },
+    {
+      "path": "docs/template-guides/custom-templates.md",
+      "sha": "4ea45ff46f6bcf0bf53951b87a33f2400804ac61",
+      "size": 8689
+    },
+    {
+      "path": "docs/template-guides/rendering-comments.md",
+      "sha": "ed0630126e984760e573478ea450b5d4ad2cf5da",
+      "size": 1988
+    },
+    {
+      "path": "examples/html/comment.html",
+      "sha": "fad36d8f3976055ab53126c72e73b4d6a7354009",
+      "size": 9390
+    },
+    {
+      "path": "examples/html/comments.html",
+      "sha": "435a007165cd43b86498d85cff7f1f6dfa0f7fae",
+      "size": 1299
+    },
+    {
+      "path": "examples/html/form.html",
+      "sha": "480f88b7ab0fb212a010fa218399d609fb128d43",
+      "size": 3666
+    },
+    {
+      "path": "marketing/descriptions.json",
+      "sha": "9de0416dc2c4701b400260a62faa1d60d8dedbef",
+      "size": 183
+    },
+    {
+      "path": "marketing/features.md",
+      "sha": "15958ae98586d4a986a51c901aa542584ec6ec1b",
+      "size": 2168
+    },
+    {
+      "path": "marketing/plugin-store.md",
+      "sha": "3df5df8c84a3f6fbe94200e2bf952c36ce1f33e0",
+      "size": 1118
+    },
+    {
+      "path": "screenshots/comments-form.png",
+      "sha": "527e61b9fe6805e03a123324e2be8cc54902e6d0",
+      "size": 142475
+    },
+    {
+      "path": "screenshots/comments-overview.png",
+      "sha": "abb505de4bd3860f015d7a390a5527ccaa7d3757",
+      "size": 243316
+    },
+    {
+      "path": "screenshots/comments-settings.png",
+      "sha": "35197e52a092aa182dab783ede2610b1d1f54f56",
+      "size": 238078
+    },
+    {
+      "path": "src/Comments.php",
+      "sha": "07e85ae668983e7099244e4f562c005e9aba69b6",
+      "size": 17971
+    },
+    {
+      "path": "src/assetbundles/AdminAsset.php",
+      "sha": "f5eb7d3d44a2393654d9bdb81b09c690954406d7",
+      "size": 676
+    },
+    {
+      "path": "src/assetbundles/FrontEndAsset.php",
+      "sha": "56fc749ded1ea312d8e89e2d69d76679af3a1944",
+      "size": 1553
+    },
+    {
+      "path": "src/base/PluginTrait.php",
+      "sha": "eb7d3c48f74d54358640c758836d45b946624c47",
+      "size": 2600
+    },
+    {
+      "path": "src/console/controllers/BaseController.php",
+      "sha": "dc7aa27872e6a11558f4fdeb7345283567190fbf",
+      "size": 3479
+    },
+    {
+      "path": "src/controllers/BaseController.php",
+      "sha": "32060bb54387f6effb5e88d900441128c5c488da",
+      "size": 1046
+    },
+    {
+      "path": "src/controllers/CommentsController.php",
+      "sha": "9434f745c2054e329b0d5a140235a6d12a509089",
+      "size": 17381
+    },
+    {
+      "path": "src/controllers/SettingsController.php",
+      "sha": "c94b5109346bb545cf60b387f2d891012c5e3141",
+      "size": 524
+    },
+    {
+      "path": "src/elements/Comment.php",
+      "sha": "43aaea6652446c94532c4c830630e1901e580fc4",
+      "size": 40475
+    },
+    {
+      "path": "src/elements/actions/SetCommentStatus.php",
+      "sha": "a2fea8b93daefc4e62890b0cc89cb8d22842bb38",
+      "size": 2631
+    },
+    {
+      "path": "src/elements/conditions/CommentCondition.php",
+      "sha": "d51ec84a92429646076ca71e139f89ec23f16db7",
+      "size": 776
+    },
+    {
+      "path": "src/elements/conditions/CommentConditionRule.php",
+      "sha": "b793eed5678823b79e68d242f1a7c2127969e815",
+      "size": 915
+    },
+    {
+      "path": "src/elements/conditions/EmailConditionRule.php",
+      "sha": "3ba827ce322b196fe7d2d207582f1dec53307750",
+      "size": 905
+    },
+    {
+      "path": "src/elements/conditions/EntrySectionConditionRule.php",
+      "sha": "a1bc0346d268e9b06d6bd15e4b700a2fbf99a64a",
+      "size": 1677
+    },
+    {
+      "path": "src/elements/conditions/EntryTypeConditionRule.php",
+      "sha": "8bd51586947452753fb58800a8b1e818e4c82771",
+      "size": 1969
+    },
+    {
+      "path": "src/elements/conditions/NameConditionRule.php",
+      "sha": "730113e525e3a978f8680a1d4d49e42562e5f8b0",
+      "size": 900
+    },
+    {
+      "path": "src/elements/conditions/OwnerConditionRule.php",
+      "sha": "c707d3d9f493315e43365c6d87666d38abbd33b1",
+      "size": 2925
+    },
+    {
+      "path": "src/elements/conditions/OwnerTypeConditionRule.php",
+      "sha": "f0a893eba8d528158e57be5ec348477b4fcfe240",
+      "size": 1643
+    },
+    {
+      "path": "src/elements/conditions/StatusConditionRule.php",
+      "sha": "83029436b7dddf94d6f99a1571b8edc93433b5cb",
+      "size": 1444
+    },
+    {
+      "path": "src/elements/conditions/UrlConditionRule.php",
+      "sha": "b59602cafe8eca2d834a7b55e76ec7a0372d7fa4",
+      "size": 895
+    },
+    {
+      "path": "src/elements/db/CommentQuery.php",
+      "sha": "068d85868aef1d474c50602aa34c4e359f6f80a5",
+      "size": 12676
+    },
+    {
+      "path": "src/enums/CommentStatus.php",
+      "sha": "7e43a3e646cf057f96e2a8ec1f4de277ae56ac01",
+      "size": 1089
+    },
+    {
+      "path": "src/errors/FlagNotFoundException.php",
+      "sha": "e3a4df09c86d839df084915d0787ed9b79c627f5",
+      "size": 302
+    },
+    {
+      "path": "src/errors/SubscribeNotFoundException.php",
+      "sha": "1076e982cdf949ee20fccbd3d12e6817fe082c62",
+      "size": 312
+    },
+    {
+      "path": "src/errors/VoteNotFoundException.php",
+      "sha": "57d1a15cdfb20ec7eb728ff6192571656e9e9237",
+      "size": 302
+    },
+    {
+      "path": "src/events/EmailEvent.php",
+      "sha": "56dd6e8f8e5b7d7f17e17a666cb5f02cea800c23",
+      "size": 363
+    },
+    {
+      "path": "src/events/FlagEvent.php",
+      "sha": "7f6f37d5b61bc5da815038e26e3d3149d850f28a",
+      "size": 283
+    },
+    {
+      "path": "src/events/SubscribeEvent.php",
+      "sha": "fd8a1c4dd25ef0ef19207b8ad670208719b0d94f",
+      "size": 303
+    },
+    {
+      "path": "src/events/VoteEvent.php",
+      "sha": "dd832d6efcc81dd03040e364455b7aff62d1aeb9",
+      "size": 283
+    },
+    {
+      "path": "src/fieldlayoutelements/CommentsField.php",
+      "sha": "6216205c3b62aafbd2d51324602cc41e256d414f",
+      "size": 1838
+    },
+    {
+      "path": "src/fields/CommentsField.php",
+      "sha": "8a11ad9ae54962723894c1f5d2bcb13eee1a048e",
+      "size": 2173
+    },
+    {
+      "path": "src/gql/arguments/CommentArguments.php",
+      "sha": "7d48e5d81d43fbc49e3c2b075343ee53a716ab1c",
+      "size": 1917
+    },
+    {
+      "path": "src/gql/arguments/mutations/Comment.php",
+      "sha": "305bd36210c04212816e45cc46da0e6ab947e778",
+      "size": 1963
+    },
+    {
+      "path": "src/gql/interfaces/CommentInterface.php",
+      "sha": "9b62ca4ea48b3e94e0441273adf429148d76fb3b",
+      "size": 4923
+    },
+    {
+      "path": "src/gql/interfaces/Flag.php",
+      "sha": "f1a77ca458ea806f176181d137a3a37a08776f1c",
+      "size": 3438
+    },
+    {
+      "path": "src/gql/interfaces/Vote.php",
+      "sha": "903d38ac35b416d0fd59a8e35026bc89a3fba787",
+      "size": 3834
+    },
+    {
+      "path": "src/gql/mutations/Comment.php",
+      "sha": "96477cb4279bfa9326ee13d0ca2c06773001fd62",
+      "size": 5222
+    },
+    {
+      "path": "src/gql/queries/CommentQuery.php",
+      "sha": "880240af7eb0e7b2200bb0793032c64481489375",
+      "size": 1275
+    },
+    {
+      "path": "src/gql/resolvers/CommentResolver.php",
+      "sha": "656cf49a70e82f5b6fd68d487c3b014bab3c04ac",
+      "size": 952
+    },
+    {
+      "path": "src/gql/resolvers/mutations/Comment.php",
+      "sha": "7abe5781cc238bb1c274a3470463fa510079d101",
+      "size": 13179
+    },
+    {
+      "path": "src/gql/types/CommentType.php",
+      "sha": "4aef5eb5a8a256a0d02735ea90fab19cfc43437f",
+      "size": 461
+    },
+    {
+      "path": "src/gql/types/Flag.php",
+      "sha": "44d6ef2d275593e39a9da487f09977010aeb4cb1",
+      "size": 905
+    },
+    {
+      "path": "src/gql/types/Vote.php",
+      "sha": "4a245e8e5a3a4f449a92b57d717a9b2fefddda87",
+      "size": 905
+    },
+    {
+      "path": "src/gql/types/generators/CommentGenerator.php",
+      "sha": "2d595d288c166ce01dfc7b298bb6b36f5fba1ebc",
+      "size": 1520
+    },
+    {
+      "path": "src/helpers/CommentsHelper.php",
+      "sha": "be10f44cc937650a7b65294c27bf042155f3eb56",
+      "size": 4158
+    },
+    {
+      "path": "src/helpers/Gql.php",
+      "sha": "41736fd35080dced83afc058d766ef9b84667865",
+      "size": 646
+    },
+    {
+      "path": "src/helpers/Plugin.php",
+      "sha": "11dd5436f7477e05a45959eba770304520d59897",
+      "size": 124
+    },
+    {
+      "path": "src/helpers/ProjectConfigData.php",
+      "sha": "74a8f8d7b6f99fb6df8a13fc35430a4d9d881066",
+      "size": 1158
+    },
+    {
+      "path": "src/helpers/StringHelper.php",
+      "sha": "6f371aacbad55a893f7c7bb4d89416ed0cd38363",
+      "size": 945
+    },
+    {
+      "path": "src/icon-mask.svg",
+      "sha": "93f1d7c1c862ace4f685073c8dd0d67f06e42817",
+      "size": 1056
+    },
+    {
+      "path": "src/icon.svg",
+      "sha": "e9561e4a1dbd786d8c49c221a75505beb8842a93",
+      "size": 767
+    },
+    {
+      "path": "src/integrations/CommentFeedMeElement.php",
+      "sha": "71bfd7ac156e5cf1c286b77206f33726cbff301b",
+      "size": 12589
+    },
+    {
+      "path": "src/migrations/Install.php",
+      "sha": "fba539b953d65d969208cdebb926a279b483ca9f",
+      "size": 7860
+    },
+    {
+      "path": "src/migrations/m231229_000000_content_refactor.php",
+      "sha": "7635bd466d21b7c671b01aaa270fdb4ab11a7b8e",
+      "size": 774
+    },
+    {
+      "path": "src/migrations/m250227_000000_comments_url.php",
+      "sha": "777673d8fee74b13d8fd3a6cc333d0bdbe430b6b",
+      "size": 519
+    },
+    {
+      "path": "src/migrations/m260607_000000_add_gif_url.php",
+      "sha": "777b57643ebd3450bbc6bb4d4c89989449cd05b9",
+      "size": 706
+    },
+    {
+      "path": "src/models/Flag.php",
+      "sha": "50ebacf8c8b23eb94a281750c5b9cd6b143bf344",
+      "size": 1007
+    },
+    {
+      "path": "src/models/Settings.php",
+      "sha": "b2cf13ad510e90435def16ae95df6fe8e9bffdc9",
+      "size": 9535
+    },
+    {
+      "path": "src/models/Subscribe.php",
+      "sha": "b1f5f2708656ea4c37b48434720ea1d1862e4357",
+      "size": 1181
+    },
+    {
+      "path": "src/models/Vote.php",
+      "sha": "b0ada54e8e0c9b1e642693435f4125f7374f7b66",
+      "size": 1924
+    },
+    {
+      "path": "src/queue/jobs/SendNotification.php",
+      "sha": "3f29145aa6577c9f03b676aaee9d89563fd9e56e",
+      "size": 1039
+    },
+    {
+      "path": "src/records/Comment.php",
+      "sha": "7213b04ad5c7e8de1bdf6d86f632195e45bfb973",
+      "size": 950
+    },
+    {
+      "path": "src/records/Flag.php",
+      "sha": "59ffa2382abc6ea4006a798bf7fbe29bcacd411a",
+      "size": 629
+    },
+    {
+      "path": "src/records/Subscribe.php",
+      "sha": "5ac4731e81e4bb17160a0472be6c7b60f869fc12",
+      "size": 960
+    },
+    {
+      "path": "src/records/Vote.php",
+      "sha": "1b3716256f04166986e94cfbea4dc1ba1bce115f",
+      "size": 629
+    },
+    {
+      "path": "src/resources/dist/css/comments-cp.css",
+      "sha": "a29b2e82ca82755f806e31473423f5c05c7aec8b",
+      "size": 1098
+    },
+    {
+      "path": "src/resources/dist/css/comments.css",
+      "sha": "0a3fccc3916f0131458d4557d90ee01cce38c9ae",
+      "size": 11661
+    },
+    {
+      "path": "src/resources/dist/js/comments-cp.js",
+      "sha": "c46a5da562d6254d01ecd1af0956afe5e58a9302",
+      "size": 776
+    },
+    {
+      "path": "src/resources/dist/js/comments.js",
+      "sha": "7aca8b1feb52e8be95ab18862ddb1d997bc5d0a2",
+      "size": 18452
+    },
+    {
+      "path": "src/resources/src/css/_reset.scss",
+      "sha": "aa5ad9c6b1423ed5f6a77d694074111d51e79f83",
+      "size": 841
+    },
+    {
+      "path": "src/resources/src/css/comments-cp.scss",
+      "sha": "e9763ea3c39ffa7088ce142ab38384961f450657",
+      "size": 1890
+    },
+    {
+      "path": "src/resources/src/css/comments.scss",
+      "sha": "f978de8c949cfd0ee6304065fd1327df55ec83b1",
+      "size": 13577
+    },
+    {
+      "path": "src/resources/src/js/_base.js",
+      "sha": "4ff3bd489b6044d79ecfc07c39d1fdd2ac9b67bf",
+      "size": 2835
+    },
+    {
+      "path": "src/resources/src/js/comments-cp.js",
+      "sha": "d8e1e8390650727255ed60998579871670dbbb5f",
+      "size": 1583
+    },
+    {
+      "path": "src/resources/src/js/comments.js",
+      "sha": "9516bbaef0b6cc41bf543a1785deb9b84b30f492",
+      "size": 33408
+    },
+    {
+      "path": "src/services/Comments.php",
+      "sha": "f313a98138a2f660520cacde1bf7e8988e50e980",
+      "size": 41031
+    },
+    {
+      "path": "src/services/Flags.php",
+      "sha": "559c0d6521dd83ed1ca5073ed1e9507ce5b6333a",
+      "size": 6392
+    },
+    {
+      "path": "src/services/Giphy.php",
+      "sha": "e925203db8c93807ea13ce81610125947a444b93",
+      "size": 3342
+    },
+    {
+      "path": "src/services/Protect.php",
+      "sha": "f530a9ef4b5158ee6e1f7e87ab9e1beb03d25f29",
+      "size": 6558
+    },
+    {
+      "path": "src/services/RenderCache.php",
+      "sha": "913cdbb31a719b8e60aba744820e7e088bf4d8f3",
+      "size": 1231
+    },
+    {
+      "path": "src/services/Security.php",
+      "sha": "3880461a554ee88e0e978318fefebab9807aa8c5",
+      "size": 4166
+    },
+    {
+      "path": "src/services/Service.php",
+      "sha": "072cd9acfe997e86b536798d146e296794514fd1",
+      "size": 846
+    },
+    {
+      "path": "src/services/Subscribe.php",
+      "sha": "78578c759bf3ec5a579c1bf3c4b9950577662e1c",
+      "size": 6885
+    },
+    {
+      "path": "src/services/Templates.php",
+      "sha": "64423d2e7b657fb87268b37aa2f10e1cf3af28c6",
+      "size": 1014
+    },
+    {
+      "path": "src/services/Votes.php",
+      "sha": "6193afeb479ff56184c0efb80b9d435bbc280791",
+      "size": 10387
+    },
+    {
+      "path": "src/templates/_components/actions/set-status/trigger.html",
+      "sha": "1de1ca68727fa666df9d99cb7291bfed3c423f54",
+      "size": 326
+    },
+    {
+      "path": "src/templates/_field/input.html",
+      "sha": "7cb44ab923fa496a08ed3f8a43dcecbbf855efdb",
+      "size": 394
+    },
+    {
+      "path": "src/templates/_integrations/feed-me/column.html",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "src/templates/_integrations/feed-me/fields/nested-node.html",
+      "sha": "07c26e2cd1fba512412e19738143c7c70c0ce975",
+      "size": 2003
+    },
+    {
+      "path": "src/templates/_integrations/feed-me/groups.html",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "src/templates/_integrations/feed-me/map.html",
+      "sha": "4dddaceb690eecd1515acc3598e3957bce80eae4",
+      "size": 7942
+    },
+    {
+      "path": "src/templates/_layouts/index.html",
+      "sha": "07a58dca0abf610a1adaecc39ea84ba81f424962",
+      "size": 1338
+    },
+    {
+      "path": "src/templates/_layouts/settings.html",
+      "sha": "aff5ce0548b5d17ff8a353bcea136f56708dd404",
+      "size": 1684
+    },
+    {
+      "path": "src/templates/_special/_includes/avatar.html",
+      "sha": "ca7543df332ec127ed99590a5e943c70c7acf21a",
+      "size": 666
+    },
+    {
+      "path": "src/templates/_special/_includes/comment.html",
+      "sha": "4c9c93f335a1a8dd4cb8dbdc6b7977a1167e627b",
+      "size": 1785
+    },
+    {
+      "path": "src/templates/_special/_includes/footer.html",
+      "sha": "cf12022ceda9f52a37470962e3db85ee57b8e33c",
+      "size": 4300
+    },
+    {
+      "path": "src/templates/_special/_includes/form.html",
+      "sha": "fed64dd6f7858e781e2b0c04183f670ae97bee9d",
+      "size": 3787
+    },
+    {
+      "path": "src/templates/_special/_includes/header.html",
+      "sha": "78efa83cc24711c81557c0332081136ecee2197d",
+      "size": 2433
+    },
+    {
+      "path": "src/templates/_special/comments.html",
+      "sha": "469c29a2983eb32105bfe54decd797b961bc2224",
+      "size": 3752
+    },
+    {
+      "path": "src/templates/_special/form-fields/elements/comment.html",
+      "sha": "246d867f60d57373542c897f3be20922afb4d482",
+      "size": 543
+    },
+    {
+      "path": "src/templates/_special/form-fields/field.html",
+      "sha": "bada067556c3b891899495cce6b34505d9c123cb",
+      "size": 857
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/assets.html",
+      "sha": "9a2c6da9558c234164234913ba13298556fb007d",
+      "size": 143
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/checkboxes.html",
+      "sha": "1eb8f6cdef824cf76976da6cff3d01b1ce5c5716",
+      "size": 545
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/dropdown.html",
+      "sha": "a6cd5875cf6ebbe4a5136019f2a581d304ad2a9b",
+      "size": 947
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/email.html",
+      "sha": "68f166a58232a4fe38a78fa039eeb842f86db2b5",
+      "size": 162
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/number.html",
+      "sha": "e13b1c2e3829f58dfa5a300c0be6a2e98720af4d",
+      "size": 163
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/plain-text.html",
+      "sha": "a37e0afc76de2bab8ea06cb2fc0f0220b7a69986",
+      "size": 162
+    },
+    {
+      "path": "src/templates/_special/form-fields/fields/radio-buttons.html",
+      "sha": "fc721881a49d71fbbdf8eac3ef03607fe1bd47e5",
+      "size": 540
+    },
+    {
+      "path": "src/templates/_special/form-fields/index.html",
+      "sha": "b5b09cbb5eb12be18c25d1da9eb7593519a22c8f",
+      "size": 852
+    },
+    {
+      "path": "src/templates/_widget/body.html",
+      "sha": "13670a7434e0d0591e87091f270491c4ec50d9d1",
+      "size": 868
+    },
+    {
+      "path": "src/templates/_widget/settings.html",
+      "sha": "ff764be0f679159e76ecd675021fd884183170be",
+      "size": 1379
+    },
+    {
+      "path": "src/templates/comments/_edit.html",
+      "sha": "9f617e38bba13aa21552f72301589a65bd791acb",
+      "size": 6275
+    },
+    {
+      "path": "src/templates/index.html",
+      "sha": "1e4ba41479b3eae1c4a3d41f806d93231a699563",
+      "size": 292
+    },
+    {
+      "path": "src/templates/settings/_panes/comments-form.html",
+      "sha": "1c5d4f0b76a07c06148dbea36bfa83856f7c4b34",
+      "size": 2756
+    },
+    {
+      "path": "src/templates/settings/_panes/flagging.html",
+      "sha": "a761bf63250ff0fb78464b5d04da677a357ae054",
+      "size": 1266
+    },
+    {
+      "path": "src/templates/settings/_panes/general.html",
+      "sha": "03e28a91bebd40b31c10a2b24980edbdc856cd05",
+      "size": 5994
+    },
+    {
+      "path": "src/templates/settings/_panes/notifications.html",
+      "sha": "f547bf3723e2a702d7b87075f3b90f6169f7fa75",
+      "size": 7125
+    },
+    {
+      "path": "src/templates/settings/_panes/permissions.html",
+      "sha": "9d47afc874a2dc6819ea80ef2268127daa874927",
+      "size": 2687
+    },
+    {
+      "path": "src/templates/settings/_panes/security.html",
+      "sha": "20aae623f5ba62cf14f98e6b154404014717f60b",
+      "size": 4400
+    },
+    {
+      "path": "src/templates/settings/_panes/templates-custom.html",
+      "sha": "860b6d0d19149e30bbb89fb7c916867636bcb8b7",
+      "size": 868
+    },
+    {
+      "path": "src/templates/settings/_panes/templates-default.html",
+      "sha": "1a50b392d83b3707887192848c21b6dc8cc26ef9",
+      "size": 6417
+    },
+    {
+      "path": "src/templates/settings/_panes/voting.html",
+      "sha": "59108d53631e94cf18396160466937a3686fed58",
+      "size": 1986
+    },
+    {
+      "path": "src/templates/settings/index.html",
+      "sha": "ab1f4b089abac2b36488d3bb483dcf2142fa226f",
+      "size": 1794
+    },
+    {
+      "path": "src/translations/de/comments.php",
+      "sha": "4ce0a6de43327f6642939c4b6d17774f9ee5e252",
+      "size": 10645
+    },
+    {
+      "path": "src/translations/en/comments.php",
+      "sha": "341f60f8523e9070bcf290ccca0791761a0f1b43",
+      "size": 29139
+    },
+    {
+      "path": "src/translations/fr/comments.php",
+      "sha": "d6ba4c33cc328ea00f5ddd001ed1f73a83f1ad19",
+      "size": 30292
+    },
+    {
+      "path": "src/translations/nl/comments.php",
+      "sha": "d39cfc2afc0b7d5084347353ec0eff0a4a6c7957",
+      "size": 10199
+    },
+    {
+      "path": "src/twigextensions/Extension.php",
+      "sha": "e4fb87b162af09f53b39c546ede31bac24a12a9b",
+      "size": 2475
+    },
+    {
+      "path": "src/variables/CommentsVariable.php",
+      "sha": "a1813a5a25c6bf774c21bc4786aa82ea2cecf5b4",
+      "size": 4100
+    },
+    {
+      "path": "src/widgets/Comments.php",
+      "sha": "064ace2dddd607839ceb69fd1c84d2a92dfaaced",
+      "size": 1634
+    }
+  ]
+}

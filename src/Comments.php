@@ -216,6 +216,9 @@ class Comments extends Plugin
             $event->permissions[] = [
                 'heading' => Craft::t('comments', 'Comments'),
                 'permissions' => [
+                    'comments-mcpRead' => ['label' => Craft::t('comments', 'Read comments via MCP')],
+                    'comments-mcpModerate' => ['label' => Craft::t('comments', 'Moderate comments via MCP')],
+                    'comments-mcpManage' => ['label' => Craft::t('comments', 'Manage comments via MCP')],
                     'comments-edit' => ['label' => Craft::t('comments', 'Edit other users’ comments')],
                     'comments-trash' => ['label' => Craft::t('comments', 'Trash other users’ comments')],
                     'comments-delete' => ['label' => Craft::t('comments', 'Delete comments')],
