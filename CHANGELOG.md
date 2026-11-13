@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a moderate-severity information disclosure vulnerability.
 - Fixed a low-severity cross-site request forgery vulnerability.
 - Fix the Dutch moderator and approval notification emails not using their Dutch translations.
 
