@@ -15,18 +15,19 @@
             "feature-tour/control-panel",
             "feature-tour/anti-spam",
             "feature-tour/security",
-            "feature-tour/permissions",
-            "feature-tour/giphy"
+            "feature-tour/reply-with-gifs-giphy",
+            "feature-tour/permissions"
         ]
     },
     {
         "title": "Template Guides",
         "collapsable": false,
         "children": [
-            "template-guides/available-variables",
             "template-guides/rendering-comments",
             "template-guides/custom-templates",
-            "template-guides/custom-fields"
+            "template-guides/custom-fields",
+            "template-guides/loading-comment-assets",
+            "template-guides/finding-user-votes"
         ]
     },
     {
@@ -40,11 +41,26 @@
         "title": "Developers",
         "collapsable": false,
         "children": [
-            "developers/comment",
-            "developers/flag",
-            "developers/vote",
             "developers/events",
-            "developers/graphql"
+            "developers/console-commands"
+        ]
+    },
+    {
+        "title": "GraphQL",
+        "collapsable": false,
+        "children": [
+            "graphql/queries",
+            "graphql/mutations",
+            "graphql/interfaces-types"
+        ]
+    },
+    {
+        "title": "Reference",
+        "collapsable": false,
+        "children": [
+            "reference/comment",
+            "reference/vote",
+            "reference/flag"
         ]
     }
 ]

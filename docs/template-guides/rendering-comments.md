@@ -27,4 +27,6 @@ There are a few templating options available via the Settings page of the Commen
 
 The `render()` function is designed to be a single-line implementation, complete with CSS and JS. You can opt-out of using these resources, while still using the `render()` tag to generate the required Twig. As such, you'll be required to style the components yourself and any required Javascript. Consult the [resources'](https://github.com/verbb/comments/tree/craft-5/src/resources/src) folder for a start.
 
+To output the CSS and JavaScript tags yourself, such as to add attributes or start the thread from your own script, see [Loading Comment Assets](docs:template-guides/loading-comment-assets).
+
 For a complete build-your-own solution, create [Custom Templates](docs:template-guides/custom-templates).

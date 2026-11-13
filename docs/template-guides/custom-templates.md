@@ -46,7 +46,7 @@ Variable | Description
 --- | ---
 `id` | The unique identifier for rendering. Mostly used to connect JavaScript functionality with the comments form.
 `element` | The owner element these comments have been made on. Most commonly an Entry element.
-`commentsQuery` | A [Comment](docs:developers/comment) query used to output the comments on the page.
+`commentsQuery` | A [Comment](docs:reference/comment) query used to output the comments on the page.
 `settings` | The plugin settings.
 
 ## Comment Form Templates
@@ -76,6 +76,8 @@ The crucial parts are the `name` attributes for form elements, along with the `e
 
 The `craft.comments.protect()` call includes additional fields that are used to prevent spam comments being submitted. Read the [Anti-Spam](docs:feature-tour/anti-spam) page for more.
 
+When reCAPTCHA is turned on, `protect()` also registers Google's reCAPTCHA script, which Craft outputs where your layout calls `{{ endBody() }}`. If the form's HTML doesn't come with a full page, such as when your site fetches it with Ajax, call `craft.comments.protect(true)` instead. The `loadInline` argument defaults to `false`, and setting it to `true` outputs the reCAPTCHA `<script>` tag alongside the fields.
+
 ## Comment Form Field Templates
 You'll notice the above structure includes the `form-fields/` directory. Inside this directory are a mixture of folder and individual files, each representing a template that you're able to override. The `fields` templates are for custom fields, allowing you to handle different custom fields added to the comments form. The `elements/comment.html` file is the template for the actual comment text, which is an in-built form "element" (rather than a custom field). You can use this to change how the comment `<textarea>` appears.
 
@@ -97,6 +99,60 @@ You can also save custom fields to comments, but you'll be required to do your o
 </form>
 ```
 
+## Showing the Commenter's Avatar on the Form
+
+`craft.comments.getAvatar()` returns the avatar for the person viewing the page, so your form can show who they're commenting as. It takes no arguments and uses the same order as the avatars beside each comment.
+
+1. The user's Gravatar, when [`enableGravatar`](docs:get-started/configuration#enablegravatar) is on and their email address has one. This comes back as a URL string.
+2. The user's photo, as an asset.
+3. The [`placeholderAvatar`](docs:get-started/configuration#placeholderavatar) asset, which is what guests see.
+4. An empty string, when none of these exist.
+
+Because it can return a URL or an asset, check which one you have before outputting it. This example goes at the top of your `_includes/form.html` override.
+
+```twig
+{% set avatar = craft.comments.getAvatar() %}
+
+<figure class="comment-form-avatar">
+    {% if avatar is instance of('craft\\elements\\Asset') %}
+        <img src="{{ avatar.url({ width: 64, height: 64 }) }}" alt="{{ currentUser ? currentUser.friendlyName : 'Guest' }}" width="64" height="64">
+    {% elseif avatar %}
+        <img src="{{ avatar }}" alt="{{ currentUser ? currentUser.friendlyName : 'Guest' }}" width="64" height="64">
+    {% else %}
+        <span class="comment-form-avatar-empty"></span>
+    {% endif %}
+</figure>
+```
+
+A signed-in user with a photo sees it at 64 by 64 pixels, and a guest sees the placeholder avatar, or the empty `<span>` if you haven't set one. Checking for a Gravatar asks gravatar.com whether the email address has one, so with `enableGravatar` on, the first call on each page waits for that response.
+
+## Adding a Subscribe Button
+
+When [`notificationSubscribeEnabled`](docs:get-started/configuration#notificationsubscribeenabled) is on, signed-in users can subscribe to an element's comments and get an email when someone adds a new one. With [`notificationSubscribeCommentEnabled`](docs:get-started/configuration#notificationsubscribecommentenabled), they can also subscribe to a single comment and hear about its replies. The default templates show a **Subscribe** button for each.
+
+`craft.comments.isSubscribed(element, comment)` tells you whether the current user is subscribed, so your own button can show its current state. Pass the element the comments belong to, and add a comment to check that comment's replies instead of the whole element. The `comment` argument defaults to `null`. It returns `true` or `false`. Guests can't subscribe, so only call it when someone is signed in, as the example below does.
+
+When [`notificationSubscribeDefault`](docs:get-started/configuration#notificationsubscribedefault) is on, users are subscribed to replies on their own comments until they unsubscribe, so `isSubscribed()` returns `true` for those comments too.
+
+This example adds a button that subscribes to, or unsubscribes from, the whole element. It works without JavaScript by posting to the `comments/comments/subscribe` action, which switches the user's subscription and sends them back to the page. Put it in your `comments.html` override, where `element` is available, or in any template with the entry as `entry` in place of `element`.
+
+```twig
+{% if currentUser %}
+    {% set subscribed = craft.comments.isSubscribed(element) %}
+
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('comments/comments/subscribe') }}
+        {{ hiddenInput('ownerId', element.id) }}
+        {{ hiddenInput('siteId', element.siteId) }}
+        {{ csrfInput() }}
+
+        <button type="submit">{{ subscribed ? 'Unsubscribe' : 'Subscribe to new comments' }}</button>
+    </form>
+{% endif %}
+```
+
+To subscribe to a single comment's replies instead, pass the comment as the second argument, `craft.comments.isSubscribed(comment.owner, comment)`, and add `{{ hiddenInput('commentId', comment.id) }}` to the form.
+
 ## Overriding Partials
 You'll have noticed in our preview of the templates' directory, the inclusion of an `_includes` and `form-fields` directory. This houses partial templates that are used throughout the templates. This helps not only with re-use, but keeps things modular, which has a flow-on effect when you want to override _just_ a partial.
 
@@ -113,7 +169,7 @@ Comments' templates use a custom Twig function like `{{ commentsInclude('_includ
 Let's take a look at some example use-cases for overriding partial templates. For all these examples, we'll assume you have a folder in your templates' directory setup as `templates/_comments`.
 
 #### Override comments
-You might want to add a wrapper `<div>` element, change element classes, or roll your own complete templates. In this instance create a `comments.html` file in your `_comments` folder and build your template(s). You can continue to use any of the default template partials using the `formieInclude` Twig function, or implement your own.
+You might want to add a wrapper `<div>` element, change element classes, or roll your own complete templates. In this instance create a `comments.html` file in your `_comments` folder and build your template(s). You can continue to use any of the default template partials using the `commentsInclude` Twig function, or implement your own.
 
 #### Override comments form
 In this instance, you might just want to alter the form where users input their comment. Create a `form.html` file in your `_comments/_includes` folder and build your template. The default templates will render, but include just your custom template for the comment form.
