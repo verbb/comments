@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a low-severity cross-site request forgery vulnerability.
 - Fix the Dutch moderator and approval notification emails not using their Dutch translations.
 
 ## 3.0.25 - 2026-11-12

@@ -400,6 +400,8 @@ class CommentsController extends Controller
 
     public function actionSubscribe(): Response
     {
+        $this->requirePostRequest();
+
         $currentUser = Comments::$plugin->getService()->getUser();
 
         $ownerId = $this->request->getParam('ownerId');
