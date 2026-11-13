@@ -3,6 +3,7 @@ namespace verbb\comments\elements\db;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\search\PublicSearchQuery;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -43,6 +44,12 @@ class CommentQuery extends ElementQuery
     public mixed $ownerEntryTypeId = null;
     public mixed $ownerEntryType = null;
     public mixed $isFlagged = null;
+
+    /**
+     * Whether plain search terms only match the comment text and author name. Public GraphQL schemas
+     * set this so a search can't match a commenter's email address.
+     */
+    public bool $searchTextAndNameOnly = false;
 
 
     // Public Methods
@@ -267,6 +274,10 @@ class CommentQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        if ($this->searchTextAndNameOnly && (is_string($this->search) || is_array($this->search)) && $this->search) {
+            $this->search = PublicSearchQuery::fromParam($this->search) ?? $this->search;
+        }
+
         $this->joinElementTable('comments_comments');
 
         $this->query->select([

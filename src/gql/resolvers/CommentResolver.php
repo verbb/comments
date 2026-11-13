@@ -2,6 +2,7 @@
 namespace verbb\comments\gql\resolvers;
 
 use verbb\comments\elements\Comment;
+use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\helpers\Gql as GqlHelper;
 
 use Craft;
@@ -48,6 +49,11 @@ class CommentResolver extends ElementResolver
 
         if (GqlHelper::isPublicSchema()) {
             self::_checkPublicCriteria($arguments);
+
+            // Plain search terms only match the comment text and author name, not the email address.
+            if ($query instanceof CommentQuery) {
+                $query->searchTextAndNameOnly = true;
+            }
         }
 
         foreach ($arguments as $key => $value) {
@@ -66,9 +72,9 @@ class CommentResolver extends ElementResolver
         $query = parent::prepareElementQuery($source, $arguments, $context, $resolveInfo);
 
         // Arguments on nested `children` and `parent` fields become eager-loading criteria, so they
-        // need the same check as the query's own arguments.
+        // need the same handling as the query's own arguments.
         if ($query instanceof ElementQuery && is_array($query->with) && GqlHelper::isPublicSchema()) {
-            self::_checkPublicEagerLoadPlans($query->with);
+            self::_preparePublicEagerLoadPlans($query->with);
         }
 
         return $query;
@@ -99,7 +105,7 @@ class CommentResolver extends ElementResolver
         }
     }
 
-    private static function _checkPublicEagerLoadPlans(array $plans): void
+    private static function _preparePublicEagerLoadPlans(array $plans): void
     {
         foreach ($plans as $plan) {
             // Only a comment's own structure leads to other comments.
@@ -108,7 +114,11 @@ class CommentResolver extends ElementResolver
             }
 
             self::_checkPublicCriteria($plan->criteria);
-            self::_checkPublicEagerLoadPlans($plan->nested);
+
+            // Plain search terms only match the comment text and author name, not the email address.
+            $plan->criteria['searchTextAndNameOnly'] = true;
+
+            self::_preparePublicEagerLoadPlans($plan->nested);
         }
     }
 
