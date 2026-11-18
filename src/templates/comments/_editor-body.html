@@ -1,10 +1,13 @@
 {% import '_includes/forms' as forms %}
 
-{% if comment.isEditorContent() %}
-    <input type="hidden" name="contentFormat" value="editor">
+{# A plain comment opens in Editor too while rich authoring is on, and only becomes rich once its text
+   changes, so saving its status or fields alone leaves it plain. #}
+{% if comment.editsInEditor() %}
+    <input type="hidden" name="contentFormat" value="rich">
     <input type="hidden" name="fields[editorContent]" value="">
     <div
         data-editor-root
+        {% if not comment.isEditorContent() %}data-editor-from-plain{% endif %}
         data-editor-options="{{ comment.getEditorOptions() | json_encode | e('html_attr') }}"
         data-editor-content="{{ comment.getEditorFormContent() | e('html_attr') }}"
         data-editor-placeholder="{{ 'Edit this comment…' | t('comments') }}"
@@ -21,4 +24,24 @@
         value: comment.bodyContent ?? comment.comment ?? '',
         disabled: static,
     }) }}
+{% endif %}
+
+{# A GIF from GIPHY shows beside the text. Moderators can take it off without touching the text. #}
+{% if comment.gifUrl and comment.gifUrl matches '/^https?:\\/\\//i' %}
+    <div class="comments-editor-gif" style="margin-top: 12px;">
+        {# Fitted to the same 240px square as the site's default theme, never larger than the GIF itself. #}
+        {% set gifScale = comment.gifWidth and comment.gifHeight ? min(1, 240 / comment.gifWidth, 240 / comment.gifHeight) : null %}
+        {# Sized to the image: Craft pauses animated images by centering a still frame over them in this box. #}
+        <div style="width: fit-content; max-width: 100%; margin-bottom: 8px;">
+            <img src="{{ comment.gifUrl }}" alt="{{ 'GIF' | t('comments') }}" loading="lazy" referrerpolicy="no-referrer" style="display: block; max-width: min(100%, 240px); max-height: 240px; height: auto; border-radius: 4px;"
+                {%- if gifScale %} width="{{ (comment.gifWidth * gifScale) | round }}" height="{{ (comment.gifHeight * gifScale) | round }}"{% endif %}>
+        </div>
+        {% if not static %}
+            {{ forms.checkbox({
+                name: 'removeGif',
+                value: '1',
+                label: 'Remove GIF' | t('comments'),
+            }) }}
+        {% endif %}
+    </div>
 {% endif %}

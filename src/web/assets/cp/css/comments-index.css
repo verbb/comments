@@ -59,6 +59,23 @@
     text-decoration: underline;
 }
 
+/* When the label links to the comment, the author is in the link colour, which Craft turns white on selected rows. */
+.elements a.label-link .comments-comment-name {
+    color: var(--link-color);
+}
+
+/* The whole chip opens the comment, avatar included: the label's link stretches over it. An index chip has no
+   other controls to cover. */
+.elements .tableview .chip:has(a.label-link .comments-comment-label) {
+    position: relative;
+}
+
+.elements .tableview a.label-link:has(.comments-comment-label)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+
 /* Photos and initials at one size, so every row's name lines up. */
 .elements .chip:has(.comments-comment-label) {
     gap: 10px;

@@ -1,6 +1,5 @@
 <?php
 use craft\elements\User;
-use craft\models\GqlSchema;
 use craft\models\UserGroup;
 use Tests\Support\Fixtures\CommentsFixtureFactory;
 use verbb\comments\Comments;
@@ -154,6 +153,12 @@ function gapsNotifyEvents(): object
     return $recorder;
 }
 
+/** The public views of these comments, in order, as the data API builds them. */
+function gapsViews(array $comments): array
+{
+    return array_values(Comments::$plugin->getFrontend()->buildDetachedCommentViews($comments));
+}
+
 function gapsUser(string $prefix = 'gaps'): User
 {
     return CommentsFixtureFactory::user($prefix . bin2hex(random_bytes(3)));
@@ -166,6 +171,8 @@ function gapsManage(string $token, string $method = 'GET', array $body = []): cr
     $request->setIsConsoleRequest(false);
     $request->setQueryParams(['emailToken' => $token]);
     $request->setBodyParams($body);
+    // The response is shared across the suite, so an earlier test's status doesn't count here.
+    Craft::$app->getResponse()->setStatusCode(200);
 
     return (new SubscriptionsController('subscriptions', Comments::$plugin))->actionManage();
 }
@@ -178,15 +185,6 @@ function gapsToken(string $url): string
     expect($query)->not->toHaveKey(Craft::$app->getConfig()->getGeneral()->tokenParam);
 
     return (string)$query['emailToken'];
-}
-
-function gapsGql(array $scope, string $query, bool $public = false): array
-{
-    $schema = new GqlSchema(['name' => 'Gaps', 'scope' => $scope, 'isPublic' => $public]);
-    Craft::$app->getGql()->flushCaches();
-    Craft::$app->getGql()->setActiveSchema($schema);
-
-    return Craft::$app->getGql()->executeQuery($schema, $query, debugMode: true);
 }
 
 // D3 and D5: what's been cut
@@ -206,32 +204,30 @@ it('accounts for each of the 70 Comments 3 settings exactly once', function() {
 
 it('ignores retired settings still in project config', function() {
     $settings = new Settings([
-        'giphyEnabled' => true,
-        'giphyApiKey' => 'secret',
-        'enableGravatar' => true,
-        'flaggedCommentLimit' => 2,
-        'showAuthorScore' => true,
+        'assetBaseUrl' => 'https://cdn.example.com',
+        'hideVotingForThreshold' => true,
         'defaultQueryStatus' => ['pending'],
     ]);
 
-    expect($settings->toArray())->not->toHaveKeys(['giphyEnabled', 'giphyApiKey', 'enableGravatar', 'flaggedCommentLimit', 'showAuthorScore', 'defaultQueryStatus']);
+    expect($settings->toArray())->not->toHaveKeys(['assetBaseUrl', 'hideVotingForThreshold', 'defaultQueryStatus']);
     expect(Comment::find()->status)->toBe([Comment::STATUS_APPROVED]);
 });
 
 it('reports only the retired settings a site was actually using, and never their values', function() {
     $inUse = V3SettingsReview::retiredInUse([
+        'assetBaseUrl' => 'https://cdn.example.com/secret-path',
+        'assetBasePath' => null,
         'giphyEnabled' => true,
-        'giphyApiKey' => 'secret-key',
-        'giphyRating' => 'g',
         'flaggedCommentLimit' => 5,
         'downvoteCommentLimit' => 2,
+        'hideVotingForThreshold' => true,
         'indexSidebarLimit' => 50,
         'pluginName' => 'Discussion',
     ]);
 
-    expect($inUse)->toEqualCanonicalizing(['giphyEnabled', 'giphyApiKey', 'downvoteCommentLimit']);
-    expect(V3SettingsReview::retiredInUse(['defaultQueryStatus' => ['approved'], 'showAuthorScore' => true]))->toBe([]);
-    expect(V3UpgradeLog::describe('settings.retired.giphyApiKey'))->toContain('giphyApiKey')->not->toContain('secret-key');
+    expect($inUse)->toEqualCanonicalizing(['assetBaseUrl', 'hideVotingForThreshold']);
+    expect(V3SettingsReview::retiredInUse(['defaultQueryStatus' => ['approved'], 'hideVotingForThreshold' => false]))->toBe([]);
+    expect(V3UpgradeLog::describe('settings.retired.assetBaseUrl'))->toContain('assetBaseUrl')->not->toContain('secret-path');
 });
 
 it('only offers an upgrade report to a site with something in it', function() {
@@ -245,11 +241,11 @@ it('only offers an upgrade report to a site with something in it', function() {
     }
 
     $log = new V3UpgradeLog($db);
-    $log->add('settings.retired.giphyEnabled', V3UpgradeLog::WARNING);
+    $log->add('settings.retired.hideVotingForThreshold', V3UpgradeLog::WARNING);
     $log->flush();
 
     expect(SettingsTabs::has('upgrade'))->toBeTrue();
-    expect(V3UpgradeLog::issues($db)[0]['label'])->toContain('giphyEnabled');
+    expect(V3UpgradeLog::issues($db)[0]['label'])->toContain('hideVotingForThreshold');
 
     $db->createCommand()->delete(V3Schema::LOG)->execute();
 
@@ -269,15 +265,12 @@ it('treats any open flag as flagged now the threshold is gone', function() {
     expect(Comment::find()->id($comment->id)->one()->isFlagged())->toBeTrue();
 });
 
-it('has no way left to attach a new GIF, but still shows old ones', function() {
-    expect(Comments::$plugin->has('giphy'))->toBeFalse();
-    expect(property_exists(CommentSubmission::class, 'gifUrl'))->toBeFalse();
-
+it('still shows a GIF from Comments 3', function() {
     $entry = CommentsFixtureFactory::entry('GIF owner');
     $comment = gapsComment($entry);
     $comment->gifUrl = 'https://media.giphy.com/old.gif';
 
-    expect(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0]->gifUrl)->toBe('https://media.giphy.com/old.gif');
+    expect(gapsViews([$comment])[0]->gifUrl)->toBe('https://media.giphy.com/old.gif');
 });
 
 // Conversation state
@@ -290,11 +283,10 @@ it('keeps comments visible when closed everywhere, but stops new ones', function
     Comments::$plugin->getSettings()->closed = true;
     Comments::$plugin->getConversations()->clearCaches();
 
-    $view = Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId);
+    $view = Comments::$plugin->getFrontend()->buildMountPointView((int)$entry->id, (int)$entry->siteId);
 
-    expect($view->roots)->toHaveCount(1)
-        ->and($view->canComment)->toBeFalse()
-        ->and($view->closedNotice)->not->toBeNull();
+    expect($view?->commentCount)->toBe(1)
+        ->and(Comments::$plugin->getSettings()->commentingAvailable($entry)['permission'])->toBeFalse();
 
     gapsComment($entry, 'After closing');
 })->throws(yii\base\UserException::class);
@@ -306,7 +298,8 @@ it('shows nothing at all when comments are disabled on an element', function() {
     Comments::$plugin->getSettings()->permissions = [craft\elements\Entry::class => []];
     Comments::$plugin->getConversations()->clearCaches();
 
-    expect(Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId))->toBeNull();
+    expect(Comments::$plugin->getFrontend()->buildMountPointView((int)$entry->id, (int)$entry->siteId))->toBeNull()
+        ->and((string)Comments::$plugin->getComments()->render($entry))->toBe('');
 });
 
 it('counts the whole conversation in the heading, not the page', function() {
@@ -316,14 +309,11 @@ it('counts the whole conversation in the heading, not the page', function() {
         gapsComment($entry, "Comment {$i}");
     }
 
-    $frontend = Comments::$plugin->getFrontend();
-    $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId, null, 2);
+    $html = (string)Comments::$plugin->getComments()->render($entry, ['limit' => 2]);
 
-    expect($view->roots)->toHaveCount(2)->and($view->commentCount)->toBe(3);
-
-    $html = $frontend->renderPartial('_conversation/header', ['instance' => 'x', 'conversation' => $view, 'viewer' => $frontend->buildViewerView($view)]);
-
-    expect($html)->toMatch('/<span class="comments__count">.*?3<\/span>/s');
+    expect($html)->toContain('>3 comments</h2>')
+        ->toContain('data-comments-count="3"')
+        ->toContain('&quot;limit&quot;:2');
 });
 
 // Edited and edit windows
@@ -348,17 +338,13 @@ it('marks a comment as edited only when its content changes', function() {
     $saved = Comment::find()->id($comment->id)->one();
     expect($saved->editedAt)->toBeInstanceOf(DateTime::class);
 
-    $html = Comments::$plugin->getFrontend()->renderPartial('_comment/author', [
-        'comment' => Comments::$plugin->getFrontend()->buildCommentViewsForComments([$saved], 0)[0],
-    ]);
-
-    expect($html)->toContain('comments__edited');
+    expect(gapsViews([$saved])[0]->editedAt)->not->toBeNull();
 });
 
 it('does not mark rich content as edited when only its JSON order differs', function() {
     $entry = CommentsFixtureFactory::entry('Rich order owner');
     $comment = gapsComment($entry, 'Rich');
-    $comment->contentFormat = 'editor';
+    $comment->contentFormat = 'rich';
     $comment->bodyContent = '{"type":"doc","content":[]}';
     Craft::$app->getElements()->saveElement($comment);
 
@@ -386,7 +372,7 @@ it('stops authors editing or deleting once the window closes, but not moderators
     $comment->commentDate = new DateTime('-11 minutes');
 
     expect($comment->canEdit())->toBeFalse()->and($comment->canDelete($author))->toBeFalse();
-    expect(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0]->actions)->not->toContain('edit', 'remove');
+    expect(Comments::$plugin->getFrontend()->viewerStatesFor([$comment])[(int)$comment->id])->toMatchArray(['canEdit' => false, 'canDelete' => false]);
 
     $moderator = gapsUser('moderator');
     Craft::$app->getUserPermissions()->saveUserPermissions((int)$moderator->id, ['comments-view', 'comments-edit', 'comments-delete']);
@@ -451,14 +437,14 @@ it('only offers Top when there is something to rank by', function() {
     $frontend = Comments::$plugin->getFrontend();
 
     Comments::$plugin->getSettings()->interactionMode = 'none';
-    $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId, CommentSort::Top);
+    $view = $frontend->buildMountPointView((int)$entry->id, (int)$entry->siteId, CommentSort::Top);
 
-    expect($view->sort)->not->toBe('top')->and($view->allowsTopSort)->toBeFalse();
+    expect($view->sort)->not->toBe('top');
 
     Comments::$plugin->getSettings()->interactionMode = 'like';
-    $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId, CommentSort::Top);
+    $view = $frontend->buildMountPointView((int)$entry->id, (int)$entry->siteId, CommentSort::Top);
 
-    expect($view->sort)->toBe('top')->and($view->allowsTopSort)->toBeTrue();
+    expect($view->sort)->toBe('top');
 });
 
 // Badges
@@ -481,11 +467,11 @@ it('shows configured badges for the element author and staff groups', function()
     $moderator = gapsUser('mod');
     Craft::$app->getUserPermissions()->saveUserPermissions((int)$moderator->id, ['comments-view', 'comments-moderate']);
 
-    $views = Comments::$plugin->getFrontend()->buildCommentViewsForComments([
+    $views = gapsViews([
         gapsComment($entry, 'From the author', null, $authorId),
         gapsComment($entry, 'From staff', null, (int)$staff->id),
         gapsComment($entry, 'From a moderator', null, (int)$moderator->id),
-    ], 0);
+    ]);
 
     expect($views[0]->badges)->toBe([['type' => 'owner', 'label' => 'Writer']])
         ->and($views[1]->badges)->toBe([['type' => 'staff', 'label' => 'Team']])
@@ -495,7 +481,7 @@ it('shows configured badges for the element author and staff groups', function()
     $settings->ownerBadgeLabel = '';
     $settings->staffBadgeLabel = '';
 
-    $unlabelled = Comments::$plugin->getFrontend()->buildCommentViewsForComments([gapsComment($entry, 'No badge', null, $authorId)], 0);
+    $unlabelled = gapsViews([gapsComment($entry, 'No badge', null, $authorId)]);
     expect($unlabelled[0]->badges)->toBe([]);
 });
 
@@ -515,21 +501,16 @@ it('never gives a guest a badge, whatever name they use', function() {
         'email' => 'someone@example.test',
     ]))->comment;
 
-    expect(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$guestComment], 0)[0]->badges)->toBe([]);
+    expect(gapsViews([$guestComment])[0]->badges)->toBe([]);
 });
 
-it('shows how long ago a comment was made, unless the page is cached for everyone', function() {
+it('shows how long ago a comment was made', function() {
     $entry = CommentsFixtureFactory::entry('Time ago owner');
     $comment = gapsComment($entry);
     $comment->commentDate = new DateTime('-3 hours');
-    $frontend = Comments::$plugin->getFrontend();
 
-    expect($frontend->buildCommentViewsForComments([$comment], 0)[0]->timeAgo)->toContain('3 hours');
-    expect($frontend->buildCommentViewsForComments([$comment], 0, false)[0]->timeAgo)->toBeNull();
-
-    Comments::$plugin->getSettings()->showTimeAgo = false;
-
-    expect($frontend->buildCommentViewsForComments([$comment], 0)[0]->timeAgo)->toBeNull();
+    // The data API works this out as each response leaves, so a cached thread never holds it.
+    expect($comment->getTimeAgo())->toContain('3 hours');
 });
 
 it('says how long ago a comment was made in the site’s language', function() {
@@ -551,8 +532,7 @@ it('says how long ago a comment was made in the site’s language', function() {
         expect($comment->getTimeAgo())->toBe('vor 3 Tagen');
 
         $comment->commentDate = new DateTime('-1 hour -5 minutes');
-        expect($comment->getTimeAgo())->toBe('vor einer Stunde')
-            ->and(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0]->timeAgo)->toBe('vor einer Stunde');
+        expect($comment->getTimeAgo())->toBe('vor einer Stunde');
 
         // A clock a moment ahead still reads as the past.
         $comment->commentDate = new DateTime('+90 seconds');
@@ -624,7 +604,7 @@ it('lets a confirmed guest subscribe straight away, with their cookie', function
     gapsGuest($token);
 
     expect($subscriptions->setConversationSubscription((int)$other->id, (int)$other->siteId, true))
-        ->toBe(Subscriptions::OUTCOME_SUBSCRIBED);
+        ->toBe(Subscriptions::OUTCOME_FOLLOWED);
 
     // Without the cookie the same address has to prove itself again.
     gapsGuest();
@@ -863,7 +843,7 @@ it('does not read a wildcard in a guest address as a search for registered users
     expect(fn() => $post((string)$user->email))->toThrow(yii\base\UserException::class, 'Unauthorized');
 });
 
-it('shows nothing about unpublished elements to the public', function() {
+it('shows nothing about unpublished elements', function() {
     $entry = CommentsFixtureFactory::entry('Unpublished owner');
     gapsComment($entry, 'Before unpublishing');
     $frontend = Comments::$plugin->getFrontend();
@@ -873,12 +853,13 @@ it('shows nothing about unpublished elements to the public', function() {
     Comments::$plugin->getConversations()->clearCaches();
     Comments::$plugin->getRenderCache();
 
-    // Someone who can see it, can see its comments.
-    expect($frontend->buildConversationView((int)$entry->id, (int)$entry->siteId))->not->toBeNull();
+    // The data API answers `not_found` for an element that isn't live, whoever's asking, so the page
+    // gets no mount point for it either, even for someone who can see the element.
+    expect($frontend->buildMountPointView((int)$entry->id, (int)$entry->siteId))->toBeNull();
 
     gapsGuest();
 
-    expect($frontend->buildConversationView((int)$entry->id, (int)$entry->siteId))->toBeNull();
+    expect($frontend->buildMountPointView((int)$entry->id, (int)$entry->siteId))->toBeNull();
     expect(fn() => Comments::$plugin->getSubscriptions()->setConversationSubscription((int)$entry->id, (int)$entry->siteId, true, 'nosy@example.test'))
         ->toThrow(yii\base\UserException::class);
 
@@ -901,36 +882,7 @@ it('never shows a commenter’s email address as their name', function() {
     $comment = gapsComment($entry, 'Mine', null, (int)$user->id);
     Craft::$app->getConfig()->getGeneral()->useEmailAsUsername = false;
 
-    expect(Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0]->authorName)->toBe('Member');
-});
-
-it('only gives the edit form to someone who can edit the comment', function() {
-    $entry = CommentsFixtureFactory::entry('Editor owner');
-    $comment = gapsComment($entry, 'Private text', null, (int)gapsUser()->id);
-    Comments::$plugin->getModeration()->remove($comment, $this->admin);
-
-    gapsGuest();
-    $request = Craft::$app->getRequest();
-    $request->setQueryParams(['mode' => 'edit', 'ownerId' => $entry->id, 'siteId' => $entry->siteId, 'commentUid' => $comment->uid]);
-
-    expect(fn() => (new verbb\comments\controllers\FrontendApiController('frontend-api', Comments::$plugin))->actionEditor())
-        ->toThrow(yii\web\NotFoundHttpException::class);
-});
-
-it('lets a guest without JavaScript unsubscribe from the same button', function() {
-    $entry = CommentsFixtureFactory::entry('No script unsubscribe owner');
-    $frontend = Comments::$plugin->getFrontend();
-    $view = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId);
-    $viewer = $frontend->buildViewerView($view);
-
-    $viewer->showSubscribe = true;
-    $viewer->isSubscribed = true;
-    expect($frontend->renderPartial('_conversation/header', ['instance' => 'x', 'conversation' => $view, 'viewer' => $viewer]))
-        ->toContain('name="subscribed" value="0"');
-
-    $viewer->isSubscribed = false;
-    expect($frontend->renderPartial('_conversation/header', ['instance' => 'x', 'conversation' => $view, 'viewer' => $viewer]))
-        ->toContain('name="subscribed" value="1"');
+    expect(gapsViews([$comment])[0]->authorName)->toBe('Member');
 });
 
 // Unsubscribing
@@ -977,7 +929,7 @@ it('puts a working unsubscribe link and headers on subscriber emails', function(
     expect($mail->to($subscriber))->toBeEmpty();
 });
 
-it('emails guests and passes account holders to an event instead', function() {
+it('emails guests and people with an account alike, and names them all in the event', function() {
     $entry = CommentsFixtureFactory::entry('Account holders owner');
     $member = gapsUser('member');
     $mail = gapsMail();
@@ -992,25 +944,120 @@ it('emails guests and passes account holders to an event instead', function() {
     gapsComment($entry, 'From the admin');
 
     expect($mail->to('subscribed-guest@example.test'))->toHaveCount(1)
-        ->and($mail->to($member->email))->toBeEmpty()
+        ->and($mail->to($member->email))->toHaveCount(1)
+        // A member's email has the same stop link as a guest's.
+        ->and($mail->to($member->email)[0]->getHeader('List-Unsubscribe'))->not->toBeEmpty()
         ->and($events->events)->toHaveCount(1)
         ->and($events->events[0]->type)->toBe('subscribe')
-        ->and(array_map(static fn(User $user): int => (int)$user->id, $events->events[0]->recipients))->toBe([(int)$member->id]);
+        ->and($events->events[0]->owner?->id)->toBe($entry->id)
+        ->and(array_map(static fn(User $user): string => (string)$user->email, $events->events[0]->recipients))
+        ->toEqualCanonicalizing(['subscribed-guest@example.test', $member->email]);
 
-    // A reply to the member is an event too, and only names them.
+    // A reply to the member emails them once, as a reply rather than a subscription update.
     $events->events = [];
     $mail->messages = [];
     Comments::$plugin->getSettings()->participantNotifications = [Settings::NOTIFICATION_REPLY];
     $memberComment = gapsComment($entry, 'Member comment', null, (int)$member->id);
+    $mail->messages = [];
+    $events->events = [];
     gapsComment($entry, 'Reply to member', (int)$memberComment->id);
 
-    expect($mail->to($member->email))->toBeEmpty()
-        ->and(array_map(static fn($event): string => $event->type, $events->events))->toBe(['reply'])
-        ->and($events->events[0]->recipients[0]->id)->toBe($member->id);
+    $types = array_map(static fn($event): string => $event->type, $events->events);
+    $reply = array_values(array_filter($events->events, static fn($event): bool => $event->type === 'reply'));
+
+    expect($mail->to($member->email))->toHaveCount(1)
+        ->and((string)$mail->to($member->email)[0]->getSubject())->toBe('Someone has replied to your comment on Plugin Tests.')
+        ->and($types)->toContain('reply')
+        ->and(array_map(static fn(User $user): int => (int)$user->id, $reply[0]->recipients))->toBe([(int)$member->id]);
 });
 
-it('names the moderator group in staff events and emails no one', function() {
-    $entry = CommentsFixtureFactory::entry('Staff event owner');
+it('emails element authors, mentioned members and approved members, each once', function() {
+    $settings = Comments::$plugin->getSettings();
+    $settings->subscriptionTypes = [];
+    $settings->participantNotifications = [Settings::NOTIFICATION_OWNER, Settings::NOTIFICATION_MENTION, Settings::NOTIFICATION_APPROVED];
+    // The fixture's entries are written by the signed-in admin.
+    $entry = CommentsFixtureFactory::entry('Member email owner');
+    $poster = gapsUser('poster');
+    $mentioned = gapsUser('mentioned');
+    $mail = gapsMail();
+    $events = gapsNotifyEvents();
+
+    $comment = gapsComment($entry, 'A comment on the admin’s entry', null, (int)$poster->id);
+
+    expect(array_map(static fn($message): string => (string)$message->getSubject(), $mail->to($this->admin->email)))
+        ->toBe(['"' . $entry->title . '" has received a comment on Plugin Tests.'])
+        ->and($mail->to($poster->email))->toBeEmpty();
+
+    // A mention.
+    $mail->messages = [];
+    $mentionedIdentityId = (int)Comments::$plugin->getIdentities()->getOrCreateForUser($mentioned)->id;
+    Comments::$plugin->getMentions()->syncIdentityIds((int)$comment->id, [$mentionedIdentityId]);
+    Comments::$plugin->getNotifications()->queueMentionNotifications($comment, [$mentionedIdentityId]);
+
+    expect(array_map(static fn($message): string => (string)$message->getSubject(), $mail->to($mentioned->email)))
+        ->toBe(['You were mentioned in a comment on Plugin Tests'])
+        ->and($mail->to($mentioned->email)[0]->getHeader('List-Unsubscribe'))->not->toBeEmpty();
+
+    // Held for review, then approved, on an element whose discussion starts out moderated.
+    $settings->requireModeration = true;
+    $moderatedEntry = CommentsFixtureFactory::entry('Member approval owner');
+    $mail->messages = [];
+    $held = gapsComment($moderatedEntry, 'Waiting for a moderator', null, (int)$poster->id);
+
+    expect($held->moderationState)->toBe(ModerationState::Pending->value)
+        ->and($mail->to($poster->email))->toBeEmpty();
+
+    Comments::$plugin->getModeration()->approve($held);
+    expect(array_map(static fn($message): string => (string)$message->getSubject(), $mail->to($poster->email)))
+        ->toBe(['Your comment has been approved on Plugin Tests'])
+        ->and(array_map(static fn($event): string => $event->type, $events->events))->toContain('author', 'mention', 'moderator-approved');
+});
+
+it('lets a handler stop one email while the event still names its recipient', function() {
+    Comments::$plugin->getSettings()->participantNotifications = [Settings::NOTIFICATION_OWNER];
+    Comments::$plugin->getSettings()->subscriptionTypes = [];
+    $entry = CommentsFixtureFactory::entry('Cancelled email owner');
+    $mail = gapsMail();
+    $events = gapsNotifyEvents();
+    yii\base\Event::on(verbb\comments\services\Comments::class, verbb\comments\services\Comments::EVENT_BEFORE_SEND_AUTHOR_EMAIL, static function($event) {
+        $event->isValid = false;
+    });
+
+    try {
+        gapsComment($entry, 'Delivered some other way', null, (int)gapsUser('poster')->id);
+    } finally {
+        yii\base\Event::off(verbb\comments\services\Comments::class, verbb\comments\services\Comments::EVENT_BEFORE_SEND_AUTHOR_EMAIL);
+    }
+
+    expect($mail->messages)->toBe([])
+        ->and(array_map(static fn($event): string => $event->type, $events->events))->toBe(['author'])
+        ->and((int)$events->events[0]->recipients[0]->id)->toBe((int)$this->admin->id);
+});
+
+it('stops a member’s emails from the link in one, until they follow again', function() {
+    $entry = CommentsFixtureFactory::entry('Member stop owner');
+    $member = gapsUser('member');
+    $settings = Comments::$plugin->getSettings();
+    $settings->participantNotifications = [Settings::NOTIFICATION_REPLY];
+    $settings->subscriptionTypes = [];
+    $mail = gapsMail();
+    $parent = gapsComment($entry, 'Member parent', null, (int)$member->id);
+
+    gapsComment($entry, 'First reply', (int)$parent->id);
+
+    $header = $mail->to($member->email)[0]->getHeader('List-Unsubscribe')[0];
+    gapsManage(gapsToken(html_entity_decode(trim($header, '<>'))), 'POST');
+
+    Craft::$app->getRequest()->setIsConsoleRequest(true);
+    Comments::$plugin->getIdentities()->clearCaches();
+    $mail->messages = [];
+    gapsComment($entry, 'Second reply', (int)$parent->id);
+
+    expect($mail->to($member->email))->toBeEmpty();
+});
+
+it('emails the moderator group about waiting comments and the Notification Recipients about new ones', function() {
+    $entry = CommentsFixtureFactory::entry('Staff email owner');
     $group = new UserGroup(['name' => 'Staff events ' . bin2hex(random_bytes(3)), 'handle' => 'staffEvents' . bin2hex(random_bytes(3))]);
     Craft::$app->getUserGroups()->saveGroup($group, false);
     $moderator = gapsUser('moderator');
@@ -1019,13 +1066,17 @@ it('names the moderator group in staff events and emails no one', function() {
     $settings->moderatorUserGroup = $group->uid;
     $settings->requireModeration = true;
     $settings->staffNotifications = [Settings::NOTIFICATION_MODERATOR_PENDING, Settings::NOTIFICATION_STAFF_NEW];
+    $settings->notificationRecipients = [['email' => 'list@example.test', 'enabled' => true]];
     $mail = gapsMail();
     $events = gapsNotifyEvents();
 
     gapsComment($entry, 'Waiting', null, (int)gapsUser('poster')->id);
 
-    expect($mail->messages)->toBe([])
-        ->and(array_map(static fn($event): string => $event->type, $events->events))->toBe(['admin', 'moderator'])
+    expect(array_map(static fn($event): string => $event->type, $events->events))->toBe(['admin', 'moderator'])
+        ->and($mail->to('list@example.test'))->toHaveCount(1)
+        ->and($mail->to($moderator->email))->toHaveCount(1)
+        ->and(array_map(static fn(User $user): string => (string)$user->email, $events->events[0]->recipients))->toBe(['list@example.test'])
+        ->and($events->events[0]->recipients[0]->id)->toBeNull()
         ->and(array_map(static fn(User $user): int => (int)$user->id, $events->events[1]->recipients))->toBe([(int)$moderator->id]);
 });
 
@@ -1109,7 +1160,7 @@ it('lets a guest unsubscribe without anything needing to be confirmed', function
 
     gapsGuest($token);
 
-    expect($subscriptions->setConversationSubscription((int)$entry->id, (int)$entry->siteId, false))->toBe(Subscriptions::OUTCOME_UNSUBSCRIBED)
+    expect($subscriptions->setConversationSubscription((int)$entry->id, (int)$entry->siteId, false))->toBe(Subscriptions::OUTCOME_UNFOLLOWED)
         ->and($subscriptions->isSubscribed((int)$conversation->id, (int)$identity->id))->toBeFalse();
 
     expect(Subscription::findOne(['conversationId' => $conversation->id, 'identityId' => $identity->id])->subscribed)->toBeIn([false, 0]);
@@ -1135,108 +1186,6 @@ it('stops a guest with one address getting the same email twice', function() {
 
 // Deep links
 // =========================================================================
-
-it('renders a linked comment that is pages back, inside its thread', function() {
-    $entry = CommentsFixtureFactory::entry('Deep link owner');
-    $root = gapsComment($entry, 'Old root');
-    $reply = gapsComment($entry, 'Reply', (int)$root->id);
-    $nested = gapsComment($entry, 'Nested', (int)$reply->id);
-    $target = gapsComment($entry, 'Target', (int)$nested->id);
-
-    foreach (range(1, 4) as $i) {
-        gapsComment($entry, "Newer {$i}");
-    }
-
-    $frontend = Comments::$plugin->getFrontend();
-    $plain = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId, CommentSort::Newest, 2);
-
-    expect(array_column($plain->roots, 'id'))->not->toContain((int)$root->id);
-
-    $linked = $frontend->buildConversationView((int)$entry->id, (int)$entry->siteId, CommentSort::Newest, 2, null, false, (int)$target->id);
-
-    expect($linked->roots)->toHaveCount(3)->and($linked->roots[0]->id)->toBe((int)$root->id);
-    expect($linked->roots[0]->replies[0]->replies[0]->replies[0]->id)->toBe((int)$target->id);
-
-    $html = $frontend->renderPartial('_comment/comment', [
-        'instance' => 'x',
-        'conversation' => $linked,
-        'viewer' => $frontend->buildViewerView($linked),
-        'comment' => $linked->roots[0],
-    ]);
-
-    expect($html)->toContain('id="comment-' . $target->id . '"');
-});
-
-it('reaches a linked reply past the depth and preview limits', function() {
-    $entry = CommentsFixtureFactory::entry('Deep reply owner');
-    $root = gapsComment($entry, 'Root');
-    $parent = $root;
-
-    foreach (range(1, 7) as $i) {
-        $parent = gapsComment($entry, "Level {$i}", (int)$parent->id);
-    }
-
-    foreach (range(1, 5) as $i) {
-        gapsComment($entry, "Sibling {$i}", (int)$root->id);
-    }
-
-    $thread = Comments::$plugin->getFrontend()->buildThreadView((int)$parent->id, (int)$entry->id, (int)$entry->siteId, false);
-    $walk = $thread;
-    $ids = [];
-
-    while ($walk) {
-        $ids[] = $walk->id;
-        $walk = $walk->replies[0] ?? null;
-
-        if ($ids[count($ids) - 1] === (int)$parent->id) {
-            break;
-        }
-    }
-
-    expect(end($ids))->toBe((int)$parent->id)->and($ids)->toHaveCount(8);
-    expect($thread->hasMoreReplies)->toBeTrue();
-});
-
-it('keeps a thread together through a removed parent', function() {
-    $entry = CommentsFixtureFactory::entry('Deep placeholder owner');
-    $root = gapsComment($entry, 'Root');
-    $reply = gapsComment($entry, 'Reply', (int)$root->id);
-    Comments::$plugin->getModeration()->remove($root, $this->admin);
-
-    $thread = Comments::$plugin->getFrontend()->buildThreadView((int)$reply->id, (int)$entry->id, (int)$entry->siteId, false);
-
-    expect($thread->placeholder)->toBeTrue()
-        ->and($thread->content)->toBe('')
-        ->and($thread->replies[0]->id)->toBe((int)$reply->id);
-});
-
-it('treats a comment the viewer cannot see the same as one that does not exist', function() {
-    $entry = CommentsFixtureFactory::entry('Deep hidden owner');
-    $other = CommentsFixtureFactory::entry('Deep other owner');
-    $frontend = Comments::$plugin->getFrontend();
-    $removed = gapsComment($entry, 'Removed');
-    $spam = gapsComment($entry, 'Spam');
-    $held = gapsComment($entry, 'Held');
-    $elsewhere = gapsComment($other, 'Elsewhere');
-    $moderation = Comments::$plugin->getModeration();
-
-    $moderation->remove($removed, $this->admin);
-    $moderation->markSpam($spam, $this->admin);
-    Craft::$app->getDb()->createCommand()->update('{{%comments_comments}}', ['moderationState' => 'pending', 'status' => Comment::STATUS_PENDING], ['id' => $held->id])->execute();
-
-    foreach ([$removed, $spam, $held] as $hidden) {
-        expect($frontend->buildThreadView((int)$hidden->id, (int)$entry->id, (int)$entry->siteId, false))->toBeNull();
-    }
-
-    expect($frontend->buildThreadView((int)$elsewhere->id, (int)$entry->id, (int)$entry->siteId, false))->toBeNull();
-    expect($frontend->buildThreadView(999999999, (int)$entry->id, (int)$entry->siteId, false))->toBeNull();
-
-    // The same element on another site is a different conversation.
-    expect($frontend->buildThreadView((int)$elsewhere->id, (int)$other->id, (int)$other->siteId + 1000, false))->toBeNull();
-
-    // Moderators can follow links to what they can act on.
-    expect($frontend->buildThreadView((int)$held->id, (int)$entry->id, (int)$entry->siteId, true)?->id)->toBe((int)$held->id);
-});
 
 it('survives a hierarchy that loops', function() {
     $entry = CommentsFixtureFactory::entry('Deep loop owner');
@@ -1275,13 +1224,13 @@ it('exposes content format, rendered content and edit state over GraphQL', funct
     $comment->comment = 'Changed';
     Craft::$app->getElements()->saveElement($comment);
 
-    $result = gapsGql(['comments:read'], "{ comment(id: {$comment->id}) { ... on Comment { contentFormat contentHtml editorContent editedAt moderationState rootId depth } } }");
+    $result = gapsGql(['comments:read'], "{ comment(id: {$comment->id}) { ... on Comment { contentFormat contentHtml contentDocument editedAt moderationState rootId depth } } }");
 
     expect($result['errors'] ?? [])->toBeEmpty();
     expect($result['data']['comment'])->toMatchArray([
         'contentFormat' => 'plain',
         'contentHtml' => null,
-        'editorContent' => null,
+        'contentDocument' => null,
         'moderationState' => 'approved',
         'rootId' => (int)$comment->id,
         'depth' => 0,

@@ -38,6 +38,58 @@
     warning: macros.configWarning('authorEditWindow', 'comments'),
 }) }}
 
+{{ forms.lightswitchField({
+    label: 'Reply with GIFs' | t('comments'),
+    instructions: 'Whether commenters can search GIPHY and attach a GIF to their comment or reply.' | t('comments'),
+    name: 'giphyEnabled',
+    on: settings.giphyEnabled,
+    toggle: 'giphy-fields',
+    warning: macros.configWarning('giphyEnabled', 'comments'),
+}) }}
+
+<div id="giphy-fields" class="field {{ not settings.giphyEnabled ? 'hidden' }}">
+    {{ forms.autosuggestField({
+        label: 'GIPHY API Key' | t('comments'),
+        instructions: 'An API key for the web from your [GIPHY developer dashboard](https://developers.giphy.com/dashboard/). GIPHY requires searches to come from each visitor’s browser, so the key is included in the page for anyone who can comment. GIPHY limits new keys to 100 searches an hour until you apply for a production key.' | t('comments'),
+        id: 'giphyApiKey',
+        name: 'giphyApiKey',
+        value: settings.giphyApiKey,
+        suggestEnvVars: true,
+        required: true,
+        errors: settings.getErrors('giphyApiKey'),
+        warning: macros.configWarning('giphyApiKey', 'comments'),
+    }) }}
+
+    {{ forms.selectField({
+        label: 'GIF Content Rating' | t('comments'),
+        instructions: 'The highest GIPHY content rating commenters can search for.' | t('comments'),
+        id: 'giphyRating',
+        name: 'giphyRating',
+        value: settings.giphyRating,
+        options: [
+            { label: 'G' | t('comments'), value: 'g' },
+            { label: 'PG' | t('comments'), value: 'pg' },
+            { label: 'PG-13' | t('comments'), value: 'pg-13' },
+            { label: 'R' | t('comments'), value: 'r' },
+        ],
+        errors: settings.getErrors('giphyRating'),
+        warning: macros.configWarning('giphyRating', 'comments'),
+    }) }}
+
+    {{ forms.textField({
+        type: 'number',
+        label: 'GIF Results Limit' | t('comments'),
+        instructions: 'The most GIFs to show for each search.' | t('comments'),
+        id: 'giphyLimit',
+        name: 'giphyLimit',
+        value: settings.giphyLimit,
+        min: 1,
+        max: 50,
+        errors: settings.getErrors('giphyLimit'),
+        warning: macros.configWarning('giphyLimit', 'comments'),
+    }) }}
+</div>
+
 <div id="authoring-rich" {% if settings.authoringMode != 'rich' %}class="hidden"{% endif %}>
     {{ forms.lightswitchField({
         label: 'Allow Mentions' | t('comments'),
@@ -62,18 +114,36 @@
             {% set volumeOptions = volumeOptions | merge([{ label: volume.name, value: volume.id }]) %}
         {% endfor %}
 
+        {% set volumeSiteOrigin = craft.comments.getAttachmentVolumeSiteOrigin(settings.attachmentVolumeId) %}
+        {% set volumeWarning = volumeSiteOrigin ? ('This volume serves files from {origin}, the site’s own address. Serve it from a separate host, such as a subdomain only for uploads, and send `X-Content-Type-Options: nosniff` with its files, so an uploaded file can never run as part of the site.' | t('comments', { origin: volumeSiteOrigin })) : null %}
+
         {{ forms.selectField({
             label: 'Attachment Volume' | t('comments'),
             instructions: 'The asset volume uploaded attachments are stored in. Attachments are disabled until a volume is chosen.' | t('comments'),
             name: 'attachmentVolumeId',
             value: settings.attachmentVolumeId,
             options: volumeOptions,
-            warning: macros.configWarning('attachmentVolumeId', 'comments'),
+            warning: [macros.configWarning('attachmentVolumeId', 'comments'), volumeWarning] | filter | join(' ') ?: null,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Attachment Subfolder' | t('comments'),
+            instructions: 'The folder in the volume each comment’s files go to. It can use the comment’s properties in Twig, such as `{owner.section.handle}` or `{commentDate|date(\'Y/m\')}`. Leave blank for the volume’s root. A comment the folder can’t be worked out for, such as a guest’s with `{user.id}`, uses the root.' | t('comments'),
+            tip: 'Folder names are part of each file’s address, so leave out anything personal, such as `{user.email}` or `{user.username}`.' | t('comments'),
+            id: 'attachmentSubpath',
+            name: 'attachmentSubpath',
+            value: settings.attachmentSubpath,
+            placeholder: 'path/to/subfolder',
+            code: true,
+            errors: settings.getErrors('attachmentSubpath'),
+            warning: macros.configWarning('attachmentSubpath', 'comments'),
         }) }}
 
         {{ forms.textField({
             label: 'Allowed File Types' | t('comments'),
-            instructions: 'File extensions commenters can attach, separated by commas.' | t('comments'),
+            instructions: ('File extensions commenters can attach, separated by commas. SVG, HTML, XML, scripts and TIFF images are never accepted, whatever is listed.' | t('comments')) ~ ' ' ~ (craft.comments.canStripHeicAndAvif
+                ? 'HEIC and AVIF images are accepted when listed, with their metadata removed by ImageMagick.' | t('comments')
+                : 'HEIC and AVIF images are refused, because this server doesn’t have ImageMagick to remove where they were taken.' | t('comments')),
             id: 'attachmentExtensions',
             name: 'attachmentExtensions',
             value: settings.attachmentExtensions | join(', '),

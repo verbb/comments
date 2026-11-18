@@ -1,9 +1,9 @@
 /* Layout only: colours come from Craft's variables and Plugin Kit tokens. */
 /* The avatar itself is .comments-avatar in comments-cp.css. */
 .comments-avatar--large {
-    width: 64px;
-    height: 64px;
-    font-size: 22px;
+    width: 48px;
+    height: 48px;
+    font-size: 17px;
 }
 
 /* The table brings its own card, so it sits on the page instead of Craft's white pane, as on an element index. */
@@ -22,137 +22,260 @@
     margin-inline-start: auto;
 }
 
-.comments-commenter__card {
-    margin-block-end: 24px;
+/* The review setting dots start where the other sources' labels do (the padding before them is where Craft
+   puts a nested source's toggle), a little smaller than Craft's 12px so they don't outweigh the label. */
+#sidebar .comments-source-status {
+    width: 8px;
+    height: 8px;
+    margin-inline-end: 8px;
+}
+
+/* The profile and their comments are two panes on the page, rather than one inside Craft's. */
+#content:has(> .comments-commenter) {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* White, like Craft's own content pane, rather than the grey Craft gives a pane inside it. */
+#content > .comments-commenter > .pane {
+    background: var(--pane-bg);
+    border: 0;
+    box-shadow: var(--pane-shadow);
+}
+
+.comments-commenter > .pane:first-child {
+    margin-block-start: 0;
+}
+
+.comments-commenter > .pane:last-child {
+    margin-block-end: 0;
+}
+
+/* The tabs sit in the pane's header, as in Craft's own content pane. Under them, the comments index fills its
+   tab edge to edge, with none of its own card border (which Craft's `.pane.hairline` sets as important), and
+   the activity timeline has the pane's usual padding. */
+#content > .comments-commenter > .comments-commenter__tabbed {
+    padding: 0;
+}
+
+/* Craft's header pulls itself out over a pane's padding with negative margins. This pane has none. */
+.comments-commenter__tabbed > .pane-header {
+    margin: 0;
+}
+
+#content .comments-commenter__comments > .element-index {
+    margin: 0;
+    border: 0 !important;
+    border-radius: 0 0 var(--pane-border-radius) var(--pane-border-radius);
+}
+
+/* The selected tab is white, so the index's toolbar under it is too, and the tab runs straight into its panel
+   instead of meeting a second grey band. */
+.comments-commenter__comments > .element-index .toolbar {
+    background-color: var(--pane-bg);
+}
+
+.comments-commenter__comments > .element-index > .footer {
+    border-end-start-radius: var(--pane-border-radius);
+    border-end-end-radius: var(--pane-border-radius);
+}
+
+.comments-commenter__activity {
+    padding: var(--pane-padding, 24px);
+}
+
+/* Who they are on the left, their counts on the right. On a narrow page the counts drop below. */
+#content > .comments-commenter > .comments-commenter__card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
 }
 
 .comments-commenter__identity {
     display: flex;
+    flex: 1 1 16rem;
     align-items: center;
     gap: 16px;
-}
-
-.comments-commenter__identity > div {
-    flex: 1;
     min-width: 0;
 }
 
-.comments-commenter__name {
-    margin: 0;
+.comments-commenter__facts {
+    min-width: 0;
 }
 
-.comments-setting-pill {
-    padding: 2px 10px;
+.comments-commenter__facts > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The address shortens before the tag does. */
+.comments-commenter__facts > .comments-commenter__email {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.comments-commenter__address {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.comments-commenter__email craft-tooltip {
+    display: flex;
+    flex: none;
+}
+
+.comments-email-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
     border-radius: 999px;
     font-size: 12px;
+    font-weight: 400;
     color: var(--amber-800);
     background-color: var(--amber-100);
 }
 
-.comments-setting-pill--trusted {
-    color: var(--green-800);
-    background-color: var(--green-100);
-}
-
-.comments-setting-pill--blocked {
-    color: var(--red-800);
-    background-color: var(--red-100);
+.comments-email-tag svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
 }
 
 .comments-commenter__counts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 16px;
-    margin-block-start: 24px;
-    padding-block-start: 16px;
-    border-block-start: 1px solid var(--hairline-color);
-}
-
-.comments-commenter__counts dd {
+    display: flex;
     margin: 0;
-    font-size: 22px;
+}
+
+.comments-commenter__count {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-inline: 20px;
+    border-inline-start: 1px solid var(--hairline-color);
+}
+
+.comments-commenter__count:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+}
+
+.comments-commenter__count:last-child {
+    padding-inline-end: 0;
+}
+
+.comments-commenter__count dt {
+    font-size: 12px;
+    color: var(--light-text-color);
+    white-space: nowrap;
+}
+
+.comments-commenter__count dd {
+    margin: 0;
+    font-size: 20px;
     font-weight: 600;
+    line-height: 1.3;
 }
 
-.comments-review-setting {
-    padding-block: 16px;
+.comments-commenter__count--warn dd {
+    color: var(--amber-700);
 }
 
-.comments-review-setting__label {
-    display: block;
-    font-weight: 600;
+/* The heading lines up with the top of the main pane. Craft drops the first fieldset's top margin in the
+   sidebar, but this one sits in a form, so Craft's rule misses it. */
+.comments-review-form {
+    margin-block-end: 24px;
 }
 
-.comments-review-setting__instructions {
-    margin: 2px 0 6px;
+.comments-review-form fieldset {
+    margin-block-start: 0;
 }
 
-.comments-review-setting textarea {
-    width: 100%;
-    margin-block-end: 12px;
+/* The same space all round the rows, inside the box. */
+#details .comments-review-setting {
+    padding: 8px;
 }
 
-.comments-review-setting fieldset {
-    margin: 0 0 16px;
-    padding: 0;
-    border: 0;
+/* Rows like Craft's sidebar sources: the dot, the name over a few words, and a tick on the current one, which
+   is raised on a white surface. The others light up on hover and focus. */
+.comments-review-options {
+    display: grid;
+    gap: 2px;
 }
 
 .comments-review-option {
     display: flex;
-    gap: 10px;
     align-items: flex-start;
-    padding: 10px 12px;
-    margin-block-end: 8px;
-    border: 1px solid var(--hairline-color);
-    border-radius: var(--large-border-radius);
+    gap: 10px;
+    width: 100%;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: var(--medium-border-radius, 5px);
+    font: inherit;
+    text-align: start;
+    color: var(--text-color);
+    background: transparent;
     cursor: pointer;
 }
 
-.comments-review-option:has(input:checked) {
-    border-color: var(--gray-900);
+.comments-review-option:not(.sel):is(:hover, :focus-visible) {
+    background-color: var(--gray-100);
 }
 
-.comments-review-option > span {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.comments-review-option.sel {
+    cursor: default;
+    background-color: var(--white);
+    box-shadow: 0 0 0 1px var(--hairline-color);
 }
 
-.comments-commenter-history .comments-timeline__item {
+.comments-review-option .status {
+    width: 10px;
+    height: 10px;
+    margin: 5px 0 0;
+}
+
+.comments-review-option__text {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    padding-block: 8px;
+    flex: 1;
+    min-width: 0;
 }
 
-.comments-commenter-history .comments-timeline__item + .comments-timeline__item {
-    border-block-start: 1px solid var(--hairline-color);
+.comments-review-option__label {
+    font-weight: 500;
 }
 
-.comments-commenter-history p {
-    margin: 0;
+.comments-review-option__summary {
+    font-size: 12px;
+    color: var(--light-text-color);
 }
 
-.comments-history-note {
-    margin-block-start: 6px !important;
-    padding: 6px 10px;
-    border-radius: var(--medium-border-radius);
-    background-color: var(--amber-050);
+.comments-review-option__tick {
+    display: inline-flex;
+    margin-block-start: 3px;
+    color: var(--light-text-color);
 }
 
-.comments-scoped-restriction {
+.comments-review-option__tick svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+}
+
+.comments-commenter-facts .comments-scoped-restriction {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-block-start: 8px;
 }
 
 /* The commenter page embeds Craft's element index, whose comment labels are single lines of excerpt.
    Left to size itself, that column pushed Date Posted out of the card and squeezed the entry title
-   onto several lines. The label column takes whatever room is left and truncates instead (the full
-   text is in its tooltip), the entry title gets up to two lines, and the other columns keep to one. */
+   onto several lines. The label column takes whatever room is left and truncates instead, and every
+   other column keeps to one line, the entry title cut short with an ellipsis past 18rem. */
 .comments-commenter__comments .tableview th[data-titlecell] {
     width: 100%;
     max-width: 0;
@@ -173,6 +296,12 @@
     display: none;
 }
 
+/* Their avatar too: it's the same on every row, and already at the top of the page. A photo comes as Craft's
+   thumb, initials as our own avatar. */
+.comments-commenter__comments .tableview th[data-titlecell] .chip > :is(.thumb, .comments-avatar) {
+    display: none;
+}
+
 .comments-commenter__comments .tableview th[data-titlecell] .comments-comment-excerpt {
     min-width: 0;
     overflow: hidden;
@@ -180,16 +309,23 @@
     white-space: nowrap;
 }
 
-.comments-commenter__comments .tableview td[data-attr]:not([data-attr='ownerId']) {
+/* With the name hidden, the excerpt is the link, so it's in the link colour (white on a selected row) and
+   underlined on hover, as the name is in the Comments index. */
+.comments-commenter__comments .tableview th[data-titlecell] a.label-link .comments-comment-excerpt {
+    color: var(--link-color);
+}
+
+.comments-commenter__comments .tableview th[data-titlecell] a.label-link:is(:hover, :focus-visible) .comments-comment-excerpt {
+    text-decoration: underline;
+}
+
+.comments-commenter__comments .tableview td[data-attr] {
     white-space: nowrap;
 }
 
 .comments-commenter__comments .tableview td[data-attr='ownerId'] > a {
-    display: -webkit-box;
-    min-width: 9rem;
-    max-width: 13rem;
+    display: block;
+    max-width: 18rem;
     overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    text-overflow: ellipsis;
 }

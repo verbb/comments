@@ -97,24 +97,24 @@
 
 /* Custom properties, so cells inside Plugin Kit's shadow roots can use the same colours. */
 :root {
-    --comments-avatar-0: #3b6ea5;
-    --comments-avatar-1: #8a5a2b;
-    --comments-avatar-2: #2f7d4f;
-    --comments-avatar-3: #8a3f7d;
-    --comments-avatar-4: #b0532a;
-    --comments-avatar-5: #237a7a;
-    --comments-avatar-6: #5a4fa3;
-    --comments-avatar-7: #6b7a2a;
+    --comments-color-avatar-0: #3b6ea5;
+    --comments-color-avatar-1: #8a5a2b;
+    --comments-color-avatar-2: #2f7d4f;
+    --comments-color-avatar-3: #8a3f7d;
+    --comments-color-avatar-4: #b0532a;
+    --comments-color-avatar-5: #237a7a;
+    --comments-color-avatar-6: #5a4fa3;
+    --comments-color-avatar-7: #6b7a2a;
 }
 
-.comments-avatar[data-tone='0'] { background-color: var(--comments-avatar-0); }
-.comments-avatar[data-tone='1'] { background-color: var(--comments-avatar-1); }
-.comments-avatar[data-tone='2'] { background-color: var(--comments-avatar-2); }
-.comments-avatar[data-tone='3'] { background-color: var(--comments-avatar-3); }
-.comments-avatar[data-tone='4'] { background-color: var(--comments-avatar-4); }
-.comments-avatar[data-tone='5'] { background-color: var(--comments-avatar-5); }
-.comments-avatar[data-tone='6'] { background-color: var(--comments-avatar-6); }
-.comments-avatar[data-tone='7'] { background-color: var(--comments-avatar-7); }
+.comments-avatar[data-tone='0'] { background-color: var(--comments-color-avatar-0); }
+.comments-avatar[data-tone='1'] { background-color: var(--comments-color-avatar-1); }
+.comments-avatar[data-tone='2'] { background-color: var(--comments-color-avatar-2); }
+.comments-avatar[data-tone='3'] { background-color: var(--comments-color-avatar-3); }
+.comments-avatar[data-tone='4'] { background-color: var(--comments-color-avatar-4); }
+.comments-avatar[data-tone='5'] { background-color: var(--comments-color-avatar-5); }
+.comments-avatar[data-tone='6'] { background-color: var(--comments-color-avatar-6); }
+.comments-avatar[data-tone='7'] { background-color: var(--comments-color-avatar-7); }
 
 .comments-avatar.comments-avatar--guest {
     color: var(--medium-text-color);
@@ -149,4 +149,184 @@
 
 .elements .comments-comment-label > .comments-comment-name::after {
     content: none;
+}
+
+/* The excerpt's grey is Craft's `.light` colour, set here rather than with that class, whose colour is important,
+   so a context that links the excerpt can colour it. */
+.comments-comment-excerpt {
+    color: var(--fg-subtle);
+}
+
+
+/* Shared by a comment's Activity tab and a commenter's. */
+/* Activity: the note box, then the timeline. */
+.comments-note-form {
+    display: grid;
+    gap: 8px;
+    margin-block-end: 20px;
+    padding-block-end: 18px;
+    border-block-end: 1px solid var(--hairline-color);
+}
+
+.comments-note-form textarea {
+    width: 100%;
+}
+
+.comments-note-form__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+/* History: a coloured icon for each kind of event on a connecting line, who did what, then the details. */
+.comments-timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.comments-timeline__item {
+    --tone: var(--medium-text-color);
+    --tone-soft: var(--gray-100);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-block-end: 18px;
+}
+
+.comments-timeline__item:last-child {
+    padding-block-end: 0;
+}
+
+.comments-timeline__item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    inset-block: 32px 2px;
+    inset-inline-start: 13px;
+    width: 2px;
+    background-color: var(--gray-100);
+}
+
+.comments-timeline__item--blue { --tone: var(--blue-600); --tone-soft: var(--blue-050); }
+.comments-timeline__item--teal { --tone: var(--teal-600); --tone-soft: var(--teal-050); }
+.comments-timeline__item--amber { --tone: var(--comments-warn); --tone-soft: var(--comments-warn-soft); }
+.comments-timeline__item--red { --tone: var(--comments-bad); --tone-soft: var(--comments-bad-soft); }
+.comments-timeline__item--violet { --tone: var(--violet-600); --tone-soft: var(--violet-050); }
+.comments-timeline__item--note { --tone: var(--yellow-700); --tone-soft: var(--yellow-100); }
+.comments-timeline__item--gray { --tone: var(--gray-500); --tone-soft: var(--gray-050); }
+
+.comments-timeline__icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: var(--tone);
+    background-color: var(--tone-soft);
+    /* A faint ring in the icon's own colour, so the soft fill doesn't disappear on a white pane. */
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent);
+}
+
+.comments-timeline__icon svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+}
+
+.comments-timeline__line,
+.comments-timeline__details {
+    margin: 0;
+}
+
+.comments-timeline__line {
+    padding-block-start: 4px;
+    color: var(--text-color);
+}
+
+.comments-timeline__actor {
+    font-weight: 600;
+}
+
+.comments-timeline__details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-block-start: 4px;
+    font-size: 13px;
+}
+
+/* Spam protection's checks that didn't pass, each with what it found, coloured for failed, couldn't answer or didn't run. */
+.comments-timeline__checks {
+    display: grid;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+}
+
+.comments-timeline__check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.comments-timeline__check-icon {
+    display: inline-flex;
+    flex: none;
+}
+
+.comments-timeline__check-icon svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+}
+
+.comments-timeline__check--red .comments-timeline__check-icon { color: var(--comments-bad); }
+.comments-timeline__check--amber .comments-timeline__check-icon { color: var(--comments-warn); }
+.comments-timeline__check--gray .comments-timeline__check-icon { color: var(--light-text-color); }
+
+.comments-timeline__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    color: var(--medium-text-color);
+    background-color: var(--gray-100);
+}
+
+.comments-timeline__chip--red { color: var(--comments-bad); background-color: var(--comments-bad-soft); }
+.comments-timeline__chip--teal { color: var(--teal-700); background-color: var(--teal-050); }
+.comments-timeline__chip--violet { color: var(--violet-700); background-color: var(--violet-050); }
+.comments-timeline__chip--amber { color: var(--comments-warn); background-color: var(--comments-warn-soft); }
+
+.comments-timeline__chip--open {
+    background-color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--hairline-color);
+}
+
+.comments-timeline__note {
+    margin: 6px 0 0;
+    padding: 6px 10px;
+    border-inline-start: 3px solid var(--yellow-200);
+    border-radius: 0 4px 4px 0;
+    color: var(--yellow-900, #5b4708);
+    background-color: var(--yellow-050);
+    white-space: pre-wrap;
+}
+
+.comments-timeline__date {
+    padding-block-start: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--light-text-color);
 }

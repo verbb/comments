@@ -17,15 +17,15 @@
 {{ forms.selectField({
     label: 'Theme' | t('comments'),
     instructions: '“Auto” follows the visitor’s colour-scheme preference. “None” outputs no styling at all, for sites providing their own.' | t('comments'),
-    name: 'editorTheme',
-    value: settings.editorTheme,
+    name: 'theme',
+    value: settings.theme,
     options: [
         { label: 'Light' | t('comments'), value: 'light' },
         { label: 'Dark' | t('comments'), value: 'dark' },
         { label: 'Auto' | t('comments'), value: 'auto' },
         { label: 'None' | t('comments'), value: 'none' },
     ],
-    warning: macros.configWarning('editorTheme', 'comments'),
+    warning: macros.configWarning('theme', 'comments'),
 }) }}
 
 {{ forms.lightswitchField({
@@ -62,6 +62,15 @@
         jsClass: 'Craft.AssetSelectInput',
         modalStorageKey: 'comments.placeholderAvatar',
         warning: macros.configWarning('placeholderAvatar', 'comments'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Use Gravatar' | t('comments'),
+        instructions: 'Show a commenter’s Gravatar when they don’t have a user photo. Only addresses known to be the commenter’s are looked up: signed-in users, and guests who’ve confirmed their email. Your server fetches each image and serves it from your site, so visitors never contact Gravatar and their email’s hash is never in the page. Your server does send Gravatar a hash of each address, which your privacy policy may need to mention.' | t('comments'),
+        id: 'enableGravatar',
+        name: 'enableGravatar',
+        on: settings.enableGravatar,
+        warning: macros.configWarning('enableGravatar', 'comments'),
     }) }}
 
 </div>

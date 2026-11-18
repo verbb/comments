@@ -12,7 +12,6 @@ use verbb\comments\enums\ModerationState;
 use verbb\comments\errors\NotificationDeliveryException;
 use verbb\comments\models\CommentSubmission;
 use verbb\comments\queue\jobs\SendNotification;
-use verbb\comments\services\Frontend;
 
 /**
  * Regressions from the 2 November 2026 review, section 3.
@@ -180,14 +179,13 @@ it('keeps approved replies reachable under a hidden parent, without revealing th
     expect($ids)->toBe([(int)$root->id])
         ->and((int)conversationRow($root)['commentCount'])->toBe(1);
 
-    $views = asPublicViewer(fn() => Comments::$plugin->getFrontend()->buildCommentViewsForComments($page->comments, 0));
+    $views = asPublicViewer(fn() => Comments::$plugin->getFrontend()->buildDetachedCommentViews([...$page->comments, Comment::find()->id($reply->id)->one()]));
 
-    expect($views[0]->placeholder)->toBeTrue()
-        ->and($views[0]->content)->toBe('')
-        ->and($views[0]->authorName)->toBeNull()
-        ->and($views[0]->state)->toBe('unavailable')
-        ->and($views[0]->replies)->toHaveCount(1)
-        ->and($views[0]->replies[0]->content)->toBe('Visible reply');
+    expect($views[(int)$root->id]->placeholder)->toBeTrue()
+        ->and($views[(int)$root->id]->content)->toBe('')
+        ->and($views[(int)$root->id]->authorName)->toBeNull()
+        ->and($views[(int)$root->id]->state)->toBe('unavailable')
+        ->and($views[(int)$reply->id]->content)->toBe('Visible reply');
 });
 
 it('keeps replies under a trashed parent as well, right through to it being purged', function() {
@@ -204,9 +202,9 @@ it('keeps replies under a trashed parent as well, right through to it being purg
         ->and((int)$page->comments[0]->id)->toBe((int)$root->id)
         ->and((int)conversationRow($root)['commentCount'])->toBe(1);
 
-    $views = asPublicViewer(fn() => Comments::$plugin->getFrontend()->buildCommentViewsForComments($page->comments, 0));
-    expect($views[0]->placeholder)->toBeTrue()
-        ->and($views[0]->replies[0]->content)->toBe('Reply');
+    $views = asPublicViewer(fn() => Comments::$plugin->getFrontend()->buildDetachedCommentViews([...$page->comments, Comment::find()->id($reply->id)->one()]));
+    expect($views[(int)$root->id]->placeholder)->toBeTrue()
+        ->and($views[(int)$reply->id]->content)->toBe('Reply');
 });
 
 it('finds a comment through search as soon as it is created', function() {
@@ -306,9 +304,11 @@ it('tells a person once when a reply also mentions them', function() {
         yii\base\Event::off(verbb\comments\services\Notifications::class, verbb\comments\services\Notifications::EVENT_AFTER_NOTIFY);
     }
 
-    // They have an account, so they're named in an event rather than emailed.
+    // One email, for the reply.
     expect($told)->toBe(['reply'])
-        ->and($sent->messages)->toBe([]);
+        ->and($sent->messages)->toHaveCount(1)
+        ->and(array_keys((array)$sent->messages[0]->getTo()))->toBe([$author->email])
+        ->and((string)$sent->messages[0]->getSubject())->toBe('Someone has replied to your comment on Plugin Tests.');
 });
 
 it('fails the queue job when an email cannot be sent, but not the comment', function() {
@@ -417,29 +417,6 @@ it('checks user owners against their groups in the permission settings', functio
     }
 });
 
-it('offers replies below the visual depth limit instead of hiding them', function() {
-    quietCorrectness();
-    $entry = CommentsFixtureFactory::entry('B12 depth owner');
-    $parentId = null;
-    $thread = [];
-
-    foreach (range(0, Frontend::MAX_VISUAL_DEPTH + 1) as $level) {
-        $comment = submit($entry, "Level {$level}", $parentId);
-        $thread[] = $comment;
-        $parentId = (int)$comment->id;
-    }
-
-    $view = Comments::$plugin->getFrontend()->buildCommentViewsForComments([$thread[0]], 0)[0];
-
-    foreach (range(1, Frontend::MAX_VISUAL_DEPTH) as $level) {
-        $view = $view->replies[0];
-    }
-
-    expect($view->replies)->toBe([])
-        ->and($view->replyCount)->toBe(1)
-        ->and($view->hasMoreReplies)->toBeTrue();
-});
-
 it('can load every reply when a parent has more than one request returns', function() {
     quietCorrectness();
     $entry = CommentsFixtureFactory::entry('B12 width owner');
@@ -463,9 +440,9 @@ it('can load every reply when a parent has more than one request returns', funct
 it('anchors comments by the ID that email links use', function() {
     quietCorrectness();
     $comment = submit(CommentsFixtureFactory::entry('B13 owner'));
-    $view = Comments::$plugin->getFrontend()->buildCommentViewsForComments([$comment], 0)[0];
+    $thread = Comments::$plugin->getApi()->thread($comment->getOwner());
 
-    expect($view->permalink)->toBe('#comment-' . $comment->id);
+    expect($thread['comments'][0]['permalink'])->toEndWith('#comment-' . $comment->id);
 });
 
 it('renders GIF-only comments, and only for web addresses', function() {
@@ -474,10 +451,10 @@ it('renders GIF-only comments, and only for web addresses', function() {
     $frontend = Comments::$plugin->getFrontend();
 
     $comment->gifUrl = 'https://media.example.test/a.gif';
-    expect($frontend->buildCommentViewsForComments([$comment], 0)[0]->gifUrl)->toBe('https://media.example.test/a.gif');
+    expect($frontend->buildDetachedCommentViews([$comment])[(int)$comment->id]->gifUrl)->toBe('https://media.example.test/a.gif');
 
     $comment->gifUrl = 'javascript:alert(1)';
-    expect($frontend->buildCommentViewsForComments([$comment], 0)[0]->gifUrl)->toBeNull();
+    expect($frontend->buildDetachedCommentViews([$comment])[(int)$comment->id]->gifUrl)->toBeNull();
 });
 
 it('links the field to just that element’s comments', function() {
@@ -610,17 +587,10 @@ it('shows a Comments 2 comment’s emoji wherever it’s read', function() {
         ->and(Craft::$app->getView()->renderTemplate('comments/comments/_editor-body', ['comment' => $loaded, 'static' => false], craft\web\View::TEMPLATE_MODE_CP))->toContain('Party 🎉 time')
         ->and(Craft::$app->getView()->renderTemplate('comments/comments/_editor-body', ['comment' => $loaded, 'static' => false], craft\web\View::TEMPLATE_MODE_CP))->not->toContain(':tada:');
 
-    // The site's thread, which the API's JSON is built from too.
-    $request = Craft::$app->getRequest();
-    $request->setIsConsoleRequest(false);
+    // The data API's thread, which the renderer draws.
+    $text = Comments::$plugin->getApi()->thread($entry)['comments'][0]['content']['text'] ?? null;
 
-    try {
-        $html = (string)Comments::$plugin->getFrontend()->render((int)$entry->id);
-    } finally {
-        $request->setIsConsoleRequest(true);
-    }
-
-    expect($html)->toContain('Party 🎉 time')->not->toContain(':tada:');
+    expect($text)->toBe('Party 🎉 time');
 
     // GraphQL.
     $schema = new craft\models\GqlSchema(['name' => 'Emoji', 'scope' => ['comments:read']]);
@@ -650,7 +620,7 @@ it('leaves a rich comment’s document alone when emoji are turned back', functi
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => emojiDocument('Typed :tada: and 🎉'),
-        'contentFormat' => verbb\comments\enums\ContentFormat::Editor,
+        'contentFormat' => verbb\comments\enums\ContentFormat::Rich,
         'userId' => (int)Craft::$app->getUser()->getId(),
     ]))->comment;
 
@@ -658,7 +628,7 @@ it('leaves a rich comment’s document alone when emoji are turned back', functi
 
     // What was typed stays as typed, and an address that looks like it has a shortcode isn't rewritten.
     expect(emojiDocumentText($loaded))->toBe(['Typed :tada: and 🎉', 'https://example.test/a:100:b'])
-        ->and(json_decode((string)$loaded->getEditorContent(), true))->toBe(json_decode((string)$comment->bodyContent, true));
+        ->and(json_decode((string)$loaded->getContentDocument(), true))->toBe(json_decode((string)$comment->bodyContent, true));
 });
 
 it('keeps emoji on a database that can’t store 4-byte characters', function() {
@@ -676,7 +646,7 @@ it('keeps emoji on a database that can’t store 4-byte characters', function() 
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
             'content' => emojiDocument('Rich 🎉 day'),
-            'contentFormat' => verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)Craft::$app->getUser()->getId(),
         ]))->comment;
 
