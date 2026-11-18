@@ -245,6 +245,7 @@ return [
   'None' => 'None',
   'No replies for this comment' => 'No replies for this comment',
   'Notifications' => 'Notifications',
+  'Only files you upload here can be added.' => 'Only files you upload here can be added.',
   'Output Default CSS' => 'Output Default CSS',
   'Output Default JS' => 'Output Default JS',
   'Pending' => 'Pending',

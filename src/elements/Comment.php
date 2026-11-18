@@ -15,6 +15,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\actions\Delete;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
@@ -23,6 +24,7 @@ use craft\elements\Asset;
 use craft\elements\Category;
 use craft\elements\Entry;
 use craft\elements\User;
+use craft\fields\Assets as AssetsField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
@@ -294,6 +296,7 @@ class Comment extends Element
     private mixed $_user = null;
     private ?string $_action = null;
     private ?Comment $previousComment = null;
+    private array $_refusedAssetFields = [];
 
 
     // Public Methods
@@ -384,6 +387,41 @@ class Comment extends Element
     public function getAction(): ?string
     {
         return $this->_action;
+    }
+
+    /**
+     * Checks Assets field values posted from the site or through GraphQL, before they're set on the comment.
+     * Craft relates any asset by its ID, so a file can only be posted back by ID when it's already on this
+     * comment in that field. New files are uploaded with the form instead. Refused fields fail validation.
+     */
+    public function checkPostedAssetIds(array $values): void
+    {
+        foreach ($this->getFieldLayout()?->getCustomFields() ?? [] as $field) {
+            if (!$field instanceof AssetsField || !array_key_exists($field->handle, $values)) {
+                continue;
+            }
+
+            $value = $values[$field->handle];
+            $posted = array_filter(is_array($value) ? $value : [$value], fn($id) => is_scalar($id) && $id !== '');
+
+            if (!$posted) {
+                continue;
+            }
+
+            $allowed = $this->id ? (new Query())
+                ->select(['targetId'])
+                ->from([Table::RELATIONS])
+                ->where(['fieldId' => $field->id, 'sourceId' => $this->id])
+                ->column() : [];
+
+            foreach ($posted as $assetId) {
+                if (!in_array((string)$assetId, array_map('strval', $allowed), true)) {
+                    $this->_refusedAssetFields[] = $field->handle;
+
+                    break;
+                }
+            }
+        }
     }
 
     public function getRawComment(): ?string
@@ -857,6 +895,11 @@ class Comment extends Element
             if ($this->id && !Craft::$app->getRequest()->getIsCpRequest() && !$this->_isOwnStoredComment()) {
                 $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
             }
+        }
+
+        // Files posted by ID that aren't already on this comment, found by `checkPostedAssetIds()`
+        foreach (array_unique($this->_refusedAssetFields) as $handle) {
+            $this->addError($handle, Craft::t('comments', 'Only files you upload here can be added.'));
         }
 
         // A chosen GIF must resolve to a valid Giphy URL - guard against arbitrary URLs being stored

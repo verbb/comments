@@ -507,7 +507,9 @@ class CommentsController extends Controller
             $comment->gifUrl = $this->request->getParam('gifUrl', $comment->gifUrl) ?: null;
         }
 
-        // Set any other field content
+        // Set any other field content, accepting only files already on this comment by ID
+        $fieldValues = $this->request->getBodyParam('fields');
+        $comment->checkPostedAssetIds(is_array($fieldValues) ? $fieldValues : []);
         $comment->setFieldValuesFromRequest('fields');
 
         // Set any new comment to be pending if requireModeration is true
