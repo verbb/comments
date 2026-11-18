@@ -211,23 +211,11 @@ class CommentsController extends Controller
         $comment->setScenario(Comment::SCENARIO_FRONT_END);
         $comment->setAction(Comment::ACTION_SAVE);
 
-        $commentData = function(Comment $comment) {
-            return $comment->toArray([
-                'commentDate',
-                'id',
-                'ownerId',
-                'ownerSiteId',
-                'siteId',
-                'status',
-                'uid',
-            ]);
-        };
-
         if (!Craft::$app->getElements()->saveElement($comment, true, false)) {
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
-                    'comment' => $commentData($comment),
+                    'comment' => $this->_commentData($comment),
                     'errors' => $comment->getErrors(),
                 ]);
             }
@@ -252,7 +240,7 @@ class CommentsController extends Controller
             return $this->asJson([
                 'success' => true,
                 'id' => $comment->id,
-                'comment' => $commentData($comment),
+                'comment' => $this->_commentData($comment),
                 'html' => $html,
                 'notice' => $notice,
             ]);
@@ -381,7 +369,7 @@ class CommentsController extends Controller
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
-                    'comment' => $comment,
+                    'comment' => $this->_commentData($comment),
                     'errors' => $comment->getErrors(),
                 ]);
             }
@@ -397,7 +385,7 @@ class CommentsController extends Controller
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'comment' => $comment,
+                'comment' => $this->_commentData($comment),
                 'id' => $comment->id,
             ]);
         }
@@ -460,6 +448,22 @@ class CommentsController extends Controller
     // Private Methods
     // =========================================================================
 
+    /**
+     * The comment details a JSON response gives back, which never include the commenter's name, email or text.
+     */
+    private function _commentData(Comment $comment): array
+    {
+        return $comment->toArray([
+            'commentDate',
+            'id',
+            'ownerId',
+            'ownerSiteId',
+            'siteId',
+            'status',
+            'uid',
+        ]);
+    }
+
     private function _setCommentFromPost(): Comment
     {
         $currentUser = Comments::$plugin->getService()->getUser();
@@ -491,7 +495,9 @@ class CommentsController extends Controller
         $comment->ownerSiteId = $ownerSiteId ?: Craft::$app->getSites()->getCurrentSite()->id;
         $comment->siteId = (int)$request->getParam('siteId', $comment->siteId);
 
-        if (!$comment->userId) {
+        // Only a new comment takes its author from whoever posts it. An existing comment keeps its own,
+        // so a guest's comment never passes to the person editing it.
+        if (!$comment->id && !$comment->userId) {
             $comment->userId = ($currentUser) ? $currentUser->id : null;
         }
 

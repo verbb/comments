@@ -232,15 +232,19 @@ class Comment extends Element
                 switch ($element['type']) {
                     case Entry::class:
                         $elementGroupPrefix = 'section';
+
                         break;
                     case Category::class:
                         $elementGroupPrefix = 'categorygroup';
+
                         break;
                     case Asset::class:
                         $elementGroupPrefix = 'volume';
+
                         break;
                     case User::class:
                         $elementGroupPrefix = 'usergroup';
+
                         break;
                 }
 
@@ -378,7 +382,7 @@ class Comment extends Element
     {
         if ($attribute === 'user') {
             $elementQuery->andWith('user');
-        } else if ($attribute === 'owner') {
+        } elseif ($attribute === 'owner') {
             $elementQuery->andWith('owner');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
@@ -430,6 +434,7 @@ class Comment extends Element
         $names[] = 'owner';
         $names[] = 'user';
         $names[] = 'author';
+
         return $names;
     }
 
@@ -590,6 +595,7 @@ class Comment extends Element
     public function getTimeAgo(): string
     {
         $diff = (new DateTime())->diff($this->commentDate);
+
         return CommentsHelper::humanDurationFromInterval($diff);
     }
 
@@ -939,12 +945,8 @@ class Comment extends Element
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
             // This is permissible from the CP
-            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
-                $currentUser = Comments::$plugin->getService()->getUser();
-
-                if (empty($currentUser) || $currentUser->id !== $this->getAuthor()->id) {
-                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
-                }
+            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest() && !$this->_isOwnStoredComment()) {
+                $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
             }
         }
 
@@ -1008,12 +1010,8 @@ class Comment extends Element
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
             // This is permissible from the CP
-            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
-                $currentUser = Comments::$plugin->getService()->getUser();
-
-                if ($currentUser?->id !== $this->getAuthor()?->id) {
-                    $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
-                }
+            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest() && !$this->_isOwnStoredComment()) {
+                $this->addError('comment', Craft::t('comments', 'Unable to modify another user’s comment.'));
             }
         }
 
@@ -1210,7 +1208,7 @@ class Comment extends Element
     {
         if ($handle === 'user') {
             $this->_user = $elements[0] ?? null;
-        } else if ($handle === 'owner') {
+        } elseif ($handle === 'owner') {
             $this->_owner = $elements[0] ?? null;
         } else {
             parent::setEagerLoadedElements($handle, $elements);
@@ -1225,41 +1223,41 @@ class Comment extends Element
     {
         switch ($attribute) {
             case 'ownerId':
-            {
-                $owner = $this->getOwner();
+                {
+                    $owner = $this->getOwner();
 
-                if ($owner) {
-                    $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
+                    if ($owner) {
+                        $a = Html::a(Html::encode($owner->title), $owner->cpEditUrl);
 
-                    return Template::raw($a);
+                        return Template::raw($a);
+                    }
+
+                    return Craft::t('comments', '[Deleted element]');
                 }
-
-                return Craft::t('comments', '[Deleted element]');
-            }
             case 'name':
-            {
-                return Html::encode($this->getAuthorName()) ?? '-';
-            }
+                {
+                    return Html::encode($this->getAuthorName()) ?? '-';
+                }
             case 'email':
-            {
-                return Html::encode($this->getAuthorEmail()) ?? '-';
-            }
+                {
+                    return Html::encode($this->getAuthorEmail()) ?? '-';
+                }
             case 'voteCount':
-            {
-                return $this->getVotes();
-            }
+                {
+                    return $this->getVotes();
+                }
             case 'flagCount':
-            {
-                return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
-            }
+                {
+                    return $this->hasFlagged() ? '<span class="status off"></span>' : '<span class="status"></span>';
+                }
             case 'comment':
-            {
-                return Html::encode($this->getComment());
-            }
+                {
+                    return Html::encode($this->getComment());
+                }
             default:
-            {
-                return parent::tableAttributeHtml($attribute);
-            }
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 
@@ -1355,6 +1353,27 @@ class Comment extends Element
         }
 
         return $isCommentRequired;
+    }
+
+    /**
+     * Whether the person changing this comment outside the control panel is signed in and wrote it with their account.
+     * The author comes from the stored comment, so a guest's comment never belongs to whoever is signed in.
+     */
+    private function _isOwnStoredComment(): bool
+    {
+        $currentUser = Comments::$plugin->getService()->getUser();
+
+        if (!$currentUser) {
+            return false;
+        }
+
+        $storedUserId = (new Query())
+            ->select(['userId'])
+            ->from([CommentRecord::tableName()])
+            ->where(['id' => $this->id])
+            ->scalar();
+
+        return $storedUserId && (int)$storedUserId === (int)$currentUser->id;
     }
 
 }
