@@ -130,7 +130,7 @@ class Settings extends Model
 
         parent::__construct($config);
     }
-    
+
     public function setAttributes($values, $safeOnly = true): void
     {
         $values = $this->_normalizeAttributes($values);
@@ -272,7 +272,9 @@ class Settings extends Model
             if ($this->moderatorExcluded && $this->moderatorUserGroup) {
                 if ($currentUser = Comments::$plugin->getService()->getUser()) {
                     $groupId = Db::idByUid(Table::USERGROUPS, $this->moderatorUserGroup);
-                    $moderators = User::find()->groupId($groupId)->ids();
+
+                    // A deleted group has no ID, and a query without one would treat everyone as a moderator.
+                    $moderators = $groupId ? User::find()->groupId($groupId)->ids() : [];
 
                     if (in_array($currentUser->id, $moderators)) {
                         return false;

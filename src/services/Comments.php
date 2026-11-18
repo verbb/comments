@@ -703,6 +703,14 @@ class Comments extends Component
         }
 
         $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
+
+        // A deleted group has no ID, and a query without one would find every user.
+        if (!$groupId) {
+            CommentsPlugin::info('Cannot send moderator notification: The moderator group no longer exists.');
+
+            return;
+        }
+
         $recipients = User::find()->groupId($groupId)->all();
 
         foreach ($recipients as $key => $user) {
@@ -772,6 +780,14 @@ class Comments extends Component
         }
 
         $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
+
+        // A deleted group has no ID, and a query without one would find every user.
+        if (!$groupId) {
+            CommentsPlugin::info('Cannot send moderator notification: The moderator group no longer exists.');
+
+            return;
+        }
+
         $recipients = User::find()->groupId($groupId)->all();
 
         foreach ($recipients as $key => $user) {
