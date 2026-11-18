@@ -94,6 +94,13 @@ class Comment extends ElementMutationResolver
         }
 
         $comment = $this->getCommentElement($arguments);
+
+        // As on the front-end, only trusted callers can relate any file. Everyone else can only post back files
+        // already on the comment by ID.
+        if (!$this->_canSetAuthor($currentUser)) {
+            $comment->checkPostedAssetIds($arguments);
+        }
+
         $comment = $this->populateElementWithData($comment, $arguments);
 
         // If we’re logged in and not editing our own comment, make sure a new one’s allowed
