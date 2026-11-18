@@ -8,6 +8,7 @@
 - Fixed a moderate-severity information disclosure vulnerability.
 - Fixed a high-severity broken access control vulnerability.
 - Fixed a moderate-severity missing authorization vulnerability.
+- Fixed a low-severity moderation bypass vulnerability.
 
 ## 2.0.26 - 2026-11-14
 

@@ -469,7 +469,6 @@ class CommentsController extends Controller
         $currentUser = Comments::$plugin->getService()->getUser();
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
-        $settings = Comments::$plugin->getSettings();
 
         $commentId = $request->getParam('commentId');
         $newParentId = $request->getParam('newParentId');
@@ -521,12 +520,7 @@ class CommentsController extends Controller
         $comment->checkPostedAssetIds(is_array($fieldValues) ? $fieldValues : []);
         $comment->setFieldValuesFromRequest('fields');
 
-        // Set any new comment to be pending if requireModeration is true
-        if ($settings->doesRequireModeration()) {
-            $comment->status = Comment::STATUS_PENDING;
-        } else {
-            $comment->status = Comment::STATUS_APPROVED;
-        }
+        $comment->status = Comments::$plugin->getComments()->getStatusForSave($comment);
 
         if ($newParentId) {
             $comment->newParentId = $newParentId;

@@ -14,6 +14,7 @@ use Craft;
 use craft\helpers\FileHelper;
 use craft\base\Component;
 use craft\base\ElementInterface;
+use craft\db\Query;
 use craft\db\Table;
 use craft\elements\Asset;
 use craft\elements\User;
@@ -62,6 +63,32 @@ class Comments extends Component
     {
         /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, Comment::class, $siteId);
+    }
+
+    /**
+     * The status a comment saved from the site or through GraphQL should have. A new comment waits for review when
+     * moderation is required. An edit only goes back for review from approved, and otherwise keeps its status, so
+     * editing can't bring a comment back from spam, the trash or a moderator's hold.
+     */
+    public function getStatusForSave(Comment $comment): string
+    {
+        $requireModeration = CommentsPlugin::$plugin->getSettings()->doesRequireModeration();
+
+        if (!$comment->id) {
+            return $requireModeration ? Comment::STATUS_PENDING : Comment::STATUS_APPROVED;
+        }
+
+        $storedStatus = (new Query())
+            ->select(['status'])
+            ->from(['{{%comments_comments}}'])
+            ->where(['id' => $comment->id])
+            ->scalar();
+
+        if ($storedStatus === Comment::STATUS_APPROVED && $requireModeration) {
+            return Comment::STATUS_PENDING;
+        }
+
+        return $storedStatus ?: Comment::STATUS_PENDING;
     }
 
     public function fetch($criteria = null): CommentQuery
@@ -317,19 +344,19 @@ class Comments extends Component
     {
         if ($type === 'admin') {
             $this->sendAdminNotificationEmail($comment);
-        } else if ($type === 'flag') {
+        } elseif ($type === 'flag') {
             $this->sendFlagNotificationEmail($comment);
-        } else if ($type === 'author') {
+        } elseif ($type === 'author') {
             $this->sendAuthorNotificationEmail($comment);
-        } else if ($type === 'reply') {
+        } elseif ($type === 'reply') {
             $this->sendReplyNotificationEmail($comment);
-        } else if ($type === 'moderator') {
+        } elseif ($type === 'moderator') {
             $this->sendModeratorNotificationEmail($comment);
-        } else if ($type === 'moderator-edit') {
+        } elseif ($type === 'moderator-edit') {
             $this->sendModeratorEditNotificationEmail($comment);
-        } else if ($type === 'moderator-approved') {
+        } elseif ($type === 'moderator-approved') {
             $this->sendModeratorApprovedNotificationEmail($comment);
-        } else if ($type === 'subscribe') {
+        } elseif ($type === 'subscribe') {
             $this->sendSubscribeNotificationEmail($comment);
         }
     }
@@ -484,7 +511,7 @@ class Comments extends Component
                 if ($element->getUploader()) {
                     $recipient = $element->getUploader();
                 }
-            } else if ($element->getAuthor()) {
+            } elseif ($element->getAuthor()) {
                 $recipient = $element->getAuthor();
             }
         } catch (Throwable $e) {
@@ -1024,11 +1051,11 @@ class Comments extends Component
         $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY) ?? [];
 
         // If no config data create one from scratch
-        $config = Craft::$app->getRequest()->getBodyParam('settings.fieldLayout');        
+        $config = Craft::$app->getRequest()->getBodyParam('settings.fieldLayout');
 
         if ($config) {
             $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
-        } else if (!$layoutData) {
+        } elseif (!$layoutData) {
             $fieldLayout = new FieldLayout();
 
             $tab1 = new FieldLayoutTab(['name' => 'Comment Form']);
