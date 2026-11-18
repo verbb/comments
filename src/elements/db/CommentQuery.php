@@ -3,6 +3,7 @@ namespace verbb\comments\elements\db;
 
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
+use verbb\comments\search\PublicSearchQuery;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -41,6 +42,12 @@ class CommentQuery extends ElementQuery
     public mixed $ownerSection = null;
     public mixed $isFlagged = null;
 
+    /**
+     * Whether plain search terms only match the comment text and author name. Public GraphQL schemas
+     * set this so a search can't match a commenter's email address.
+     */
+    public bool $searchTextAndNameOnly = false;
+
 
     // Public Methods
     // =========================================================================
@@ -60,6 +67,7 @@ class CommentQuery extends ElementQuery
         switch ($name) {
             case 'ownerSection':
                 $this->ownerSection($value);
+
                 break;
             default:
                 parent::__set($name, $value);
@@ -69,6 +77,7 @@ class CommentQuery extends ElementQuery
     public function ownerType($value): static
     {
         $this->ownerType = $value;
+
         return $this;
     }
 
@@ -76,12 +85,14 @@ class CommentQuery extends ElementQuery
     {
         $this->ownerId = $owner->id;
         $this->siteId = $owner->siteId;
+
         return $this;
     }
 
     public function ownerId($value): static
     {
         $this->ownerId = $value;
+
         return $this;
     }
 
@@ -118,6 +129,7 @@ class CommentQuery extends ElementQuery
     public function ownerSectionId($value): static
     {
         $this->ownerSectionId = $value;
+
         return $this;
     }
 
@@ -125,7 +137,7 @@ class CommentQuery extends ElementQuery
     {
         if ($value instanceof Section) {
             $this->ownerSectionId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->ownerSectionId = (new Query())
                 ->select(['id'])
                 ->from([Table::SECTIONS])
@@ -141,54 +153,63 @@ class CommentQuery extends ElementQuery
     public function userId($value): static
     {
         $this->userId = $value;
+
         return $this;
     }
 
     public function name($value): static
     {
         $this->name = $value;
+
         return $this;
     }
 
     public function email($value): static
     {
         $this->email = $value;
+
         return $this;
     }
 
     public function comment($value): static
     {
         $this->comment = $value;
+
         return $this;
     }
 
     public function url($value): static
     {
         $this->url = $value;
+
         return $this;
     }
 
     public function ipAddress($value): static
     {
         $this->ipAddress = $value;
+
         return $this;
     }
 
     public function userAgent($value): static
     {
         $this->userAgent = $value;
+
         return $this;
     }
 
     public function commentDate($value): static
     {
         $this->commentDate = $value;
+
         return $this;
     }
 
     public function isFlagged($value): static
     {
         $this->isFlagged = $value;
+
         return $this;
     }
 
@@ -222,6 +243,13 @@ class CommentQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        // Craft takes a prepared search query from 4.4 onwards.
+        $canScopeSearch = method_exists(Craft::$app->getSearch(), 'normalizeSearchQuery');
+
+        if ($canScopeSearch && $this->searchTextAndNameOnly && (is_string($this->search) || is_array($this->search)) && $this->search) {
+            $this->search = PublicSearchQuery::fromParam($this->search) ?? $this->search;
+        }
+
         $this->joinElementTable('comments_comments');
 
         $this->query->select([
@@ -297,7 +325,7 @@ class CommentQuery extends ElementQuery
                     '(SELECT DISTINCT commentId FROM {{%comments_flags}}) comments_flags',
                     '[[comments_comments.id]] = [[comments_flags.commentId]]'
                 );
-                
+
                 $this->subQuery->andWhere(['comments_flags.commentId' => null]);
             }
         }
