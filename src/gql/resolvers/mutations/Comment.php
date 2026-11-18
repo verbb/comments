@@ -112,12 +112,7 @@ class Comment extends ElementMutationResolver
             $comment->userId = $currentUser->id ?? null;
         }
 
-        // Set any new comment to be pending if requireModeration is true
-        if ($settings->doesRequireModeration()) {
-            $comment->status = CommentElement::STATUS_PENDING;
-        } else {
-            $comment->status = CommentElement::STATUS_APPROVED;
-        }
+        $comment->status = Comments::$plugin->getComments()->getStatusForSave($comment);
 
         if (isset($arguments['newParentId'])) {
             $comment->newParentId = $arguments['newParentId'];
