@@ -2,14 +2,21 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\compatibility\events\LegacyEngagementEvents;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\InteractionType;
+use verbb\comments\enums\ModerationState;
+use verbb\comments\events\VoteChangeEvent;
+use verbb\comments\exceptions\RefusedException;
 use verbb\comments\records\Interaction as InteractionRecord;
 
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\elements\User;
 use craft\helpers\StringHelper;
+
+use yii\base\Event;
 
 use yii\db\IntegrityException;
 
@@ -20,11 +27,24 @@ use InvalidArgumentException;
  */
 class Interactions extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /** Before someone's vote changes. Setting `$isValid` to false stops it. */
+    public const EVENT_BEFORE_VOTE = 'beforeVote';
+
+    /** After someone's vote changes: given, switched, or taken back when `$type` is null. */
+    public const EVENT_AFTER_VOTE = 'afterVote';
+
+
     // Properties
     // =========================================================================
 
     // Comments whose interactions changed during this request, so totals a query loaded earlier are stale.
     private array $_changedCommentIds = [];
+
+    // Authors' scores loaded during this request, by user ID.
+    private array $_authorScores = [];
 
 
     // Public Methods
@@ -32,46 +52,23 @@ class Interactions extends Component
 
     public function set(int $commentId, int $identityId, InteractionType $type): InteractionRecord
     {
-        $this->_changedCommentIds[$commentId] = true;
-        $existing = InteractionRecord::findOne([
-            'commentId' => $commentId,
-            'identityId' => $identityId,
-        ]);
+        $previous = InteractionType::tryFrom((string)$this->getForIdentity($commentId, $identityId)?->type);
+        $event = $previous === $type ? null : $this->_voteEvent($commentId, $identityId, $type, $previous);
 
-        if ($existing) {
-            if ($existing->type === $type->value) {
-                return $existing;
-            }
-
-            $existing->type = $type->value;
-            $existing->save(false);
-
-            return $existing;
+        if ($event) {
+            $this->_beforeVote($event);
         }
 
-        $record = new InteractionRecord([
-            'commentId' => $commentId,
-            'identityId' => $identityId,
-            'type' => $type->value,
-            'uid' => StringHelper::UUID(),
-        ]);
-
+        // Votes are public in the data API's cached responses, and they aren't element saves, so those
+        // are cleared once the vote is written.
         try {
-            $record->save(false);
-        } catch (IntegrityException) {
-            $existing = InteractionRecord::findOne([
-                'commentId' => $commentId,
-                'identityId' => $identityId,
-            ]);
+            $record = $this->_set($commentId, $identityId, $type);
+        } finally {
+            CommentsPlugin::$plugin->getApi()->invalidateCaches();
+        }
 
-            if (!$existing) {
-                throw new InvalidArgumentException('Failed to save Interaction after unique-index race.');
-            }
-
-            $existing->type = $type->value;
-            $existing->save(false);
-
-            return $existing;
+        if ($event) {
+            $this->_afterVote($event);
         }
 
         return $record;
@@ -79,17 +76,73 @@ class Interactions extends Component
 
     public function remove(int $commentId, int $identityId): bool
     {
-        $this->_changedCommentIds[$commentId] = true;
-        $existing = InteractionRecord::findOne([
-            'commentId' => $commentId,
-            'identityId' => $identityId,
-        ]);
+        $previous = InteractionType::tryFrom((string)$this->getForIdentity($commentId, $identityId)?->type);
+        $event = $previous ? $this->_voteEvent($commentId, $identityId, null, $previous) : null;
 
-        if (!$existing) {
-            return false;
+        if ($event) {
+            $this->_beforeVote($event);
         }
 
-        return (bool)$existing->delete();
+        try {
+            $removed = $this->_remove($commentId, $identityId);
+        } finally {
+            CommentsPlugin::$plugin->getApi()->invalidateCaches();
+        }
+
+        if ($event && $removed) {
+            $this->_afterVote($event);
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Loads the scores of these comments' signed-in authors at once, for a thread that shows them.
+     *
+     * @param Comment[] $comments
+     */
+    public function primeAuthorScores(array $comments): void
+    {
+        $userIds = array_values(array_unique(array_filter(array_map(static fn(Comment $comment): int => (int)$comment->userId, $comments))));
+        $missing = array_values(array_diff($userIds, array_keys($this->_authorScores)));
+
+        if ($missing === []) {
+            return;
+        }
+
+        $rows = (new Query())
+            ->select(['c.userId', 'type' => 'i.type', 'total' => 'COUNT(*)'])
+            ->from(['i' => '{{%comments_interactions}}'])
+            ->innerJoin(['c' => '{{%comments_comments}}'], '[[c.id]] = [[i.commentId]]')
+            ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[c.id]]')
+            ->where(['c.userId' => $missing, 'c.moderationState' => ModerationState::Approved->value, 'c.authorRemovedAt' => null, 'e.dateDeleted' => null])
+            ->groupBy(['c.userId', 'i.type'])
+            ->all();
+
+        foreach ($missing as $userId) {
+            $this->_authorScores[$userId] = 0;
+        }
+
+        foreach ($rows as $row) {
+            $sign = match ((string)$row['type']) {
+                InteractionType::Downvote->value => -1,
+                InteractionType::Upvote->value => 1,
+                default => 0,
+            };
+            $this->_authorScores[(int)$row['userId']] += $sign * (int)$row['total'];
+        }
+    }
+
+    /**
+     * A signed-in author's net votes across their approved comments: upvotes and likes, less downvotes.
+     */
+    public function getAuthorScore(int $userId): int
+    {
+        if (!array_key_exists($userId, $this->_authorScores)) {
+            $this->primeAuthorScores([new Comment(['userId' => $userId])]);
+        }
+
+        return $this->_authorScores[$userId] ?? 0;
     }
 
     public function getForIdentity(int $commentId, int $identityId): ?InteractionRecord
@@ -270,5 +323,115 @@ class Interactions extends Component
         }
 
         return $result;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _set(int $commentId, int $identityId, InteractionType $type): InteractionRecord
+    {
+        $this->_changedCommentIds[$commentId] = true;
+        $this->_authorScores = [];
+        $existing = InteractionRecord::findOne([
+            'commentId' => $commentId,
+            'identityId' => $identityId,
+        ]);
+
+        if ($existing) {
+            if ($existing->type === $type->value) {
+                return $existing;
+            }
+
+            $existing->type = $type->value;
+            $existing->save(false);
+
+            return $existing;
+        }
+
+        $record = new InteractionRecord([
+            'commentId' => $commentId,
+            'identityId' => $identityId,
+            'type' => $type->value,
+            'uid' => StringHelper::UUID(),
+        ]);
+
+        try {
+            $record->save(false);
+        } catch (IntegrityException) {
+            $existing = InteractionRecord::findOne([
+                'commentId' => $commentId,
+                'identityId' => $identityId,
+            ]);
+
+            if (!$existing) {
+                throw new InvalidArgumentException('Failed to save Interaction after unique-index race.');
+            }
+
+            $existing->type = $type->value;
+            $existing->save(false);
+
+            return $existing;
+        }
+
+        return $record;
+    }
+
+    /**
+     * The event for a vote changing, or null when nothing is listening, so a vote costs no lookups for it.
+     */
+    private function _voteEvent(int $commentId, int $identityId, ?InteractionType $type, ?InteractionType $previous): ?VoteChangeEvent
+    {
+        $listening = $this->hasEventHandlers(self::EVENT_BEFORE_VOTE)
+            || $this->hasEventHandlers(self::EVENT_AFTER_VOTE)
+            || (Compatibility::enabled() && array_filter([Votes::EVENT_BEFORE_SAVE_VOTE, Votes::EVENT_AFTER_SAVE_VOTE, Votes::EVENT_BEFORE_DELETE_VOTE, Votes::EVENT_AFTER_DELETE_VOTE], static fn(string $name): bool => Event::hasHandlers(Votes::class, $name)) !== []);
+
+        $comment = $listening ? Comment::find()->id($commentId)->siteId('*')->status(null)->one() : null;
+
+        if (!$comment) {
+            return null;
+        }
+
+        $userId = CommentsPlugin::$plugin->getIdentities()->getById($identityId)?->userId;
+
+        return new VoteChangeEvent([
+            'comment' => $comment,
+            'identityId' => $identityId,
+            'user' => $userId ? User::find()->id((int)$userId)->status(null)->one() : null,
+            'type' => $type,
+            'previousType' => $previous,
+        ]);
+    }
+
+    private function _beforeVote(VoteChangeEvent $event): void
+    {
+        $this->trigger(self::EVENT_BEFORE_VOTE, $event);
+        LegacyEngagementEvents::vote($event, true);
+
+        if (!$event->isValid) {
+            throw new RefusedException(Craft::t('comments', 'Your vote couldn’t be saved.'));
+        }
+    }
+
+    private function _afterVote(VoteChangeEvent $event): void
+    {
+        $this->trigger(self::EVENT_AFTER_VOTE, $event);
+        LegacyEngagementEvents::vote($event, false);
+    }
+
+    private function _remove(int $commentId, int $identityId): bool
+    {
+        $this->_changedCommentIds[$commentId] = true;
+        $this->_authorScores = [];
+        $existing = InteractionRecord::findOne([
+            'commentId' => $commentId,
+            'identityId' => $identityId,
+        ]);
+
+        if (!$existing) {
+            return false;
+        }
+
+        return (bool)$existing->delete();
     }
 }

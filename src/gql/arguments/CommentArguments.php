@@ -1,6 +1,9 @@
 <?php
 namespace verbb\comments\gql\arguments;
 
+use verbb\comments\compatibility\gql\LegacyGql;
+use verbb\comments\helpers\Gql as CommentsGql;
+
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
 
@@ -34,7 +37,17 @@ class CommentArguments extends ElementArguments
             unset($arguments[$argument]);
         }
 
-        return array_merge($arguments, [
+        // A guest's address, for a private schema allowed to read addresses (SD-57).
+        if (CommentsGql::canReadCommentEmails()) {
+            $arguments['email'] = [
+                'name' => 'email',
+                'type' => Type::listOf(Type::string()),
+                'description' => 'Narrows the query results based on guests’ email addresses. Only on a private schema allowed to view commenters’ email addresses.',
+            ];
+        }
+
+        // Comments 3's structure arguments, in compatibility mode, answered from parents and depth.
+        return array_merge($arguments, LegacyGql::queryArguments(), [
             'ownerId' => [
                 'name' => 'ownerId',
                 'type' => Type::listOf(QueryArgument::getType()),
@@ -78,12 +91,12 @@ class CommentArguments extends ElementArguments
             'rootId' => [
                 'name' => 'rootId',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results to an adjacency thread root.',
+                'description' => 'Narrows the query results to the comments under these top-level comments, and the top-level comments themselves.',
             ],
-            'adjacencyParentId' => [
-                'name' => 'adjacencyParentId',
+            'parentId' => [
+                'name' => 'parentId',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results to direct replies of an adjacency parent.',
+                'description' => 'Narrows the query results to the direct replies of these comments. Pass `":empty:"` for top-level comments.',
             ],
         ]);
     }

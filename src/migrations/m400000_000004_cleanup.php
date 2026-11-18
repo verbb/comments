@@ -6,6 +6,7 @@ use verbb\comments\migrations\support\V3Reconciler;
 use verbb\comments\migrations\support\V3Schema;
 use verbb\comments\migrations\support\V3SettingsReview;
 use verbb\comments\migrations\support\V3UpgradeLog;
+use verbb\comments\helpers\Gql;
 use verbb\comments\services\Comments as CommentsService;
 
 use Craft;
@@ -13,8 +14,12 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
+use craft\services\ProjectConfig;
 
 use yii\base\Exception;
+use yii\db\Expression;
+
+use DateTime;
 
 /**
  * Retire the v3 storage, but only after proving the migrated data, and archive rather than drop it.
@@ -56,6 +61,7 @@ class m400000_000004_cleanup extends Migration
         $this->_archiveStructures();
 
         $this->dropTableIfExists(V3Schema::MAP);
+        $this->_confirmGuestAddresses();
         $this->_recordRetiredSettings();
         $this->_updateProjectConfig();
         $this->_printReport();
@@ -187,14 +193,23 @@ class m400000_000004_cleanup extends Migration
             $projectConfig->set('plugins.comments.settings.authoringMode', 'plain');
         }
 
-        // Comments 3 emailed the moderator group about comments waiting for review. Comments 4 only names
-        // staff in an event unless Email the Moderator Group is on, so a site that relied on that email
-        // keeps it. Checked before the settings are next saved, which drops the Comments 3 names.
-        if (
-            $projectConfig->get('plugins.comments.settings.emailModeratorGroup') === null
-            && V3SettingsReview::emailedModeratorGroup(V3SettingsReview::currentValues())
-        ) {
-            $projectConfig->set('plugins.comments.settings.emailModeratorGroup', true);
+        // Comments 3 showed author scores and hid comments past five reports or downvotes unless a site
+        // changed it. New installs start with these off, so an upgraded site that never saved them records
+        // Comments 3's defaults and looks as it did (SD-57).
+        foreach (['showAuthorScore' => true, 'flaggedCommentLimit' => 5, 'downvoteCommentLimit' => 5] as $setting => $default) {
+            if ($projectConfig->get("plugins.comments.settings.{$setting}") === null) {
+                $projectConfig->set("plugins.comments.settings.{$setting}", $default);
+            }
+        }
+
+        // Comments 3's GraphQL gave every schema commenters' email addresses. Comments 4 only gives them to a
+        // private schema allowed to read them, which each private schema that could read comments is (SD-57).
+        foreach ($projectConfig->get(ProjectConfig::PATH_GRAPHQL_SCHEMAS) ?? [] as $uid => $schema) {
+            $scope = is_array($schema['scope'] ?? null) ? $schema['scope'] : [];
+
+            if (!($schema['isPublic'] ?? false) && in_array('comments:read', $scope, true) && !in_array(Gql::EMAILS_SCOPE, $scope, true)) {
+                $projectConfig->set(ProjectConfig::PATH_GRAPHQL_SCHEMAS . ".{$uid}.scope", [...$scope, Gql::EMAILS_SCOPE]);
+            }
         }
 
         // "Comment Form" read as the public form now that this tab sits in the control panel's editor, which opens on Content.
@@ -207,6 +222,23 @@ class m400000_000004_cleanup extends Migration
                 }
             }
         }
+    }
+
+    /**
+     * Comments 3 emailed any address a guest gave. Comments 4 waits for a guest to confirm theirs, so the
+     * addresses guests gave Comments 3 count as confirmed, and their reply emails carry on (SD-57). An
+     * address that belongs to a user isn't, because only that user's own account may receive its mail.
+     */
+    private function _confirmGuestAddresses(): void
+    {
+        $userEmails = (new Query())->select([new Expression('LOWER([[email]])')])->from(Table::USERS)->where(['not', ['email' => null]]);
+
+        $this->update('{{%comments_identities}}', ['verifiedAt' => Db::prepareDateForDb(new DateTime())], [
+            'and',
+            ['type' => 'guest', 'userId' => null, 'guestTokenHash' => null, 'verifiedAt' => null],
+            ['not', ['email' => null]],
+            ['not in', new Expression('LOWER([[email]])'), $userEmails],
+        ], [], false);
     }
 
     private function _recordRetiredSettings(): void

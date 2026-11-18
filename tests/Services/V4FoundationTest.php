@@ -40,6 +40,8 @@ it('installs the canonical v4 prepare schema', function() {
 });
 
 it('does not expose retired Craft Structure filters in the GraphQL comment query', function() {
+    // Compatibility mode keeps Comments 3's, which `V4CompatibilityTest` covers.
+    Comments::$plugin->getSettings()->compatibilityMode = false;
     $arguments = CommentArguments::getArguments();
 
     expect($arguments)->not->toHaveKeys([
@@ -59,7 +61,7 @@ it('does not expose retired Craft Structure filters in the GraphQL comment query
         'identityId',
         'moderationState',
         'rootId',
-        'adjacencyParentId',
+        'parentId',
     ]);
 });
 

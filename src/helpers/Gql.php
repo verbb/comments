@@ -7,6 +7,13 @@ use craft\helpers\Gql as GqlHelper;
 
 class Gql extends GqlHelper
 {
+    // Constants
+    // =========================================================================
+
+    /** The schema permission to read commenters' email addresses, which only private schemas honour. */
+    public const EMAILS_SCOPE = 'commentEmails:read';
+
+
     // Static Methods
     // =========================================================================
 
@@ -24,6 +31,15 @@ class Gql extends GqlHelper
         } catch (GqlException) {
             return false;
         }
+    }
+
+    /**
+     * Whether the active schema may read commenters' email addresses: a private schema given **View
+     * commenters' email addresses** (SD-57). A public schema never may, whatever it's given.
+     */
+    public static function canReadCommentEmails(): bool
+    {
+        return !self::isPublicSchema() && self::canSchema('commentEmails', 'read');
     }
 
     public static function canMutateComments($schema = null): bool

@@ -2,13 +2,11 @@
 use Tests\Support\Fixtures\CommentsFixtureFactory;
 use Tests\Support\Performance\QueryProfiler;
 use verbb\comments\Comments;
-use verbb\comments\controllers\FrontendApiController;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\AuthoringMode;
 use verbb\comments\enums\InteractionMode;
 use verbb\comments\enums\InteractionType;
 use verbb\comments\models\CommentSubmission;
-use verbb\comments\web\assets\frontend\FrontEndAsset;
 
 use craft\elements\Entry;
 use craft\elements\User;
@@ -19,7 +17,7 @@ use verbb\editor\web\assets\editor\EditorAsset;
 
 /**
  * The front-end developer pass: what a site that hooks into, restyles, bundles or goes headless with
- * Comments relies on. The runtime's own behaviour is checked in a browser; these cover what PHP
+ * Comments relies on. The script's own behaviour is checked in a browser; these cover what PHP
  * renders and serves, and the shape of the built files.
  */
 
@@ -91,26 +89,6 @@ function dxGql(array $scope, string $query, bool $public = false): array
     Craft::$app->getGql()->setActiveSchema($schema);
 
     return Craft::$app->getGql()->executeQuery($schema, $query, debugMode: true);
-}
-
-function dxProtectionHeaders(Entry $entry, ?string $origin, string $method = 'GET'): yii\web\HeaderCollection
-{
-    $_SERVER['REQUEST_METHOD'] = $method;
-    $request = Craft::$app->getRequest();
-    $request->getHeaders()->remove('Origin');
-
-    if ($origin !== null) {
-        $request->getHeaders()->set('Origin', $origin);
-    }
-
-    $request->setQueryParams(['ownerId' => $entry->id, 'siteId' => $entry->siteId, 'channel' => 'headless']);
-    $response = Craft::$app->getResponse();
-    $response->getHeaders()->removeAll();
-
-    (new FrontendApiController('frontend-api', Comments::$plugin))->actionProtection();
-
-    // The response is shared, so each call's headers are kept apart from the next.
-    return clone $response->getHeaders();
 }
 
 /**
@@ -214,6 +192,9 @@ it('only gives the report count to someone who can moderate, on a schema that ca
     Craft::$app->getUserPermissions()->saveUserPermissions((int)$moderator->id, ['accessCp', 'comments-view', 'comments-moderate']);
     $moderator = User::find()->id($moderator->id)->status(null)->one();
     $query = "{ comment(id: {$comment->id}) { flags } }";
+
+    // Compatibility mode keeps a null `flags` on every schema, which `V4CompatibilityTest` covers.
+    Comments::$plugin->getSettings()->compatibilityMode = false;
 
     // Without the moderation permission the field isn't in the schema at all, like `user` without users.
     Craft::$app->getUser()->setIdentity(null);
@@ -357,8 +338,8 @@ it('works out every comment’s author and viewer together, not one comment at a
     }
 
     Craft::$app->getUser()->setIdentity($author);
-    $plain = "{ comments(ownerId: {$entry->id}, adjacencyParentId: \":empty:\") { id children { id } } }";
-    $query = "{ comments(ownerId: {$entry->id}, adjacencyParentId: \":empty:\") { author { name } viewer { canEdit vote } children { author { name } viewer { canEdit } } } }";
+    $plain = "{ comments(ownerId: {$entry->id}, parentId: \":empty:\") { id children { id } } }";
+    $query = "{ comments(ownerId: {$entry->id}, parentId: \":empty:\") { author { name } viewer { canEdit vote } children { author { name } viewer { canEdit } } } }";
     dxGql(['comments:read'], $query);
 
     $without = QueryProfiler::profile(fn() => dxGql(['comments:read'], $plain));
@@ -448,51 +429,7 @@ it('never serves one person’s viewer answers to another from the GraphQL cache
         ->and($general->enableGraphqlCaching)->toBeTrue();
 });
 
-it('answers cross-origin protection requests exactly as far as Craft’s GraphQL does', function() {
-    $entry = CommentsFixtureFactory::entry('DX CORS owner');
-    $general = Craft::$app->getConfig()->getGeneral();
-    Craft::$app->getUser()->setIdentity(null);
-
-    $general->enableGql = true;
-    $general->allowedGraphqlOrigins = null;
-    $any = dxProtectionHeaders($entry, 'https://app.example.test');
-
-    expect($any->get('Access-Control-Allow-Origin'))->toBe('*')
-        ->and($any->get('Access-Control-Allow-Credentials'))->toBeNull()
-        ->and(Craft::$app->getResponse()->data)->toBeInstanceOf(verbb\protect\models\ProtectionPreparation::class);
-
-    $general->allowedGraphqlOrigins = ['https://app.example.test'];
-    $listed = dxProtectionHeaders($entry, 'https://app.example.test');
-    $unlisted = dxProtectionHeaders($entry, 'https://elsewhere.example.test');
-
-    expect($listed->get('Access-Control-Allow-Origin'))->toBe('https://app.example.test')
-        ->and($listed->get('Access-Control-Allow-Credentials'))->toBe('true')
-        ->and($listed->get('Vary'))->toBe('Origin')
-        ->and($unlisted->get('Access-Control-Allow-Origin'))->toBeNull()
-        ->and($unlisted->get('Access-Control-Allow-Credentials'))->toBeNull();
-
-    $general->allowedGraphqlOrigins = false;
-    expect(dxProtectionHeaders($entry, 'https://app.example.test')->get('Access-Control-Allow-Origin'))->toBeNull();
-
-    $general->allowedGraphqlOrigins = null;
-    $general->enableGql = false;
-    expect(dxProtectionHeaders($entry, 'https://app.example.test')->get('Access-Control-Allow-Origin'))->toBeNull();
-
-    // A preflight gets the headers and nothing else.
-    $general->enableGql = true;
-    $preflight = dxProtectionHeaders($entry, 'https://app.example.test', 'OPTIONS');
-
-    expect($preflight->get('Access-Control-Allow-Origin'))->toBe('*')
-        ->and(Craft::$app->getResponse()->data)->toBe('');
-});
-
-it('leaves CORS on the other frontend API actions alone', function() {
-    $source = file_get_contents(dxPluginPath('src/controllers/FrontendApiController.php'));
-
-    expect(substr_count($source, '$this->_allowGraphqlOrigins();'))->toBe(1);
-});
-
-// The bundled runtime and assets
+// The bundled script and assets
 // =========================================================================
 
 it('says where Editor is even when the site loads its own JavaScript', function() {
@@ -503,59 +440,18 @@ it('says where Editor is even when the site loads its own JavaScript', function(
 
     $view = Craft::$app->getView();
     $view->assetBundles = [];
-    $html = (string)Comments::$plugin->getComments()->render((int)$entry->id);
+    Comments::$plugin->getComments()->render((int)$entry->id);
+    $editor = Comments::$plugin->getApi()->thread($entry)['editor'];
 
-    preg_match('/<section[^>]*data-comments-root[^>]*data-comments-editor-module="([^"]+)"/s', $html, $root);
-    preg_match('/<form[^>]*data-comments-editor-module="([^"]+)"/s', $html, $form);
-
-    // Nothing is registered with the page, so Editor still only loads once someone starts writing.
-    expect($root[1] ?? null)->toContain('editor.js')
-        ->and($form[1] ?? null)->toBe($root[1] ?? 'missing')
+    // The thread's data names Editor's module, and nothing is registered with the page, so Editor still
+    // only loads once someone starts writing.
+    expect($editor['richEditor']['module'] ?? null)->toContain('editor.js')
+        ->and($editor['richEditor']['css'] ?? null)->toContain('editor.css')
         ->and(array_keys($view->assetBundles))->not->toContain(EditorAsset::class)
-        ->not->toContain(FrontEndAsset::class);
+        ->not->toContain(verbb\comments\web\assets\frontend\CommentsScriptAsset::class);
 
     $settings->authoringMode = AuthoringMode::Plain->value;
-    expect((string)Comments::$plugin->getComments()->render((int)$entry->id))->not->toContain('data-comments-editor-module');
-});
-
-it('sizes and draws every template icon without the bundled CSS', function() {
-    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(dxPluginPath('src/templates/frontend')));
-    $icons = [];
-
-    foreach ($files as $file) {
-        if ($file->getExtension() === 'twig') {
-            preg_match_all('/<svg\b[^>]*>/', file_get_contents($file->getPathname()), $matches);
-            array_push($icons, ...$matches[0]);
-        }
-    }
-
-    expect(count($icons))->toBeGreaterThanOrEqual(12);
-
-    foreach ($icons as $icon) {
-        expect($icon)->toMatch('/\swidth="\d+"/')
-            ->toMatch('/\sheight="\d+"/')
-            ->toContain('viewBox="0 0 24 24"')
-            ->toContain('stroke="currentColor"')
-            ->toContain('fill="none"');
-    }
-});
-
-it('keeps every rendered icon a fixed size', function() {
-    $entry = CommentsFixtureFactory::entry('DX rendered icons owner');
-    $settings = Comments::$plugin->getSettings();
-    $settings->interactionMode = InteractionMode::UpDown->value;
-    $settings->outputDefaultCss = false;
-    $author = dxUser('Ivy', 'Icons');
-    dxComment($entry, $author, 'Icons everywhere');
-    Craft::$app->getUser()->setIdentity(dxUser('Ian', 'Icons'));
-
-    preg_match_all('/<svg\b[^>]*>/', (string)Comments::$plugin->getComments()->render((int)$entry->id), $matches);
-
-    expect($matches[0])->not->toBeEmpty();
-
-    foreach ($matches[0] as $icon) {
-        expect($icon)->toMatch('/\swidth="\d+"\s+height="\d+"/');
-    }
+    expect(Comments::$plugin->getApi()->thread($entry)['editor']['richEditor'])->toBeNull();
 });
 
 it('keeps the theme’s custom properties in a layer a site’s stylesheet overrides', function(string $path) {
@@ -563,8 +459,11 @@ it('keeps the theme’s custom properties in a layer a site’s stylesheet overr
 
     preg_match_all('/(--comments-[a-z0-9-]+)\s*:/', $rest, $outside);
 
+    preg_match_all('/(--_comments-[a-z0-9-]+)\s*:/', $rest, $internal);
+
     // Only the two internal properties are set outside the layer, on elements inside the thread.
-    expect(array_values(array_unique($outside[1])))->toEqualCanonicalizing(['--comments-tint-border', '--comments-toast-icon'])
+    expect($outside[1])->toBe([])
+        ->and(array_values(array_unique($internal[1])))->toEqualCanonicalizing(['--_comments-tint-border', '--_comments-toast-icon'])
         ->and($layer)->toMatch("/data-comments-theme=['\"]?dark/")
         ->toMatch('/prefers-color-scheme:\s*dark/')
         ->toContain('--comments-color-panel')
@@ -572,10 +471,10 @@ it('keeps the theme’s custom properties in a layer a site’s stylesheet overr
         ->not->toContain('#a85d00')
         ->toContain('var(--comments-color-panel)')
         ->toContain('var(--comments-color-warning)');
-})->with(['src/resources/src/css/comments-frontend.css', 'src/resources/dist/js/comments-frontend.css']);
+})->with(['packages/comments-browser/src/css/comments-theme.css', 'src/web/assets/frontend/dist/css/comments.css']);
 
 it('documents every supported custom property', function() {
-    [$layer] = dxTokenLayer(file_get_contents(dxPluginPath('src/resources/src/css/comments-frontend.css')));
+    [$layer] = dxTokenLayer(file_get_contents(dxPluginPath('packages/comments-browser/src/css/comments-theme.css')));
     preg_match_all('/(--comments-[a-z0-9-]+)\s*:/', $layer, $tokens);
     $docs = file_get_contents(dxPluginPath('docs/template-guides/theming.md'));
 
@@ -583,21 +482,22 @@ it('documents every supported custom property', function() {
         expect($docs)->toContain("`{$token}`");
     }
 
-    expect($docs)->toContain('`--comments-tint-border`')
-        ->toContain('`--comments-toast-icon`');
+    expect($docs)->toContain('`--_comments-tint-border`')
+        ->toContain('`--_comments-toast-icon`');
 });
 
-it('ships the runtime’s types beside it, with the guards a bundling site relies on', function() {
-    $types = file_get_contents(dxPluginPath('src/resources/dist/js/comments-frontend.d.ts'));
-    $source = file_get_contents(dxPluginPath('src/resources/src/js/types/public.d.ts'));
-    $script = file_get_contents(dxPluginPath('src/resources/dist/js/comments-frontend.js'));
+it('ships the startup script with the guards a page relies on, and the package’s types for bundling sites', function() {
+    $script = file_get_contents(dxPluginPath('src/web/assets/frontend/dist/js/comments.js'));
+    $chunks = implode("\n", array_map('file_get_contents', glob(dxPluginPath('src/web/assets/frontend/dist/js/chunks/*.js'))));
+    $types = file_get_contents(dxPluginPath('packages/comments-browser/dist/index.d.ts')) . file_get_contents(dxPluginPath('packages/comments-browser/dist/types.d.ts')) . file_get_contents(dxPluginPath('packages/comments-browser/dist/events.d.ts'));
 
-    expect($types)->toBe($source)
-        ->toContain("'comments:submit-before'")
-        ->toContain('showFormErrors(form: HTMLFormElement')
-        ->toContain('export declare const Comments: CommentsRuntime;')
-        ->and($script)->toContain('verbb.comments.runtime')
-        ->toContain('comments:submit-before')
+    expect($script)->toMatch('/Symbol\.for\(["`\']verbb\.comments["`\']\)/')
+        ->toContain('data-comments-api-version')
         ->toContain('data-comments-auto-mount')
-        ->toContain('outputDefaultJs');
+        ->not->toContain('verbb.comments.runtime')
+        ->not->toContain('data-comments-contract')
+        ->and($chunks)->toContain('comments:before-submit')
+        ->and($types)->toContain('comments:before-submit')
+        ->toContain('showFormErrors')
+        ->not->toContain('contractVersion');
 });

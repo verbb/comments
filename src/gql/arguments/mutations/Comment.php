@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\gql\arguments\mutations;
 
+use verbb\comments\compatibility\gql\LegacyGql;
+
 use craft\gql\base\ElementMutationArguments;
 
 use GraphQL\Type\Definition\Type;
@@ -12,7 +14,7 @@ class Comment extends ElementMutationArguments
 
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(), [
+        return array_merge(parent::getArguments(), LegacyGql::mutationArguments(), [
             'protection' => [
                 'name' => 'protection',
                 'type' => \verbb\comments\gql\types\ProtectionEvidence::getType(),
@@ -33,6 +35,21 @@ class Comment extends ElementMutationArguments
                 'type' => Type::id(),
                 'description' => 'Parent comment ID.',
             ],
+            'parentUid' => [
+                'name' => 'parentUid',
+                'type' => Type::string(),
+                'description' => 'Parent comment UID, as the data API names it.',
+            ],
+            'notifyReplies' => [
+                'name' => 'notifyReplies',
+                'type' => Type::boolean(),
+                'description' => 'A guest asks to be emailed about replies, which starts with confirming their address.',
+            ],
+            'operationId' => [
+                'name' => 'operationId',
+                'type' => Type::string(),
+                'description' => 'A unique ID for this change. A repeat with the same ID within ten minutes returns the first result rather than acting again.',
+            ],
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
@@ -51,10 +68,10 @@ class Comment extends ElementMutationArguments
             'contentFormat' => [
                 'name' => 'contentFormat',
                 'type' => Type::string(),
-                'description' => 'Authoring format: `plain` or `editor`.',
+                'description' => 'Authoring format: `plain` or `rich`.',
             ],
-            'editorContent' => [
-                'name' => 'editorContent',
+            'contentDocument' => [
+                'name' => 'contentDocument',
                 'type' => Type::string(),
                 'description' => 'Canonical Editor JSON when creating or updating rich comments.',
             ],

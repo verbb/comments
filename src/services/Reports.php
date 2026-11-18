@@ -2,8 +2,11 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\compatibility\events\LegacyEngagementEvents;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\ReportStatus;
+use verbb\comments\events\ReportChangeEvent;
+use verbb\comments\exceptions\RefusedException;
 use verbb\comments\records\Report as ReportRecord;
 
 use Craft;
@@ -13,6 +16,7 @@ use craft\elements\User;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 
+use yii\base\Event;
 use yii\base\UserException;
 
 use DateTime;
@@ -28,6 +32,15 @@ class Reports extends Component
 
     /** Comments 3 flags had no reason. */
     public const REASON_LEGACY = 'legacy';
+
+    /** Before someone reports a comment. Setting `$isValid` to false stops it. */
+    public const EVENT_BEFORE_REPORT = 'beforeReport';
+
+    /** After someone reports a comment. */
+    public const EVENT_AFTER_REPORT = 'afterReport';
+
+    /** After someone takes back their report. Moderators resolving reports are `Moderation`'s events. */
+    public const EVENT_AFTER_WITHDRAW_REPORT = 'afterWithdrawReport';
 
 
     // Properties
@@ -81,6 +94,17 @@ class Reports extends Component
             throw new UserException(Craft::t('comments', 'You’ve already reported this comment.'));
         }
 
+        $event = $this->_reportEvent($comment, $identityId, $reason, $details, true);
+
+        if ($event) {
+            $this->trigger(self::EVENT_BEFORE_REPORT, $event);
+            LegacyEngagementEvents::report($event, true);
+
+            if (!$event->isValid) {
+                throw new RefusedException(Craft::t('comments', 'Your report couldn’t be sent.'));
+            }
+        }
+
         $record = new ReportRecord([
             'commentId' => $commentId,
             'identityId' => $identityId,
@@ -92,8 +116,15 @@ class Reports extends Component
         $record->save(false);
         $this->_changedCommentIds[$commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
+        $this->_refreshFolded();
 
         CommentsPlugin::$plugin->getNotifications()->queueForReport($comment, $record);
+
+        if ($event) {
+            $event->report = $record;
+            $this->trigger(self::EVENT_AFTER_REPORT, $event);
+            LegacyEngagementEvents::report($event, false);
+        }
 
         return $record;
     }
@@ -174,11 +205,25 @@ class Reports extends Component
             return false;
         }
 
+        $comment = CommentsPlugin::$plugin->getComments()->getCommentById($commentId);
+        $event = $comment ? $this->_reportEvent($comment, $identityId, $open->reason, $open->details, false) : null;
+
+        if ($event) {
+            $event->report = $open;
+            LegacyEngagementEvents::report($event, true);
+        }
+
         $open->status = ReportStatus::Dismissed->value;
         $open->resolvedAt = Db::prepareDateForDb(new DateTime());
         $open->save(false);
         $this->_changedCommentIds[$commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
+        $this->_refreshFolded();
+
+        if ($event) {
+            $this->trigger(self::EVENT_AFTER_WITHDRAW_REPORT, $event);
+            LegacyEngagementEvents::report($event, false);
+        }
 
         return true;
     }
@@ -205,6 +250,43 @@ class Reports extends Component
     // Private Methods
     // =========================================================================
 
+    /**
+     * Open reports decide whether the public thread folds a comment away, while **Hide After Reports**
+     * is on, so cached threads are refreshed when they change.
+     */
+    private function _refreshFolded(): void
+    {
+        if (CommentsPlugin::$plugin->getSettings()->getFlaggedCommentLimit() !== null) {
+            CommentsPlugin::$plugin->getApi()->invalidateCaches();
+        }
+    }
+
+    /**
+     * The event for a report being made or taken back, or null when nothing is listening.
+     */
+    private function _reportEvent(Comment $comment, int $identityId, ?string $reason, ?string $details, bool $reported): ?ReportChangeEvent
+    {
+        $names = $reported ? [self::EVENT_BEFORE_REPORT, self::EVENT_AFTER_REPORT] : [self::EVENT_AFTER_WITHDRAW_REPORT];
+        $legacy = $reported ? [Flags::EVENT_BEFORE_SAVE_FLAG, Flags::EVENT_AFTER_SAVE_FLAG] : [Flags::EVENT_BEFORE_DELETE_FLAG, Flags::EVENT_AFTER_DELETE_FLAG];
+        $listening = array_filter($names, fn(string $name): bool => $this->hasEventHandlers($name)) !== []
+            || (Compatibility::enabled() && array_filter($legacy, static fn(string $name): bool => Event::hasHandlers(Flags::class, $name)) !== []);
+
+        if (!$listening) {
+            return null;
+        }
+
+        $userId = CommentsPlugin::$plugin->getIdentities()->getById($identityId)?->userId;
+
+        return new ReportChangeEvent([
+            'comment' => $comment,
+            'identityId' => $identityId,
+            'user' => $userId ? User::find()->id((int)$userId)->status(null)->one() : null,
+            'reason' => $reason,
+            'details' => $details,
+            'reported' => $reported,
+        ]);
+    }
+
     private function _close(
         int $reportId,
         ReportStatus $status,
@@ -228,6 +310,7 @@ class Reports extends Component
         $report->save(false);
         $this->_changedCommentIds[(int)$report->commentId] = true;
         CommentsPlugin::$plugin->getModeration()->clearQueueCounts();
+        $this->_refreshFolded();
 
         return $report;
     }

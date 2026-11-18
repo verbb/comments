@@ -1,9 +1,10 @@
 <?php
 use craft\base\Element;
 use Tests\Support\Fixtures\CommentsFixtureFactory;
+use verbb\comments\compatibility\forms\LegacyFormActions;
 use verbb\comments\Comments;
 use verbb\comments\controllers\CommentsController;
-use verbb\comments\controllers\FrontendApiController;
+use verbb\comments\exceptions\ApiException;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\exceptions\ProtectionException;
@@ -106,7 +107,8 @@ function hardeningGuestIdentityCount(): int
 }
 
 it('removes the retired v3 frontend surface', function() {
-    expect(method_exists(CommentsController::class, 'actionTrash'))->toBeFalse()
+    // `actionTrash` is only Comments 3's, from `LegacyFormActions`, and refuses outside compatibility mode.
+    expect(in_array(LegacyFormActions::class, class_uses(CommentsController::class), true))->toBeTrue()
         ->and(method_exists(CommentsController::class, 'actionGetJsVariables'))->toBeFalse()
         ->and(method_exists(CommentsService::class, 'renderComment'))->toBeFalse()
         ->and(method_exists(CommentsService::class, 'getRenderVariables'))->toBeFalse()
@@ -210,19 +212,33 @@ it('only lets GraphQL edits change content', function() {
         ->and((int)$saved->userId)->toBe((int)$author->id);
 });
 
-it('no longer accepts author or date arguments on GraphQL mutations', function() {
+it('ignores author and date arguments on GraphQL mutations, and refuses them without compatibility mode', function() {
     $entry = CommentsFixtureFactory::entry('GraphQL arguments owner');
     $author = hardeningUser('gqlargs');
     $comment = hardeningComment($entry, $author);
+    $query = <<<GQL
+        mutation { saveComment(id: {$comment->id}, comment: "Edited", userId: {$this->admin->id}, commentDate: "2001-01-01T00:00:00+00:00") { id } }
+    GQL;
 
     Craft::$app->getUser()->setIdentity($author);
 
-    $result = hardeningGql(['comments:read', 'comments:edit', 'comments:save'], <<<GQL
-        mutation { saveComment(id: {$comment->id}, comment: "Edited", userId: {$this->admin->id}) { id } }
-    GQL);
+    // Comments 3's clients sent these, so compatibility mode takes them and changes nothing with them.
+    $result = hardeningGql(['comments:read', 'comments:edit', 'comments:save'], $query);
+    $saved = Comment::find()->id($comment->id)->status(null)->one();
 
-    expect($result)->toHaveKey('errors');
-    expect((int)Comment::find()->id($comment->id)->status(null)->one()->userId)->toBe((int)$author->id);
+    expect($result['errors'] ?? [])->toBe([])
+        ->and($saved->comment)->toBe('Edited')
+        ->and((int)$saved->userId)->toBe((int)$author->id)
+        ->and($saved->commentDate->format('Y'))->not->toBe('2001');
+
+    Comments::$plugin->getSettings()->compatibilityMode = false;
+
+    try {
+        expect(hardeningGql(['comments:read', 'comments:edit', 'comments:save'], $query))->toHaveKey('errors');
+    } finally {
+        Comments::$plugin->getSettings()->compatibilityMode = true;
+        Craft::$app->getGql()->flushCaches();
+    }
 });
 
 it('stops GraphQL authors republishing their own spam', function() {
@@ -545,19 +561,14 @@ it('honours the flagging setting and reports withdrawals accurately through the 
     $comment = hardeningComment($entry, $this->admin);
     Craft::$app->getUser()->setIdentity(hardeningUser('reportapi'));
 
-    $request = Craft::$app->getRequest();
-    $_SERVER['REQUEST_METHOD'] = 'POST';
-    // Set here rather than inherited from an earlier test, so this runs the same on its own.
-    $request->getHeaders()->set('Accept', 'application/json');
-    $request->setBodyParams(['commentId' => $comment->id]);
-    $controller = new FrontendApiController('frontend-api', Comments::$plugin);
+    $api = Comments::$plugin->getApi();
 
     Comments::$plugin->getSettings()->allowFlagging = false;
-    expect($controller->actionReport()->data['status'])->toBe('error');
+    expect(fn() => $api->report(['uid' => $comment->uid]))->toThrow(ApiException::class);
 
     Comments::$plugin->getSettings()->allowFlagging = true;
-    expect($controller->actionReport()->data['announcement'] ?? null)->toBe('Thanks for reporting this. A moderator will take a look.');
-    expect($controller->actionReport()->data['announcement'] ?? null)->toBe('Report withdrawn.');
+    expect($api->report(['uid' => $comment->uid])['announcement'] ?? null)->toBe('Thanks for reporting this. A moderator will take a look.');
+    expect($api->report(['uid' => $comment->uid, 'withdraw' => true])['announcement'] ?? null)->toBe('Report withdrawn.');
 });
 
 it('hides the remove action and rejects it without the trash permission', function() {
@@ -600,7 +611,7 @@ it('only accepts public submissions for fields explicitly allowed in settings', 
     ]]);
 
     $comment = new Comment();
-    $comment->setPublicFieldValuesFromRequest();
+    $comment->setFormFieldValuesFromRequest();
 
     expect($comment->getFieldValue($publicField->handle))->toBe('Visitor value')
         ->and($comment->getFieldValue($privateField->handle))->toBeNull();

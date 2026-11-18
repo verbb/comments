@@ -1,8 +1,12 @@
 <?php
 namespace verbb\comments\gql\interfaces;
 
+use verbb\comments\compatibility\gql\LegacyGql;
+use verbb\comments\helpers\Gql as CommentsGql;
+
 use verbb\comments\gql\arguments\CommentArguments;
 use verbb\comments\gql\interfaces\CommentInterface as CommentInterfaceLocal;
+use verbb\comments\gql\types\ArrayType;
 use verbb\comments\gql\types\CommentAuthorType;
 use verbb\comments\gql\types\CommentViewerType;
 use verbb\comments\gql\types\generators\CommentGenerator;
@@ -71,15 +75,15 @@ class CommentInterface extends Element
             'contentFormat' => [
                 'name' => 'contentFormat',
                 'type' => Type::string(),
-                'description' => 'How the comment was written: `plain` or `editor`.',
+                'description' => 'How the comment was written: `plain` or `rich`.',
             ],
             'contentHtml' => [
                 'name' => 'contentHtml',
                 'type' => Type::string(),
                 'description' => 'The rendered HTML of a rich comment. Null for plain text comments.',
             ],
-            'editorContent' => [
-                'name' => 'editorContent',
+            'contentDocument' => [
+                'name' => 'contentDocument',
                 'type' => Type::string(),
                 'description' => 'The Editor JSON of a rich comment, to edit it. Null for plain text comments.',
             ],
@@ -106,7 +110,7 @@ class CommentInterface extends Element
             'gifUrl' => [
                 'name' => 'gifUrl',
                 'type' => Type::string(),
-                'description' => 'The URL of the GIF on a comment from before GIF search was removed.',
+                'description' => 'The URL of the GIF from GIPHY shown with the comment, if it has one.',
             ],
             'name' => [
                 'name' => 'name',
@@ -127,6 +131,11 @@ class CommentInterface extends Element
                 'name' => 'url',
                 'type' => Type::string(),
                 'description' => 'The url the comment was made on.',
+            ],
+            'commentsData' => [
+                'name' => 'commentsData',
+                'type' => ArrayType::getType(),
+                'description' => 'The comment as the data API describes it to the person asking, with their permissions in `viewer` and, for a moderator on a schema that isn’t public, `moderation`.',
             ],
             'children' => [
                 'name' => 'children',
@@ -176,6 +185,15 @@ class CommentInterface extends Element
             ]);
         }
 
+        // A guest's address, for a private schema allowed to read addresses, as Comments 3 gave every schema (SD-57).
+        if (CommentsGql::canReadCommentEmails()) {
+            $fields['email'] = [
+                'name' => 'email',
+                'type' => Type::string(),
+                'description' => 'The guest’s email address. Null for comments by signed-in users. Only on a private schema allowed to view commenters’ email addresses.',
+            ];
+        }
+
         // Only moderators see that a comment has been reported, so only a schema that can moderate has
         // the count, and it's null unless whoever's asking can moderate too, as for `moderateComment`.
         if (GqlHelper::canSchema('comments', 'moderate')) {
@@ -186,6 +204,7 @@ class CommentInterface extends Element
             ];
         }
 
-        return $fields;
+        // Comments 3's structure fields, and `flags` where it's otherwise left out, in compatibility mode.
+        return array_merge($fields, LegacyGql::fields(isset($fields['flags'])));
     }
 }

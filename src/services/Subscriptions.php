@@ -2,9 +2,12 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\compatibility\events\LegacyEngagementEvents;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\IdentityType;
 use verbb\comments\enums\SubscriptionType;
+use verbb\comments\events\SubscriptionChangeEvent;
+use verbb\comments\exceptions\RefusedException;
 use verbb\comments\models\Settings;
 use verbb\comments\queue\jobs\SendEmailConfirmation;
 use verbb\comments\records\Conversation as ConversationRecord;
@@ -20,6 +23,7 @@ use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
+use yii\base\Event;
 use yii\base\UserException;
 use yii\db\IntegrityException;
 use yii\validators\EmailValidator;
@@ -35,12 +39,15 @@ class Subscriptions extends Component
     // Constants
     // =========================================================================
 
+    /** After someone follows, or stops following, a discussion or the replies to a comment. */
+    public const EVENT_AFTER_CHANGE_SUBSCRIPTION = 'afterChangeSubscription';
+
     public const PURPOSE_ALL = 'all';
     public const PURPOSE_CONVERSATION = 'conversation';
     public const PURPOSE_CONFIRM = 'confirm';
 
-    public const OUTCOME_SUBSCRIBED = 'subscribed';
-    public const OUTCOME_UNSUBSCRIBED = 'unsubscribed';
+    public const OUTCOME_FOLLOWED = 'followed';
+    public const OUTCOME_UNFOLLOWED = 'unfollowed';
     public const OUTCOME_CONFIRMING = 'confirming';
 
     private const TOKEN_PREFIX = 'comments-email:';
@@ -75,6 +82,11 @@ class Subscriptions extends Component
             throw new UserException(Craft::t('comments', 'Comments are unavailable for this element.'));
         }
 
+        // Someone blocked from a discussion can't follow it, though they can always stop (SD-45).
+        if ($subscribed && $plugin->getComments()->isRequestBlocked($ownerId, $siteId)) {
+            throw new RefusedException(Craft::t('comments', 'You can’t take part in this discussion.'), 'blocked');
+        }
+
         if ($user) {
             $conversation = $plugin->getConversations()->getOrCreateForOwner($ownerId, $siteId);
             $identity = $plugin->getIdentities()->getOrCreateForUser($user);
@@ -82,12 +94,12 @@ class Subscriptions extends Component
             if ($subscribed) {
                 $this->subscribeToConversation((int)$conversation->id, (int)$identity->id);
 
-                return self::OUTCOME_SUBSCRIBED;
+                return self::OUTCOME_FOLLOWED;
             }
 
             $this->unsubscribe((int)$conversation->id, (int)$identity->id);
 
-            return self::OUTCOME_UNSUBSCRIBED;
+            return self::OUTCOME_UNFOLLOWED;
         }
 
         $identity = $plugin->getIdentities()->findGuestForRequest();
@@ -99,7 +111,7 @@ class Subscriptions extends Component
                 $this->unsubscribe((int)$conversation->id, (int)$identity->id);
             }
 
-            return self::OUTCOME_UNSUBSCRIBED;
+            return self::OUTCOME_UNFOLLOWED;
         }
 
         if (!$plugin->getConversations()->getConfigForOwner($ownerId, $siteId)->allowGuests) {
@@ -114,7 +126,7 @@ class Subscriptions extends Component
         if ($identity?->verifiedAt && ($email === '' || strcasecmp($email, (string)$identity->email) === 0)) {
             $this->subscribeToConversation((int)$conversation->id, (int)$identity->id);
 
-            return self::OUTCOME_SUBSCRIBED;
+            return self::OUTCOME_FOLLOWED;
         }
 
         if (!(new EmailValidator())->validate($email)) {
@@ -490,7 +502,57 @@ class Subscriptions extends Component
         return hash('sha256', strtolower(trim($email)));
     }
 
+    /**
+     * Writes a subscription, and tells listeners when someone's following actually changed.
+     */
     private function _upsert(
+        int $conversationId,
+        int $identityId,
+        ?int $commentId,
+        SubscriptionType $type,
+        bool $subscribed,
+    ): SubscriptionRecord {
+        $legacy = Compatibility::enabled() && (Event::hasHandlers(Subscribe::class, Subscribe::EVENT_AFTER_SAVE_SUBSCRIBE) || Event::hasHandlers(Subscribe::class, Subscribe::EVENT_AFTER_DELETE_SUBSCRIBE));
+
+        // Nothing listening costs nothing more than the write.
+        if (!$legacy && !$this->hasEventHandlers(self::EVENT_AFTER_CHANGE_SUBSCRIPTION)) {
+            return $this->_write($conversationId, $identityId, $commentId, $type, $subscribed);
+        }
+
+        $wasSubscribed = SubscriptionRecord::find()
+            ->where(['conversationId' => $conversationId, 'identityId' => $identityId, 'commentId' => $commentId, 'type' => $type->value, 'subscribed' => true])
+            ->exists();
+        $record = $this->_write($conversationId, $identityId, $commentId, $type, $subscribed);
+
+        if ($wasSubscribed !== $subscribed) {
+            $this->_afterChange($record, $identityId, $conversationId, $commentId, $type, $subscribed, $legacy);
+        }
+
+        return $record;
+    }
+
+    private function _afterChange(SubscriptionRecord $record, int $identityId, int $conversationId, ?int $commentId, SubscriptionType $type, bool $subscribed, bool $legacy): void
+    {
+        $userId = CommentsPlugin::$plugin->getIdentities()->getById($identityId)?->userId;
+        $event = new SubscriptionChangeEvent([
+            'subscription' => $record,
+            'identityId' => $identityId,
+            'user' => $userId ? User::find()->id((int)$userId)->status(null)->one() : null,
+            'type' => $type,
+            'conversationId' => $conversationId,
+            'commentId' => $commentId,
+            'subscribed' => $subscribed,
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_CHANGE_SUBSCRIPTION, $event);
+
+        if ($legacy) {
+            $conversation = CommentsPlugin::$plugin->getConversations()->getById($conversationId);
+            LegacyEngagementEvents::subscription($event, $conversation ? (int)$conversation->ownerId : null, $conversation ? (int)$conversation->siteId : null);
+        }
+    }
+
+    private function _write(
         int $conversationId,
         int $identityId,
         ?int $commentId,

@@ -2,6 +2,7 @@
 namespace verbb\comments\fields;
 
 use verbb\comments\Comments;
+use verbb\comments\compatibility\fields\LegacyCommentsFieldValue;
 use verbb\comments\web\assets\cp\CommentsFieldAsset;
 
 use Craft;
@@ -15,6 +16,12 @@ use yii\db\Schema;
 
 class CommentsField extends Field
 {
+    // Traits
+    // =========================================================================
+
+    use LegacyCommentsFieldValue;
+
+
     // Static Methods
     // =========================================================================
 
@@ -48,6 +55,12 @@ class CommentsField extends Field
         };
     }
 
+    /** Whether a stored field value closes the owner's comments, keeping existing ones visible. */
+    public static function isClosedValue(mixed $value): bool
+    {
+        return self::_normalizeState($value) === self::STATE_CLOSED;
+    }
+
     private static function _normalizeState(mixed $value): string
     {
         if (is_string($value)) {
@@ -61,17 +74,8 @@ class CommentsField extends Field
         if (is_array($value)) {
             if (array_key_exists('state', $value)) {
                 $value = $value['state'];
-            } elseif (array_key_exists('enabledOverride', $value)) {
-                return match ($value['enabledOverride']) {
-                    true, 1, '1', self::STATE_ENABLED => self::STATE_ENABLED,
-                    false, 0, '0', self::STATE_DISABLED => self::STATE_DISABLED,
-                    default => self::STATE_INHERIT,
-                };
-            } elseif (array_key_exists('commentEnabled', $value)) {
-                // A legacy true value inherited source policy; only false was an override.
-                return in_array($value['commentEnabled'], [false, 0, '0', self::STATE_DISABLED], true)
-                    ? self::STATE_DISABLED
-                    : self::STATE_INHERIT;
+            } elseif (($legacy = self::_legacyState($value)) !== null) {
+                return $legacy;
             }
         }
 

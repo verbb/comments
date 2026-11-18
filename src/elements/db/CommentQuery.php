@@ -2,6 +2,7 @@
 namespace verbb\comments\elements\db;
 
 use verbb\comments\Comments;
+use verbb\comments\compatibility\elements\LegacyCommentQuery;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\ContentFormat;
 use verbb\comments\helpers\CommentsHelper;
@@ -23,6 +24,12 @@ use Exception;
 
 class CommentQuery extends ElementQuery
 {
+    // Traits
+    // =========================================================================
+
+    use LegacyCommentQuery;
+
+
     // Properties
     // =========================================================================
 
@@ -51,7 +58,27 @@ class CommentQuery extends ElementQuery
     public mixed $identityId = null;
     public mixed $moderationState = null;
     public mixed $rootId = null;
-    public mixed $adjacencyParentId = null;
+    public mixed $parentId = null;
+
+    /**
+     * Whether a search may match custom fields that comments don't show publicly. GraphQL on a schema
+     * that can't moderate turns this off, so a search can't find a comment by a value only moderators see.
+     */
+    public bool $withPrivateFields = true;
+
+    /**
+     * Whether a search leaves out commenters' email addresses even for someone who can see them, as
+     * Comments 3's parameter of the same name did, such as for a public search an admin may also use.
+     * Anyone who can't see addresses never searches them, whatever this is.
+     */
+    public bool $searchTextAndNameOnly = false;
+
+    /**
+     * Whether loading comments also loads their report counts, vote totals, authors and owners for all
+     * of them at once, which a page of comments needs. A caller that needs none of it, or sets them
+     * itself, turns it off to save the queries.
+     */
+    public bool $withRelatedData = true;
 
 
     // Public Methods
@@ -274,6 +301,16 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Leaves commenters' email addresses out of a search, even for someone who can see them.
+     */
+    public function searchTextAndNameOnly(bool $value = true): static
+    {
+        $this->searchTextAndNameOnly = $value;
+
+        return $this;
+    }
+
     public function rootId($value): static
     {
         $this->rootId = $value;
@@ -281,12 +318,19 @@ class CommentQuery extends ElementQuery
         return $this;
     }
 
-    /**
-     * Filter by Comments 4 adjacency parentId (not Craft Structure parentId).
-     */
-    public function adjacencyParentId($value): static
+    public function withRelatedData(bool $value = true): static
     {
-        $this->adjacencyParentId = $value;
+        $this->withRelatedData = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the results to the direct replies of these comments. Pass `:empty:` for top-level comments.
+     */
+    public function parentId($value): static
+    {
+        $this->parentId = $value;
 
         return $this;
     }
@@ -303,7 +347,7 @@ class CommentQuery extends ElementQuery
             $row['comment'] = StringHelper::shortcodesToEmoji($row['comment']);
         }
 
-        if (isset($row['bodyContent']) && is_string($row['bodyContent']) && ($row['contentFormat'] ?? null) !== ContentFormat::Editor->value) {
+        if (isset($row['bodyContent']) && is_string($row['bodyContent']) && ($row['contentFormat'] ?? null) !== ContentFormat::Rich->value) {
             $row['bodyContent'] = StringHelper::shortcodesToEmoji($row['bodyContent']);
         }
 
@@ -317,7 +361,7 @@ class CommentQuery extends ElementQuery
         $comments = array_values(array_filter($results, static fn(mixed $result): bool => $result instanceof Comment));
         $commentIds = array_map(static fn(Comment $comment): int => (int)$comment->id, $comments);
 
-        if ($commentIds === []) {
+        if ($commentIds === [] || !$this->withRelatedData) {
             return $results;
         }
 
@@ -411,6 +455,9 @@ class CommentQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        // Comments 3's structure parameters, answered from each reply's parent and depth.
+        $this->applyLegacyStructureParams();
+
         $this->joinElementTable('comments_comments');
 
         $select = [
@@ -451,6 +498,17 @@ class CommentQuery extends ElementQuery
             ]);
         }
 
+        // Which custom fields each comment was posted with, once `m400000_000009_form_fields` has run.
+        // Added by `m400000_000012_gifs_avatars`, so a site part-way through the upgrade can still read comments.
+        if ($hasV4 && $db->columnExists('{{%comments_comments}}', 'gifWidth')) {
+            $select[] = 'comments_comments.gifWidth';
+            $select[] = 'comments_comments.gifHeight';
+        }
+
+        if ($hasV4 && $db->columnExists('{{%comments_comments}}', 'postedFields')) {
+            $select[] = 'comments_comments.postedFields';
+        }
+
         $this->query->select($select);
 
         if ($this->ownerId) {
@@ -481,8 +539,8 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('comments_comments.rootId', $this->rootId));
         }
 
-        if ($hasV4 && $this->adjacencyParentId !== null) {
-            $this->subQuery->andWhere(Db::parseParam('comments_comments.parentId', $this->adjacencyParentId));
+        if ($hasV4 && $this->parentId !== null) {
+            $this->subQuery->andWhere(Db::parseParam('comments_comments.parentId', $this->parentId));
         }
 
         if ($this->name) {
@@ -499,18 +557,29 @@ class CommentQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('comments_comments.email', $this->email));
         }
 
-        // Craft's search index holds each comment's author address (`authorEmail`), and a search
-        // matches any attribute. For anyone who can't see addresses, a comment must also match on
-        // something else, so typing part of an address finds nothing.
-        if ($this->search && !CommentsHelper::canViewAddresses()) {
+        // Craft's search index holds each comment's author address (`authorEmail`) and its custom fields,
+        // and a search matches any of them. For anyone who can't see addresses, a comment must also match
+        // on something else, so typing part of an address finds nothing, and the same goes for custom
+        // fields a request can't read.
+        $privateFieldIds = $this->search ? $this->_privateFieldIds() : [];
+
+        $withoutAddresses = $this->searchTextAndNameOnly || !CommentsHelper::canViewAddresses();
+
+        if ($this->search && ($withoutAddresses || $privateFieldIds)) {
             $searchQuery = Craft::$app->getSearch()->createDbQuery($this->search, $this);
 
             if ($searchQuery !== false) {
-                $this->subQuery->andWhere([
-                    'elements.id' => $searchQuery
-                        ->select(['elementId'])
-                        ->andWhere(['not', ['attribute' => Comment::SEARCH_ATTRIBUTE_EMAIL]]),
-                ]);
+                $searchQuery->select(['elementId']);
+
+                if ($withoutAddresses) {
+                    $searchQuery->andWhere(['not', ['attribute' => Comment::SEARCH_ATTRIBUTE_EMAIL]]);
+                }
+
+                if ($privateFieldIds) {
+                    $searchQuery->andWhere(['not', ['fieldId' => $privateFieldIds]]);
+                }
+
+                $this->subQuery->andWhere(['elements.id' => $searchQuery]);
             }
         }
 
@@ -608,6 +677,13 @@ class CommentQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
+    protected function afterPrepare(): bool
+    {
+        $this->restoreLegacyStructureParams();
+
+        return parent::afterPrepare();
+    }
+
     protected function statusCondition(string $status): mixed
     {
         return match ($status) {
@@ -626,7 +702,8 @@ class CommentQuery extends ElementQuery
                 'comments_comments.status' => Comment::STATUS_REMOVED,
             ],
             Comment::STATUS_AUTHOR_REMOVED => ['not', ['comments_comments.authorRemovedAt' => null]],
-            default => parent::statusCondition($status),
+            // Comments 3's `trashed`, in compatibility mode.
+            default => $this->legacyStatusCondition($status) ?? parent::statusCondition($status),
         };
     }
 
@@ -662,5 +739,18 @@ class CommentQuery extends ElementQuery
         }
 
         return false;
+    }
+
+    /**
+     * The IDs of the custom fields a search mustn't match on, when `withPrivateFields` is off: all of them,
+     * because a field shown now can still hold values entered while it was only collected.
+     */
+    private function _privateFieldIds(): array
+    {
+        if ($this->withPrivateFields) {
+            return [];
+        }
+
+        return array_map(static fn($field): int => (int)$field->id, Craft::$app->getFields()->getLayoutByType(Comment::class)->getCustomFields());
     }
 }

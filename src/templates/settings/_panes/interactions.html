@@ -24,6 +24,27 @@
     warning: macros.configWarning('allowGuestVoting', 'comments'),
 }) }}
 
+{{ forms.lightswitchField({
+    label: 'Show Author Score' | t('comments'),
+    instructions: 'Show each signed-in author’s total votes across their approved comments beside their name.' | t('comments'),
+    id: 'showAuthorScore',
+    name: 'showAuthorScore',
+    on: settings.showAuthorScore,
+    warning: macros.configWarning('showAuthorScore', 'comments'),
+}) }}
+
+{{ forms.textField({
+    type: 'number',
+    label: 'Hide After Downvotes' | t('comments'),
+    instructions: 'Fold a comment away once it has this many downvotes, with a button to show it. It stays published. Only applies to upvotes and downvotes. Leave blank to never fold comments for their votes.' | t('comments'),
+    id: 'downvoteCommentLimit',
+    name: 'downvoteCommentLimit',
+    value: settings.downvoteCommentLimit,
+    min: 1,
+    errors: settings.getErrors('downvoteCommentLimit'),
+    warning: macros.configWarning('downvoteCommentLimit', 'comments'),
+}) }}
+
 <hr>
 
 <h3>{{ 'Reporting' | t('comments') }}</h3>
@@ -44,6 +65,18 @@
         name: 'allowGuestFlagging',
         on: settings.allowGuestFlagging,
         warning: macros.configWarning('allowGuestFlagging', 'comments'),
+    }) }}
+
+    {{ forms.textField({
+        type: 'number',
+        label: 'Hide After Reports' | t('comments'),
+        instructions: 'Fold a comment away once it has this many open reports, with a button to show it, until a moderator settles them. It stays published, and reported comments still wait for a moderator. Leave blank to never fold comments for their reports.' | t('comments'),
+        id: 'flaggedCommentLimit',
+        name: 'flaggedCommentLimit',
+        value: settings.flaggedCommentLimit,
+        min: 1,
+        errors: settings.getErrors('flaggedCommentLimit'),
+        warning: macros.configWarning('flaggedCommentLimit', 'comments'),
     }) }}
 
     {{ forms.editableTableField({
