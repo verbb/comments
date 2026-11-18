@@ -1,0 +1,75 @@
+/* The Comment Fields settings: each section's preview beside its sidebar of fields. */
+.comments-field-settings__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .comments-field-settings__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.comments-field-settings__preview {
+    padding: 16px;
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--large-border-radius);
+    background: var(--white);
+}
+
+.comments-field-settings__side {
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--large-border-radius);
+    background: var(--gray-050);
+}
+
+.comments-field-settings__heading {
+    margin: 0;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--hairline-color);
+    font-size: 13px;
+}
+
+.comments-field-settings__row {
+    display: grid;
+    gap: 6px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--hairline-color);
+}
+
+.comments-field-settings__row[hidden],
+.comments-field-settings__empty[hidden] {
+    display: none;
+}
+
+.comments-field-settings__row:last-of-type {
+    border-bottom: 0;
+}
+
+.comments-field-settings__row p {
+    margin: 0;
+}
+
+.comments-field-settings__name,
+.comments-field-settings__sub {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.comments-field-settings__label {
+    display: block;
+}
+
+.comments-field-settings__row .select,
+.comments-field-settings__row select {
+    width: 100%;
+}
+
+.comments-field-settings__empty {
+    margin: 0;
+    padding: 10px 14px;
+}

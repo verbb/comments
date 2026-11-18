@@ -1,27 +1,129 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
-{% set publicFieldOptions = [] %}
-
-{% for field in craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment').getCustomFields() %}
-    {% set publicFieldOptions = publicFieldOptions | merge([{ label: field.name, value: field.handle }]) %}
-{% endfor %}
-
-{% if publicFieldOptions %}
-    {{ forms.checkboxGroupField({
-        label: 'Public Fields' | t('comments'),
-        instructions: 'Choose the custom fields visitors can submit through public forms and the API. All other fields can only be edited in the control panel.' | t('comments'),
-        name: 'publicFields',
-        options: publicFieldOptions,
-        values: settings.publicFields,
-        warning: macros.configWarning('publicFields', 'comments'),
-    }) }}
-{% endif %}
-
+{# The fields first, then which of them the site's form asks for, then where their answers show on
+   comments. Each has a preview drawn by Comments' own templates, which comment-fields.ts keeps up to
+   date as the switches and selects change. #}
 {{ forms.fieldLayoutDesignerField({
     label: 'Comment Field Layout' | t('comments'),
-    instructions: 'Choose the fields and tabs available on Comment elements in the control panel and public comment form.' | t('comments'),
+    instructions: 'The fields on comments, their order, labels and widths. Fields placed above **Comment** are asked for above the comment box on the site. Tabs only group fields in the control panel: the site’s form asks for every tab’s fields, in order.' | t('comments'),
     fieldLayout: craft.app.fields.getLayoutByType('verbb\\comments\\elements\\Comment'),
     customizableTabs: true,
-    customizableUi: false,
+    customizableUi: true,
+    errors: settings.getErrors('fieldLayout'),
 }) }}
+
+{% set rows = craft.comments.formFieldRows %}
+
+{% if rows %}
+    {% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentFieldsAsset') %}
+    {% do view.registerTranslations('comments', ['Not shown: {fields}.']) %}
+
+    {% set showOptions = [
+        { label: 'Beside the date' | t('comments'), value: 'inline' },
+        { label: 'Under the text' | t('comments'), value: 'details' },
+        { label: 'Not shown' | t('comments'), value: 'none' },
+    ] %}
+
+    {% set photoUrl = craft.app.assetManager.getPublishedUrl('@verbb/comments/web/assets/cp/dist', true, 'preview-photo.svg') %}
+    <div class="comments-field-settings" data-comments-field-settings data-photo-url="{{ photoUrl }}">
+        <script type="application/json" data-comments-field-labels>{{ craft.app.plugins.getPlugin('comments').getApi().labels() | json_encode | raw }}</script>
+        <script type="application/json" data-comments-field-rows>{{ rows | map(row => { uid: row.uid, label: row.label, description: row.description }) | json_encode | raw }}</script>
+
+        {% set formSection %}
+            <div class="comments-field-settings__grid">
+                <div class="comments-field-settings__preview" data-comments-form-preview aria-hidden="true"></div>
+                <div class="comments-field-settings__side">
+                    <h3 class="comments-field-settings__heading">{{ 'Fields' | t('comments') }}</h3>
+                    {% for row in rows %}
+                        {% set name = 'formFields[' ~ row.uid ~ ']' %}
+                        {% set asked = row.mode != 'off' %}
+                        <div class="comments-field-settings__row" data-comments-field-row="{{ row.uid }}">
+                            <div class="comments-field-settings__name">
+                                <span><strong>{{ row.label }}</strong> <span class="smalltext light">{{ row.type }}</span></span>
+                                {{ forms.lightswitch({
+                                    name: name ~ '[ask]',
+                                    on: asked,
+                                    disabled: not row.supported,
+                                    small: true,
+                                    describedBy: not row.supported ? 'comments-form-field-' ~ row.uid ~ '-reason' : null,
+                                    containerAttributes: { aria: { label: 'Ask for {field}' | t('comments', { field: row.label }) }, data: { 'comments-field-ask': row.uid } },
+                                }) }}
+                            </div>
+                            {% if row.supported %}
+                                <div class="comments-field-settings__sub">
+                                    <span class="smalltext light">{{ 'Include for replies' | t('comments') }}</span>
+                                    {{ forms.lightswitch({
+                                        name: name ~ '[replies]',
+                                        on: row.replies,
+                                        small: true,
+                                        containerAttributes: { aria: { label: 'Include {field} for replies' | t('comments', { field: row.label }) }, data: { 'comments-field-replies': row.uid } },
+                                    }) }}
+                                </div>
+                            {% else %}
+                                <p id="comments-form-field-{{ row.uid }}-reason" class="smalltext light">{{ row.reason | md(inlineOnly=true) }}</p>
+                            {% endif %}
+                            {% for note in row.notes %}
+                                <p class="smalltext light">{{ note }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'The Comment Form' | t('comments'),
+            instructions: 'Which fields the site’s comment form asks for. Fields that aren’t asked for are only filled in from the control panel.' | t('comments'),
+            errors: settings.getErrors('formFields'),
+            warning: macros.configWarning('formFields', 'comments') ?: macros.configWarning('publicFields', 'comments'),
+        }, formSection) }}
+
+        {% set cardSection %}
+            <div class="comments-field-settings__grid">
+                <div>
+                    <div class="comments-field-settings__preview" data-comments-card-preview aria-hidden="true"></div>
+                    <p class="smalltext light" data-comments-card-hidden></p>
+                </div>
+                <div class="comments-field-settings__side">
+                    <h3 class="comments-field-settings__heading">{{ 'Fields' | t('comments') }}</h3>
+                    {% for row in rows | filter(row => row.supported) %}
+                        {% set name = 'formFields[' ~ row.uid ~ ']' %}
+                        {% set show = row.mode == 'collect-and-show' ? row.placement : 'none' %}
+                        <div class="comments-field-settings__row" data-comments-shown-row="{{ row.uid }}" {{ row.mode == 'off' ? 'hidden' }}>
+                            <label class="comments-field-settings__label" for="comments-field-{{ row.uid }}-show"><strong>{{ row.label }}</strong></label>
+                            {{ forms.select({
+                                id: 'comments-field-' ~ row.uid ~ '-show',
+                                name: name ~ '[show]',
+                                options: showOptions,
+                                value: show,
+                                inputAttributes: { 'data-comments-field-show': row.uid },
+                            }) }}
+                            {% if row.isEmail %}
+                                <p class="warning with-icon smalltext" data-comments-email-warning {{ show == 'none' ? 'hidden' }}>{{ 'Everyone can see each commenter’s email address.' | t('comments') }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <p class="smalltext light comments-field-settings__empty" data-comments-shown-empty hidden>{{ 'Ask for a field above to choose where its answer shows.' | t('comments') }}</p>
+                </div>
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Answers on Comments' | t('comments'),
+            instructions: 'Where each answer appears once someone posts. Answers that aren’t shown are seen only by moderators and the comment’s author. [How it works]({url})' | t('comments', { url: 'https://verbb.io/craft-plugins/comments/docs/v4/template-guides/custom-fields' }),
+        }, cardSection) }}
+
+        <p class="smalltext light">{{ 'The previews use Comments’ default theme and sample answers.' | t('comments') }}</p>
+    </div>
+
+    {{ forms.lightswitchField({
+        label: 'Guests Can Upload Files' | t('comments'),
+        instructions: 'Offer guests Assets fields too. Their files are removed after two hours unless they post.' | t('comments'),
+        name: 'allowGuestFieldUploads',
+        on: settings.allowGuestFieldUploads,
+        warning: macros.configWarning('allowGuestFieldUploads', 'comments'),
+    }) }}
+{% else %}
+    <p class="light">{{ 'Add custom fields to the layout, then save, to choose which of them the site’s comment form asks for.' | t('comments') }}</p>
+{% endif %}
