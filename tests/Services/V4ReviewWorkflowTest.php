@@ -210,7 +210,7 @@ it('holds a comment as spam from beforeSaveComment, as the events docs show', fu
             ->and(Comment::find()->ownerId($entry->id)->status(Comment::STATUS_SPAM)->ids())->toBe([(int)$result->comment->id])
             ->and(reviewState($clean)['moderationState'])->toBe('approved');
 
-        // A visitor posting the form without JavaScript is told it's under review, as the browser runtime does.
+        // A visitor posting the form without JavaScript is told it's under review, as the comments script does.
         Craft::$app->getUser()->setIdentity($member);
         $_SERVER['REQUEST_METHOD'] = 'POST';
         Craft::$app->getRequest()->getHeaders()->set('Accept', 'application/json');

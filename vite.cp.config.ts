@@ -17,6 +17,7 @@ export default defineConfig({
         'plugin-kit': path.resolve(cpRoot, 'src/plugin-kit.ts'),
         commenters: path.resolve(cpRoot, 'src/commenters.ts'),
         'comment-edit': path.resolve(cpRoot, 'src/comment-edit.ts'),
+        'comment-fields': path.resolve(cpRoot, 'src/comment-fields.ts'),
       },
       formats: ['es'],
       fileName: (_format, name) => `${name}.js`,

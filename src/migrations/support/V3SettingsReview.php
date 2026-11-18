@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\migrations\support;
 
+use verbb\comments\elements\Comment;
+
 use Craft;
 
 /**
@@ -28,7 +30,7 @@ final class V3SettingsReview
         $inUse = [];
 
         foreach (self::RETIRED_SETTINGS as $setting => $unused) {
-            if (in_array($setting, self::SILENT, true) || !array_key_exists($setting, $values)) {
+            if (in_array($setting, self::SILENT, true) || in_array($setting, self::REPORTED_ELSEWHERE, true) || !array_key_exists($setting, $values)) {
                 continue;
             }
 
@@ -42,26 +44,44 @@ final class V3SettingsReview
         return $inUse;
     }
 
-    /**
-     * Whether Comments 3 emailed the moderator group, which it did for comments waiting for review and
-     * edits to them, once a group was chosen. Its new-comment and flag emails went to the addresses in
-     * `notificationAdmins` instead, which Comments 4 has no way to reach, so they don't count.
-     */
-    public static function emailedModeratorGroup(array $values): bool
-    {
-        if (empty($values['moderatorUserGroup'])) {
-            return false;
-        }
-
-        return (bool)($values['notificationModeratorEnabled'] ?? false)
-            || (bool)($values['notificationModeratorEditEnabled'] ?? false);
-    }
-
     public static function record(V3UpgradeLog $log): void
     {
-        foreach (self::retiredInUse(self::currentValues()) as $setting) {
+        $values = self::currentValues();
+
+        foreach (self::retiredInUse($values) as $setting) {
             $log->add('settings.retired.' . $setting, V3UpgradeLog::WARNING);
         }
+
+        // Comments 3 put every comment in the page's HTML. Comments 4 loads them in the browser as a
+        // visitor scrolls near, which changes what search engines that don't run scripts can read, so
+        // a site hears about it and where to choose otherwise, unless it has already chosen.
+        if (!array_key_exists('loadMode', $values)) {
+            $log->add(self::LOAD_MODE_NOTICE, V3UpgradeLog::WARNING);
+        }
+
+        // Comments 3 took every custom field in the Comment layout from the site's form. Comments 4 takes
+        // only those set to Collect or Collect and show, and none are until the site chooses them.
+        if (self::customFieldCount() > 0) {
+            $log->add(self::FORM_FIELDS_NOTICE, V3UpgradeLog::WARNING);
+        }
+
+        // Both carry over, but work differently: GIPHY's terms now have visitors search GIPHY themselves,
+        // with the site's key in the page, and Gravatar is only used for confirmed addresses, served by the site.
+        if (filter_var($values['giphyEnabled'] ?? false, FILTER_VALIDATE_BOOL)) {
+            $log->add(self::GIPHY_NOTICE, V3UpgradeLog::WARNING);
+        }
+
+        if (filter_var($values['enableGravatar'] ?? false, FILTER_VALIDATE_BOOL)) {
+            $log->add(self::GRAVATAR_NOTICE, V3UpgradeLog::WARNING);
+        }
+    }
+
+    /**
+     * How many custom fields the Comment field layout has.
+     */
+    public static function customFieldCount(): int
+    {
+        return count(Craft::$app->getFields()->getLayoutByType(Comment::class)->getCustomFieldElements());
     }
 
     /** The site's Comments 3 settings, with `config/comments.php` over project config, as Craft reads them. */
@@ -80,16 +100,21 @@ final class V3SettingsReview
     public const KEPT = 'kept';
     public const TRANSLATED = 'translated';
     public const RETIRED = 'retired';
+    public const LOAD_MODE_NOTICE = 'settings.loadMode';
+    public const FORM_FIELDS_NOTICE = 'settings.formFields';
+    public const GIPHY_NOTICE = 'settings.giphy';
+    public const GRAVATAR_NOTICE = 'settings.gravatar';
 
     private const KEPT_SETTINGS = [
         'pluginName', 'closed', 'allowGuest', 'guestNotice', 'guestRequireEmailName', 'guestShowEmailName',
         'requireModeration', 'moderatorUserGroup', 'moderatorExcluded', 'autoCloseDays', 'maxReplyDepth',
         'maxUserComments', 'allowGuestVoting', 'allowFlagging', 'allowGuestFlagging', 'showAvatar',
         'placeholderAvatar', 'showTimeAgo', 'orderBy', 'outputDefaultCss', 'outputDefaultJs',
-        'templateFolderOverride', 'templateEmail', 'enableSpamChecks', 'securityMaxLength', 'securityFlooding',
-        'securityModeration', 'securitySpamlist', 'securityBanned', 'securityMatchExact', 'recaptchaEnabled',
+        'templateEmail', 'enableSpamChecks', 'securityMaxLength', 'securityFlooding',
+        'securityModeration', 'securitySpamlist', 'securityBanned', 'securityMatchExact',
         'recaptchaKey', 'recaptchaSecret', 'recaptchaMinScore', 'useQueueForNotifications', 'permissions',
-        'sortDefaultKey', 'sortDefaultDirection',
+        'sortDefaultKey', 'sortDefaultDirection', 'enableGravatar', 'giphyEnabled', 'giphyApiKey', 'giphyRating',
+        'giphyLimit', 'downvoteCommentLimit', 'showAuthorScore', 'flaggedCommentLimit',
     ];
 
     // Each of these is read once by `Settings` and written back in its v4 form.
@@ -97,7 +122,7 @@ final class V3SettingsReview
         'allowVoting', 'notificationAuthorEnabled', 'notificationReplyEnabled', 'notificationSubscribeAuto',
         'notificationSubscribeDefault', 'notificationSubscribeEnabled', 'notificationSubscribeCommentEnabled',
         'notificationModeratorEnabled', 'notificationModeratorEditEnabled', 'notificationModeratorApprovedEnabled',
-        'notificationAdminEnabled', 'notificationFlaggedEnabled',
+        'notificationAdminEnabled', 'notificationFlaggedEnabled', 'notificationAdmins', 'recaptchaEnabled',
     ];
 
     // With the value that means the setting wasn't being used.
@@ -108,23 +133,19 @@ final class V3SettingsReview
         'indexSidebarGroup' => null,
         'indexSidebarIndividualElements' => null,
         'defaultQueryStatus' => ['approved'],
-        'downvoteCommentLimit' => 5,
         'hideVotingForThreshold' => false,
-        'showAuthorScore' => true,
-        'flaggedCommentLimit' => 5,
-        'enableGravatar' => false,
         'assetBaseUrl' => null,
         'assetBasePath' => null,
-        'giphyEnabled' => false,
-        'giphyApiKey' => null,
-        'giphyRating' => 'g',
-        'giphyLimit' => 24,
         'showCustomFieldNames' => false,
         'showCustomFieldInstructions' => false,
-        // Staff are told through an event rather than emailed.
-        'notificationAdmins' => [],
+        // Threads are drawn with JavaScript, so there are no thread templates to override.
+        'templateFolderOverride' => null,
     ];
 
     // These only ever affected how the site looked to the people running it, or were internal.
     private const SILENT = ['structureUid', 'users', 'indexSidebarLimit', 'indexSidebarGroup', 'indexSidebarIndividualElements'];
+
+    // Reported by their own migration, which says more than that the setting has gone:
+    // `m400000_000010_template_overrides` lists the overridden files.
+    private const REPORTED_ELSEWHERE = ['templateFolderOverride'];
 }

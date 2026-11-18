@@ -27,7 +27,7 @@
                 <li>
                     <a href="{{ url('comments/commenters', handle != 'all' ? { source: handle } : {}) }}"{% if handle == source %} class="sel" aria-current="page"{% endif %}>
                         {% if handle in ['trusted', 'held', 'blocked'] %}
-                            <span class="status {{ { trusted: 'green', held: 'orange', blocked: 'red' }[handle] }}" aria-hidden="true"></span>
+                            <span class="comments-source-status status {{ { trusted: 'teal', held: 'orange', blocked: 'red' }[handle] }}" aria-hidden="true"></span>
                         {% endif %}
                         <span class="label">{{ item.label }}</span>
                         <span class="badge comments-source-count" aria-label="{{ '{count} commenters' | t('comments', { count: item.count }) }}">{{ item.count | number }}</span>

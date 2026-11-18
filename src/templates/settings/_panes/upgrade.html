@@ -12,7 +12,22 @@
     <tbody>
         {% for issue in issues %}
             <tr>
-                <td>{{ issue.label }}</td>
+                <td>
+                    {{ issue.label }}
+                    {% if issue.items ?? false %}
+                        <ul class="bullets">
+                            {% for item in issue.items %}
+                                <li><code>{{ item }}</code></li>
+                            {% endfor %}
+                        </ul>
+                        {% if issue.count > issue.items | length %}
+                            <p class="light">{{ 'And {count} more.' | t('comments', { count: issue.count - issue.items | length }) }}</p>
+                        {% endif %}
+                    {% endif %}
+                    {% if issue.url ?? false %}
+                        <p><a href="{{ issue.url }}" target="_blank" rel="noopener">{{ 'Read the upgrade guide' | t('comments') }}</a></p>
+                    {% endif %}
+                </td>
                 <td class="thin">{{ issue.count | number }}</td>
             </tr>
         {% endfor %}

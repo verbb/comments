@@ -54,20 +54,13 @@ it('profiles rendering comments markup for an owner', function() {
     expect($profile['durationMs'])->toBeLessThan(10000);
 })->group('perf');
 
-it('profiles Frontend::buildConversationView query count for 50 canonical roots', function() {
+it('profiles the data API’s thread read query count for 50 canonical roots', function() {
     $entry = CommentsFixtureFactory::entry('Perf conversation view owner');
     CommentsFixtureFactory::conversationWithRoots($entry, 50);
+    Craft::$app->getCache()->flush();
 
-    $profile = QueryProfiler::profile(static function() use ($entry) {
-        return Comments::$plugin->getFrontend()->buildConversationView(
-            (int)$entry->id,
-            (int)$entry->siteId,
-            null,
-            50,
-        );
-    });
+    $profile = QueryProfiler::profile(static fn() => Comments::$plugin->getApi()->thread($entry, null, 50));
 
-    expect($profile['resultSize'])->toBeNull();
     // Reply previews, authors, report counts and vote totals are each fetched once for the page.
     expect($profile['queries'])->toBeLessThanOrEqual(20);
     expect($profile['duplicatePatterns'])->toBe(0);
@@ -120,17 +113,21 @@ it('keeps authors’ photos, report counts and reply checks batched for a modera
         $settings->maxUserComments = 100;
         Comments::$plugin->getConversations()->clearCaches();
 
-        $profile = QueryProfiler::profile(static fn() => Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId, null, 50));
-        $matching = static fn(string $needle): int => array_sum(array_filter($profile['patterns'], static fn(string $sql): bool => str_contains($sql, $needle), ARRAY_FILTER_USE_KEY));
+        Craft::$app->getCache()->flush();
+        $api = Comments::$plugin->getApi();
+        // The page as a moderator reads it: the public thread, then their private `viewer` read.
+        $thread = QueryProfiler::profile(static fn() => $api->thread($entry, null, 50));
+        $viewer = QueryProfiler::profile(static fn() => $api->viewer($entry, null, 50));
+        $matching = static fn(array $profile, string $needle): int => array_sum(array_filter($profile['patterns'], static fn(string $sql): bool => str_contains($sql, $needle), ARRAY_FILTER_USE_KEY));
 
         // One query loads every author's photo, and each author's avatar URL is built once rather than
         // once per comment, because every transformed URL looks up the transform index.
-        expect($matching('INNER JOIN `assets` `assets`'))->toBe(1)
-            ->and($matching('FROM `imagetransformindex` WHERE'))->toBe(10)
+        expect($matching($thread, 'INNER JOIN `assets` `assets`'))->toBe(1)
+            ->and($matching($thread, 'FROM `imagetransformindex` WHERE'))->toBe(10)
             // Moderators' Keep and Remove use the report counts loaded with the comments.
-            ->and($matching('FROM `comments_reports` WHERE (`commentId`=?)'))->toBe(0)
-            // Whether the viewer can comment counts their comments for the form and the page's replies, not once per comment.
-            ->and($matching('`comments_comments`.`userId`'))->toBeLessThanOrEqual(3);
+            ->and($matching($viewer, 'FROM `comments_reports` WHERE (`commentId`=?)'))->toBe(0)
+            // Whether the viewer can comment counts their comments once for the page, not once per comment.
+            ->and($matching($viewer, '`comments_comments`.`userId`'))->toBeLessThanOrEqual(3);
     } finally {
         Craft::$app->getVolumes()->deleteVolume($volume);
         Craft::$app->getFs()->removeFilesystem($filesystem);

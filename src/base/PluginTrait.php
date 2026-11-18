@@ -2,15 +2,21 @@
 namespace verbb\comments\base;
 
 use verbb\comments\Comments;
+use verbb\comments\services\Api;
+use verbb\comments\services\Avatars;
 use verbb\comments\services\CommentAssets;
 use verbb\comments\services\CommentEditor;
 use verbb\comments\services\Commenters;
+use verbb\comments\services\Compatibility;
 use verbb\comments\services\Comments as CommentsService;
 use verbb\comments\services\Conversations;
 use verbb\comments\services\Diagnostics;
+use verbb\comments\services\FormFields;
+use verbb\comments\services\Giphy;
 use verbb\comments\services\Frontend;
 use verbb\comments\services\Identities;
 use verbb\comments\services\Interactions;
+use verbb\comments\services\MemberTokens;
 use verbb\comments\services\Mentions;
 use verbb\comments\services\Moderation;
 use verbb\comments\services\Notifications;
@@ -20,6 +26,8 @@ use verbb\comments\services\RenderCache;
 use verbb\comments\services\Reports;
 use verbb\comments\services\Security;
 use verbb\comments\services\Service;
+use verbb\comments\services\SignIn;
+use verbb\comments\services\SpamSettings;
 use verbb\comments\services\Subscriptions;
 use verbb\comments\services\Templates;
 
@@ -40,16 +48,22 @@ trait PluginTrait
 
         return [
             'components' => [
+                'api' => Api::class,
+                'avatars' => Avatars::class,
                 'comments' => CommentsService::class,
                 'conversations' => Conversations::class,
                 'identities' => Identities::class,
+                'memberTokens' => MemberTokens::class,
                 'mentions' => Mentions::class,
                 'commentAssets' => CommentAssets::class,
                 'moderation' => Moderation::class,
                 'ownerElement' => OwnerElement::class,
                 'commentEditor' => CommentEditor::class,
                 'commenters' => Commenters::class,
+                'compatibility' => Compatibility::class,
                 'diagnostics' => Diagnostics::class,
+                'formFields' => FormFields::class,
+                'giphy' => Giphy::class,
                 'interactions' => Interactions::class,
                 'reports' => Reports::class,
                 'subscriptions' => Subscriptions::class,
@@ -59,6 +73,8 @@ trait PluginTrait
                 'renderCache' => RenderCache::class,
                 'security' => Security::class,
                 'service' => Service::class,
+                'signIn' => SignIn::class,
+                'spamSettings' => SpamSettings::class,
                 'templates' => Templates::class,
             ],
         ];
@@ -80,6 +96,21 @@ trait PluginTrait
     // Public Methods
     // =========================================================================
 
+    public function getApi(): Api
+    {
+        return $this->get('api');
+    }
+
+    public function getAvatars(): Avatars
+    {
+        return $this->get('avatars');
+    }
+
+    public function getCompatibility(): Compatibility
+    {
+        return $this->get('compatibility');
+    }
+
     public function getComments(): CommentsService
     {
         return $this->get('comments');
@@ -93,6 +124,11 @@ trait PluginTrait
     public function getIdentities(): Identities
     {
         return $this->get('identities');
+    }
+
+    public function getMemberTokens(): MemberTokens
+    {
+        return $this->get('memberTokens');
     }
 
     public function getMentions(): Mentions
@@ -128,6 +164,16 @@ trait PluginTrait
     public function getDiagnostics(): Diagnostics
     {
         return $this->get('diagnostics');
+    }
+
+    public function getFormFields(): FormFields
+    {
+        return $this->get('formFields');
+    }
+
+    public function getGiphy(): Giphy
+    {
+        return $this->get('giphy');
     }
 
     public function getInteractions(): Interactions
@@ -173,6 +219,16 @@ trait PluginTrait
     public function getService(): Service
     {
         return $this->get('service');
+    }
+
+    public function getSignIn(): SignIn
+    {
+        return $this->get('signIn');
+    }
+
+    public function getSpamSettings(): SpamSettings
+    {
+        return $this->get('spamSettings');
     }
 
     public function getTemplates(): Templates

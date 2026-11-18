@@ -4,6 +4,13 @@ return [
   //
   // Email Messages
   //
+  'comments_guest_confirmation_heading' => 'Wenn ein Gast seine E-Mail-Adresse bestätigen muss:',
+  'comments_guest_confirmation_subject' => 'Bestätige deine E-Mail-Adresse',
+  'comments_guest_confirmation_body' => "Hallo,\n\n" .
+    "Jemand hat unter dieser Adresse E-Mails zu Kommentaren auf {{siteName}} angefordert. Wenn du das warst, bestätige es hier:\n\n" .
+    "{{confirmUrl}}\n\n" .
+    "Wenn nicht, kannst du diese E-Mail ignorieren und wirst nichts mehr von uns hören.",
+
   'comments_author_notification_heading' => 'Wenn ein Kommentar geschrieben wurde:',
   'comments_author_notification_subject' => '"{{element.title}}" hat einen Kommentar auf {{siteName}} erhalten.',
   'comments_author_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
@@ -14,6 +21,12 @@ return [
   'comments_reply_notification_subject' => 'Jemand hat auf deinen Kommentar auf {{siteName}} reagiert.',
   'comments_reply_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "A new reply to your comment on the post \"{{ element.title }}\" has been made.\n\n" .
+    "{{element.url}}#comment-{{comment.id}}.",
+
+  'comments_mention_notification_heading' => 'Wenn jemand in einem Kommentar erwähnt wird:',
+  'comments_mention_notification_subject' => 'Du wurdest in einem Kommentar auf {{ siteName }} erwähnt',
+  'comments_mention_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
+    "Du wurdest in einem Kommentar zum Beitrag \"{{ element.title }}\" erwähnt.\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
   'comments_subscriber_notification_element_heading' => 'Wenn ein Kommentar zu einem abonnierten Element geschrieben wird:',
@@ -94,7 +107,6 @@ return [
   'Flag' => 'Melden',
   'Flagged' => 'Flagged',
   'Flagging is not allowed.' => 'Flagging is not allowed.',
-  'For per-element control, add a Comments field to the relevant field layout.' => 'Fügen Sie für die Steuerung einzelner Elemente dem entsprechenden Feldlayout ein Kommentare-Feld hinzu.',
   'Form validation failed. Marked as spam.' => 'Fehler bei der Formularüberprüfung. Als Spam markiert.',
   'Guest' => 'Anonym',
   'If disabling any of these options, you‘ll need to supply your own CSS or JS in order for the form and comments functionality to look and work correctly.' => 'Wenn Sie eine dieser Optionen deaktivieren, müssen Sie Ihr eigenes CSS oder JS angeben, damit die Formular- und Kommentarfunktionalität richtig aussieht und funktioniert.',
@@ -110,12 +122,10 @@ return [
   'No replies for this comment' => 'Keine Antworten für diesen Kommentar',
   'Pending' => 'Ausstehend',
   'Per-comment subscriptions are not allowed.' => 'Per-comment subscriptions are not allowed.',
-  'Post comment' => 'Kommentar veröffentlichen',
   'Replies' => 'Antworten',
   'Reply' => 'Antworten',
   'Save' => 'Speichern',
   'Save comments' => 'Save comments',
-  'Select which element collections should have commenting enabled on by default.' => 'Wählen Sie aus für welche Elements Kommentare standardmäßig aktiviert sein sollen.',
   'Sending comment notification.' => 'Sending comment notification.',
   'Spam' => 'Spam',
   'Status' => 'Status',

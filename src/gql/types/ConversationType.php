@@ -77,7 +77,7 @@ class ConversationType
                 'nameAndEmail' => match (true) {
                     (bool)$settings->guestRequireEmailName => 'required',
                     (bool)$settings->guestShowEmailName => 'optional',
-                    default => 'none',
+                    default => 'hidden',
                 },
                 'canVote' => $mode->isEnabled() && $settings->allowGuestVoting,
                 'canReport' => $settings->allowFlagging && $settings->allowGuestFlagging,
@@ -124,7 +124,7 @@ class ConversationType
             'name' => 'CommentGuestPolicy',
             'fields' => [
                 'allowed' => ['type' => Type::nonNull(Type::boolean()), 'description' => 'Whether guests can comment here.'],
-                'nameAndEmail' => ['type' => Type::nonNull(Type::string()), 'description' => 'Whether a guest gives their name and email: `required`, `optional` or `none`.'],
+                'nameAndEmail' => ['type' => Type::nonNull(Type::string()), 'description' => 'Whether a guest gives their name and email: `required`, `optional` or `hidden`.'],
                 'canVote' => ['type' => Type::nonNull(Type::boolean()), 'description' => 'Whether guests can vote.'],
                 'canReport' => ['type' => Type::nonNull(Type::boolean()), 'description' => 'Whether guests can report comments.'],
             ],

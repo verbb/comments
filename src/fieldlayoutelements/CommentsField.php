@@ -70,6 +70,20 @@ class CommentsField extends BaseField
     // Protected Methods
     // =========================================================================
 
+    /**
+     * Named in the field layout designer even though its label is hidden on the edit page, since its
+     * place among the fields decides which of them the site's form asks for above the comment box.
+     */
+    protected function selectorLabel(): ?string
+    {
+        return $this->label();
+    }
+
+    protected function selectorIcon(): ?string
+    {
+        return 'comment';
+    }
+
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element) {

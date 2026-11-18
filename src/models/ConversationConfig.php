@@ -6,9 +6,6 @@ use verbb\comments\enums\CommentSort;
 use verbb\comments\enums\ModerationMode;
 
 use craft\base\Model;
-use craft\db\Table;
-use craft\elements\User;
-use craft\helpers\Db;
 
 /**
  * Fully resolved runtime config for a Conversation owner (global → source → Conversation).
@@ -45,26 +42,6 @@ class ConversationConfig extends Model
             return false;
         }
 
-        $settings = Comments::$plugin->getSettings();
-
-        if (!$settings->moderatorExcluded || !$settings->moderatorUserGroup) {
-            return true;
-        }
-
-        $currentUser = Comments::$plugin->getService()->getUser();
-
-        if (!$currentUser) {
-            return true;
-        }
-
-        $groupId = Db::idByUid(Table::USERGROUPS, $settings->moderatorUserGroup);
-
-        if (!$groupId) {
-            return true;
-        }
-
-        $moderatorIds = User::find()->groupId($groupId)->ids();
-
-        return !in_array($currentUser->id, $moderatorIds, true);
+        return !Comments::$plugin->getSettings()->isExemptFromModeration();
     }
 }

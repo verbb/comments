@@ -2,11 +2,16 @@
 namespace verbb\comments\models;
 
 use verbb\comments\Comments;
+use verbb\comments\compatibility\settings\LegacySettings;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\AuthoringMode;
 use verbb\comments\enums\CommentStatus;
 use verbb\comments\enums\InteractionMode;
+use verbb\comments\enums\LoadMode;
 use verbb\comments\enums\SubscriptionType;
+use verbb\comments\helpers\KeywordRules;
+use verbb\comments\services\FormFields;
+use verbb\comments\services\SpamSettings;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -18,8 +23,128 @@ use craft\helpers\App;
 use craft\helpers\Db;
 use craft\helpers\Json;
 
+use yii\validators\EmailValidator;
+
+use Twig\Error\Error as TwigError;
+use Twig\Source;
+
+use Closure;
+use Throwable;
+
 class Settings extends Model
 {
+    // Traits
+    // =========================================================================
+
+    use LegacySettings;
+
+
+    // Static Methods
+    // =========================================================================
+
+    /**
+     * What `config/comments.php` sets, when Craft is far enough along to read it.
+     */
+    private static function _configFile(): array
+    {
+        $config = Craft::$app?->getConfig()->getConfigFromFile('comments');
+
+        return is_array($config) ? $config : [];
+    }
+
+    private static function _isEnvReference(string $value): bool
+    {
+        return (bool)preg_match('/^\$(\w+|\{\w+\})$/', trim($value));
+    }
+
+    /**
+     * An editable table's lightswitch posts `1` or an empty string, and a config file gives a boolean.
+     */
+    private static function _flag(mixed $value): bool
+    {
+        return in_array($value, [true, 1, '1', 'true', 'on', 'yes'], true);
+    }
+
+    private static function _stringOrNull(mixed $value): ?string
+    {
+        return is_string($value) && trim($value) !== '' ? trim($value) : null;
+    }
+
+    /**
+     * A list of field handles. A checkbox group with nothing selected posts an empty string.
+     */
+    /**
+     * Notification Recipients rows, accepting a plain address for a row and treating a row with no
+     * switch as on. Rows without an address are skipped.
+     */
+    private static function _recipientRows(mixed $rows): array
+    {
+        $normalized = [];
+
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            if (is_string($row)) {
+                $row = ['email' => $row];
+            }
+
+            if (!is_array($row) || trim((string)($row['email'] ?? '')) === '') {
+                continue;
+            }
+
+            $normalized[] = [
+                'email' => trim((string)$row['email']),
+                'enabled' => !array_key_exists('enabled', $row) || (bool)$row['enabled'],
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private static function _handles(mixed $value): array
+    {
+        return is_array($value) ? array_values(array_unique(array_filter($value, static fn(mixed $handle): bool => is_string($handle) && $handle !== ''))) : [];
+    }
+
+    /**
+     * Comment Form Fields as the settings page posts them, or a config file gives them: Off fields are
+     * left out, a placement defaults to Details, and **On replies too** is a true or false.
+     */
+    private static function _formFieldSettings(mixed $value): array
+    {
+        $settings = [];
+
+        foreach (is_array($value) ? $value : [] as $uid => $setting) {
+            // The settings page sends `ask`, whether the site's form asks for the field, and `show`,
+            // where its answer appears on comments: `inline`, `details` or `none`. `config/comments.php`
+            // sets `mode` and `placement` instead.
+            if (is_array($setting) && array_key_exists('ask', $setting)) {
+                $show = is_string($setting['show'] ?? null) ? $setting['show'] : 'none';
+
+                $setting = match (true) {
+                    !self::_flag($setting['ask']) => ['mode' => FormFields::MODE_OFF] + $setting,
+                    in_array($show, [FormFields::PLACEMENT_INLINE, FormFields::PLACEMENT_DETAILS], true) => ['mode' => FormFields::MODE_COLLECT_AND_SHOW, 'placement' => $show] + $setting,
+                    default => ['mode' => FormFields::MODE_COLLECT] + $setting,
+                };
+            }
+
+            $mode = is_array($setting) ? ($setting['mode'] ?? null) : $setting;
+
+            if (!is_string($uid) || !in_array($mode, [FormFields::MODE_COLLECT, FormFields::MODE_COLLECT_AND_SHOW], true)) {
+                continue;
+            }
+
+            $placement = is_array($setting) ? ($setting['placement'] ?? null) : null;
+
+            $settings[$uid] = [
+                'mode' => $mode,
+                'placement' => in_array($placement, [FormFields::PLACEMENT_DETAILS, FormFields::PLACEMENT_INLINE], true) ? $placement : FormFields::PLACEMENT_DETAILS,
+                'replies' => is_array($setting) && self::_flag($setting['replies'] ?? false),
+            ];
+        }
+
+        return $settings;
+    }
+
+
     // Constants
     // =========================================================================
 
@@ -36,28 +161,18 @@ class Settings extends Model
     public const SUBSCRIPTION_DEFAULT_REPLIES = 'replies';
     public const SUBSCRIPTION_DEFAULT_CONVERSATION = 'conversation';
 
-    // Settings Comments 3 stored that have no meaning now. Project config can still hold them until the settings are next saved.
-    private const RETIRED_SETTINGS = [
-        'structureUid',
-        'users',
-        'defaultQueryStatus',
-        'downvoteCommentLimit',
-        'hideVotingForThreshold',
-        'showAuthorScore',
-        'flaggedCommentLimit',
-        'enableGravatar',
-        'assetBaseUrl',
-        'assetBasePath',
-        'giphyEnabled',
-        'giphyApiKey',
-        'giphyRating',
-        'giphyLimit',
-        'showCustomFieldNames',
-        'showCustomFieldInstructions',
-        'indexSidebarLimit',
-        'indexSidebarGroup',
-        'indexSidebarIndividualElements',
-    ];
+    public const GIPHY_RATINGS = ['g', 'pg', 'pg-13', 'r'];
+
+    public const CHALLENGE_NONE = '';
+    public const CHALLENGE_TURNSTILE = 'turnstile';
+    public const CHALLENGE_RECAPTCHA = 'recaptcha';
+    public const CHALLENGE_HCAPTCHA = 'hcaptcha';
+    public const CHALLENGE_FRIENDLY_CAPTCHA = 'friendly-captcha';
+
+    public const CLASSIFIER_NONE = '';
+    public const CLASSIFIER_AKISMET = 'akismet';
+    public const CLASSIFIER_CLEANTALK = 'cleantalk';
+    public const CLASSIFIER_OOPSPAM = 'oopspam';
 
 
     // Properties
@@ -65,6 +180,11 @@ class Settings extends Model
 
     public string $pluginName = 'Comments';
     public bool $closed = false;
+
+    // Keeps Comments 3's Twig helpers, element methods, query parameters, GraphQL fields, console commands
+    // and browser events working, each with a deprecation warning. Turn it off once the deprecation log
+    // is clear. See `compatibility/` and the upgrade guide.
+    public bool $compatibilityMode = true;
 
     // General
     public bool $allowGuest = false;
@@ -74,6 +194,8 @@ class Settings extends Model
     public bool $requireModeration = true;
     public ?string $moderatorUserGroup = null;
     public bool $moderatorExcluded = true;
+    // Holds each commenter's comments for review until one of theirs has been approved.
+    public bool $holdFirstComments = false;
     public mixed $autoCloseDays = null;
     public mixed $maxReplyDepth = null;
     public mixed $maxUserComments = null;
@@ -82,10 +204,17 @@ class Settings extends Model
     // Interactions
     public string $interactionMode = InteractionMode::Like->value;
     public bool $allowGuestVoting = false;
+    // Comments 3's author score: each signed-in author's net votes across their approved comments, beside
+    // their name. Off on new installs; a Comments 3 site keeps what it had.
+    public bool $showAuthorScore = false;
+    // Comments 3's thresholds, as a collapse rather than a moderation decision: a comment with this many
+    // downvotes, or open reports, shows folded with a way to read it. Null is off, as on new installs.
+    public mixed $downvoteCommentLimit = null;
 
     // Flagging
     public bool $allowFlagging = true;
     public bool $allowGuestFlagging = false;
+    public mixed $flaggedCommentLimit = null;
     public array $reportReasons = [
         ['value' => 'spam', 'label' => 'Spam', 'description' => 'Ads, scams or links that don’t belong'],
         ['value' => 'harassment', 'label' => 'Harassment or abuse', 'description' => 'Attacks or insults aimed at a person'],
@@ -96,6 +225,9 @@ class Settings extends Model
     // Templates - Default
     public bool $showAvatar = true;
     public mixed $placeholderAvatar = null;
+    // Gravatar for commenters without a photo, once their address is known to be theirs. The site fetches
+    // and serves each image, so visitors never contact Gravatar. See `services/Avatars.php`.
+    public bool $enableGravatar = false;
     public bool $showTimeAgo = true;
     public ?string $ownerBadgeLabel = 'Author';
     public ?string $staffBadgeLabel = null;
@@ -103,10 +235,15 @@ class Settings extends Model
     public string $orderBy = 'desc';
     public bool $outputDefaultCss = true;
     public bool $outputDefaultJs = true;
-    public bool $lazyLoad = false;
+    public string $loadMode = LoadMode::Visible->value;
+    // Classes and attributes for the renderer's ten controls, for every thread on the site. Set in
+    // `config/comments.php` only, never saved to project config, and merged first, so `render()`,
+    // `Comments.configure()` and components can add to it.
+    public array $themeConfig = [];
+    // Wraps the bundled stylesheet in `@layer comments`, for sites whose own CSS is layered.
+    public bool $useCssLayers = false;
 
     // Templates - Custom
-    public ?string $templateFolderOverride = null;
     public ?string $templateEmail = null;
 
     // Security
@@ -117,13 +254,13 @@ class Settings extends Model
     public ?string $securitySpamlist = null;
     public ?string $securityBanned = null;
     public bool $securityMatchExact = false;
-    public bool $recaptchaEnabled = false;
+    // Which challenge provider asks visitors to prove they're a person, or empty for none.
+    public string $challengeProvider = self::CHALLENGE_NONE;
     public ?string $recaptchaKey = null;
     public ?string $recaptchaSecret = null;
     public float $recaptchaMinScore = 0.5;
     public bool $honeypotEnabled = true;
     public int $minimumSubmitTime = 3;
-    public bool $javascriptCheckEnabled = false;
     public bool $replayProtectionEnabled = true;
     public bool $rateLimitEnabled = true;
     public int $rateLimitCount = 5;
@@ -132,15 +269,39 @@ class Settings extends Model
     public bool $challengeSendIp = false;
     public array $protectionHostnames = [];
     public bool $protectionFailClosed = false;
-    public bool $persistSpam = true;
-    public bool $turnstileEnabled = false;
+    public bool $saveSpam = true;
+    // Spam older than this many days is deleted when Craft collects garbage. Null keeps it.
+    public mixed $spamRetentionDays = null;
+    // A comment with more links than this waits for review. Null is no limit.
+    public mixed $maxLinks = null;
+    // Email domains, one per line, whose commenters can't post. Each matches its subdomains too.
+    public ?string $blockedEmailDomains = null;
     public ?string $turnstileKey = null;
     public ?string $turnstileSecret = null;
-    public bool $akismetEnabled = false;
+    public ?string $hcaptchaKey = null;
+    public ?string $hcaptchaSecret = null;
+    public ?string $friendlyCaptchaKey = null;
+    public ?string $friendlyCaptchaSecret = null;
+    // Friendly Captcha's `global` or `eu` service.
+    public string $friendlyCaptchaEndpoint = 'global';
+    // Which service classifies comments as spam, or empty for none. A plan has one classifier.
+    public string $spamClassifier = self::CLASSIFIER_NONE;
     public ?string $akismetApiKey = null;
     public ?string $akismetBlogUrl = null;
     public bool $akismetTestMode = false;
-    public bool $akismetFeedbackEnabled = false;
+    public ?string $cleantalkApiKey = null;
+    public ?string $oopspamApiKey = null;
+    // OOPSpam's score from 0 to 6 at which a comment is spam.
+    public int $oopspamSpamThreshold = 3;
+    // Tells the classifier when a moderator marks a comment as spam or not spam, where it can be told.
+    public bool $spamFeedbackEnabled = false;
+
+    // Other sites. Front ends on another origin that may use the data API, and the keys a site's own
+    // server signs member token requests with. The keys are environment variable references, so they
+    // never land in project config.
+    public array $allowedOrigins = [];
+    public ?string $memberTokenKey = null;
+    public ?string $memberTokenPreviousKey = null;
 
     // Notifications
     public array $participantNotifications = [
@@ -149,24 +310,44 @@ class Settings extends Model
         self::NOTIFICATION_MENTION,
     ];
     public array $staffNotifications = [];
-    // Also email the moderator group about the staff notifications above, rather than only naming them in the event.
-    public bool $emailModeratorGroup = false;
+    // Who's emailed about new comments and reports, as rows of `['email' => …, 'enabled' => bool]`, as
+    // Comments 3's `notificationAdmins` was. A config file can give a closure that returns the rows.
+    public array|Closure $notificationRecipients = [];
     public array $subscriptionTypes = [];
-    public array $publicFields = [];
     public string $subscriptionDefault = self::SUBSCRIPTION_DEFAULT_NONE;
     public bool $useQueueForNotifications = true;
+
+    // Comment Form Fields. Each custom field's mode on the site's form, keyed by its field layout element's
+    // UID: `['mode' => 'collect'|'collect-and-show', 'placement' => 'details'|'inline', 'replies' => bool]`. Fields that
+    // aren't listed are Off. See `FormFields`.
+    public array $formFields = [];
+    // Whether guests are offered Assets fields on the site's form, and can upload to them. Off by default,
+    // because a guest's uploads are anonymous and can only be limited by their address.
+    public bool $allowGuestFieldUploads = false;
 
     // Permissions
     public array $permissions = [];
 
     // Authoring. New installs start with Editor; the upgrade from v3 writes `plain` so existing sites keep theirs.
     public string $authoringMode = AuthoringMode::Rich->value;
-    public string $editorTheme = 'light';
+    // The thread's colours: `light`, `dark`, `auto` to follow the visitor's system, or `none` for the
+    // structural stylesheet only.
+    public string $theme = 'light';
     public bool $allowMentions = true;
     public bool $allowAttachments = false;
     public ?int $attachmentVolumeId = null;
+    // A folder in the volume for each comment's files, which can use the comment's properties in Twig,
+    // such as `{owner.section.handle}`. Blank is the volume's root.
+    public ?string $attachmentSubpath = null;
     public array $attachmentExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
     public int $attachmentMaxSize = 10;
+
+    // GIPHY. Visitors' browsers search GIPHY directly, as GIPHY's API terms require, so the key is
+    // GIPHY's public web key and reaches the page for anyone who can comment. See `services/Giphy.php`.
+    public bool $giphyEnabled = false;
+    public ?string $giphyApiKey = null;
+    public string $giphyRating = 'g';
+    public int $giphyLimit = 24;
 
     // CP Sorting
     public string $sortDefaultKey = 'commentDate';
@@ -185,13 +366,6 @@ class Settings extends Model
         parent::__construct($config);
     }
 
-    public function validateChallengeProvider(): void
-    {
-        if ($this->enableSpamChecks && $this->recaptchaEnabled && $this->turnstileEnabled) {
-            $this->addError('turnstileEnabled', Craft::t('comments', 'Choose either Turnstile or reCAPTCHA.'));
-        }
-    }
-
     public function defineRules(): array
     {
         $rules = parent::defineRules();
@@ -200,26 +374,45 @@ class Settings extends Model
         $rules[] = [['pluginName'], 'required'];
         $rules[] = [['interactionMode'], 'in', 'range' => array_column(InteractionMode::cases(), 'value')];
         $rules[] = [['authoringMode'], 'in', 'range' => array_column(AuthoringMode::cases(), 'value')];
-        $rules[] = [['editorTheme'], 'in', 'range' => ['light', 'dark', 'auto', 'none']];
+        $rules[] = [['theme'], 'in', 'range' => ['light', 'dark', 'auto', 'none']];
+        $rules[] = [['loadMode'], 'in', 'range' => array_column(LoadMode::cases(), 'value')];
         $rules[] = [['orderBy', 'sortDefaultDirection'], 'in', 'range' => ['asc', 'desc']];
         $rules[] = [['sortDefaultKey'], 'in', 'range' => ['commentDate', 'dateUpdated', 'thread', 'status']];
         $rules[] = [['minimumSubmitTime'], 'integer', 'min' => 0, 'max' => 300];
         $rules[] = [['rateLimitCount', 'rateLimitWindow'], 'integer', 'min' => 1, 'max' => 86400];
-        $rules[] = [['turnstileKey', 'turnstileSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->turnstileEnabled];
-        $rules[] = [['akismetApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->akismetEnabled];
+        $rules[] = [['challengeProvider'], 'in', 'range' => self::challengeProviders()];
+        $rules[] = [['turnstileKey', 'turnstileSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_TURNSTILE];
+        $rules[] = [['hcaptchaKey', 'hcaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_HCAPTCHA];
+        $rules[] = [['friendlyCaptchaKey', 'friendlyCaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_FRIENDLY_CAPTCHA];
+        $rules[] = [['friendlyCaptchaEndpoint'], 'in', 'range' => ['global', 'eu']];
+        $rules[] = [['spamClassifier'], 'in', 'range' => self::spamClassifiers()];
+        $rules[] = [['akismetApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_AKISMET];
+        $rules[] = [['cleantalkApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_CLEANTALK];
+        $rules[] = [['oopspamApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_OOPSPAM];
+        $rules[] = [['oopspamSpamThreshold'], 'integer', 'min' => 1, 'max' => 6];
         $rules[] = [['akismetBlogUrl'], 'url'];
         $rules[] = [['protectionHostnames'], 'each', 'rule' => ['match', 'pattern' => '/^[a-zA-Z0-9.-]+$/']];
-        $rules[] = [['turnstileEnabled'], 'validateChallengeProvider'];
         $rules[] = [['enableSpamChecks'], 'validateProtection'];
         $rules[] = [['recaptchaMinScore'], 'number', 'min' => 0, 'max' => 1];
         $rules[] = [['autoCloseDays', 'securityMaxLength'], 'integer', 'min' => 1];
         $rules[] = [['maxReplyDepth', 'securityFlooding'], 'integer', 'min' => 0];
-        $rules[] = [['maxUserComments'], 'integer', 'min' => 1];
+        $rules[] = [['maxUserComments', 'downvoteCommentLimit', 'flaggedCommentLimit'], 'integer', 'min' => 1];
         $rules[] = [['attachmentVolumeId'], 'integer'];
+        $rules[] = [['attachmentSubpath'], 'trim'];
+        $rules[] = [['attachmentSubpath'], 'string', 'max' => 255];
+        $rules[] = [['attachmentSubpath'], 'validateAttachmentSubpath'];
         $rules[] = [['attachmentMaxSize'], 'integer', 'min' => 1];
+        $rules[] = [['giphyApiKey'], 'required', 'when' => fn() => $this->giphyEnabled];
+        $rules[] = [['giphyRating'], 'in', 'range' => self::GIPHY_RATINGS];
+        // GIPHY's beta keys return at most 50 results a search.
+        $rules[] = [['giphyLimit'], 'integer', 'min' => 1, 'max' => 50];
         $rules[] = [['authorEditWindow'], 'integer', 'min' => 1];
         $rules[] = [['attachmentVolumeId'], 'required', 'when' => fn() => $this->allowAttachments];
-        $rules[] = [['recaptchaKey', 'recaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->recaptchaEnabled];
+        $rules[] = [['recaptchaKey', 'recaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_RECAPTCHA];
+        $rules[] = [['spamRetentionDays'], 'integer', 'min' => 1];
+        $rules[] = [['maxLinks'], 'integer', 'min' => 0];
+        $rules[] = [['blockedEmailDomains'], 'validateBlockedEmailDomains'];
+        $rules[] = [['securityModeration', 'securitySpamlist', 'securityBanned'], 'validateKeywordRules'];
         $rules[] = [['participantNotifications'], 'each', 'rule' => ['in', 'range' => [
             self::NOTIFICATION_OWNER,
             self::NOTIFICATION_REPLY,
@@ -242,8 +435,171 @@ class Settings extends Model
             self::SUBSCRIPTION_DEFAULT_CONVERSATION,
         ]];
         $rules[] = [['subscriptionDefault'], 'validateSubscriptionDefault'];
+        $rules[] = [['notificationRecipients'], 'validateNotificationRecipients'];
+        $rules[] = [['allowedOrigins'], 'validateAllowedOrigins'];
+        $rules[] = [['formFields'], 'validateFormFields'];
+        $rules[] = [['memberTokenKey', 'memberTokenPreviousKey'], 'validateMemberTokenKey'];
 
         return $rules;
+    }
+
+    /**
+     * The subfolder is rendered for each comment as it's posted, so a template that can't compile would
+     * only fail then. Its syntax is checked now instead.
+     */
+    public function validateAttachmentSubpath(string $attribute): void
+    {
+        $subpath = $this->$attribute;
+
+        if (!is_string($subpath) || !str_contains($subpath, '{')) {
+            return;
+        }
+
+        $view = Craft::$app->getView();
+        $twig = $view->getTwig();
+
+        try {
+            $twig->parse($twig->tokenize(new Source($view->normalizeObjectTemplate($subpath), 'attachmentSubpath')));
+        } catch (Throwable $e) {
+            $this->addError($attribute, Craft::t('comments', 'The subfolder isn’t valid Twig: {error}', ['error' => $e instanceof TwigError ? $e->getRawMessage() : $e->getMessage()]));
+        }
+    }
+
+    /**
+     * Every origin must be exact, listed once, and any per-origin challenge secret must come from an
+     * environment variable, because project config is usually committed.
+     */
+    public function validateAllowedOrigins(string $attribute): void
+    {
+        if (!is_array($this->$attribute)) {
+            $this->addError($attribute, Craft::t('comments', 'Allowed origins must be a list.'));
+
+            return;
+        }
+
+        $seen = [];
+
+        foreach (array_values($this->$attribute) as $index => $row) {
+            $row = is_array($row) ? $row : [];
+            $value = App::parseEnv($row['origin'] ?? null);
+            $origin = AllowedOrigin::normalize($value);
+            $label = is_string($row['origin'] ?? null) && $row['origin'] !== '' ? $row['origin'] : '#' . ($index + 1);
+
+            if ($origin === null) {
+                $this->addError($attribute, Craft::t('comments', '“{origin}” isn’t an origin. Use the scheme and host, such as https://www.example.com, with no path or wildcard.', ['origin' => $label]));
+
+                continue;
+            }
+
+            if (isset($seen[$origin])) {
+                $this->addError($attribute, Craft::t('comments', '{origin} is listed more than once.', ['origin' => $origin]));
+            }
+
+            $seen[$origin] = true;
+            $siteKey = trim((string)($row['protectionSiteKey'] ?? ''));
+            $secretKey = trim((string)($row['protectionSecretKey'] ?? ''));
+
+            if (($siteKey === '') !== ($secretKey === '')) {
+                $this->addError($attribute, Craft::t('comments', '{origin} needs both a site key and a secret key, or neither.', ['origin' => $origin]));
+            }
+
+            if ($secretKey !== '' && !self::_isEnvReference($secretKey)) {
+                $this->addError($attribute, Craft::t('comments', 'The secret key for {origin} must be an environment variable, such as $TURNSTILE_SECRET.', ['origin' => $origin]));
+            }
+        }
+    }
+
+    /**
+     * A key that mints member tokens for any user is only accepted from an environment variable, and
+     * must be long enough that it can't be guessed.
+     */
+    public function validateMemberTokenKey(string $attribute): void
+    {
+        $value = $this->$attribute;
+
+        if ($value === null || trim($value) === '') {
+            return;
+        }
+
+        if (!self::_isEnvReference($value)) {
+            $this->addError($attribute, Craft::t('comments', 'Use an environment variable, such as $COMMENTS_MEMBER_TOKEN_KEY, so the key isn’t saved in project config.'));
+
+            return;
+        }
+
+        $key = App::parseEnv($value);
+
+        // An unset variable is left to the environment it's for, where the key is used.
+        if (is_string($key) && $key !== $value && strlen($key) < 32) {
+            $this->addError($attribute, Craft::t('comments', 'The key must be at least 32 characters long.'));
+        }
+    }
+
+    /**
+     * The front ends on other origins that may use the data API, keyed by canonical origin. Rows that
+     * aren't valid origins are left out, so a mistake in a config file can't open anything up.
+     */
+    public function getAllowedOrigins(): array
+    {
+        $origins = [];
+
+        foreach (is_array($this->allowedOrigins) ? $this->allowedOrigins : [] as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $origin = AllowedOrigin::normalize(App::parseEnv($row['origin'] ?? null));
+
+            if ($origin === null || isset($origins[$origin])) {
+                continue;
+            }
+
+            $origins[$origin] = new AllowedOrigin([
+                'origin' => $origin,
+                'credentials' => self::_flag($row['credentials'] ?? false),
+                'memberTokens' => self::_flag($row['memberTokens'] ?? false),
+                'moderation' => self::_flag($row['moderation'] ?? false),
+                'protectionSiteKey' => self::_stringOrNull($row['protectionSiteKey'] ?? null),
+                'protectionSecretKey' => self::_stringOrNull($row['protectionSecretKey'] ?? null),
+            ]);
+        }
+
+        return $origins;
+    }
+
+    /**
+     * The keys member token requests may be signed with: the current one, then the previous one while
+     * it's being rotated out. Unset keys are left out, so with none, minting is off.
+     */
+    public function getMemberTokenKeys(): array
+    {
+        $keys = [];
+
+        foreach ([$this->memberTokenKey, $this->memberTokenPreviousKey] as $value) {
+            $key = App::parseEnv($value);
+
+            // An unresolved `$VARIABLE` comes back as itself, which is no key at all.
+            if (is_string($key) && $key !== '' && !self::_isEnvReference($key) && strlen($key) >= 32) {
+                $keys[] = $key;
+            }
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    public function validateNotificationRecipients(string $attribute): void
+    {
+        if ($this->$attribute instanceof Closure) {
+            return;
+        }
+
+        $validator = new EmailValidator();
+
+        foreach (self::_recipientRows($this->$attribute) as $row) {
+            if (!$validator->validate($row['email'])) {
+                $this->addError($attribute, Craft::t('comments', '“{email}” isn’t a valid email address.', ['email' => $row['email']]));
+            }
+        }
     }
 
     public function validateSubscriptionDefault(string $attribute): void
@@ -258,6 +614,40 @@ class Settings extends Model
                 Craft::t('comments', 'The default subscription must also be enabled under Available Subscriptions.'),
             );
         }
+    }
+
+    /**
+     * Each field's mode, placement and replies switch must be one Comments knows, so a hand-edited config
+     * file can't save something the site would read differently.
+     */
+    public function validateFormFields(string $attribute): void
+    {
+        foreach ($this->$attribute as $uid => $setting) {
+            if (!is_string($uid) || !is_array($setting)
+                || !in_array($setting['mode'] ?? null, [FormFields::MODE_COLLECT, FormFields::MODE_COLLECT_AND_SHOW], true)
+                || !in_array($setting['placement'] ?? null, [FormFields::PLACEMENT_DETAILS, FormFields::PLACEMENT_INLINE], true)
+                || !is_bool($setting['replies'] ?? null)
+            ) {
+                $this->addError($attribute, Craft::t('comments', 'A comment form field has a setting Comments doesn’t recognise.'));
+
+                return;
+            }
+        }
+    }
+
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        // Config only, so a site's classes never end up in project config.
+        unset($fields['themeConfig']);
+
+        // The Spam settings are kept in this installation's database instead. See `SpamSettings`.
+        foreach (SpamSettings::KEYS as $key) {
+            unset($fields[$key]);
+        }
+
+        return $fields;
     }
 
     public function setAttributes($values, $safeOnly = true): void
@@ -355,10 +745,15 @@ class Settings extends Model
         return InteractionMode::tryFrom($this->interactionMode) ?? InteractionMode::Like;
     }
 
-    public function resolveEditorTheme(): string
+    public function resolveLoadMode(): LoadMode
     {
-        if (in_array($this->editorTheme, ['light', 'dark', 'none', 'auto'], true)) {
-            return $this->editorTheme;
+        return LoadMode::tryFrom($this->loadMode) ?? LoadMode::Visible;
+    }
+
+    public function resolveTheme(): string
+    {
+        if (in_array($this->theme, ['light', 'dark', 'none', 'auto'], true)) {
+            return $this->theme;
         }
 
         return 'light';
@@ -374,11 +769,108 @@ class Settings extends Model
         return in_array($event, $this->staffNotifications, true);
     }
 
+    /**
+     * The enabled Notification Recipients addresses, once each. Invalid addresses are left out.
+     *
+     * @return string[]
+     */
+    public function getEnabledNotificationRecipientEmails(): array
+    {
+        $rows = $this->notificationRecipients instanceof Closure ? ($this->notificationRecipients)() : $this->notificationRecipients;
+        $validator = new EmailValidator();
+        $emails = [];
+
+        foreach (self::_recipientRows(is_array($rows) ? $rows : []) as $row) {
+            if ($row['enabled'] && $validator->validate($row['email'])) {
+                $emails[strtolower($row['email'])] ??= $row['email'];
+            }
+        }
+
+        return array_values($emails);
+    }
+
     public function allowsSubscriptionType(SubscriptionType|string $type): bool
     {
         $value = $type instanceof SubscriptionType ? $type->value : $type;
 
         return in_array($value, $this->subscriptionTypes, true);
+    }
+
+    /**
+     * How many downvotes fold a comment away, or null when they don't. Only up/down voting has downvotes.
+     */
+    public function getDownvoteCommentLimit(): ?int
+    {
+        return $this->resolveInteractionMode() === InteractionMode::UpDown && (int)$this->downvoteCommentLimit > 0 ? (int)$this->downvoteCommentLimit : null;
+    }
+
+    /**
+     * How many open reports fold a comment away, or null when they don't.
+     */
+    public function getFlaggedCommentLimit(): ?int
+    {
+        return $this->allowFlagging && (int)$this->flaggedCommentLimit > 0 ? (int)$this->flaggedCommentLimit : null;
+    }
+
+    /**
+     * Whether authors' scores show, which needs votes to add up.
+     */
+    public function showsAuthorScore(): bool
+    {
+        return $this->showAuthorScore && $this->resolveInteractionMode()->isEnabled();
+    }
+
+    public function getGiphyApiKey(): ?string
+    {
+        $key = App::parseEnv($this->giphyApiKey);
+
+        // An unresolved `$VARIABLE` comes back as itself, which is no key at all.
+        return is_string($key) && trim($key) !== '' && !self::_isEnvReference($key) ? trim($key) : null;
+    }
+
+    /**
+     * The challenge providers the Spam settings offer, by handle.
+     */
+    public static function challengeProviders(): array
+    {
+        return [self::CHALLENGE_NONE, self::CHALLENGE_TURNSTILE, self::CHALLENGE_RECAPTCHA, self::CHALLENGE_HCAPTCHA, self::CHALLENGE_FRIENDLY_CAPTCHA];
+    }
+
+    /**
+     * The spam classifiers the Spam settings offer, by handle.
+     */
+    public static function spamClassifiers(): array
+    {
+        return [self::CLASSIFIER_NONE, self::CLASSIFIER_AKISMET, self::CLASSIFIER_CLEANTALK, self::CLASSIFIER_OOPSPAM];
+    }
+
+    /**
+     * The blocked email domains as lowercase hostnames, without a leading `@` or dot.
+     */
+    public function getBlockedEmailDomains(): array
+    {
+        $domains = preg_split('/[\s,]+/', (string)$this->blockedEmailDomains) ?: [];
+        $domains = array_map(static fn(string $domain): string => trim(mb_strtolower($domain), " \t@."), $domains);
+
+        return array_values(array_unique(array_filter($domains)));
+    }
+
+    public function validateBlockedEmailDomains(string $attribute): void
+    {
+        foreach ($this->getBlockedEmailDomains() as $domain) {
+            if (!preg_match('/^[a-z0-9-]+(\.[a-z0-9-]+)*$/', $domain)) {
+                $this->addError($attribute, Craft::t('comments', '“{domain}” isn’t a domain.', ['domain' => $domain]));
+
+                return;
+            }
+        }
+    }
+
+    public function validateKeywordRules(string $attribute): void
+    {
+        foreach (KeywordRules::errors($this->$attribute) as $line => $error) {
+            $this->addError($attribute, Craft::t('comments', 'Line {line}: {error}', ['line' => $line, 'error' => $error]));
+        }
     }
 
     public function getRecaptchaKey()
@@ -393,25 +885,31 @@ class Settings extends Model
 
     public function doesRequireModeration(): bool
     {
-        // Check if we require moderation at all
-        if ($this->requireModeration) {
-            // Check if we should exclude the current user, if they are in the moderator group
-            if ($this->moderatorExcluded && $this->moderatorUserGroup) {
-                if ($currentUser = Comments::$plugin->getService()->getUser()) {
-                    $groupId = Db::idByUid(Table::USERGROUPS, $this->moderatorUserGroup);
+        return $this->requireModeration && !$this->isExemptFromModeration();
+    }
 
-                    // A removed or environment-specific group must fail closed: it cannot
-                    // accidentally exempt every signed-in user from moderation.
-                    if ($groupId && User::find()->groupId($groupId)->id($currentUser->id)->exists()) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+    /**
+     * Whether the person posting skips pre-moderation as a member of the moderator group, when
+     * **Exclude Moderators** is on. It's a moderator's privilege, so a member token only carries it
+     * from an origin that allows moderation. Every pre-moderation check uses this.
+     */
+    public function isExemptFromModeration(): bool
+    {
+        if (!$this->moderatorExcluded || !$this->moderatorUserGroup) {
+            return false;
         }
 
-        return false;
+        $currentUser = Comments::$plugin->getService()->getUser();
+
+        if (!$currentUser instanceof User || !Comments::$plugin->getSignIn()->allowsModeration($currentUser)) {
+            return false;
+        }
+
+        $groupId = Db::idByUid(Table::USERGROUPS, $this->moderatorUserGroup);
+
+        // A removed or environment-specific group must fail closed: it cannot accidentally exempt every
+        // signed-in user from moderation.
+        return $groupId && User::find()->groupId($groupId)->id($currentUser->id)->exists();
     }
 
 
@@ -420,9 +918,8 @@ class Settings extends Model
 
     private function _normalizeAttributes(array $values): array
     {
-        foreach (self::RETIRED_SETTINGS as $retired) {
-            unset($values[$retired]);
-        }
+        // Comments 3's settings, and those from Comments 4's development builds, become today's.
+        $values = $this->normalizeLegacySettings($values);
 
         // A plain text input holds the list when it's posted from the settings page.
         if (isset($values['attachmentExtensions']) && is_string($values['attachmentExtensions'])) {
@@ -433,160 +930,52 @@ class Settings extends Model
         }
 
         // Craft posts an empty string for an editable table with no rows, and row IDs as keys otherwise.
-        foreach (['reportReasons', 'staffBadgeGroups'] as $attribute) {
+        foreach (['reportReasons', 'staffBadgeGroups', 'allowedOrigins'] as $attribute) {
             if (isset($values[$attribute])) {
                 $values[$attribute] = is_array($values[$attribute]) ? array_values($values[$attribute]) : [];
             }
         }
 
-        // The settings page offers one challenge provider, stored as a switch for each.
-        if (array_key_exists('challengeProvider', $values)) {
-            $values['turnstileEnabled'] = $values['challengeProvider'] === 'turnstile';
-            $values['recaptchaEnabled'] = $values['challengeProvider'] === 'recaptcha';
-            unset($values['challengeProvider']);
+        // A config file can list an origin as a plain string, as Formie's `allowedOrigins` does. It's
+        // read as that origin with everything else off.
+        if (isset($values['allowedOrigins'])) {
+            $values['allowedOrigins'] = array_map(
+                static fn(mixed $row): mixed => is_string($row) ? ['origin' => $row] : $row,
+                $values['allowedOrigins'],
+            );
         }
 
-        // v3 stored voting as a boolean. Translate it at the model boundary so only the
-        // explicit v4 interaction mode is written back to project config.
-        $hasInteractionMode = array_key_exists('interactionMode', $values)
-            && $values['interactionMode'] !== null
-            && $values['interactionMode'] !== '';
-
-        if (!$hasInteractionMode && array_key_exists('allowVoting', $values)) {
-            // v3 voting always offered both directions, so up/down is what preserves behaviour.
-            $values['interactionMode'] = (bool)$values['allowVoting']
-                ? InteractionMode::UpDown->value
-                : InteractionMode::None->value;
-        } elseif (!$hasInteractionMode) {
-            unset($values['interactionMode']);
+        foreach (['challengeProvider', 'spamClassifier'] as $attribute) {
+            if (array_key_exists($attribute, $values)) {
+                $values[$attribute] = (string)$values[$attribute];
+            }
         }
 
-        unset($values['allowVoting']);
-
-        if (($values['sortDefaultKey'] ?? null) === 'structure') {
-            $values['sortDefaultKey'] = 'commentDate';
-            $values['sortDefaultDirection'] = 'desc';
+        // Number fields post strings, and a blank one means no limit. Anything else is left for validation.
+        foreach (['spamRetentionDays', 'maxLinks'] as $attribute) {
+            if (array_key_exists($attribute, $values) && is_string($values[$attribute])) {
+                $value = trim($values[$attribute]);
+                $values[$attribute] = $value === '' ? null : (ctype_digit($value) ? (int)$value : $value);
+            }
         }
 
-        $values = $this->_normalizeLegacyNotifications($values);
-
-        // A checkbox group with nothing selected posts an empty string.
-        if (isset($values['publicFields']) && !is_array($values['publicFields'])) {
-            $values['publicFields'] = [];
+        if (array_key_exists('formFields', $values)) {
+            $values['formFields'] = self::_formFieldSettings($values['formFields']);
         }
 
-        foreach (['participantNotifications', 'staffNotifications', 'subscriptionTypes', 'publicFields'] as $attribute) {
+        if (isset($values['themeConfig']) && !is_array($values['themeConfig'])) {
+            $values['themeConfig'] = [];
+        }
+
+        foreach (['participantNotifications', 'staffNotifications', 'subscriptionTypes'] as $attribute) {
             if (isset($values[$attribute]) && is_array($values[$attribute])) {
                 $values[$attribute] = array_values(array_unique(array_filter($values[$attribute], 'is_string')));
             }
         }
 
-        // Staff are told through an event now, so the old address list has nowhere to go.
-        unset($values['notificationRecipients']);
-
-        return $values;
-    }
-
-    /**
-     * Translate v3 project-config keys once at the model boundary. Runtime code only uses the
-     * canonical v4 event lists, so saving settings naturally removes the legacy boolean matrix.
-     */
-    private function _normalizeLegacyNotifications(array $values): array
-    {
-        $legacyKeys = [
-            'notificationAuthorEnabled',
-            'notificationReplyEnabled',
-            'notificationMentionEnabled',
-            'notificationSubscribeAuto',
-            'notificationSubscribeDefault',
-            'notificationSubscribeEnabled',
-            'notificationSubscribeCommentEnabled',
-            'notificationModeratorEnabled',
-            'notificationModeratorEditEnabled',
-            'notificationModeratorApprovedEnabled',
-            'notificationAdmins',
-            'notificationAdminEnabled',
-            'notificationFlaggedEnabled',
-        ];
-
-        $hasLegacyValues = array_intersect($legacyKeys, array_keys($values)) !== [];
-
-        if ($hasLegacyValues && !array_key_exists('participantNotifications', $values)) {
-            $participantNotifications = [];
-
-            if ((bool)($values['notificationAuthorEnabled'] ?? true)) {
-                $participantNotifications[] = self::NOTIFICATION_OWNER;
-            }
-
-            if ((bool)($values['notificationReplyEnabled'] ?? true)) {
-                $participantNotifications[] = self::NOTIFICATION_REPLY;
-            }
-
-            if ((bool)($values['notificationMentionEnabled'] ?? true)) {
-                $participantNotifications[] = self::NOTIFICATION_MENTION;
-            }
-
-            if ((bool)($values['notificationModeratorApprovedEnabled'] ?? false)) {
-                $participantNotifications[] = self::NOTIFICATION_APPROVED;
-            }
-
-            $values['participantNotifications'] = $participantNotifications;
-        }
-
-        if ($hasLegacyValues && !array_key_exists('staffNotifications', $values)) {
-            $staffNotifications = [];
-
-            if ((bool)($values['notificationModeratorEnabled'] ?? false)) {
-                $staffNotifications[] = self::NOTIFICATION_MODERATOR_PENDING;
-            }
-
-            if ((bool)($values['notificationModeratorEditEnabled'] ?? false)) {
-                $staffNotifications[] = self::NOTIFICATION_MODERATOR_EDITED;
-            }
-
-            if ((bool)($values['notificationAdminEnabled'] ?? false)) {
-                $staffNotifications[] = self::NOTIFICATION_STAFF_NEW;
-            }
-
-            if ((bool)($values['notificationFlaggedEnabled'] ?? false)) {
-                $staffNotifications[] = self::NOTIFICATION_STAFF_REPORTED;
-            }
-
-            $values['staffNotifications'] = $staffNotifications;
-        }
-
-        if ($hasLegacyValues && !array_key_exists('subscriptionTypes', $values)) {
-            $subscriptionTypes = [];
-            $conversationEnabled = (bool)($values['notificationSubscribeEnabled'] ?? false)
-                || (bool)($values['notificationSubscribeAuto'] ?? false);
-            $repliesEnabled = (bool)($values['notificationSubscribeCommentEnabled'] ?? false)
-                || ((bool)($values['notificationSubscribeDefault'] ?? false) && $conversationEnabled);
-
-            if ($conversationEnabled) {
-                $subscriptionTypes[] = SubscriptionType::Conversation->value;
-            }
-
-            if ($repliesEnabled) {
-                $subscriptionTypes[] = SubscriptionType::Replies->value;
-            }
-
-            $values['subscriptionTypes'] = $subscriptionTypes;
-        }
-
-        if ($hasLegacyValues && !array_key_exists('subscriptionDefault', $values)) {
-            if ((bool)($values['notificationSubscribeAuto'] ?? false)) {
-                $values['subscriptionDefault'] = self::SUBSCRIPTION_DEFAULT_CONVERSATION;
-            } elseif ((bool)($values['notificationSubscribeDefault'] ?? false)
-                && in_array(SubscriptionType::Replies->value, $values['subscriptionTypes'] ?? [], true)
-            ) {
-                $values['subscriptionDefault'] = self::SUBSCRIPTION_DEFAULT_REPLIES;
-            } else {
-                $values['subscriptionDefault'] = self::SUBSCRIPTION_DEFAULT_NONE;
-            }
-        }
-
-        foreach ($legacyKeys as $legacyKey) {
-            unset($values[$legacyKey]);
+        // An editable table with no rows posts an empty string.
+        if (isset($values['notificationRecipients']) && !is_array($values['notificationRecipients']) && !$values['notificationRecipients'] instanceof Closure) {
+            $values['notificationRecipients'] = [];
         }
 
         return $values;

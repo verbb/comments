@@ -18,4 +18,6 @@ class CommentableConfig extends Model
     public ?ModerationMode $moderationMode = null;
     public ?bool $allowGuests = null;
     public ?CommentSort $sortOrder = null;
+    // Whether a Comments field on the owner is set to Closed.
+    public bool $closed = false;
 }

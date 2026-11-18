@@ -70,7 +70,7 @@ it('normalizes legacy comment options into the three-state field', function() {
 
     expect($field->normalizeValue(null))->toBe(CommentsField::STATE_INHERIT)
         ->and($field->normalizeValue(['commentEnabled' => true]))->toBe(CommentsField::STATE_INHERIT)
-        ->and($field->normalizeValue(['commentEnabled' => false]))->toBe(CommentsField::STATE_DISABLED)
+        ->and($field->normalizeValue(['commentEnabled' => false]))->toBe(CommentsField::STATE_CLOSED)
         ->and($field->normalizeValue(CommentsField::STATE_ENABLED))->toBe(CommentsField::STATE_ENABLED)
         ->and(CommentsField::enabledOverride(CommentsField::STATE_INHERIT))->toBeNull()
         ->and(CommentsField::enabledOverride(CommentsField::STATE_ENABLED))->toBeTrue()

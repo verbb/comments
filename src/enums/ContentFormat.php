@@ -12,5 +12,5 @@ enum ContentFormat: string
     // =========================================================================
 
     case Plain = 'plain';
-    case Editor = 'editor';
+    case Rich = 'rich';
 }

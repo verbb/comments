@@ -13,6 +13,7 @@
     "skipLibCheck": true
   },
   "files": [
-    "src/web/assets/cp/src/commenters.ts"
+    "src/web/assets/cp/src/commenters.ts",
+    "src/web/assets/cp/src/comment-fields.ts"
   ]
 }

@@ -40,6 +40,13 @@ class CommentSubmission extends Model
 
     public ?string $url = null;
 
+    /**
+     * The GIF from GIPHY to go with the text, already checked by `Giphy::fromInput()`.
+     *
+     * @var array{url: string, width: ?int, height: ?int}|null
+     */
+    public ?array $gif = null;
+
     public ?\verbb\protect\models\ProtectionEvidence $protectionEvidence = null;
 
     public ?\verbb\protect\models\RequestSignals $protectionRequest = null;

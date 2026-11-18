@@ -165,7 +165,7 @@ it('creates a temporary Craft Asset and finalises it during rich comment creatio
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
             'content' => c3AttachmentPayload((int)$upload['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$admin->id,
         ]));
         $finalized = craft\elements\Asset::find()->id($upload['id'])->status(null)->one();
@@ -259,7 +259,7 @@ it('leaves an upload temporary after a failed comment save and finalises it on r
             'ownerId' => 999999,
             'siteId' => Craft::$app->getSites()->getPrimarySite()->id,
             'content' => c3AttachmentPayload((int)$upload['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$admin->id,
         ]);
 
@@ -314,14 +314,14 @@ it('syncs removed references on canonical edit without deleting permanent assets
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
             'content' => c3AttachmentPayload((int)$upload['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$admin->id,
         ]));
 
         Craft::$app->getRequest()->setBodyParams([
             'commentId' => (int)$created->comment->id,
             'siteId' => (int)$entry->siteId,
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor->value,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich->value,
             'fields' => [
                 'editorContent' => json_encode([[
                     'type' => 'paragraph',
@@ -359,7 +359,7 @@ it('takes an upload through to a rendered comment for a member with no asset per
             'ownerId' => (int)$entry->id,
             'siteId' => (int)$entry->siteId,
             'content' => c3AttachmentPayload((int)$upload['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$member->id,
         ]));
         $comment = $result->comment;
@@ -395,7 +395,7 @@ it('accepts a comment that is only an image', function() {
             'ownerId' => (int)$entry->id,
             'siteId' => (int)$entry->siteId,
             'content' => json_encode(['type' => 'doc', 'content' => [['type' => 'attachment', 'attrs' => ['id' => (int)$upload['id']]]]]),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)Craft::$app->getUser()->getId(),
         ]));
 
@@ -476,7 +476,7 @@ it('shows mentions and images to a guest and a member, with a hostile name escap
             'ownerId' => (int)$entry->id,
             'siteId' => (int)$entry->siteId,
             'content' => c3RichDocument((int)$image['id'], $mentioned),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$author->id,
         ]))->comment;
 
@@ -519,7 +519,7 @@ it('keeps existing media through an author’s edit and a moderator’s edit', f
             'ownerId' => (int)$entry->id,
             'siteId' => (int)$entry->siteId,
             'content' => c3RichDocument((int)$image['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'userId' => (int)$author->id,
         ]))->comment;
         $assets = Comments::$plugin->getCommentAssets();
@@ -527,7 +527,7 @@ it('keeps existing media through an author’s edit and a moderator’s edit', f
         $request->setBodyParams([
             'commentId' => $comment->id,
             'siteId' => $entry->siteId,
-            'contentFormat' => 'editor',
+            'contentFormat' => 'rich',
             'fields' => ['editorContent' => c3RichDocument((int)$image['id'], text: 'Edited by the author')],
         ]);
         $edited = Comments::$plugin->getComments()->updateFromPost((int)$comment->id);
@@ -544,7 +544,7 @@ it('keeps existing media through an author’s edit and a moderator’s edit', f
             'authorId' => [$author->id],
             'ownerType' => $edited->getOwnerType(),
             'ownerEntryId' => [$entry->id],
-            'contentFormat' => 'editor',
+            'contentFormat' => 'rich',
             'fields' => ['editorContent' => c3RichDocument((int)$image['id'], text: 'Edited by a moderator')],
         ]);
         $moderated = Comment::find()->id($comment->id)->status(null)->one();
@@ -720,7 +720,7 @@ it('refuses a guest’s rich comment that points at a file nobody uploaded with 
             'ownerId' => (int)$entry->id,
             'siteId' => (int)$entry->siteId,
             'content' => c3AttachmentPayload((int)$upload['id']),
-            'contentFormat' => \verbb\comments\enums\ContentFormat::Editor,
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
             'name' => 'Guest',
             'email' => 'c3-guest-' . bin2hex(random_bytes(3)) . '@example.test',
         ])))->toThrow(yii\base\UserException::class, 'One or more comment attachments could not be finalised.');
@@ -733,5 +733,100 @@ it('refuses a guest’s rich comment that points at a file nobody uploaded with 
         Craft::$app->getVolumes()->deleteVolume($volume);
         Craft::$app->getFs()->removeFilesystem($filesystem);
         craft\helpers\FileHelper::removeDirectory($path);
+    }
+});
+
+it('puts a comment’s files in its Attachment Subfolder, made as it’s needed', function() {
+    [$filesystem, $volume, $path] = c3AttachmentVolume();
+    $settings = Comments::$plugin->getSettings();
+
+    try {
+        $upload = c3TemporaryUpload((int)$volume->id);
+        $settings->attachmentSubpath = 'comments/{owner.slug}';
+        $settings->requireModeration = false;
+        $entry = \Tests\Support\Fixtures\CommentsFixtureFactory::entry('C3 subfolder owner');
+        $admin = Craft::$app->getUser()->getIdentity();
+        $result = Comments::$plugin->getComments()->create(new \verbb\comments\models\CommentSubmission([
+            'ownerId' => $entry->id,
+            'siteId' => $entry->siteId,
+            'content' => c3AttachmentPayload((int)$upload['id']),
+            'contentFormat' => \verbb\comments\enums\ContentFormat::Rich,
+            'userId' => (int)$admin->id,
+        ]));
+        $asset = craft\elements\Asset::find()->id($upload['id'])->status(null)->one();
+
+        expect($asset->volumeId)->toBe((int)$volume->id);
+        expect($asset->getFolder()->path)->toBe('comments/' . $entry->slug . '/');
+        expect(Comments::$plugin->getCommentAssets()->getAssetIdsForComment((int)$result->comment->id))->toBe([(int)$upload['id']]);
+
+        // An edit's new file goes to the same folder.
+        $second = c3TemporaryUpload((int)$volume->id, 'comments.edit');
+        $settings->attachmentSubpath = 'comments/{owner.slug}';
+        Comments::$plugin->getCommentAssets()->syncEditedReferences($result->comment, [
+            ['id' => (int)$upload['id'], 'kind' => 'attachment'],
+            ['id' => (int)$second['id'], 'kind' => 'attachment'],
+        ], (int)$admin->id);
+
+        expect(craft\elements\Asset::find()->id($second['id'])->status(null)->one()->getFolder()->path)->toBe('comments/' . $entry->slug . '/');
+    } finally {
+        $settings->attachmentSubpath = null;
+        Craft::$app->getVolumes()->deleteVolume($volume);
+        Craft::$app->getFs()->removeFilesystem($filesystem);
+        craft\helpers\FileHelper::removeDirectory($path);
+    }
+});
+
+it('keeps a comment’s files in the volume’s root when its subfolder can’t be worked out or would leave the volume', function() {
+    [$filesystem, $volume, $path] = c3AttachmentVolume();
+    $settings = Comments::$plugin->getSettings();
+    $settings->allowAttachments = true;
+    $settings->attachmentVolumeId = (int)$volume->id;
+    $root = (int)Craft::$app->getAssets()->getRootFolderByVolumeId((int)$volume->id)->id;
+    $commentAssets = Comments::$plugin->getCommentAssets();
+
+    try {
+        $entry = \Tests\Support\Fixtures\CommentsFixtureFactory::entry('../../../etc');
+        $entry->title = '../../../etc';
+        $guestComment = new Comment(['ownerId' => $entry->id, 'siteId' => $entry->siteId]);
+
+        // A guest has no user, so `{user.id}` comes out empty.
+        $settings->attachmentSubpath = 'members/{user.id}';
+        expect($commentAssets->getAttachmentFolderId($guestComment))->toBeNull();
+
+        // Each part is cleaned like a filename, so `..` can't climb out of the volume.
+        $settings->attachmentSubpath = 'comments/{owner.title}';
+        $guestComment->setOwner($entry);
+        expect($commentAssets->getAttachmentFolderId($guestComment))->toBeNull();
+
+        // A template that can't compile, as `config/comments.php` could set without the settings' check.
+        $settings->attachmentSubpath = '{owner.id|notAFilter}';
+        expect($commentAssets->getAttachmentFolderId($guestComment))->toBeNull();
+
+        // Blank is the root, with no folder looked up.
+        $settings->attachmentSubpath = '';
+        expect($commentAssets->getAttachmentFolderId($guestComment))->toBeNull();
+
+        // A plain folder name needs no comment.
+        $settings->attachmentSubpath = 'comment-files';
+        $folderId = $commentAssets->getAttachmentFolderId(null);
+        expect($folderId)->not->toBeNull()->not->toBe($root);
+        expect(Craft::$app->getAssets()->getFolderById($folderId)->path)->toBe('comment-files/');
+    } finally {
+        $settings->attachmentSubpath = null;
+        Craft::$app->getVolumes()->deleteVolume($volume);
+        Craft::$app->getFs()->removeFilesystem($filesystem);
+        craft\helpers\FileHelper::removeDirectory($path);
+    }
+});
+
+it('checks the Attachment Subfolder’s Twig as the settings are saved', function() {
+    $settings = new \verbb\comments\models\Settings(['pluginName' => 'Comments', 'attachmentSubpath' => 'comments/{{ owner.id']);
+    $settings->validate(['attachmentSubpath']);
+    expect($settings->getErrors('attachmentSubpath'))->not->toBeEmpty();
+
+    foreach (['comments/{owner.section.handle}', "{commentDate|date('Y/m')}", 'plain/folder', ''] as $subpath) {
+        $settings = new \verbb\comments\models\Settings(['pluginName' => 'Comments', 'attachmentSubpath' => $subpath]);
+        $settings->validate(['attachmentSubpath']);
+        expect($settings->getErrors('attachmentSubpath'))->toBe([]);
     }
 });

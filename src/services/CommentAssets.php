@@ -2,17 +2,21 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\elements\Comment;
 
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
 use craft\elements\Asset;
+use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Db;
 
 use yii\base\UserException;
 
 use verbb\editor\Editor;
 use verbb\editor\RichText;
+
+use Throwable;
 
 /**
  * Comment ↔ Craft Asset junction persistence for Editor inline images and attachments.
@@ -73,10 +77,10 @@ class CommentAssets extends Component
     }
 
     /**
-     * Moves new uploads out of temporary storage. Anything in `$existingAssetIds` is already attached
-     * to the comment, so an edit keeps it whoever is editing.
+     * Moves new uploads out of temporary storage, into the comment's **Attachment Subfolder**. Anything
+     * in `$existingAssetIds` is already attached to the comment, so an edit keeps it whoever is editing.
      */
-    public function finalizeReferences(array $references, string $contextHandle, int $actorId, array $existingAssetIds = []): array
+    public function finalizeReferences(array $references, string $contextHandle, int $actorId, array $existingAssetIds = [], ?Comment $comment = null): array
     {
         if ($references === []) {
             return [];
@@ -110,6 +114,15 @@ class CommentAssets extends Component
             }
         }
 
+        $folderId = $this->getAttachmentFolderId($comment);
+
+        if ($folderId !== null) {
+            // The context is shared by every comment, so this comment's folder goes on a copy.
+            $context = clone $context;
+            $context->assets = clone $context->assets;
+            $context->assets->folderId = $folderId;
+        }
+
         $finalized = $editor->getAssets()->finalize($references, $context, $actorId, $existingAssetIds);
         $assetIds = array_map(static fn(array $asset): int => (int)$asset['id'], $finalized);
         $validIds = $this->filterValidAssetIds($assetIds);
@@ -125,9 +138,49 @@ class CommentAssets extends Component
      * Make an edited comment's attachments what its new body refers to. New uploads move out of
      * temporary storage, and what was already attached stays usable whoever is editing.
      */
-    public function syncEditedReferences(int $commentId, array $references, int $actorId): void
+    public function syncEditedReferences(Comment $comment, array $references, int $actorId): void
     {
-        $this->syncAssetIds($commentId, $this->finalizeReferences($references, 'comments.edit', $actorId, $this->getAssetIdsForComment($commentId)));
+        $commentId = (int)$comment->id;
+
+        $this->syncAssetIds($commentId, $this->finalizeReferences($references, 'comments.edit', $actorId, $this->getAssetIdsForComment($commentId), $comment));
+    }
+
+    /**
+     * The folder a comment's new files go to: the **Attachment Subfolder** rendered for the comment, made
+     * if it doesn't exist yet, or `null` for the volume's root. A subfolder that can't be worked out for
+     * this comment, such as `{user.id}` for a guest, also means the root, so posting never fails over
+     * where a file is kept. Each part of a rendered folder is cleaned like a filename, so what someone
+     * writes can never reach outside the volume.
+     */
+    public function getAttachmentFolderId(?Comment $comment): ?int
+    {
+        $settings = CommentsPlugin::$plugin->getSettings();
+        $subpath = trim((string)$settings->attachmentSubpath);
+        $volume = $settings->attachmentVolumeId ? Craft::$app->getVolumes()->getVolumeById($settings->attachmentVolumeId) : null;
+
+        if ($subpath === '' || !$volume) {
+            return null;
+        }
+
+        try {
+            [$path, $folder] = AssetsHelper::resolveSubpath($volume, $subpath, $comment);
+        } catch (Throwable $e) {
+            Craft::warning("Comment attachment subfolder “{$subpath}” couldn’t be worked out, so the volume’s root is used: {$e->getMessage()}", __METHOD__);
+
+            return null;
+        }
+
+        $segments = explode('/', trim($path, '/'));
+
+        if ($path === '' || array_intersect($segments, ['', '.', '..']) !== []) {
+            Craft::warning("Comment attachment subfolder “{$subpath}” came out as “{$path}”, so the volume’s root is used.", __METHOD__);
+
+            return null;
+        }
+
+        $folder ??= Craft::$app->getAssets()->ensureFolderByFullPathAndVolume($path, $volume);
+
+        return (int)$folder->id;
     }
 
     /**

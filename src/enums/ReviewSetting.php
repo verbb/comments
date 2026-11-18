@@ -63,4 +63,17 @@ enum ReviewSetting: string
             self::Blocked => Craft::t('comments', 'Can’t post. Existing comments stay as they are.'),
         };
     }
+
+    /**
+     * A few words for the setting's row on a commenter's page, where there's no room for the instructions.
+     */
+    public function summary(): string
+    {
+        return match ($this) {
+            self::Trusted => Craft::t('comments', 'Skips review'),
+            self::Normal => Craft::t('comments', 'Follows the site’s setting'),
+            self::Held => Craft::t('comments', 'Every comment waits for review'),
+            self::Blocked => Craft::t('comments', 'Can’t post'),
+        };
+    }
 }

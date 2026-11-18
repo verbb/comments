@@ -5,6 +5,8 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\migrations\support\V3Schema;
 use verbb\comments\services\Comments as CommentsService;
+use verbb\comments\services\FormFields;
+use verbb\comments\services\SpamSettings;
 
 use Craft;
 use craft\db\Migration;
@@ -29,6 +31,21 @@ class Install extends Migration
         if (!$v4Schema->safeUp()) {
             return false;
         }
+
+        if (!(new m400000_000008_member_tokens(['db' => $this->db]))->safeUp()) {
+            return false;
+        }
+
+        if (!(new m400000_000011_commenter_notes(['db' => $this->db]))->safeUp()) {
+            return false;
+        }
+
+        if (!(new m400000_000012_gifs_avatars(['db' => $this->db]))->safeUp()) {
+            return false;
+        }
+
+        (new m400000_000009_form_fields(['db' => $this->db]))->createSchema();
+        (new m400000_000013_spam_settings(['db' => $this->db]))->createSchema();
 
         // Preserve layouts supplied by project config, but don't let an existing plugin entry suppress the default layout.
         $configExists = Craft::$app->getProjectConfig()->get(CommentsService::CONFIG_FIELDLAYOUT_KEY, true) !== null;
@@ -95,11 +112,17 @@ class Install extends Migration
     {
         foreach ([
             V3Schema::LOG,
+            SpamSettings::TABLE,
             V3Schema::MAP,
             V3Schema::ARCHIVE_STRUCTURE,
             ...array_values(V3Schema::ARCHIVE_TABLES),
+            FormFields::UPLOADS_TABLE,
+            '{{%comments_member_token_nonces}}',
+            m400000_000012_gifs_avatars::AVATARS_TABLE,
+            '{{%comments_member_tokens}}',
             '{{%comments_assets}}',
             '{{%comments_mentions}}',
+            '{{%comments_commenternotes}}',
             '{{%comments_restrictions}}',
             '{{%comments_moderatornotes}}',
             '{{%comments_moderationactions}}',
@@ -120,8 +143,12 @@ class Install extends Migration
     public function dropForeignKeys(): void
     {
         foreach ([
+            FormFields::UPLOADS_TABLE,
+            m400000_000012_gifs_avatars::AVATARS_TABLE,
+            '{{%comments_member_tokens}}',
             '{{%comments_assets}}',
             '{{%comments_mentions}}',
+            '{{%comments_commenternotes}}',
             '{{%comments_restrictions}}',
             '{{%comments_moderatornotes}}',
             '{{%comments_moderationactions}}',

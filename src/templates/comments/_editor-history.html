@@ -20,6 +20,18 @@
                     </p>
                 {% endif %}
 
+                {% if item.checks ?? false %}
+                    <ul class="comments-timeline__checks">
+                        {% for check in item.checks %}
+                            <li class="comments-timeline__check comments-timeline__check--{{ check.tone }}">
+                                <span class="comments-timeline__check-icon" aria-hidden="true">{{ iconSvg(check.icon) }}</span>
+                                {{ check.text }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if item.checksFoot %}<p class="comments-timeline__details light">{{ item.checksFoot }}</p>{% endif %}
+                {% endif %}
+
                 {% if item.note %}
                     <blockquote class="comments-timeline__note">“{{ item.note }}”</blockquote>
                 {% endif %}
@@ -28,15 +40,3 @@
         </li>
     {% endfor %}
 </ol>
-
-{% if protection %}
-    <h3 class="comments-timeline__heading">{{ 'Spam protection' | t('comments') }}</h3>
-    <ul class="comments-protection">
-        {% for line in protection %}
-            <li>
-                <span class="status {{ line.status == 'passed' ? 'green' : (line.status == 'failed' ? 'red' : 'orange') }}" aria-hidden="true"></span>
-                {{ line.label }}: {{ line.detail ?? (line.status == 'passed' ? 'passed' | t('comments') : line.status) }}
-            </li>
-        {% endfor %}
-    </ul>
-{% endif %}

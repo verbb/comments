@@ -160,7 +160,7 @@ class Conversations extends Component
     /**
      * Resolved runtime config: global Settings → Commentable source/field → Conversation overrides.
      */
-    public function getConfigForOwner(int $ownerId, int $siteId): ConversationConfig
+    public function getConfigForOwner(int $ownerId, int $siteId, ?ElementInterface $owner = null): ConversationConfig
     {
         $key = $this->_ownerKey($ownerId, $siteId);
 
@@ -169,7 +169,12 @@ class Conversations extends Component
         }
 
         $settings = CommentsPlugin::$plugin->getSettings();
-        $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
+
+        // A caller that has already loaded the owner saves loading it again.
+        if (!$owner || (int)$owner->id !== $ownerId || (int)$owner->siteId !== $siteId) {
+            $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
+        }
+
         $commentable = $this->resolveCommentableConfig($owner);
         $conversation = $this->findForOwner($ownerId, $siteId);
 
@@ -184,7 +189,9 @@ class Conversations extends Component
         $enabled = $commentable->enabled ?? true;
 
         // Closed stops new comments but keeps existing ones visible, unlike disabled.
-        $closed = $settings->closed || ($conversation && $conversation->closed);
+        // A Comments field set to Closed counts too, before the owner has been saved since, as an upgraded
+        // Comments 3 entry may not have been.
+        $closed = $settings->closed || ($conversation && $conversation->closed) || $commentable->closed;
 
         $moderationMode = $commentable->moderationMode ?? $globalModeration;
 
@@ -256,6 +263,10 @@ class Conversations extends Component
 
             $fieldOverride = CommentsField::enabledOverride($value);
 
+            if (CommentsField::isClosedValue($value)) {
+                $config->closed = true;
+            }
+
             // Multiple fields are unnecessary but possible. A disable always wins so an
             // overlooked duplicate cannot accidentally expose a closed conversation.
             if ($fieldOverride === false) {
@@ -301,6 +312,7 @@ class Conversations extends Component
         $conversation->closed = $closed;
         $conversation->save(false);
         $this->clearCaches();
+        CommentsPlugin::$plugin->getApi()->invalidateCaches();
     }
 
     /**
@@ -480,6 +492,113 @@ class Conversations extends Component
         }
 
         return new CommentPage($ordered, $continuation);
+    }
+
+    /**
+     * A page of root comments for the data API, ordered by a key that's different for every comment, so
+     * pages never overlap or reorder: the date then the ID for newest and oldest, and the score then the
+     * ID for top. Each row has the comment's `id`, `commentDate` and `score`, and `$after` is the last row
+     * of the page before. A root counts when its state is in `$states` (approved when null) or it holds a
+     * reply that does, the same as the thread.
+     */
+    public function getRootPage(int $conversationId, CommentSort $sort, int $limit, ?array $after = null, ?array $states = null): array
+    {
+        $query = $this->_rootIdQuery($conversationId, $states)
+            ->addSelect(['c.commentDate'])
+            ->limit($limit + 1);
+        $this->_applyRootOrder($query, $conversationId, $sort, $after);
+        $rows = $this->_normalizeRootRows($query->all());
+
+        return [
+            'rows' => array_slice($rows, 0, $limit),
+            'hasMore' => count($rows) > $limit,
+        ];
+    }
+
+    /**
+     * How many root comments a conversation shows: those in `$states`, or holding a reply that is.
+     */
+    public function countRoots(int $conversationId, ?array $states = null): int
+    {
+        return (int)$this->_rootIdQuery($conversationId, $states)->count();
+    }
+
+    /**
+     * Root comments in `$states` that sort between the end of the previous page (`$after`) and the last
+     * row of this one (`$until`, or the end of the list when null), for showing comments the public page
+     * leaves out beside the ones it has. `$userId` or `$identityId` limits them to one author's comments.
+     */
+    public function getRootsInRange(
+        int $conversationId,
+        CommentSort $sort,
+        array $states,
+        ?array $after,
+        ?array $until,
+        int $limit,
+        ?int $userId = null,
+        ?int $identityId = null,
+    ): array {
+        $query = (new Query())
+            ->select(['c.id', 'c.commentDate'])
+            ->from(['c' => '{{%comments_comments}}'])
+            ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[c.id]]')
+            ->where([
+                'c.conversationId' => $conversationId,
+                'c.parentId' => null,
+                'c.moderationState' => $states,
+                'c.authorRemovedAt' => null,
+                'e.dateDeleted' => null,
+            ])
+            ->limit($limit);
+
+        if ($userId !== null || $identityId !== null) {
+            $query->andWhere(['or', $userId !== null ? ['c.userId' => $userId] : '0=1', $identityId !== null ? ['and', ['c.userId' => null], ['c.identityId' => $identityId]] : '0=1']);
+        }
+
+        $this->_applyRootOrder($query, $conversationId, $sort, $after, $until);
+
+        return $this->_normalizeRootRows($query->all());
+    }
+
+    /**
+     * Every comment in these threads, or those no deeper than `$maxDepth`, as the light rows the data API
+     * arranges a page from: enough to work out what's visible, where it sits and who wrote it, without
+     * loading any elements.
+     */
+    public function getThreadRows(array $rootIds, ?int $maxDepth = null): array
+    {
+        $rootIds = array_values(array_unique(array_filter(array_map('intval', $rootIds))));
+
+        if ($rootIds === []) {
+            return [];
+        }
+
+        $rows = [];
+
+        $query = $this->_hierarchyRows()
+            ->addSelect(['c.commentDate', 'c.depth', 'c.userId', 'c.identityId', 'e.uid'])
+            ->where(['c.rootId' => $rootIds]);
+
+        if ($maxDepth !== null) {
+            $query->andWhere(['<=', 'c.depth', $maxDepth]);
+        }
+
+        foreach ($query->all() as $row) {
+            $rows[(int)$row['id']] = [
+                'id' => (int)$row['id'],
+                'uid' => (string)$row['uid'],
+                'parentId' => $row['parentId'] !== null ? (int)$row['parentId'] : null,
+                'rootId' => (int)$row['rootId'],
+                'depth' => (int)$row['depth'],
+                'moderationState' => (string)$row['moderationState'],
+                'removed' => $row['authorRemovedAt'] !== null || $row['dateDeleted'] !== null,
+                'commentDate' => (string)$row['commentDate'],
+                'userId' => $row['userId'] !== null ? (int)$row['userId'] : null,
+                'identityId' => $row['identityId'] !== null ? (int)$row['identityId'] : null,
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -904,6 +1023,80 @@ class Conversations extends Component
                 ['c.moderationState' => $visibleStates, 'c.authorRemovedAt' => null, 'e.dateDeleted' => null],
                 ['exists', $visibleReply],
             ]);
+    }
+
+    /**
+     * Orders a root query by its sort's unique key and starts it after `$after`, both being rows with a
+     * `commentDate`, `id` and, for top, `score`. `$until` stops it at a row, inclusive.
+     */
+    private function _applyRootOrder(Query $query, int $conversationId, CommentSort $sort, ?array $after, ?array $until = null): void
+    {
+        if ($sort === CommentSort::Top) {
+            $score = 'COALESCE([[scores.score]], 0)';
+            $query
+                ->addSelect(['score' => new Expression($score)])
+                ->leftJoin(['scores' => $this->_rootScoreQuery($conversationId)], '[[scores.commentId]] = [[c.id]]')
+                ->orderBy([new Expression($score . ' DESC'), 'c.id' => SORT_DESC]);
+
+            if ($after !== null) {
+                $query->andWhere(['or',
+                    new Expression($score . ' < :afterScore', [':afterScore' => (int)$after['score']]),
+                    ['and', new Expression($score . ' = :afterScoreTie', [':afterScoreTie' => (int)$after['score']]), ['<', 'c.id', (int)$after['id']]],
+                ]);
+            }
+
+            if ($until !== null) {
+                $query->andWhere(['or',
+                    new Expression($score . ' > :untilScore', [':untilScore' => (int)$until['score']]),
+                    ['and', new Expression($score . ' = :untilScoreTie', [':untilScoreTie' => (int)$until['score']]), ['>=', 'c.id', (int)$until['id']]],
+                ]);
+            }
+
+            return;
+        }
+
+        $descending = $sort === CommentSort::Newest;
+        $direction = $descending ? SORT_DESC : SORT_ASC;
+        $query->orderBy(['c.commentDate' => $direction, 'c.id' => $direction]);
+
+        foreach (['after' => $after, 'until' => $until] as $bound => $row) {
+            if ($row === null) {
+                continue;
+            }
+
+            // Past the last row is later for oldest and earlier for newest; up to a row is the reverse.
+            $beyond = ($bound === 'after') === $descending ? '<' : '>';
+            $date = Db::prepareDateForDb(DateTimeHelper::toDateTime($row['commentDate']) ?: new DateTime());
+            $query->andWhere(['or',
+                [$beyond, 'c.commentDate', $date],
+                ['and', ['c.commentDate' => $date], [$bound === 'after' ? $beyond : $beyond . '=', 'c.id', (int)$row['id']]],
+            ]);
+        }
+    }
+
+    /**
+     * Each root comment's score, its upvotes less its downvotes.
+     */
+    private function _rootScoreQuery(int $conversationId): Query
+    {
+        return (new Query())
+            ->select([
+                'commentId' => 'i.commentId',
+                'score' => "SUM(CASE WHEN [[i.type]] = 'upvote' THEN 1 WHEN [[i.type]] = 'downvote' THEN -1 ELSE 0 END)",
+            ])
+            ->from(['i' => '{{%comments_interactions}}'])
+            ->innerJoin(['ic' => '{{%comments_comments}}'], '[[ic.id]] = [[i.commentId]]')
+            ->where(['ic.conversationId' => $conversationId, 'ic.parentId' => null])
+            ->groupBy(['i.commentId']);
+    }
+
+    private function _normalizeRootRows(array $rows): array
+    {
+        return array_map(static fn(array $row): array => [
+            'id' => (int)$row['id'],
+            'commentDate' => (string)$row['commentDate'],
+            'score' => (int)($row['score'] ?? 0),
+        ], $rows);
     }
 
     private function _encodeTopOffset(int $conversationId, int $offset): string

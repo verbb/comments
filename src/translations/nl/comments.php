@@ -4,6 +4,13 @@ return [
   //
   // Email Messages
   //
+  'comments_guest_confirmation_heading' => 'Als een gast zijn e-mailadres moet bevestigen:',
+  'comments_guest_confirmation_subject' => 'Bevestig je e-mailadres',
+  'comments_guest_confirmation_body' => "Hallo,\n\n" .
+    "Iemand heeft gevraagd om op dit adres e-mails te ontvangen over reacties op {{siteName}}. Was jij dat? Bevestig het dan hier:\n\n" .
+    "{{confirmUrl}}\n\n" .
+    "Was jij het niet, dan kun je deze e-mail negeren en hoor je niets meer van ons.",
+
   'comments_author_notification_heading' => 'Als een reactie is ontvangen:',
   'comments_author_notification_subject' => '"{{element.title}}" heeft een reactie ontvangen op {{siteName}}.',
   'comments_author_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
@@ -14,6 +21,12 @@ return [
   'comments_reply_notification_subject' => 'Iemand heeft op je gereageerd op {{siteName}}.',
   'comments_reply_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "Iemand heeft gereageerd op je onder de post \"{{ element.title }}\".\n\n" .
+    "{{element.url}}#comment-{{comment.id}}.",
+
+  'comments_mention_notification_heading' => 'Als iemand in een reactie wordt genoemd:',
+  'comments_mention_notification_subject' => 'Je bent genoemd in een reactie op {{ siteName }}',
+  'comments_mention_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
+    "Je bent genoemd in een reactie onder de post \"{{ element.title }}\".\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
   'comments_subscriber_notification_element_heading' => 'Als er een reactie op een element/entry geplaatst is:',
@@ -28,9 +41,9 @@ return [
     "Er is een nieuwe reactie op de post \"{{ element.title }}\" gemaakt.\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
-  'comments_moderator_notification_comment_heading' => 'Als een reactie is geplaatst, maar goedgekeurd moet worden:',
-  'comments_moderator_notification_comment_subject' => 'Een nieuwe reactie moet gekeurd worden op {{ siteName }}',
-  'comments_moderator_notification_comment_body' => "Hallo {{user.friendlyName}},\n\n" .
+  'comments_moderator_notification_heading' => 'Als een reactie is geplaatst, maar goedgekeurd moet worden:',
+  'comments_moderator_notification_subject' => 'Een nieuwe reactie moet gekeurd worden op {{ siteName }}',
+  'comments_moderator_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "Een nieuwe reactie op de post \"{{ element.title }}\" moet gekeurd worden.\n\n" .
     "{{comment.cpEditUrl}}.",
 
@@ -40,9 +53,9 @@ return [
     "A comment on the post \"{{ element.title }}\" was edited and requires moderation.\n\n" .
     "{{comment.cpEditUrl}}.",
 
-  'comments_moderator_approved_notification_comment_heading' => 'Als een reactie is goedgekeurd:',
-  'comments_moderator_approved_notification_comment_subject' => 'Je reactie is goedgekeurd op {{ siteName }}',
-  'comments_moderator_approved_notification_comment_body' => "Hallo {{user.friendlyName}},\n\n" .
+  'comments_moderator_approved_notification_heading' => 'Als een reactie is goedgekeurd:',
+  'comments_moderator_approved_notification_subject' => 'Je reactie is goedgekeurd op {{ siteName }}',
+  'comments_moderator_approved_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
     "Je reactie is goedgekeurd onder \"{{ element.title }}\".\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
@@ -94,7 +107,6 @@ return [
   'Flag' => 'Melden',
   'Flagged' => 'Flagged',
   'Flagging is not allowed.' => 'Flagging is not allowed.',
-  'For per-element control, add a Comments field to the relevant field layout.' => 'Voeg voor controle per element een veld Reacties toe aan de relevante veldindeling.',
   'Form validation failed. Marked as spam.' => 'Je reactie is gedetecteerd als spam en dus niet verstuurd.',
   'Guest' => 'Anoniem',
   'If disabling any of these options, you‘ll need to supply your own CSS or JS in order for the form and comments functionality to look and work correctly.' => 'If disabling any of these options, you‘ll need to supply your own CSS or JS in order for the form and comments functionality to look and work correctly.',
@@ -110,12 +122,10 @@ return [
   'No replies for this comment' => 'No replies for this comment',
   'Pending' => 'In afwachting',
   'Per-comment subscriptions are not allowed.' => 'Per-comment subscriptions are not allowed.',
-  'Post comment' => 'Plaatsen',
   'Replies' => 'Replies',
   'Reply' => 'Reageren',
   'Save' => 'Opslaan',
   'Save comments' => 'Save comments',
-  'Select which element collections should have commenting enabled on by default.' => 'Select which element collections should have commenting enabled on by default.',
   'Sending comment notification.' => 'Sending comment notification.',
   'Spam' => 'Spam',
   'Status' => 'Status',

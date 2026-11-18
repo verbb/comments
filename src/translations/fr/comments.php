@@ -4,6 +4,13 @@ return [
   //
   // Email Messages
   //
+  'comments_guest_confirmation_heading' => 'Lorsqu’un invité doit confirmer son adresse e-mail :',
+  'comments_guest_confirmation_subject' => 'Confirmez votre adresse e-mail',
+  'comments_guest_confirmation_body' => "Bonjour,\n\n" .
+    "Quelqu’un a demandé à recevoir à cette adresse des e-mails sur les commentaires de {{siteName}}. Si c’était vous, confirmez-le ici :\n\n" .
+    "{{confirmUrl}}\n\n" .
+    "Sinon, vous pouvez ignorer cet e-mail et vous n’aurez plus de nouvelles de notre part.",
+
   'comments_author_notification_heading' => 'Lorsqu’un commentaire est reçu :',
   'comments_author_notification_subject' => '"{{element.title}}" a reçu un commentaire sur {{siteName}}.',
   'comments_author_notification_body' => "Bonjour {{user.friendlyName}},\n\n" .
@@ -14,6 +21,12 @@ return [
   'comments_reply_notification_subject' => 'Quelqu’un a répondu à votre commentaire sur {{siteName}}.',
   'comments_reply_notification_body' => "Bonjour {{user.friendlyName}},\n\n" .
     "Une nouvelle réponse à votre commentaire sur l'article \"{{ element.title }}\" a été faite.\n\n" .
+    "{{element.url}}#comment-{{comment.id}}.",
+
+  'comments_mention_notification_heading' => 'Lorsque quelqu’un est mentionné dans un commentaire :',
+  'comments_mention_notification_subject' => 'Vous avez été mentionné dans un commentaire sur {{ siteName }}',
+  'comments_mention_notification_body' => "Bonjour {{user.friendlyName}},\n\n" .
+    "Vous avez été mentionné dans un commentaire sur l'article \"{{ element.title }}\".\n\n" .
     "{{element.url}}#comment-{{comment.id}}.",
 
   'comments_subscriber_notification_element_heading' => 'Lorsqu’un commentaire est fait sur un élément auquel vous êtes abonné :',
@@ -64,7 +77,6 @@ return [
   'Admins will receive an email whenever someone makes a comment on an element. Edit the content of this email through [System Messages]({link}).' => 'Les administrateurs recevront un e-mail chaque fois que quelqu’un fait un commentaire sur un élément. Modifiez le contenu de cet e-mail via [Messages système]({link}).',
   'All' => 'Tous',
   'All comments' => 'Tous les commentaires',
-  'All comments require manual approval before being publicly visible.' => 'Tous les commentaires nécessitent une approbation manuelle avant d’être visibles publiquement.',
   'Allow guest (guest) users to flag a comment as inappropriate, spam, or any other reason.' => 'Permettre aux utilisateurs invités (guest) de signaler un commentaire comme inapproprié, spam ou pour toute autre raison.',
   'Allow Guest Comments' => 'Autoriser les commentaires des invités',
   'Allow guest users to upvote or downvote other users comments.' => 'Permettre aux utilisateurs invités de voter positivement ou négativement sur les commentaires des autres utilisateurs.',
@@ -99,10 +111,8 @@ return [
   'Comments' => 'Commentaires',
   'Comments are disabled for this element.' => 'Les commentaires sont désactivés pour cet élément.',
   'Comment saved successfully.' => 'Commentaire enregistré avec succès.',
-  'Comments can be automatically closed on elements older than the provided amount of days. This uses the "Post Date" of an element. Leave empty to disable.' => 'Les commentaires peuvent être automatiquement fermés sur les éléments plus anciens que le nombre de jours fourni. Cela utilise la "Date de publication" d’un élément. Laissez vide pour désactiver.',
   'Comments deleted.' => 'Commentaires supprimés.',
   'Comments Form' => 'Formulaire de commentaires',
-  'Comments from any user in the moderator group will not require moderation themselves.' => 'Les commentaires de tout utilisateur du groupe de modérateurs ne nécessiteront pas de modération.',
   'Comments Order By' => 'Trier les commentaires par',
   'Comments Require Moderation' => 'Les commentaires nécessitent une modération',
   'Couldn’t save comment.' => 'Impossible d’enregistrer le commentaire.',
@@ -152,23 +162,20 @@ return [
   'Flagging is not allowed.' => 'Le signalement n’est pas autorisé.',
   'For greater control over your comments and how they are displayed, you can provide a path to your own templates in the below folder.' => 'Pour un meilleur contrôle sur vos commentaires et leur affichage, vous pouvez fournir un chemin vers vos propres modèles dans le dossier ci-dessous.',
   'Comment Field Layout' => 'Mise en page des champs de commentaire',
-  'For per-element control, add a Comments field to the relevant field layout.' => 'Pour un contrôle par élément, ajoutez un champ Commentaires à la disposition de champs correspondante.',
   'Form validation failed. Marked as spam.' => 'La validation du formulaire a échoué. Marqué comme spam.',
   'General Settings' => 'Paramètres généraux',
   'Guest' => 'Invité',
   'Guest Notice' => 'Avis aux invités',
   'Guests are required to enter their name and email. Only applicable for guest comments.' => 'Les invités doivent entrer leur nom et leur e-mail. Applicable uniquement pour les commentaires des invités.',
   'Guests are shown fields to enter their name and email. Only applicable for guest comments.' => 'Les champs pour saisir le nom et l’e-mail sont affichés aux invités. Applicable uniquement pour les commentaires des invités.',
-  'Guest users can post a comment.' => 'Les utilisateurs invités peuvent poster un commentaire.',
   'Heading' => 'Titre',
   'Hide Voting for Threshold' => 'Masquer le vote pour le seuil',
   'HTML Email Template' => 'Modèle d’e-mail HTML',
-  'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. Case insensitive.' => 'Si un commentaire contient l’un de ces mots dans son contenu, nom, e-mail ou IP, il sera marqué comme en attente. Un mot ou une IP par ligne. Insensible à la casse.',
-  'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. Case insensitive.' => 'Si un commentaire contient l’un de ces mots dans son contenu, nom, e-mail ou IP, il sera marqué comme spam. Un mot ou une IP par ligne. Insensible à la casse.',
-  'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. Case insensitive.' => 'Si un commentaire contient l’un de ces mots dans son contenu, nom, e-mail ou IP, il ne sera pas soumis. Un mot ou une IP par ligne. Insensible à la casse.',
+  'A comment that matches one of these rules is held for review. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' => 'Un commentaire qui correspond à l’une de ces règles est mis en attente de vérification. Une règle par ligne : un mot, une expression ou une adresse IP, `[match: casino AND cheap]` ou `[ip: 203.0.113.0/24]`. Insensible à la casse.',
+  'A comment that matches one of these rules is marked as spam. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' => 'Un commentaire qui correspond à l’une de ces règles est marqué comme spam. Une règle par ligne : un mot, une expression ou une adresse IP, `[match: casino AND cheap]` ou `[ip: 203.0.113.0/24]`. Insensible à la casse.',
+  'A comment that matches one of these rules isn’t submitted. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' => 'Un commentaire qui correspond à l’une de ces règles n’est pas soumis. Une règle par ligne : un mot, une expression ou une adresse IP, `[match: casino AND cheap]` ou `[ip: 203.0.113.0/24]`. Insensible à la casse.',
   'If a guest is making a comment, this will be shown as their avatar.' => 'Si un invité fait un commentaire, ceci sera affiché comme son avatar.',
   'Custom resources required' => 'Ressources personnalisées requises',
-  'If you disable the bundled CSS, your site must provide all comment styling. If you disable the bundled JavaScript, your site must provide the complete public interaction behaviour, including any rich-editor integration.' => 'Si vous désactivez le CSS fourni, votre site doit fournir tous les styles des commentaires. Si vous désactivez le JavaScript fourni, votre site doit fournir l’ensemble du comportement interactif public, y compris l’intégration de l’éditeur enrichi.',
   'IP Address' => 'Adresse IP',
   'Limit' => 'Limite',
   'Limit the number of characters a comment can have.' => 'Limiter le nombre de caractères qu’un commentaire peut avoir.',
@@ -193,12 +200,11 @@ return [
   'Load Bundled CSS' => 'Charger le CSS fourni',
   'Load Bundled JavaScript' => 'Charger le JavaScript fourni',
   'Load the bundled stylesheet when rendering comments.' => 'Charger la feuille de style fournie lors de l’affichage des commentaires.',
-  'Load the bundled interaction runtime and, when rich authoring is enabled, its editor integration.' => 'Charger le moteur d’interaction fourni et, lorsque la rédaction enrichie est activée, son intégration à l’éditeur.',
+  'Load the bundled comments script and, with rich authoring, Editor when someone starts writing.' => 'Charger le script de commentaires fourni et, avec la rédaction enrichie, Editor lorsque quelqu’un commence à écrire.',
   'Pending' => 'En attente',
   'Per-comment subscriptions are not allowed.' => 'Les abonnements par commentaire ne sont pas autorisés.',
   'Permissions' => 'Permissions',
   'Placeholder Avatar' => 'Avatar par défaut',
-  'Post comment' => 'Poster un commentaire',
   'reCAPTCHA Secret Key' => 'Clé secrète reCAPTCHA',
   'reCAPTCHA Site Key' => 'Clé de site reCAPTCHA',
   'Replies' => 'Réponses',
@@ -208,9 +214,6 @@ return [
   'Save comments' => 'Enregistrer les commentaires',
   'Security' => 'Sécurité',
   'Security & Spam' => 'Sécurité & Spam',
-  'Select the user group that should be classified as moderators. This will determine who notifications should be sent to.' => 'Sélectionnez le groupe d’utilisateurs qui doit être classé comme modérateurs. Cela déterminera à qui les notifications doivent être envoyées.',
-  'Select which element collections should have commenting enabled on by default.' => 'Sélectionnez les collections d’éléments qui doivent avoir les commentaires activés par défaut.',
-  'Select which elements to enable commenting on by default' => 'Sélectionnez les éléments sur lesquels activer les commentaires par défaut',
   'Sending comment notification.' => 'Envoi de la notification de commentaire.',
   'Set the number of comments each user is allowed for each owner element. Leave empty for no restrictions.' => 'Définissez le nombre de commentaires autorisés pour chaque utilisateur pour chaque élément propriétaire. Laissez vide pour aucune restriction.',
   'Set the number of levels (depth) replies to comments can have. Leave empty for no restrictions, 0 to disable replies, or any number to limit how many levels of replies can be made.' => 'Définissez le nombre de niveaux (profondeur) de réponses que les commentaires peuvent avoir. Laissez vide pour aucune restriction, 0 pour désactiver les réponses, ou tout nombre pour limiter le nombre de niveaux de réponses possibles.',
@@ -231,7 +234,6 @@ return [
   'Subscribed to discussion.' => 'Abonné à la discussion.',
   'Subscribe to get email updates for this discussion' => 'S’abonner pour recevoir des mises à jour par e-mail pour cette discussion',
   'Subscribing' => 'Abonnement en cours',
-  'Template Folder Override' => 'Remplacement du dossier de modèles',
   'Templates' => 'Modèles',
   'The default templates are what is used when calling `craft.comments.render()`, and automatically outputs CSS and JS code in your templates. If you want full control over your templates, use [Custom Templates]({link}).' => 'Les modèles par défaut sont utilisés lors de l’appel de `craft.comments.render()`, et génèrent automatiquement du code CSS et JS dans vos modèles. Si vous voulez un contrôle total sur vos modèles, utilisez [Modèles personnalisés]({link}).',
   'The number of seconds between commenting. Helps to prevent comment flooding.' => 'Le nombre de secondes entre les commentaires. Aide à prévenir le flood de commentaires.',

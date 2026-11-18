@@ -2,6 +2,8 @@
 namespace verbb\comments\elements;
 
 use verbb\comments\Comments;
+use verbb\comments\compatibility\elements\LegacyComment;
+use verbb\comments\compatibility\elements\LegacyStructure;
 use verbb\comments\elements\actions\ApproveComments;
 use verbb\comments\elements\actions\KeepComments;
 use verbb\comments\elements\actions\MarkCommentsNotSpam;
@@ -15,13 +17,17 @@ use verbb\comments\enums\InteractionType;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\SubscriptionType;
 use verbb\comments\exceptions\CommentValidationException;
+use verbb\comments\exceptions\UploadRefusedException;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldLayoutElement;
+use verbb\comments\formfields\AssetsType;
 use verbb\comments\helpers\CommentsHelper;
 use verbb\comments\helpers\EditorContexts;
 use verbb\comments\helpers\StringHelper;
+use verbb\comments\helpers\UploadPolicy;
 use verbb\comments\records\Comment as CommentRecord;
 use verbb\comments\services\CommentEditor;
 use verbb\comments\services\Commenters;
+use verbb\comments\services\FormFields;
 use verbb\comments\services\Frontend;
 use verbb\comments\web\assets\cp\CommentEditAsset;
 
@@ -37,7 +43,6 @@ use craft\elements\Category;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
-use craft\elements\ElementCollection;
 use craft\elements\Entry;
 use craft\elements\User;
 use craft\enums\Color;
@@ -53,6 +58,8 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Formatter;
 use craft\models\FieldLayout;
 use craft\validators\SiteIdValidator;
+use craft\web\CpScreenResponseBehavior;
+use craft\web\UploadedFile;
 use craft\web\View;
 
 use yii\base\UserException;
@@ -70,8 +77,33 @@ use verbb\editor\RichText;
 
 class Comment extends Element
 {
+    // Traits
+    // =========================================================================
+
+    use LegacyComment;
+    use LegacyStructure;
+
+
     // Static Methods
     // =========================================================================
+
+    /**
+     * Whether the request is from someone using the control panel: a control panel request by a user who
+     * can access it. Craft treats any request under the control panel's URL as a control panel request,
+     * including one to an anonymous action, so the URL alone isn't enough.
+     */
+    public static function isControlPanelUser(): bool
+    {
+        $request = Craft::$app->getRequest();
+
+        if ($request->getIsConsoleRequest() || !$request->getIsCpRequest()) {
+            return false;
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        return $user instanceof User && $user->can('accessCp');
+    }
 
     public static function displayName(): string
     {
@@ -438,6 +470,8 @@ class Comment extends Element
     public ?string $name = null;
     public ?string $email = null;
     public ?string $gifUrl = null;
+    public ?int $gifWidth = null;
+    public ?int $gifHeight = null;
     public ?string $url = null;
     public ?string $ipAddress = null;
     public ?string $userAgent = null;
@@ -478,7 +512,14 @@ class Comment extends Element
     private ?array $_interactionTotals = null;
     private ?int $_openReportCount = null;
     private ?string $_action = null;
-    private bool $_publicFieldsOnly = false;
+    // While submitted values are applied, the handles of the custom fields that may be filled in.
+    private ?array $_formFieldHandles = null;
+    // The layout element UIDs of the custom fields this submission may fill in, which are required for it.
+    private ?array $_formFieldElementUids = null;
+    // The custom fields the comment was posted with, as layout element UID to the mode each was in.
+    private ?array $_postedFields = null;
+    // Request file parameters that have passed the upload rules, so Craft may store them.
+    private array $_checkedUploadParams = [];
     private ?string $_previousStatus = null;
     private ?string $_previousCommentText = null;
 
@@ -494,6 +535,9 @@ class Comment extends Element
     public function init(): void
     {
         parent::init();
+
+        // Comments 3's `level`, in compatibility mode.
+        $this->initLegacyLevel();
 
         if ($this->id && $this->_previousStatus === null) {
             // Add this comment to a render cache, so when calling `parent` we can make use of it
@@ -511,6 +555,10 @@ class Comment extends Element
         return $names;
     }
 
+    /**
+     * The comment this is a reply to, when it's approved, so a template walking up from approved comments
+     * never shows a held or removed one. `getParentComment()` returns it whatever its status.
+     */
     public function getParent(): ?ElementInterface
     {
         if (!$this->parentId) {
@@ -520,48 +568,7 @@ class Comment extends Element
         return static::find()
             ->id((int)$this->parentId)
             ->siteId((int)$this->siteId)
-            ->status(null)
             ->one();
-    }
-
-    public function getChildren(): ElementQueryInterface|ElementCollection
-    {
-        return static::find()
-            ->adjacencyParentId((int)$this->id)
-            ->siteId((int)$this->siteId)
-            ->status(null);
-    }
-
-    public function getDescendants(?int $dist = null): ElementQueryInterface|ElementCollection
-    {
-        if (!$this->id || $dist === 0) {
-            return new ElementCollection();
-        }
-
-        $descendants = [];
-        $parentIds = [(int)$this->id];
-        $depth = 0;
-
-        while ($parentIds !== [] && ($dist === null || $depth < $dist)) {
-            $children = static::find()
-                ->adjacencyParentId($parentIds)
-                ->siteId((int)$this->siteId)
-                ->status(null)
-                ->orderBy([
-                    'comments_comments.commentDate' => SORT_ASC,
-                    'elements.id' => SORT_ASC,
-                ])
-                ->all();
-
-            foreach ($children as $child) {
-                $descendants[] = $child;
-            }
-
-            $parentIds = array_map(static fn(Comment $comment): int => (int)$comment->id, $children);
-            $depth++;
-        }
-
-        return new ElementCollection($descendants);
     }
 
     public function scenarios(): array
@@ -587,7 +594,7 @@ class Comment extends Element
         }
 
         $excerpt = Html::tag('span', Html::encode($this->getExcerpt(0, 110)), [
-            'class' => ['comments-comment-excerpt', 'light'],
+            'class' => 'comments-comment-excerpt',
         ]);
 
         return Html::tag('span', Html::tag('span', $name, ['class' => 'comments-comment-name']) . $excerpt, [
@@ -618,6 +625,9 @@ class Comment extends Element
         return false;
     }
 
+    /**
+     * The comment this is a reply to, whatever its status, for code that decides itself what to show.
+     */
     public function getParentComment(): ?self
     {
         if (!$this->parentId) {
@@ -627,12 +637,15 @@ class Comment extends Element
         return Comments::$plugin->getComments()->getCommentById((int)$this->parentId, $this->siteId);
     }
 
+    /**
+     * A query for the approved direct replies, like any comment query's default. Add `status(null)`, or
+     * another status, for replies in any state.
+     */
     public function getReplies(): CommentQuery
     {
         return self::find()
-            ->adjacencyParentId((int)$this->id)
-            ->siteId((int)$this->siteId)
-            ->status(null);
+            ->parentId((int)$this->id)
+            ->siteId((int)$this->siteId);
     }
 
     public function canView(User $user): bool
@@ -687,44 +700,125 @@ class Comment extends Element
     }
 
     /**
-     * Apply submitted custom field values from a public form. Only the fields explicitly
-     * allowed in settings can be written, however the request is crafted.
+     * Apply custom field values posted from the site's own form, as `fields[<handle>]`. Only the fields
+     * this person can fill in on this comment are read, however the request is put together, and a file
+     * posted to an Assets field has to pass Comments' upload rules before Craft stores it.
      */
-    public function setPublicFieldValuesFromRequest(string $paramNamespace = 'fields'): void
+    public function setFormFieldValuesFromRequest(string $paramNamespace = 'fields'): void
     {
-        $this->applyPublicFieldValues(fn() => $this->setFieldValuesFromRequest($paramNamespace));
+        $formFields = Comments::$plugin->getFormFields();
+        $user = Comments::$plugin->getService()->getUser();
+        $user = $user instanceof User ? $user : null;
+        $elements = $this->id
+            ? $formFields->editable($this, $user)
+            : $formFields->collectable($formFields->prospect((int)$this->ownerId, (int)($this->ownerSiteId ?: $this->siteId), $this->parentId ? self::find()->id($this->parentId)->status(null)->siteId('*')->one() : null, $user), $user);
+        $handles = array_map(static fn($element): string => $element->getField()->handle, $elements);
+
+        foreach ($elements as $element) {
+            $field = $element->getField();
+
+            if ($field instanceof AssetsField) {
+                $this->_checkRequestUploads($field, ($paramNamespace !== '' ? $paramNamespace . '.' : '') . $field->handle);
+            }
+        }
+
+        $this->setFormFieldElements(array_keys($elements));
+        $formFields->recordPostedModes($this, array_keys($elements));
+        $this->applyFormFieldValues(array_values($handles), fn() => $this->setFieldValuesFromRequest($paramNamespace));
     }
 
     /**
-     * Runs `$apply` under the public rules for custom fields: only the fields selected under Public
-     * Fields can be written, and an Assets field only takes new uploads and the files it already has.
-     * Public forms and GraphQL both set field values this way.
+     * Runs `$apply` with only the custom fields in `$handles` writable, as the site's form, the data API
+     * and GraphQL set them. An Assets field then only takes the files it already has and the person's own
+     * uploads for it.
      */
-    public function applyPublicFieldValues(callable $apply): mixed
+    public function applyFormFieldValues(array $handles, callable $apply): mixed
     {
-        $this->_publicFieldsOnly = true;
+        $this->_formFieldHandles = $handles;
 
         try {
             return $apply();
         } finally {
-            $this->_publicFieldsOnly = false;
+            $this->_formFieldHandles = null;
         }
+    }
+
+    /**
+     * The layout element UIDs of the custom fields this submission may fill in. Their own Required
+     * setting applies on the site only to these.
+     */
+    public function setFormFieldElements(array $uids): void
+    {
+        $this->_formFieldElementUids = array_values($uids);
+    }
+
+    /**
+     * The layout element UIDs of the custom fields the comment was posted with, or null for a comment
+     * from before Comments recorded them.
+     */
+    public function getPostedFieldUids(): ?array
+    {
+        return $this->_postedFields === null ? null : array_keys($this->_postedFields);
+    }
+
+    /**
+     * The custom fields the comment was posted with, as layout element UID to the mode each was in then,
+     * `collect` or `collect-and-show`, or null for a comment from before Comments recorded them. A value is only shown
+     * publicly if it was entered while its field was shown.
+     */
+    public function getPostedFieldModes(): ?array
+    {
+        return $this->_postedFields;
+    }
+
+    public function setPostedFieldModes(?array $modes): void
+    {
+        if ($modes === null) {
+            $this->_postedFields = null;
+
+            return;
+        }
+
+        $clean = [];
+
+        foreach ($modes as $uid => $mode) {
+            // A list of UIDs, as development builds stored it, counts as collected.
+            if (is_int($uid) && is_string($mode)) {
+                $clean[$mode] = FormFields::MODE_COLLECT;
+            } elseif (is_string($uid)) {
+                $clean[$uid] = $mode === FormFields::MODE_COLLECT_AND_SHOW ? FormFields::MODE_COLLECT_AND_SHOW : FormFields::MODE_COLLECT;
+            }
+        }
+
+        $this->_postedFields = $clean;
+    }
+
+    /**
+     * Set from the `postedFields` column, which holds them as JSON.
+     */
+    public function setPostedFields(mixed $value): void
+    {
+        if (is_string($value)) {
+            $value = Json::decodeIfJson($value);
+        }
+
+        $this->setPostedFieldModes(is_array($value) ? $value : null);
     }
 
     public function setFieldValueFromRequest(string $fieldHandle, mixed $value): void
     {
-        $this->_assertPublicFieldValue($fieldHandle, $value);
+        $this->_assertFormFieldValue($fieldHandle, $value);
 
         parent::setFieldValueFromRequest($fieldHandle, $value);
     }
 
     /**
      * Craft 5.10's GraphQL mutations set custom fields through here rather than
-     * `setFieldValueFromRequest()`, so the public rules apply on both.
+     * `setFieldValueFromRequest()`, so the same rules apply on both.
      */
     public function setFieldValue(string $fieldHandle, mixed $value): void
     {
-        $this->_assertPublicFieldValue($fieldHandle, $value);
+        $this->_assertFormFieldValue($fieldHandle, $value);
 
         parent::setFieldValue($fieldHandle, $value);
     }
@@ -747,13 +841,14 @@ class Comment extends Element
 
     public function isEditorContent(): bool
     {
-        return $this->contentFormat === ContentFormat::Editor->value;
+        return $this->contentFormat === ContentFormat::Rich->value;
     }
 
     /**
-     * The canonical Editor document, for clients that edit rich comments themselves.
+     * The canonical Editor document of a rich comment, for clients that edit rich comments themselves.
+     * GraphQL returns it as `contentDocument`.
      */
-    public function getEditorContent(): ?string
+    public function getContentDocument(): ?string
     {
         return $this->isEditorContent() ? $this->bodyContent : null;
     }
@@ -806,12 +901,27 @@ class Comment extends Element
     }
 
     /**
+     * Whether the control panel edits this comment in Editor: a rich comment, or a plain one while rich
+     * authoring is on, as its author would get editing it on the site. A plain one only becomes rich
+     * once its text is changed.
+     */
+    public function editsInEditor(): bool
+    {
+        return $this->isEditorContent() || Comments::$plugin->getSettings()->isRichAuthoringEnabled();
+    }
+
+    /**
      * The document an editor starts from. It's the stored one with its media and mentions filled in,
-     * which the editor displays but leaves out again when it saves.
+     * which the editor displays but leaves out again when it saves. A plain comment starts as its text,
+     * in paragraphs.
      */
     public function getEditorFormContent(): ?string
     {
-        if (!$this->isEditorContent() || !$this->bodyContent) {
+        if (!$this->isEditorContent()) {
+            return Json::encode(RichText::fromText((string)$this->comment)->getValue());
+        }
+
+        if (!$this->bodyContent) {
             return null;
         }
 
@@ -841,6 +951,18 @@ class Comment extends Element
     public function isGuest(): bool
     {
         return is_null($this->userId);
+    }
+
+    /**
+     * The custom field values this comment shows publicly, as `comment.shownFields` in Twig: the fields
+     * set to **Collect and show** that it was posted with, each with its `handle`, `label`, `type`,
+     * `placement`, raw `value` and formatted `text`, the same as the data API's `fields`. A field's
+     * value read by its handle, such as `comment.orderNumber`, is the value whatever the field's mode,
+     * so templates showing values to everyone use this instead.
+     */
+    public function getShownFields(): array
+    {
+        return Comments::$plugin->getFormFields()->shownFields($this);
     }
 
     public function getAuthor(): bool|User
@@ -1028,7 +1150,8 @@ class Comment extends Element
     {
         $minutes = (int)Comments::$plugin->getSettings()->authorEditWindow;
 
-        if ($minutes < 1 || !$this->commentDate || $user->can('comments-edit')) {
+        // Staff skip the window, but through a member token only from an origin that allows moderation.
+        if ($minutes < 1 || !$this->commentDate || ($user->can('comments-edit') && Comments::$plugin->getSignIn()->allowsModeration($user))) {
             return true;
         }
 
@@ -1106,6 +1229,40 @@ class Comment extends Element
     public function isFlagged(): bool
     {
         return $this->getFlags() > 0;
+    }
+
+    /**
+     * Whether the comment has at least **Hide After Downvotes** downvotes, as Comments 3 had it.
+     */
+    public function isPoorlyRated(): bool
+    {
+        $limit = Comments::$plugin->getSettings()->getDownvoteCommentLimit();
+
+        return $limit !== null && $this->getDownvotes() >= $limit;
+    }
+
+    /**
+     * Why the thread folds this comment away, as `reports` or `downvotes`, or null when it doesn't. A
+     * folded comment is still public, and its moderation state is unchanged; readers open it themselves.
+     */
+    public function getFoldReason(): ?string
+    {
+        $reports = Comments::$plugin->getSettings()->getFlaggedCommentLimit();
+
+        if ($reports !== null && $this->getFlags() >= $reports) {
+            return 'reports';
+        }
+
+        return $this->isPoorlyRated() ? 'downvotes' : null;
+    }
+
+    /**
+     * The author's net votes across their approved comments, or 0 for a guest, as Comments 3's
+     * `getAuthorScore()` was.
+     */
+    public function getAuthorScore(): int
+    {
+        return $this->userId ? Comments::$plugin->getInteractions()->getAuthorScore((int)$this->userId) : 0;
     }
 
     public function getFlags(): int
@@ -1249,8 +1406,8 @@ class Comment extends Element
             }
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
-            // This is permissible from the CP
-            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+            // This is permissible from the CP, for someone who can use it
+            if ($this->id && !self::isControlPanelUser()) {
                 $currentUser = Comments::$plugin->getService()->getUser();
 
                 if (empty($currentUser) || $currentUser->id !== $this->getAuthor()->id) {
@@ -1317,8 +1474,8 @@ class Comment extends Element
             }
 
             // Is this user trying to edit/save/delete a comment that’s not their own?
-            // This is permissible from the CP
-            if ($this->id && !Craft::$app->getRequest()->getIsCpRequest()) {
+            // This is permissible from the CP, for someone who can use it
+            if ($this->id && !self::isControlPanelUser()) {
                 $currentUser = Comments::$plugin->getService()->getUser();
 
                 if ($currentUser?->id !== $this->getAuthor()?->id) {
@@ -1327,7 +1484,7 @@ class Comment extends Element
             }
         }
 
-        // Must have an actual comment if required. A comment from before GIF search was removed can be just its GIF.
+        // Must have an actual comment if required. A comment can be just its GIF.
         // A rich comment can be just an image, and whether it's blank was settled when it was normalized.
         if (!trim((string)$this->comment) && !$this->gifUrl && (!$this->isEditorContent() || !$this->bodyContent) && $this->_getCommentIsRequired()) {
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
@@ -1374,6 +1531,19 @@ class Comment extends Element
             $this->editedAt = new DateTime();
         }
 
+        // Before the fields' own `beforeElementSave()`, where Craft's Assets fields store uploaded files.
+        $this->_refuseUncheckedUploads();
+
+        // A save in the control panel records each field that's on the site's form as it is now, so a
+        // moderator's save can show a value the way an author's edit can.
+        if (!$this->propagating && $this->getScenario() !== self::SCENARIO_FRONT_END && self::isControlPanelUser()) {
+            $formFields = Comments::$plugin->getFormFields();
+            $formFields->recordPostedModes($this, array_keys(array_filter(
+                $formFields->settings(),
+                static fn(array $setting): bool => $setting['mode'] !== FormFields::MODE_OFF,
+            )));
+        }
+
         return parent::beforeSave($isNew);
     }
 
@@ -1398,6 +1568,12 @@ class Comment extends Element
         $record->email = $this->email;
         $record->comment = StringHelper::emojiForDb($this->comment);
         $record->gifUrl = $this->gifUrl;
+
+        if ($record->hasAttribute('gifWidth')) {
+            $record->gifWidth = $this->gifUrl ? $this->gifWidth : null;
+            $record->gifHeight = $this->gifUrl ? $this->gifHeight : null;
+        }
+
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
         $record->userAgent = $this->userAgent;
@@ -1405,6 +1581,10 @@ class Comment extends Element
         $record->editedAt = $this->editedAt;
         $record->heldReason = $this->heldReason;
         $record->protection = $this->protection;
+
+        if ($this->_postedFields !== null && $record->hasAttribute('postedFields')) {
+            $record->postedFields = Json::encode((object)$this->_postedFields);
+        }
 
         // Persist v4 columns when set (Comments::create and migrator).
         if ($this->conversationId !== null) {
@@ -1592,6 +1772,9 @@ class Comment extends Element
     {
         parent::prepareEditScreen($response, $containerId);
 
+        /** @var Response|CpScreenResponseBehavior $response */
+        $response->selectedSubnavItem('comments');
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(CommentEditAsset::class);
         $view->registerJsWithVars(static fn($selector) => "Craft.Comments.initCommentEditor(document.querySelector($selector));", [
@@ -1690,20 +1873,29 @@ class Comment extends Element
         ];
         $rules[] = [['email'], 'email', 'on' => self::SCENARIO_CP];
 
-        // Check for custom fields. Craft will only check this for `SCENARIO_LIVE`, and we use custom scenarios
+        // Craft only checks required custom fields for `SCENARIO_LIVE`, and Comments uses its own scenarios.
+        // In the control panel every required field is required. On the site, a required field is only
+        // required of someone it was offered to, as conditions and the replies rule decide, so a field
+        // that's Off or hidden from them can't stop them posting.
         if ($fieldLayout = $this->getFieldLayout()) {
-            $publicFields = Comments::$plugin->getSettings()->publicFields;
+            $formFields = Comments::$plugin->getFormFields();
 
-            foreach ($fieldLayout->getCustomFields() as $field) {
+            foreach ($fieldLayout->getCustomFieldElements() as $element) {
+                if (!$element->required) {
+                    continue;
+                }
+
+                $field = $element->getField();
+                $uid = (string)$element->uid;
                 $attribute = 'field:' . $field->handle;
                 $isEmpty = [$this, 'isFieldEmpty:' . $field->handle];
 
-                if ($field->required) {
-                    // Allow custom field validation with our custom scenarios. Visitors can only
-                    // be asked for the fields they're allowed to submit.
-                    $rules[] = [[$attribute], 'required', 'isEmpty' => $isEmpty, 'on' => in_array($field->handle, $publicFields, true)
-                        ? [self::SCENARIO_CP, self::SCENARIO_FRONT_END]
-                        : [self::SCENARIO_CP]];
+                $rules[] = [[$attribute], 'required', 'isEmpty' => $isEmpty, 'on' => [self::SCENARIO_CP]];
+
+                if ($formFields->settingFor($uid)['mode'] !== FormFields::MODE_OFF) {
+                    $rules[] = [[$attribute], 'required', 'isEmpty' => $isEmpty, 'on' => [self::SCENARIO_FRONT_END],
+                        'when' => fn(): bool => in_array($uid, $this->_formFieldElementUids ?? [], true),
+                    ];
                 }
             }
         }
@@ -1715,13 +1907,13 @@ class Comment extends Element
     {
         $fields = parent::fieldLayoutFields($visibleOnly, $editableOnly);
 
-        if (!$this->_publicFieldsOnly) {
+        if ($this->_formFieldHandles === null) {
             return $fields;
         }
 
-        $publicFields = Comments::$plugin->getSettings()->publicFields;
+        $handles = $this->_formFieldHandles;
 
-        return array_values(array_filter($fields, static fn($field) => in_array($field->handle, $publicFields, true)));
+        return array_values(array_filter($fields, static fn($field) => in_array($field->handle, $handles, true)));
     }
 
     protected function attributeHtml(string $attribute): string
@@ -1959,46 +2151,127 @@ class Comment extends Element
      * Rich content is compared by structure, because saving it again can reorder its JSON without changing it.
      */
     /**
-     * A visitor can upload files to a public Assets field, which Craft turns into assets as the comment
-     * saves. An asset ID in the request is something else: it would relate, and with a restricted
-     * location move, any asset on the site. Only the IDs the comment already has on this field may
-     * come back, so an edit can keep its files.
+     * While submitted values are applied, only the fields this person can fill in can be written. An
+     * asset ID for an Assets field would relate, and with a restricted location move, any asset on the
+     * site, so only the files the comment already has on the field and the person's own uploads for it
+     * may be sent. Files can't come as data either: they're uploaded on their own first.
      */
-    private function _assertPublicFieldValue(string $fieldHandle, mixed $value): void
+    private function _assertFormFieldValue(string $fieldHandle, mixed $value): void
     {
-        if (!$this->_publicFieldsOnly) {
+        if ($this->_formFieldHandles === null) {
             return;
+        }
+
+        if (!in_array($fieldHandle, $this->_formFieldHandles, true)) {
+            throw CommentValidationException::fromErrors([
+                'field:' . $fieldHandle => [Craft::t('comments', 'This field can’t be filled in here.')],
+            ]);
         }
 
         $field = $this->getFieldLayout()?->getFieldByHandle($fieldHandle);
 
         if ($field instanceof AssetsField) {
-            $this->_assertPublicAssetIds($field, $value);
+            $this->_assertOwnAssetIds($field, $value);
         }
     }
 
-    private function _assertPublicAssetIds(AssetsField $field, mixed $value): void
+    private function _assertOwnAssetIds(AssetsField $field, mixed $value): void
     {
-        // Craft relates nothing for anything but an array, and reads `data` and `filename` as uploads.
+        // Craft relates nothing for anything but an array.
         if (!is_array($value)) {
             return;
         }
 
-        unset($value['data'], $value['filename']);
-        $posted = array_values(array_filter($value));
+        $refused = CommentValidationException::fromErrors([
+            'field:' . $field->handle => [Craft::t('comments', 'Only files you upload here can be added.')],
+        ]);
+
+        // Craft would store `data` as a new file, without Comments' upload rules.
+        if (array_key_exists('data', $value) || array_key_exists('filename', $value)) {
+            throw $refused;
+        }
+
+        $posted = array_values(array_filter($value, static fn(mixed $id): bool => $id !== '' && $id !== null));
 
         if ($posted === []) {
             return;
         }
 
-        $existing = $this->id ? array_map('strval', (new Query())
+        $allowed = $this->id ? array_map('strval', (new Query())
             ->select(['targetId'])
             ->from([Table::RELATIONS])
             ->where(['fieldId' => $field->id, 'sourceId' => $this->id])
             ->column()) : [];
+        $element = null;
+
+        foreach ($this->getFieldLayout()?->getCustomFieldElements() ?? [] as $candidate) {
+            if ($candidate->getField()->handle === $field->handle) {
+                $element = $candidate;
+            }
+        }
+
+        if ($element) {
+            $user = Comments::$plugin->getService()->getUser();
+            $identities = Comments::$plugin->getIdentities();
+            $identity = $user instanceof User ? $identities->findForUser((int)$user->id) : $identities->findGuestForRequest();
+            $allowed = [...$allowed, ...array_map('strval', Comments::$plugin->getFormFields()->pendingUploadIds((string)$element->uid, $identity))];
+        }
 
         foreach ($posted as $assetId) {
-            if (!is_scalar($assetId) || !in_array((string)$assetId, $existing, true)) {
+            if (!is_scalar($assetId) || !in_array((string)$assetId, $allowed, true)) {
+                throw $refused;
+            }
+        }
+    }
+
+    /**
+     * Files posted with the site's own form for an Assets field, under `$param`, pass Comments' upload
+     * rules, or the form is refused. Craft stores them as the comment saves.
+     */
+    private function _checkRequestUploads(AssetsField $field, string $param): void
+    {
+        $request = Craft::$app->getRequest();
+
+        if ($request->getIsConsoleRequest()) {
+            return;
+        }
+
+        foreach (UploadedFile::getInstancesByName($param) as $file) {
+            try {
+                UploadPolicy::check($file, AssetsType::allowedExtensions($field), AssetsType::maxSize());
+            } catch (UploadRefusedException $e) {
+                throw CommentValidationException::fromErrors(['field:' . $field->handle => [$e->getMessage()]]);
+            }
+        }
+
+        $this->_checkedUploadParams[] = $param;
+    }
+
+    /**
+     * Craft's Assets fields store any file in the request under their name as an element saves, whoever
+     * sent it and however. Outside the control panel, only files the site's form posted for a field this
+     * person can fill in, after the upload rules, are left for it; anything else is refused before Craft
+     * sees it.
+     */
+    private function _refuseUncheckedUploads(): void
+    {
+        // The control panel's own editor saves with `SCENARIO_CP`. A control panel URL alone proves
+        // nothing, because Craft treats any request under it as one, including to the site's own
+        // anonymous actions.
+        if (Craft::$app->getRequest()->getIsConsoleRequest() || $this->getScenario() === self::SCENARIO_CP || self::isControlPanelUser()) {
+            return;
+        }
+
+        $namespace = $this->getFieldParamNamespace();
+
+        foreach ($this->getFieldLayout()?->getCustomFields() ?? [] as $field) {
+            if (!$field instanceof AssetsField) {
+                continue;
+            }
+
+            $param = ($namespace ? $namespace . '.' : '') . $field->handle;
+
+            if (!in_array($param, $this->_checkedUploadParams, true) && UploadedFile::getInstancesByName($param) !== []) {
                 throw CommentValidationException::fromErrors([
                     'field:' . $field->handle => [Craft::t('comments', 'Only files you upload here can be added.')],
                 ]);
@@ -2009,6 +2282,11 @@ class Comment extends Element
     private function _contentChangedFrom(CommentRecord $original): bool
     {
         if ((string)$this->comment !== StringHelper::shortcodesToEmoji((string)$original->comment)) {
+            return true;
+        }
+
+        // Adding, changing or removing a GIF is an edit too.
+        if ((string)$this->gifUrl !== (string)$original->gifUrl) {
             return true;
         }
 

@@ -46,7 +46,8 @@ class CommentsHelper
     {
         $viewer = Craft::$app->getUser()->getIdentity();
 
-        return $viewer instanceof User && $viewer->admin;
+        // An admin, or a GraphQL request on a private schema allowed to read addresses (SD-57).
+        return ($viewer instanceof User && $viewer->admin) || Gql::canReadCommentEmails();
     }
 
     public static function getAvatar($user = null): string|Asset

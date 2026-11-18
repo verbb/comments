@@ -53,17 +53,16 @@ it('only offers guests the voting and flagging they’re allowed', function() {
     $settings->allowGuestFlagging = false;
     $frontend = Comments::$plugin->getFrontend();
 
-    expect($frontend->buildCommentViewPublic($comment)->actions)->toContain('interact', 'report');
+    $state = static fn() => $frontend->viewerStatesFor([Comments::$plugin->getComments()->getCommentById((int)$comment->id)])[(int)$comment->id];
+
+    expect($state())->toMatchArray(['canVote' => true, 'canReport' => true]);
 
     Craft::$app->getUser()->setIdentity(null);
-    $guest = $frontend->buildCommentViewPublic(Comments::$plugin->getComments()->getCommentById((int)$comment->id));
-    expect($guest->actions)->not->toContain('interact')
-        ->and($guest->actions)->not->toContain('report');
+    expect($state())->toMatchArray(['canVote' => false, 'canReport' => false]);
 
     $settings->allowGuestVoting = true;
     $settings->allowGuestFlagging = true;
-    $guest = $frontend->buildCommentViewPublic(Comments::$plugin->getComments()->getCommentById((int)$comment->id));
-    expect($guest->actions)->toContain('interact', 'report');
+    expect($state())->toMatchArray(['canVote' => true, 'canReport' => true]);
 });
 
 it('only offers the public delete action on someone’s own comment', function() {
@@ -73,10 +72,10 @@ it('only offers the public delete action on someone’s own comment', function()
     $frontend = Comments::$plugin->getFrontend();
 
     // The admin running this test can remove it, but through the moderation actions.
-    expect($frontend->buildCommentViewPublic($comment)->actions)->not->toContain('remove');
+    expect($frontend->viewerStatesFor([$comment])[(int)$comment->id]['canDelete'])->toBeFalse();
 
     Craft::$app->getUser()->setIdentity($author);
-    expect($frontend->buildCommentViewPublic(Comments::$plugin->getComments()->getCommentById((int)$comment->id))->actions)->toContain('remove');
+    expect($frontend->viewerStatesFor([Comments::$plugin->getComments()->getCommentById((int)$comment->id)])[(int)$comment->id]['canDelete'])->toBeTrue();
 });
 
 it('matches keyword filters against what people wrote, not a comment’s internal details', function() {
