@@ -74,15 +74,51 @@ class HttpClient
         ]);
     }
 
-    public function get(string $path, array $query = []): array
+    public function get(string $path, array $query = [], array $headers = []): array
     {
-        $options = ['headers' => ['Accept' => 'application/json']];
+        $options = ['headers' => ['Accept' => 'application/json', ...$headers]];
 
         if ($query) {
             $options['query'] = $query;
         }
 
         return $this->_send('GET', $path, $options);
+    }
+
+    /**
+     * A JSON body, as the comments script sends one, with the CSRF token in its header.
+     */
+    public function postJson(string $path, array $body, array $headers = [], ?string $csrfToken = null): array
+    {
+        $headers = ['Accept' => 'application/json', ...$headers];
+
+        if ($csrfToken !== null) {
+            $headers['X-CSRF-Token'] = $csrfToken;
+        }
+
+        return $this->_send('POST', $path, ['json' => $body, 'headers' => $headers]);
+    }
+
+    /**
+     * Any request, with Guzzle's options, such as a preflight, an exact raw body to sign, or a
+     * multipart upload.
+     */
+    public function request(string $method, string $path, array $options = []): array
+    {
+        $options['headers'] = ['Accept' => 'application/json', ...($options['headers'] ?? [])];
+
+        return $this->_send($method, $path, $options);
+    }
+
+    public static function baseUrl(): ?string
+    {
+        return self::$baseUrl;
+    }
+
+    /** The names of the cookies this browser holds. */
+    public function cookieNames(): array
+    {
+        return array_map(static fn($cookie): string => (string)$cookie->getName(), iterator_to_array($this->client->getConfig('cookies')));
     }
 
     public function post(string $path, array $fields = [], bool $csrf = true): array
@@ -122,6 +158,7 @@ class HttpClient
             'status' => $response->getStatusCode(),
             'body' => $body,
             'data' => json_decode($body, true),
+            'headers' => array_change_key_case($response->getHeaders(), CASE_LOWER),
         ];
     }
 }

@@ -29,6 +29,15 @@ class CommentPresentation
         return self::_defer('viewer', $comment);
     }
 
+    /**
+     * The data API's description of a comment, for the person asking. On a public schema it never says
+     * what a moderator could decide.
+     */
+    public static function commentsData(Comment $comment, bool $withModeration): Deferred
+    {
+        return self::_defer($withModeration ? 'commentsData' : 'commentsDataPublic', $comment);
+    }
+
     private static function _defer(string $kind, Comment $comment): Deferred
     {
         $id = (int)$comment->id;
@@ -40,9 +49,11 @@ class CommentPresentation
                 $batch = self::$_pending[$kind] ?? [];
                 self::$_pending[$kind] = [];
                 $frontend = Comments::$plugin->getFrontend();
-                $values = $kind === 'author'
-                    ? $frontend->publicAuthorsFor(array_values($batch))
-                    : $frontend->viewerStatesFor(array_values($batch));
+                $values = match ($kind) {
+                    'author' => $frontend->publicAuthorsFor(array_values($batch)),
+                    'viewer' => $frontend->viewerStatesFor(array_values($batch)),
+                    default => Comments::$plugin->getApi()->commentDataFor(array_values($batch), $kind === 'commentsData'),
+                };
 
                 self::$_loaded[$kind] = (self::$_loaded[$kind] ?? []) + $values;
             }

@@ -1,0 +1,51 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{{ forms.editableTableField({
+    first: true,
+    label: 'Allowed Origins' | t('comments'),
+    instructions: 'Front ends on another domain or subdomain that may load and post comments, each as a scheme and host such as `https://www.example.com`. Guests on a listed origin can post through a guest session. Turn on **Shared Cookies** for another subdomain of this site that shares Craft’s session cookie, or **Member Tokens** for a separate site whose own server signs its members in. Pages on this site don’t need to be listed.' | t('comments'),
+    id: 'allowedOrigins',
+    name: 'allowedOrigins',
+    cols: {
+        origin: { type: 'autosuggest', heading: 'Origin' | t('comments'), suggestEnvVars: true, placeholder: 'https://www.example.com' },
+        credentials: { type: 'lightswitch', heading: 'Shared Cookies' | t('comments'), thin: true },
+        memberTokens: { type: 'lightswitch', heading: 'Member Tokens' | t('comments'), thin: true },
+        moderation: { type: 'lightswitch', heading: 'Moderation' | t('comments'), thin: true },
+        protectionSiteKey: { type: 'autosuggest', heading: 'Challenge Site Key' | t('comments'), suggestEnvVars: true },
+        protectionSecretKey: { type: 'autosuggest', heading: 'Challenge Secret Key' | t('comments'), suggestEnvVars: true },
+    },
+    rows: settings.allowedOrigins,
+    allowAdd: true,
+    allowDelete: true,
+    allowReorder: true,
+    errors: settings.getErrors('allowedOrigins'),
+    warning: macros.configWarning('allowedOrigins', 'comments'),
+}) }}
+
+<p class="light">{{ 'Only list origins you control. A subdomain that hosts other people’s content or a third-party service shouldn’t use **Shared Cookies**, because Craft’s cookie reaches it too, so use **Member Tokens** there instead. **Moderation** lets moderators act through a member token from that origin, which is off by default so a leaked key can’t act as a moderator. The challenge keys are for an origin with its own account at the challenge provider. Leave them blank to use the site’s keys, and add the origin’s hostname to them at the provider.' | t('comments') | md(inlineOnly=true) }}</p>
+
+<hr>
+
+<h3>{{ 'Member Tokens' | t('comments') }}</h3>
+
+{{ forms.autosuggestField({
+    label: 'Member Token Key' | t('comments'),
+    instructions: 'The secret a site’s own server signs its member token requests with. Use an environment variable holding at least 32 random characters, and never send it to a browser.' | t('comments'),
+    name: 'memberTokenKey',
+    value: settings.memberTokenKey,
+    suggestEnvVars: true,
+    placeholder: '$COMMENTS_MEMBER_TOKEN_KEY',
+    errors: settings.getErrors('memberTokenKey'),
+    warning: macros.configWarning('memberTokenKey', 'comments'),
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Previous Member Token Key' | t('comments'),
+    instructions: 'While you change the key, the old one goes here, so requests signed with either are accepted until every server has the new one. Clear it once they have.' | t('comments'),
+    name: 'memberTokenPreviousKey',
+    value: settings.memberTokenPreviousKey,
+    suggestEnvVars: true,
+    errors: settings.getErrors('memberTokenPreviousKey'),
+    warning: macros.configWarning('memberTokenPreviousKey', 'comments'),
+}) }}

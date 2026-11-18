@@ -1,6 +1,7 @@
 <?php
 namespace verbb\comments\services;
 
+use verbb\comments\Comments as CommentsPlugin;
 use verbb\comments\enums\IdentityType;
 use verbb\comments\records\Identity as IdentityRecord;
 
@@ -126,6 +127,39 @@ class Identities extends Component
                 'type' => IdentityType::Guest->value,
                 'guestTokenHash' => $hash,
             ]);
+
+            // A guest on another site gets their secret inside a session token Comments issued, before
+            // they've done anything that needs an identity, so their first write gives it one. A cookie's
+            // value is never adopted like this, so nobody can choose their own.
+            if (!$identity && CommentsPlugin::$plugin->getSignIn()->ownsGuestSecret($guestToken)) {
+                $identity = new IdentityRecord([
+                    'type' => IdentityType::Guest->value,
+                    'guestTokenHash' => $hash,
+                    'name' => $name !== null && $name !== '' ? $name : null,
+                    'email' => $email !== null && $email !== '' ? $email : null,
+                ]);
+
+                // Two first writes at once from the same session both get here. The hash is unique, so
+                // the second insert fails and that request uses the identity the first one made. The
+                // insert runs in its own savepoint, so a failure doesn't end a surrounding transaction.
+                try {
+                    Craft::$app->getDb()->transaction(static fn() => $identity->save(false));
+                } catch (IntegrityException) {
+                    $identity = IdentityRecord::findOne(['type' => IdentityType::Guest->value, 'guestTokenHash' => $hash]);
+
+                    if (!$identity) {
+                        throw new DbException('Failed to materialize guest Identity after unique-index race.');
+                    }
+                }
+
+                $this->byIdCache[(int)$identity->id] = $identity;
+
+                return [
+                    'identity' => $identity,
+                    'guestToken' => $guestToken,
+                    'isNewToken' => false,
+                ];
+            }
 
             if ($identity) {
                 $dirty = false;
@@ -275,6 +309,14 @@ class Identities extends Component
             return null;
         }
 
+        // A data API request from another site carries the guest in its session token, and a cookie
+        // that came along is never read.
+        $signIn = CommentsPlugin::$plugin->getSignIn();
+
+        if ($signIn->usesHeaderToken()) {
+            return $signIn->current()?->guestSecret;
+        }
+
         if ($this->issuedGuestToken !== null) {
             return $this->issuedGuestToken;
         }
@@ -289,6 +331,12 @@ class Identities extends Component
      */
     public function issueGuestCookie(string $guestToken): void
     {
+        // A guest on another site is sent a session token instead, because their browser won't keep a
+        // cookie from here.
+        if (CommentsPlugin::$plugin->getSignIn()->issueGuestSession($guestToken)) {
+            return;
+        }
+
         $this->issuedGuestToken = $guestToken;
 
         $response = Craft::$app->getResponse();
