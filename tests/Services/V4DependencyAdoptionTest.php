@@ -7,6 +7,7 @@ use verbb\comments\enums\ModerationState;
 use verbb\comments\exceptions\ProtectionException;
 use verbb\comments\helpers\EditorContexts;
 use verbb\comments\models\CommentSubmission;
+use verbb\comments\models\Settings;
 use verbb\editor\Editor;
 use verbb\protect\models\{ProtectionEvidence, RequestSignals};
 
@@ -20,7 +21,7 @@ beforeEach(function() {
     $settings->allowAttachments = false;
     $settings->participantNotifications = [];
     $settings->staffNotifications = [];
-    $settings->turnstileEnabled = false;
+    $settings->challengeProvider = Settings::CHALLENGE_NONE;
     $settings->protectionHostnames = [];
     $settings->protectionFailClosed = false;
     EditorContexts::refresh();
@@ -30,7 +31,7 @@ beforeEach(function() {
 afterEach(function() {
     Craft::$app->getUser()->setIdentity($this->admin);
     Comments::$plugin->getSettings()->enableSpamChecks = false;
-    Comments::$plugin->getSettings()->turnstileEnabled = false;
+    Comments::$plugin->getSettings()->challengeProvider = Settings::CHALLENGE_NONE;
     Craft::$app->getRequest()->setBodyParams([]);
     unset($_SERVER['REQUEST_METHOD']);
 });
@@ -71,12 +72,11 @@ it('holds comments for review when a provider is misconfigured rather than publi
     $settings = Comments::$plugin->getSettings();
     $settings->enableSpamChecks = true;
     $settings->honeypotEnabled = false;
-    $settings->javascriptCheckEnabled = false;
     $settings->minimumSubmitTime = 0;
     $settings->replayProtectionEnabled = false;
     $settings->rateLimitEnabled = false;
     $settings->challengeAuthenticated = true;
-    $settings->turnstileEnabled = true;
+    $settings->challengeProvider = Settings::CHALLENGE_TURNSTILE;
     $settings->turnstileKey = 'site';
     $settings->turnstileSecret = '$COMMENTS_TEST_UNSET_SECRET';
     $settings->protectionHostnames = ['example.com'];
@@ -105,7 +105,7 @@ it('reports settings that can’t protect a site when they’re saved', function
     $site = Craft::$app->getSites()->getPrimarySite();
     $baseUrl = $site->getBaseUrl(false);
     $settings->enableSpamChecks = true;
-    $settings->turnstileEnabled = true;
+    $settings->challengeProvider = Settings::CHALLENGE_TURNSTILE;
     $settings->turnstileKey = 'site';
     $settings->turnstileSecret = 'secret';
     $site->setBaseUrl(null);
@@ -127,7 +127,7 @@ it('doesn’t take the page down when the challenge’s site key is an unset env
     $settings = Comments::$plugin->getSettings();
     $settings->enableSpamChecks = true;
     $settings->challengeAuthenticated = true;
-    $settings->turnstileEnabled = true;
+    $settings->challengeProvider = Settings::CHALLENGE_TURNSTILE;
     $settings->turnstileKey = '$COMMENTS_TEST_UNSET_KEY';
     $settings->turnstileSecret = 'secret';
     $settings->protectionHostnames = ['example.com'];
@@ -182,7 +182,8 @@ it('only lets someone use the edit context for a comment they can edit', functio
     $comment = adoptionComment($entry, $author);
     $config = EditorContexts::editConfig();
     $scope = ['ownerId' => (int)$entry->id, 'siteId' => (int)$entry->siteId, 'commentId' => (int)$comment->id];
-    $expected = ['ownerId' => (int)$entry->id, 'siteId' => (int)$entry->siteId];
+    // The comment stays in the scope so its existing mentions remain mentionable while it's edited (SD-46).
+    $expected = $scope;
 
     expect(EditorContexts::resolveScope($scope, $author, $config))->toBe($expected);
     expect(EditorContexts::resolveScope(['commentId' => null] + $scope, $author, $config))->toBeNull();
@@ -227,7 +228,7 @@ it('renders a page of rich comments the same way as one at a time', function() {
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
             'content' => json_encode(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'marks' => [['type' => 'bold']], 'text' => $text]]]]]),
-            'contentFormat' => ContentFormat::Editor,
+            'contentFormat' => ContentFormat::Rich,
             'userId' => (int)$author->id,
         ]))->comment;
     }
@@ -235,7 +236,7 @@ it('renders a page of rich comments the same way as one at a time', function() {
     $expected = array_map(static fn($comment) => (string)$comment->getRenderedBodyHtml(), $comments);
     expect($expected[0])->toContain('<strong>First</strong>');
 
-    $views = Comments::$plugin->getFrontend()->buildCommentViewsForComments($comments, 0);
+    $views = array_values(Comments::$plugin->getFrontend()->buildDetachedCommentViews($comments));
 
     expect(array_map(static fn($view) => $view->contentHtml, $views))->toBe($expected);
 });
@@ -249,7 +250,7 @@ it('refuses an empty rich comment and accepts the empty document Editor sends fo
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
             'content' => $empty,
-            'contentFormat' => ContentFormat::Editor,
+            'contentFormat' => ContentFormat::Rich,
             'userId' => (int)$author->id,
         ])))->toThrow(yii\base\UserException::class, 'Comment content cannot be empty.');
     }
@@ -261,7 +262,7 @@ it('posts the plain box when a rich form is sent without JavaScript', function()
     Craft::$app->getRequest()->setBodyParams([
         'elementId' => $entry->id,
         'siteId' => $entry->siteId,
-        'contentFormat' => 'editor',
+        'contentFormat' => 'rich',
         'fields' => ['comment' => 'Typed without JavaScript', 'editorContent' => ''],
     ]);
 
@@ -280,7 +281,7 @@ it('doesn’t let GraphQL change a comment’s format or blank a rich comment’
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => json_encode(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Rich words']]]]]),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$author->id,
     ]))->comment;
     $save = static function(int $id, string $arguments) {
@@ -291,7 +292,7 @@ it('doesn’t let GraphQL change a comment’s format or blank a rich comment’
     };
     $reload = static fn(int $id) => Comments::$plugin->getComments()->getCommentById($id, (int)$entry->siteId);
 
-    $plainResult = $save((int)$plain->id, 'contentFormat: "editor", comment: ""');
+    $plainResult = $save((int)$plain->id, 'contentFormat: "rich", comment: ""');
     expect($plainResult['errors'][0]['message'] ?? '')->toContain('blank');
     expect($reload((int)$plain->id)->comment)->toBe('Plain words');
 
@@ -302,6 +303,6 @@ it('doesn’t let GraphQL change a comment’s format or blank a rich comment’
 
     // The way that's allowed, so the refusals above are about what was sent.
     $document = addslashes(json_encode(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Edited words']]]]]));
-    expect($save((int)$rich->id, "editorContent: \"{$document}\"")['errors'] ?? [])->toBe([]);
+    expect($save((int)$rich->id, "contentDocument: \"{$document}\"")['errors'] ?? [])->toBe([]);
     expect($reload((int)$rich->id)->comment)->toBe('Edited words');
 });

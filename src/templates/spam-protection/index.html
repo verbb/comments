@@ -1,0 +1,19 @@
+{% extends '_layouts/cp' %}
+
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsCpAsset') %}
+
+{% set selectedSubnavItem = 'spamProtection' %}
+{% set fullPageForm = true %}
+{% set title = 'Spam Protection' | t('comments') %}
+{% set crumbs = [
+    { label: craft.comments.getPluginName() | t('comments'), url: url('comments') },
+] %}
+
+{% block content %}
+    {{ actionInput('comments/spam-protection/save') }}
+    {{ redirectInput('comments/spam-protection') }}
+
+    {% namespace 'settings' %}
+        {% include 'comments/spam-protection/_fields' %}
+    {% endnamespace %}
+{% endblock %}

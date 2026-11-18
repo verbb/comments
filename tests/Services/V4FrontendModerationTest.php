@@ -26,7 +26,7 @@ it('hides unmoderated comments from the public conversation view', function() {
 
     expect($result->moderationState)->toBe(ModerationState::Pending);
 
-    // The console harness can't drop the logged-in identity, so assert the public read contract
+    // The console harness can't drop the logged-in identity, so assert what a public read returns
     // directly: with no explicit state filter, only Approved Comments are ever returned.
     $conversation = Comments::$plugin->getConversations()->findForOwner((int)$entry->id, (int)$entry->siteId);
     $page = Comments::$plugin->getConversations()->getRootComments((int)$conversation->id);
@@ -35,7 +35,7 @@ it('hides unmoderated comments from the public conversation view', function() {
     expect(Comments::$plugin->getModeration()->canModerateComment(null))->toBeFalse();
 });
 
-it('surfaces pending comments with inline moderation actions for moderators', function() {
+it('describes pending comments in full, with their decisions, only for moderators', function() {
     $entry = CommentsFixtureFactory::entry('Frontend moderation moderator read');
     $author = CommentsFixtureFactory::user('frontend-mod-author-2');
 
@@ -44,26 +44,22 @@ it('surfaces pending comments with inline moderation actions for moderators', fu
     $settings->participantNotifications = [];
     $settings->staffNotifications = [];
 
-    Comments::$plugin->getComments()->create(new CommentSubmission([
+    $comment = Comments::$plugin->getComments()->create(new CommentSubmission([
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => 'Pending comment for moderator',
         'userId' => (int)$author->id,
-    ]));
+    ]))->comment;
 
-    $view = Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId);
+    $frontend = Comments::$plugin->getFrontend();
+    $admin = Craft::$app->getUser()->getIdentity();
 
-    expect($view->isModerator)->toBeTrue();
-    expect($view->roots)->not->toBeEmpty();
-
-    $row = $view->roots[0];
-    expect($row->state)->toBe(ModerationState::Pending->value);
-    expect($row->moderatorOnly)->toBeTrue();
-    expect($row->moderationActions)->toContain('moderate-approve');
-    expect($row->moderationActions)->toContain('moderate-spam');
-
-    // Unmoderated rows are not votable, even in an enabled interaction mode.
-    expect($row->interaction)->toBeNull();
+    // Described in full only for the people allowed to see it, as the data API's `viewer` read does.
+    expect($frontend->buildDetachedCommentViews([$comment], true)[(int)$comment->id]->state)->toBe(ModerationState::Pending->value)
+        ->and($frontend->buildDetachedCommentViews([$comment])[(int)$comment->id]->placeholder)->toBeTrue()
+        ->and($frontend->moderationDecisions($comment, $admin))->toContain('approve', 'spam')
+        // Unmoderated comments are not votable, even in an enabled interaction mode.
+        ->and($frontend->viewerStatesFor([$comment])[(int)$comment->id]['canVote'])->toBeFalse();
 });
 
 it('never lets a moderator moderate their own comment from the public surface', function() {
@@ -87,35 +83,5 @@ it('never lets a moderator moderate their own comment from the public surface', 
     expect($moderation->canModerateComment($admin))->toBeTrue();
     expect($moderation->canModerateComment($admin, $result->comment))->toBeFalse();
 
-    $view = Comments::$plugin->getFrontend()->buildConversationView((int)$entry->id, (int)$entry->siteId);
-    expect($view->roots[0]->moderationActions)->toBeEmpty();
-});
-
-it('keeps moderator affordances out of shared-cache shells', function() {
-    $entry = CommentsFixtureFactory::entry('Frontend moderation shared cache');
-    $author = CommentsFixtureFactory::user('frontend-mod-author-3');
-
-    $settings = Comments::$plugin->getSettings();
-    $settings->requireModeration = true;
-    $settings->participantNotifications = [];
-    $settings->staffNotifications = [];
-
-    Comments::$plugin->getComments()->create(new CommentSubmission([
-        'ownerId' => $entry->id,
-        'siteId' => $entry->siteId,
-        'content' => 'Pending comment, shared cache',
-        'userId' => (int)$author->id,
-    ]));
-
-    $view = Comments::$plugin->getFrontend()->buildConversationView(
-        (int)$entry->id,
-        (int)$entry->siteId,
-        null,
-        20,
-        null,
-        true,
-    );
-
-    expect($view->isModerator)->toBeFalse();
-    expect($view->roots)->toBeEmpty();
+    expect(Comments::$plugin->getFrontend()->moderationDecisions($result->comment, $admin))->toBeEmpty();
 });

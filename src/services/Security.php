@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
+use verbb\comments\helpers\KeywordRules;
 
 use craft\base\Component;
 
@@ -31,6 +32,18 @@ class Security extends Component
             }
         }
 
+        // A comment with more links than the site allows is held in the same way.
+        if (is_numeric($settings->maxLinks) && $this->countLinks((string)$comment->comment) > (int)$settings->maxLinks) {
+            $wasHeldFor = $comment->moderationState === ModerationState::Pending->value ? HeldReason::tryFrom((string)$comment->heldReason) : null;
+
+            $comment->status = Comment::STATUS_PENDING;
+            $comment->moderationState = ModerationState::Pending->value;
+
+            if (in_array($wasHeldFor, [null, HeldReason::PreModeration, HeldReason::Edited], true)) {
+                $comment->heldReason = HeldReason::Links->value;
+            }
+        }
+
         // Check for content where a comment should be marked as spam.
         if ($this->_findInElementContent($comment, $settings->securitySpamlist)) {
             $comment->status = Comment::STATUS_SPAM;
@@ -43,7 +56,44 @@ class Security extends Component
             return false;
         }
 
+        // A guest's address at a blocked domain, or one of its subdomains.
+        if (!$comment->userId && $this->isBlockedEmail((string)$comment->email)) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * How many links a comment's text has: each link in a rich comment, and each web address written out
+     * in its text. A link whose text is its address counts once.
+     */
+    public function countLinks(string $content): int
+    {
+        $anchors = preg_match_all('/<a\b[^>]*\bhref\s*=/i', $content);
+        $text = strip_tags((string)preg_replace('/<a\b[^>]*>.*?<\/a>/is', ' ', $content));
+        $addresses = preg_match_all('~(?<![\w@])(?:https?://|www\.)[^\s<>"\']+~iu', html_entity_decode($text, ENT_QUOTES | ENT_HTML5));
+
+        return (int)$anchors + (int)$addresses;
+    }
+
+    public function isBlockedEmail(string $email): bool
+    {
+        $at = mb_strrpos($email, '@');
+
+        if ($at === false) {
+            return false;
+        }
+
+        $domain = rtrim(mb_strtolower(trim(mb_substr($email, $at + 1))), '.');
+
+        foreach (Comments::$plugin->getSettings()->getBlockedEmailDomains() as $blocked) {
+            if ($domain === $blocked || str_ends_with($domain, '.' . $blocked)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function checkCommentLength(Comment $comment): bool
@@ -70,36 +120,10 @@ class Security extends Component
     // Private Methods
     // =========================================================================
 
-    private function _findInElementContent($comment, $setting): bool
+    private function _findInElementContent(Comment $comment, ?string $rules): bool
     {
         $settings = Comments::$plugin->getSettings();
 
-        if (!$setting) {
-            return false;
-        }
-
-        $values = array_filter(array_map('trim', explode("\n", $setting)));
-
-        foreach ([$comment->comment, $comment->name, $comment->email, $comment->ipAddress] as $attr) {
-            if (!is_string($attr)) {
-                continue;
-            }
-
-            // Control characters could otherwise split a word so that it doesn't match. Line breaks
-            // stay, because they're what separates a word at the start of a line from the one before.
-            $attr = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', trim($attr));
-
-            foreach ($values as $value) {
-                $found = $settings->securityMatchExact
-                    ? preg_match('/(?<![\p{L}\p{N}_])' . preg_quote($value, '/') . '(?![\p{L}\p{N}_])/iu', $attr)
-                    : mb_stripos($attr, $value) !== false;
-
-                if ($found) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return KeywordRules::findMatch($rules, [$comment->comment, $comment->name, $comment->email], $comment->ipAddress, $settings->securityMatchExact) !== null;
     }
 }

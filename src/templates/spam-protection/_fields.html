@@ -2,7 +2,7 @@
 {% import 'verbb-base/_macros' as macros %}
 
 {% set protectHidden = not settings.enableSpamChecks ? 'hidden' %}
-{% set challengeProvider = settings.turnstileEnabled ? 'turnstile' : (settings.recaptchaEnabled ? 'recaptcha' : '') %}
+{% set challengeProvider = settings.challengeProvider %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -36,15 +36,6 @@
         min: 0,
         errors: settings.getErrors('minimumSubmitTime'),
         warning: macros.configWarning('minimumSubmitTime', 'comments'),
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: 'Require JavaScript' | t('comments'),
-        instructions: 'Requires JavaScript for browser forms. Leave off to support visitors without JavaScript.' | t('comments'),
-        name: 'javascriptCheckEnabled',
-        on: settings.javascriptCheckEnabled,
-        errors: settings.getErrors('javascriptCheckEnabled'),
-        warning: macros.configWarning('javascriptCheckEnabled', 'comments'),
     }) }}
 
     {{ forms.lightswitchField({
@@ -118,12 +109,16 @@
         id: 'challengeProvider',
         name: 'challengeProvider',
         value: challengeProvider,
+        errors: settings.getErrors('challengeProvider'),
+        warning: macros.configWarning('challengeProvider', 'comments'),
         toggle: true,
         targetPrefix: '.protect-challenge-',
         options: [
             { label: 'None' | t('comments'), value: '' },
             { label: 'Cloudflare Turnstile' | t('comments'), value: 'turnstile' },
             { label: 'reCAPTCHA v3' | t('comments'), value: 'recaptcha' },
+            { label: 'hCaptcha' | t('comments'), value: 'hcaptcha' },
+            { label: 'Friendly Captcha' | t('comments'), value: 'friendly-captcha' },
         ],
     }) }}
 
@@ -140,7 +135,7 @@
         {{ forms.autosuggestField({
             label: 'Turnstile Secret Key' | t('comments'),
             name: 'turnstileSecret',
-            value: settings.turnstileSecret,
+            value: secrets.turnstileSecret ?? settings.turnstileSecret,
             suggestEnvVars: true,
             errors: settings.getErrors('turnstileSecret'),
             warning: macros.configWarning('turnstileSecret', 'comments'),
@@ -160,7 +155,8 @@
             label: 'reCAPTCHA Secret Key' | t('comments'),
             name: 'recaptchaSecret',
             suggestEnvVars: true,
-            value: settings.recaptchaSecret,
+            value: secrets.recaptchaSecret ?? settings.recaptchaSecret,
+            errors: settings.getErrors('recaptchaSecret'),
             warning: macros.configWarning('recaptchaSecret', 'comments'),
         }) }}
 
@@ -186,7 +182,60 @@
         }) }}
     </div>
 
-    <div class="comments-settings-block protect-challenge-turnstile protect-challenge-recaptcha {{ not challengeProvider ? 'hidden' }}">
+    <div class="protect-challenge-hcaptcha {{ challengeProvider != 'hcaptcha' ? 'hidden' }}">
+        {{ forms.autosuggestField({
+            label: 'hCaptcha Site Key' | t('comments'),
+            name: 'hcaptchaKey',
+            value: settings.hcaptchaKey,
+            suggestEnvVars: true,
+            errors: settings.getErrors('hcaptchaKey'),
+            warning: macros.configWarning('hcaptchaKey', 'comments'),
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: 'hCaptcha Secret Key' | t('comments'),
+            name: 'hcaptchaSecret',
+            value: secrets.hcaptchaSecret ?? settings.hcaptchaSecret,
+            suggestEnvVars: true,
+            errors: settings.getErrors('hcaptchaSecret'),
+            warning: macros.configWarning('hcaptchaSecret', 'comments'),
+        }) }}
+    </div>
+
+    <div class="protect-challenge-friendly-captcha {{ challengeProvider != 'friendly-captcha' ? 'hidden' }}">
+        {{ forms.autosuggestField({
+            label: 'Friendly Captcha Site Key' | t('comments'),
+            name: 'friendlyCaptchaKey',
+            value: settings.friendlyCaptchaKey,
+            suggestEnvVars: true,
+            errors: settings.getErrors('friendlyCaptchaKey'),
+            warning: macros.configWarning('friendlyCaptchaKey', 'comments'),
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: 'Friendly Captcha API Key' | t('comments'),
+            name: 'friendlyCaptchaSecret',
+            value: secrets.friendlyCaptchaSecret ?? settings.friendlyCaptchaSecret,
+            suggestEnvVars: true,
+            errors: settings.getErrors('friendlyCaptchaSecret'),
+            warning: macros.configWarning('friendlyCaptchaSecret', 'comments'),
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Friendly Captcha Region' | t('comments'),
+            instructions: 'Use the EU service to keep verification within the European Union. It needs an account that includes it.' | t('comments'),
+            name: 'friendlyCaptchaEndpoint',
+            value: settings.friendlyCaptchaEndpoint,
+            options: [
+                { label: 'Global' | t('comments'), value: 'global' },
+                { label: 'EU' | t('comments'), value: 'eu' },
+            ],
+            errors: settings.getErrors('friendlyCaptchaEndpoint'),
+            warning: macros.configWarning('friendlyCaptchaEndpoint', 'comments'),
+        }) }}
+    </div>
+
+    <div class="comments-settings-block protect-challenge-turnstile protect-challenge-recaptcha protect-challenge-hcaptcha protect-challenge-friendly-captcha {{ not challengeProvider ? 'hidden' }}">
         {{ forms.lightswitchField({
             label: 'Verify Signed-in Visitors' | t('comments'),
             instructions: 'Challenge people who are signed in, as well as guests.' | t('comments'),
@@ -212,21 +261,33 @@
 <div class="protect-settings {{ protectHidden }}">
     <h3>{{ 'Spam Classification' | t('comments') }}</h3>
 
-    {{ forms.lightswitchField({
-        label: 'Enable Akismet' | t('comments'),
-        instructions: 'Send comment text, author name and email, IP address and user agent to Akismet for spam classification.' | t('comments'),
-        name: 'akismetEnabled',
-        toggle: 'protect-akismet',
-        on: settings.akismetEnabled,
-        errors: settings.getErrors('akismetEnabled'),
-        warning: macros.configWarning('akismetEnabled', 'comments'),
+    {% set spamClassifier = settings.spamClassifier %}
+
+    {{ forms.selectField({
+        label: 'Spam Classifier' | t('comments'),
+        instructions: 'Send each comment to a service that says whether it’s spam.' | t('comments'),
+        id: 'spamClassifier',
+        name: 'spamClassifier',
+        value: spamClassifier,
+        toggle: true,
+        targetPrefix: '.protect-classifier-',
+        options: [
+            { label: 'None' | t('comments'), value: '' },
+            { label: 'Akismet' | t('comments'), value: 'akismet' },
+            { label: 'CleanTalk' | t('comments'), value: 'cleantalk' },
+            { label: 'OOPSpam' | t('comments'), value: 'oopspam' },
+        ],
+        errors: settings.getErrors('spamClassifier'),
+        warning: macros.configWarning('spamClassifier', 'comments'),
     }) }}
 
-    <div id="protect-akismet" class="{{ not settings.akismetEnabled ? 'hidden' }}">
+    <div class="protect-classifier-akismet {{ spamClassifier != 'akismet' ? 'hidden' }}">
+        <p class="light">{{ 'Akismet receives the comment text, the author’s name and email, and the visitor’s IP address, browser and referring page.' | t('comments') }}</p>
+
         {{ forms.autosuggestField({
             label: 'Akismet API Key' | t('comments'),
             name: 'akismetApiKey',
-            value: settings.akismetApiKey,
+            value: secrets.akismetApiKey ?? settings.akismetApiKey,
             suggestEnvVars: true,
             errors: settings.getErrors('akismetApiKey'),
             warning: macros.configWarning('akismetApiKey', 'comments'),
@@ -250,24 +311,77 @@
             errors: settings.getErrors('akismetTestMode'),
             warning: macros.configWarning('akismetTestMode', 'comments'),
         }) }}
+    </div>
 
+    <div class="protect-classifier-cleantalk {{ spamClassifier != 'cleantalk' ? 'hidden' }}">
+        <p class="light">{{ 'CleanTalk receives the comment text, the author’s name and email, and the visitor’s IP address, browser and referring page.' | t('comments') }}</p>
+
+        {{ forms.autosuggestField({
+            label: 'CleanTalk Access Key' | t('comments'),
+            name: 'cleantalkApiKey',
+            value: secrets.cleantalkApiKey ?? settings.cleantalkApiKey,
+            suggestEnvVars: true,
+            errors: settings.getErrors('cleantalkApiKey'),
+            warning: macros.configWarning('cleantalkApiKey', 'comments'),
+        }) }}
+    </div>
+
+    <div class="protect-classifier-oopspam {{ spamClassifier != 'oopspam' ? 'hidden' }}">
+        <p class="light">{{ 'OOPSpam receives the comment text, the author’s email and the visitor’s IP address.' | t('comments') }}</p>
+
+        {{ forms.autosuggestField({
+            label: 'OOPSpam API Key' | t('comments'),
+            name: 'oopspamApiKey',
+            value: secrets.oopspamApiKey ?? settings.oopspamApiKey,
+            suggestEnvVars: true,
+            errors: settings.getErrors('oopspamApiKey'),
+            warning: macros.configWarning('oopspamApiKey', 'comments'),
+        }) }}
+
+        {{ forms.textField({
+            type: 'number',
+            label: 'OOPSpam Spam Score' | t('comments'),
+            instructions: 'The score from 1 to 6 at which OOPSpam’s answer counts as spam. Lower catches more.' | t('comments'),
+            name: 'oopspamSpamThreshold',
+            value: settings.oopspamSpamThreshold,
+            min: 1,
+            max: 6,
+            size: 4,
+            errors: settings.getErrors('oopspamSpamThreshold'),
+            warning: macros.configWarning('oopspamSpamThreshold', 'comments'),
+        }) }}
+    </div>
+
+    <div class="protect-classifier-akismet protect-classifier-oopspam {{ spamClassifier not in ['akismet', 'oopspam'] ? 'hidden' }}">
         {{ forms.lightswitchField({
             label: 'Send Moderator Spam Corrections' | t('comments'),
-            instructions: 'Send stored comment details to Akismet when a moderator marks a comment as spam or not spam.' | t('comments'),
-            name: 'akismetFeedbackEnabled',
-            on: settings.akismetFeedbackEnabled,
-            errors: settings.getErrors('akismetFeedbackEnabled'),
-            warning: macros.configWarning('akismetFeedbackEnabled', 'comments'),
+            instructions: 'Tell the classifier when a moderator marks a comment as spam or not spam.' | t('comments'),
+            name: 'spamFeedbackEnabled',
+            on: settings.spamFeedbackEnabled,
+            errors: settings.getErrors('spamFeedbackEnabled'),
+            warning: macros.configWarning('spamFeedbackEnabled', 'comments'),
         }) }}
     </div>
 
     {{ forms.lightswitchField({
         label: 'Keep Spam for Review' | t('comments'),
         instructions: 'Save matches as Spam so moderators can review them, rather than rejecting them outright.' | t('comments'),
-        name: 'persistSpam',
-        on: settings.persistSpam,
-        errors: settings.getErrors('persistSpam'),
-        warning: macros.configWarning('persistSpam', 'comments'),
+        name: 'saveSpam',
+        on: settings.saveSpam,
+        errors: settings.getErrors('saveSpam'),
+        warning: macros.configWarning('saveSpam', 'comments'),
+    }) }}
+
+    {{ forms.textField({
+        type: 'number',
+        label: 'Delete Spam After' | t('comments'),
+        instructions: 'Days to keep comments marked as spam before they’re deleted for good. Leave blank to keep them.' | t('comments'),
+        name: 'spamRetentionDays',
+        value: settings.spamRetentionDays,
+        min: 1,
+        size: 6,
+        errors: settings.getErrors('spamRetentionDays'),
+        warning: macros.configWarning('spamRetentionDays', 'comments'),
     }) }}
 
     {{ forms.lightswitchField({
@@ -282,13 +396,39 @@
 
 <hr>
 
+<h3>{{ 'Content Rules' | t('comments') }}</h3>
+
+{{ forms.textField({
+    type: 'number',
+    label: 'Maximum Links' | t('comments'),
+    instructions: 'Hold a comment for review when it has more links than this. Leave blank for no limit.' | t('comments'),
+    name: 'maxLinks',
+    value: settings.maxLinks,
+    min: 0,
+    size: 6,
+    errors: settings.getErrors('maxLinks'),
+    warning: macros.configWarning('maxLinks', 'comments'),
+}) }}
+
+{{ forms.textareaField({
+    label: 'Blocked Email Domains' | t('comments'),
+    instructions: 'Refuse guests’ comments from email addresses at these domains, including their subdomains. One domain per line.' | t('comments'),
+    name: 'blockedEmailDomains',
+    rows: 4,
+    value: settings.blockedEmailDomains,
+    errors: settings.getErrors('blockedEmailDomains'),
+    warning: macros.configWarning('blockedEmailDomains', 'comments'),
+}) }}
+
+<hr>
+
 <h3>{{ 'Keyword Filters' | t('comments') }}</h3>
 
 <div id="keyword-fields">
     {{ forms.textareaField({
         label: 'Moderated Keywords' | t('comments'),
         name: 'securityModeration',
-        instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as pending. One word or IP per line. Case insensitive.' | t('comments'),
+        instructions: 'A comment that matches one of these rules is held for review. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' | t('comments'),
         rows: 6,
         value: settings.securityModeration,
         warning: macros.configWarning('securityModeration', 'comments'),
@@ -297,7 +437,7 @@
     {{ forms.textareaField({
         label: 'Spam Keywords' | t('comments'),
         name: 'securitySpamlist',
-        instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will be marked as spam. One word or IP per line. Case insensitive.' | t('comments'),
+        instructions: 'A comment that matches one of these rules is marked as spam. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' | t('comments'),
         rows: 6,
         value: settings.securitySpamlist,
         warning: macros.configWarning('securitySpamlist', 'comments'),
@@ -306,7 +446,7 @@
     {{ forms.textareaField({
         label: 'Banned Keywords' | t('comments'),
         name: 'securityBanned',
-        instructions: 'If a comment contains any of these words in its content, name, email, or IP, it will not be submitted. One word or IP per line. Case insensitive.' | t('comments'),
+        instructions: 'A comment that matches one of these rules isn’t submitted. One rule per line: a word, phrase or IP address, `[match: casino AND cheap]` or `[ip: 203.0.113.0/24]`. Case insensitive.' | t('comments'),
         rows: 6,
         value: settings.securityBanned,
         warning: macros.configWarning('securityBanned', 'comments'),

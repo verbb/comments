@@ -5,6 +5,7 @@ use verbb\comments\elements\Comment;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\exceptions\ProtectionException;
 use verbb\comments\models\CommentSubmission;
+use verbb\comments\models\Settings;
 use verbb\protect\Protect;
 use verbb\protect\models\{ProtectionEvidence, RequestSignals};
 use verbb\protect\integrations\classifiers\Akismet;
@@ -91,7 +92,7 @@ it('supports guest headless evidence without disabling replay or classification'
 it('persists classifier spam only when Comments policy permits it', function() {
     $entry = CommentsFixtureFactory::entry('Protect classifier');
     $s = Comments::$plugin->getSettings();
-    $s->akismetEnabled = true;
+    $s->spamClassifier = Settings::CLASSIFIER_AKISMET;
     $s->akismetApiKey = 'test-key';
     Craft::$container->set(Akismet::class, ['client' => new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], 'true'), new Response(200, [], 'true')]))])]);
     $result = Comments::$plugin->getComments()->create(protectedSubmission($entry));
@@ -104,7 +105,7 @@ it('persists classifier spam only when Comments policy permits it', function() {
         ->and(array_column($lines, 'label'))->toContain('Akismet')
         ->and(implode(' ', array_column($lines, 'detail')))->toContain('says spam')
         ->and($stored->protection)->not->toContain('visitor@example.test')->not->toContain('192.0.2.55');
-    $s->persistSpam = false;
+    $s->saveSpam = false;
     expect(fn() => Comments::$plugin->getComments()->create(protectedSubmission($entry)))->toThrow(ProtectionException::class);
     expect((int)Comment::find()->ownerId($entry->id)->status(null)->count())->toBe(1);
 });
@@ -112,7 +113,7 @@ it('persists classifier spam only when Comments policy permits it', function() {
 it('fails open on provider errors by default and can fail closed without marking spam', function() {
     $entry = CommentsFixtureFactory::entry('Protect provider errors');
     $s = Comments::$plugin->getSettings();
-    $s->akismetEnabled = true;
+    $s->spamClassifier = Settings::CLASSIFIER_AKISMET;
     $s->akismetApiKey = 'test-key';
     Craft::$container->set(Akismet::class, ['client' => new Client(['handler' => HandlerStack::create(new MockHandler([new Response(500), new Response(500)]))])]);
     expect(Comments::$plugin->getComments()->create(protectedSubmission($entry))->moderationState)->toBe(ModerationState::Approved);
@@ -150,41 +151,46 @@ it('requires preparation for public edits but not deterministic element resaves'
     expect($comment->validate())->toBeTrue();
 });
 
-it('renders only the reserved protocol and validates mutually exclusive providers', function() {
+it('renders only the reserved protocol and validates the challenge provider', function() {
     $entry = CommentsFixtureFactory::entry('Protect markup');
     $html = Comments::$plugin->getProtection()->getFields($entry->id, $entry->siteId);
     expect($html)->toContain('__protect[preparation]')->toContain('data-comments-protection')->not->toContain('__UAHASH')->not->toContain('__JSCHK')->not->toContain('<script');
     $s = Comments::$plugin->getSettings();
-    $s->turnstileEnabled = $s->recaptchaEnabled = true;
+    $s->challengeProvider = 'unknown';
     expect($s->validate())->toBeFalse();
-    expect($s->getErrors('turnstileEnabled'))->not->toBeEmpty();
+    expect($s->getErrors('challengeProvider'))->not->toBeEmpty();
+    $s->challengeProvider = '';
     expect(\verbb\comments\gql\arguments\mutations\Comment::getArguments()['protection']['type']->name)->toBe('CommentsProtectionEvidence');
 });
 
-it('runs the enhanced API controller through protection and reports rate limits as HTTP 429', function() {
-    $entry = CommentsFixtureFactory::entry('Protect enhanced API');
+it('runs the data API through protection and reports rate limits as HTTP 429', function() {
+    $entry = CommentsFixtureFactory::entry('Protect data API');
     $user = CommentsFixtureFactory::user('protect-api-' . bin2hex(random_bytes(3)));
     Craft::$app->getUser()->setIdentity($user);
     $s = Comments::$plugin->getSettings();
     $s->rateLimitEnabled = true;
     $s->rateLimitCount = 1;
-    $request = Craft::$app->getRequest();
-    $_SERVER['REQUEST_METHOD'] = 'POST';
-    $controller = new \verbb\comments\controllers\FrontendApiController('frontend-api', Comments::$plugin);
-
-    foreach ([200, 429] as $expectedStatus) {
+    $api = Comments::$plugin->getApi();
+    $post = static function() use ($api, $entry): array {
         $p = Comments::$plugin->getProtection()->prepare($entry->id, $entry->siteId);
-        $request->setBodyParams(['elementId' => $entry->id, 'siteId' => $entry->siteId, 'fields' => ['comment' => 'API protected comment'], '__protect' => ['version' => '1', 'preparation' => $p->browserManifest()->preparation]]);
-        Craft::$app->getResponse()->setStatusCode(200);
-        $response = $controller->actionCreate();
-        expect($response->statusCode)->toBe($expectedStatus);
-        expect($response->data['status'])->toBe($expectedStatus === 200 ? 'ok' : 'error');
+
+        return $api->create(['ownerId' => $entry->id, 'siteId' => $entry->siteId, 'content' => ['format' => 'plain', 'text' => 'API protected comment'], 'operationId' => craft\helpers\StringHelper::UUID(), 'protection' => ['version' => 1, 'preparation' => $p->browserManifest()->preparation]]);
+    };
+
+    expect($post()['comment']['uid'] ?? null)->toBeString();
+
+    try {
+        $post();
+        $this->fail('Expected the rate limit.');
+    } catch (\verbb\comments\exceptions\ProtectionException $e) {
+        $error = $api->errorFor($e);
+
+        expect($e->httpStatus)->toBe(429)
+            ->and($e->retryAfter)->not->toBeNull()
+            ->and($error->httpStatus)->toBe(429)->and($error->retryAfter)->toBe($e->retryAfter);
     }
 
-    expect(Craft::$app->getResponse()->getHeaders()->get('Retry-After'))->not->toBeNull();
     expect((int)Comment::find()->ownerId($entry->id)->status(null)->count())->toBe(1);
-    unset($_SERVER['REQUEST_METHOD']);
-    Craft::$app->getResponse()->setStatusCode(200);
 });
 
 it('requires evidence through the real GraphQL mutation resolver', function() {
@@ -192,19 +198,34 @@ it('requires evidence through the real GraphQL mutation resolver', function() {
     $schema = new \craft\models\GqlSchema(['name' => 'Protect integration', 'scope' => ['comments:read', 'comments:edit', 'comments:save']]);
     Craft::$app->getGql()->setActiveSchema($schema);
     $query = 'mutation($owner: ID!, $proof: CommentsProtectionEvidence) { createComment(ownerId: $owner, comment: "GraphQL protected comment", protection: $proof) { id } }';
-    $denied = Craft::$app->getGql()->executeQuery($schema, $query, ['owner' => $entry->id]);
+    // Comments 3's clients sent no evidence, which only compatibility mode accepts.
+    Comments::$plugin->getSettings()->compatibilityMode = false;
+    Craft::$app->getGql()->flushCaches();
+
+    try {
+        $denied = Craft::$app->getGql()->executeQuery($schema, $query, ['owner' => $entry->id]);
+    } finally {
+        Comments::$plugin->getSettings()->compatibilityMode = true;
+        Craft::$app->getGql()->flushCaches();
+    }
+
     expect($denied)->toHaveKey('errors');
     expect((int)Comment::find()->ownerId($entry->id)->status(null)->count())->toBe(0);
     $p = Comments::$plugin->getProtection()->prepare($entry->id, $entry->siteId, headless: true);
     $allowed = Craft::$app->getGql()->executeQuery($schema, $query, ['owner' => $entry->id, 'proof' => ['version' => 1, 'preparation' => $p->browserManifest()->preparation]], debugMode: true);
     expect($allowed['errors'] ?? [])->toBe([]);
     expect($allowed['data']['createComment']['id'])->not->toBeNull();
+
+    // In compatibility mode, a Comments 3 client's mutation without evidence is checked without a preparation.
+    $legacy = Craft::$app->getGql()->executeQuery($schema, $query, ['owner' => $entry->id], debugMode: true);
+    expect($legacy['errors'] ?? [])->toBe([]);
+    expect((int)Comment::find()->ownerId($entry->id)->status(null)->count())->toBe(2);
 });
 
 it('maps challenge success failure and error through Comments persistence', function() {
     $entry = CommentsFixtureFactory::entry('Protect challenges');
     $s = Comments::$plugin->getSettings();
-    $s->turnstileEnabled = true;
+    $s->challengeProvider = Settings::CHALLENGE_TURNSTILE;
     $s->turnstileKey = 'site';
     $s->turnstileSecret = 'secret';
     $s->protectionHostnames = ['example.com'];
@@ -259,7 +280,7 @@ it('still applies spam checks to trusted commenters', function() {
     $entry = CommentsFixtureFactory::entry('Protect trusted');
     $s = Comments::$plugin->getSettings();
     $s->requireModeration = true;
-    $s->akismetEnabled = true;
+    $s->spamClassifier = Settings::CLASSIFIER_AKISMET;
     $s->akismetApiKey = 'test-key';
     $member = CommentsFixtureFactory::user('protectTrusted');
     $identity = Comments::$plugin->getIdentities()->getOrCreateForUser($member);
@@ -272,4 +293,3 @@ it('still applies spam checks to trusted commenters', function() {
 
     expect(Comments::$plugin->getComments()->create($submission)->moderationState)->toBe(ModerationState::Spam);
 });
-

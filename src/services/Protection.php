@@ -6,17 +6,18 @@ use verbb\comments\elements\Comment;
 use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\exceptions\ProtectionException;
+use verbb\comments\models\AllowedOrigin;
 use verbb\comments\models\Settings;
 
 use Craft;
 use craft\base\Component;
+use craft\base\ElementInterface;
 use craft\helpers\Html;
 use craft\helpers\Json;
 
 use verbb\protect\checks\Challenge;
 use verbb\protect\checks\Classification;
 use verbb\protect\checks\Honeypot;
-use verbb\protect\checks\JavaScriptPresence;
 use verbb\protect\checks\MinimumTime;
 use verbb\protect\checks\RateLimit;
 use verbb\protect\checks\ReplayProtection;
@@ -24,9 +25,16 @@ use verbb\protect\enums\CheckStatus;
 use verbb\protect\enums\FindingType;
 use verbb\protect\errors\InvalidPlanException;
 use verbb\protect\errors\PreparationException;
+use verbb\protect\base\ChallengeProvider;
+use verbb\protect\base\ClassifierFeedbackInterface;
+use verbb\protect\base\ClassifierProvider;
+use verbb\protect\integrations\challenges\FriendlyCaptcha;
+use verbb\protect\integrations\challenges\Hcaptcha;
 use verbb\protect\integrations\challenges\RecaptchaV3;
 use verbb\protect\integrations\challenges\Turnstile;
 use verbb\protect\integrations\classifiers\Akismet;
+use verbb\protect\integrations\classifiers\CleanTalk;
+use verbb\protect\integrations\classifiers\OopSpam;
 use verbb\protect\models\Finding;
 use verbb\protect\models\ProtectionContent;
 use verbb\protect\models\ProtectionContext;
@@ -58,10 +66,39 @@ class Protection extends Component
     ];
 
 
+    // Properties
+    // =========================================================================
+
+    // A write running through `withoutPreparation()`.
+    private bool $_unprepared = false;
+
+
     // Public Methods
     // =========================================================================
 
-    public function plan(int $siteId, bool $authenticated, bool $headless = false, bool $editing = false, ?Settings $settings = null): ProtectionPlan
+    /**
+     * The checks for a comment. `$origin` is the allowed origin a data API request came from, if any:
+     * its hostname is accepted in challenge tokens, and where it has its own Turnstile or reCAPTCHA keys,
+     * they're used instead of the site's, with only its hostname accepted. A preparation's fingerprint
+     * includes the site key, so one prepared for one set of keys can't be used with another.
+     */
+    /**
+     * Runs a write without replay protection's single-use preparation, for Comments 3's GraphQL clients in
+     * compatibility mode (see `LegacyGql::write()`). Every other check still applies.
+     */
+    public function withoutPreparation(callable $write): mixed
+    {
+        $before = $this->_unprepared;
+        $this->_unprepared = true;
+
+        try {
+            return $write();
+        } finally {
+            $this->_unprepared = $before;
+        }
+    }
+
+    public function plan(int $siteId, bool $authenticated, bool $headless = false, bool $editing = false, ?Settings $settings = null, ?AllowedOrigin $origin = null): ProtectionPlan
     {
         $settings ??= Comments::$plugin->getSettings();
         $plan = new ProtectionPlan(handle: 'comments-' . ($authenticated ? 'member' : 'guest') . ($headless ? '-headless' : '-browser'));
@@ -69,10 +106,15 @@ class Protection extends Component
         $action = $editing ? 'comments_edit' : 'comments_create';
         $hostname = parse_url((string)Craft::$app->getSites()->getSiteById($siteId)->getBaseUrl(), PHP_URL_HOST);
         $hostnames = $settings->protectionHostnames ?: array_filter([$hostname]);
+        $originKeys = $origin?->getProtectionKeys();
+
+        if ($origin) {
+            $hostnames = $originKeys ? [$origin->getHostname()] : array_values(array_unique([...$hostnames, $origin->getHostname()]));
+        }
+
         $plan->add(new Honeypot(['enabled' => $enabled && $settings->honeypotEnabled && !$headless]))
             ->add(new MinimumTime(['seconds' => $settings->minimumSubmitTime, 'enabled' => $enabled && $settings->minimumSubmitTime > 0 && !$headless]))
-            ->add(new JavaScriptPresence(['enabled' => $enabled && $settings->javascriptCheckEnabled && !$headless]))
-            ->add(new ReplayProtection(['enabled' => $enabled && $settings->replayProtectionEnabled]));
+            ->add(new ReplayProtection(['enabled' => $enabled && $settings->replayProtectionEnabled && !$this->_unprepared]));
         $rules = [];
         $dimensions = [$authenticated ? 'identity.userId' : 'request.ipAddress'];
 
@@ -88,64 +130,52 @@ class Protection extends Component
         $plan->add(new RateLimit(['rules' => $rules, 'enabled' => $rules !== []]));
         $challengeEnabled = $enabled && (!$authenticated || $settings->challengeAuthenticated);
 
-        if ($settings->turnstileEnabled) {
-            $plan->add(new Challenge([
-                'provider' => Craft::createObject([
-                    'class' => Turnstile::class,
-                    'siteKey' => (string)$settings->turnstileKey,
-                    'secretKey' => (string)$settings->turnstileSecret,
-                    'expectedAction' => $action,
-                    'hostnames' => $hostnames,
-                    'sendIp' => $settings->challengeSendIp,
-                ]),
-                'enabled' => $challengeEnabled,
-            ]));
-        } else {
-            $plan->add(new Challenge([
-                'provider' => Craft::createObject([
-                    'class' => RecaptchaV3::class,
-                    'siteKey' => (string)$settings->recaptchaKey,
-                    'secretKey' => (string)$settings->recaptchaSecret,
-                    'expectedAction' => $action,
-                    'hostnames' => $hostnames,
-                    'minimumScore' => $settings->recaptchaMinScore,
-                    'sendIp' => $settings->challengeSendIp,
-                ]),
-                'enabled' => $challengeEnabled && $settings->recaptchaEnabled,
-            ]));
-        }
+        $plan->add(new Challenge([
+            'provider' => $this->_challengeProvider($settings, $action, $hostnames, $originKeys),
+            'enabled' => $challengeEnabled && $settings->challengeProvider !== Settings::CHALLENGE_NONE,
+        ]));
 
-        $plan->add(new Classification(['provider' => $this->_akismet($siteId, $settings), 'enabled' => $enabled && $settings->akismetEnabled]));
+        $classifier = $this->_classifier($siteId, $settings);
+
+        if ($classifier) {
+            $plan->add(new Classification(['provider' => $classifier, 'enabled' => $enabled]));
+        }
 
         return $plan;
     }
 
-    public function prepare(int $ownerId, int $siteId, ?int $commentId = null, bool $headless = false): ProtectionPreparation
+    /**
+     * A protection preparation for a new comment, or for editing `$commentId`. A caller that has already
+     * loaded the owner passes it to save loading it again.
+     */
+    public function prepare(int $ownerId, int $siteId, ?int $commentId = null, bool $headless = false, ?ElementInterface $owner = null): ProtectionPreparation
     {
-        $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
-
-        if (!$owner) {
-            throw new ProtectionException(Craft::t('comments', 'Comments are unavailable for this element.'));
+        if (!$owner || (int)$owner->id !== $ownerId || (int)$owner->siteId !== $siteId) {
+            $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
         }
 
-        $config = Comments::$plugin->getConversations()->getConfigForOwner($ownerId, $siteId);
+        if (!$owner) {
+            throw new ProtectionException(Craft::t('comments', 'Comments are unavailable for this element.'), 404, errorCode: 'not_found');
+        }
+
+        $config = Comments::$plugin->getConversations()->getConfigForOwner($ownerId, $siteId, $owner);
 
         if (!$config->isCommentingEnabled()) {
-            throw new ProtectionException(Craft::t('comments', 'Comments are unavailable for this element.'));
+            throw new ProtectionException(Craft::t('comments', 'Comments are unavailable for this element.'), 403, errorCode: 'closed');
         }
 
         if ($commentId) {
             $comment = Comments::$plugin->getComments()->getCommentById($commentId, $siteId);
 
             if (!$comment || (int)$comment->ownerId !== $ownerId || !$comment->canEdit()) {
-                throw new ProtectionException(Craft::t('comments', 'You do not have permission to edit this comment.'));
+                throw new ProtectionException(Craft::t('comments', 'You do not have permission to edit this comment.'), 403, errorCode: 'forbidden');
             }
         }
 
         try {
             return Module::getInstance()->prepare(
-                new ProtectionContext($commentId ? 'comments.edit' : 'comments.create', subject: $this->_subject($ownerId, $siteId, $commentId)),
-                $this->plan($siteId, (bool)Comments::$plugin->getService()->getUser(), $headless, (bool)$commentId),
+                new ProtectionContext($commentId ? 'comments.edit' : 'comments.create', subject: $this->_subject($ownerId, $siteId, $commentId, $owner)),
+                $this->plan($siteId, (bool)Comments::$plugin->getService()->getUser(), $headless, (bool)$commentId, origin: Comments::$plugin->getSignIn()->current()?->allowedOrigin),
             );
         } catch (InvalidPlanException $e) {
             throw $this->_unavailable($e);
@@ -166,15 +196,18 @@ class Protection extends Component
 
     public function evidence(mixed $data): ProtectionEvidence
     {
-        if (is_array($data) && isset($data['challenges']['recaptchaV3'])) {
-            $data['challenges']['recaptcha-v3'] = $data['challenges']['recaptchaV3'];
-            unset($data['challenges']['recaptchaV3']);
+        // GraphQL names can't hold a hyphen, so its fields are mapped to the providers' handles.
+        foreach (['recaptchaV3' => 'recaptcha-v3', 'friendlyCaptcha' => 'friendly-captcha'] as $field => $handle) {
+            if (is_array($data) && isset($data['challenges'][$field])) {
+                $data['challenges'][$handle] = $data['challenges'][$field];
+                unset($data['challenges'][$field]);
+            }
         }
 
         try {
             return ProtectionEvidence::fromArray($data);
         } catch (PreparationException) {
-            throw new ProtectionException(Craft::t('comments', 'Please refresh the form and try again.'));
+            throw new ProtectionException(Craft::t('comments', 'Please refresh the form and try again.'), errorCode: 'protection_required');
         }
     }
 
@@ -201,15 +234,18 @@ class Protection extends Component
     public function requestSignals(): RequestSignals
     {
         $settings = Comments::$plugin->getSettings();
-        $needsIp = $settings->rateLimitEnabled || (int)$settings->securityFlooding > 0 || $settings->akismetEnabled || $settings->challengeSendIp;
+        $classifier = $settings->enableSpamChecks ? $settings->spamClassifier : Settings::CLASSIFIER_NONE;
+        $needsIp = $settings->rateLimitEnabled || (int)$settings->securityFlooding > 0 || $classifier !== Settings::CLASSIFIER_NONE || $settings->challengeSendIp;
+        // Akismet and CleanTalk look at the browser and where the visitor came from as well.
+        $needsBrowser = in_array($classifier, [Settings::CLASSIFIER_AKISMET, Settings::CLASSIFIER_CLEANTALK], true);
 
-        return RequestSignals::fromRequest(Craft::$app->getRequest(), ipAddress: $needsIp, userAgent: $settings->akismetEnabled, referrer: $settings->akismetEnabled);
+        return RequestSignals::fromRequest(Craft::$app->getRequest(), ipAddress: $needsIp, userAgent: $needsBrowser, referrer: $needsBrowser);
     }
 
     public function check(Comment $comment, ?ProtectionEvidence $evidence, ?RequestSignals $request = null, bool $headless = false): ProtectionResult
     {
         try {
-            $result = Module::getInstance()->check($this->_context($comment, $evidence, $request), $this->plan((int)$comment->siteId, (bool)$comment->userId, $headless, (bool)$comment->id));
+            $result = Module::getInstance()->check($this->_context($comment, $evidence, $request), $this->plan((int)$comment->siteId, (bool)$comment->userId, $headless, (bool)$comment->id, origin: Comments::$plugin->getSignIn()->current()?->allowedOrigin));
         } catch (InvalidPlanException $e) {
             throw $this->_unavailable($e);
         }
@@ -217,17 +253,17 @@ class Protection extends Component
         $settings = Comments::$plugin->getSettings();
 
         if ($result->hasFinding(FindingType::RateLimitExceeded)) {
-            throw new ProtectionException(Craft::t('comments', 'Please wait before posting another comment.'), 429, $result->retryAfter() ?? 1);
+            throw new ProtectionException(Craft::t('comments', 'Please wait before posting another comment.'), 429, $result->retryAfter() ?? 1, 'rate_limited');
         }
 
         foreach ([FindingType::PassiveCheckFailed, FindingType::ChallengeFailed, FindingType::ReplayDetected, FindingType::MissingRequiredSignal] as $type) {
             if ($result->hasFinding($type)) {
-                throw new ProtectionException(Craft::t('comments', 'Please refresh the form and complete verification before trying again.'));
+                throw new ProtectionException(Craft::t('comments', 'Please refresh the form and complete verification before trying again.'), errorCode: $this->_refusalCode($result));
             }
         }
 
         if ($result->hasErrors() && $settings->protectionFailClosed) {
-            throw new ProtectionException(Craft::t('comments', 'Verification is temporarily unavailable. Please try again.'), 503);
+            throw new ProtectionException(Craft::t('comments', 'Verification is temporarily unavailable. Please try again.'), 503, errorCode: 'protection_unavailable');
         }
 
         // An outage can be waved through, but this will fail every time until someone fixes it, so
@@ -242,8 +278,8 @@ class Protection extends Component
         }
 
         if ($result->hasFinding(FindingType::SpamDetected)) {
-            if (!$settings->persistSpam) {
-                throw new ProtectionException(Craft::t('comments', 'Unable to accept this comment.'));
+            if (!$settings->saveSpam) {
+                throw new ProtectionException(Craft::t('comments', 'Unable to accept this comment.'), errorCode: 'possible_spam');
             }
 
             $comment->status = Comment::STATUS_SPAM;
@@ -252,6 +288,51 @@ class Protection extends Component
         }
 
         return $result;
+    }
+
+    /**
+     * Check a guest's upload for a custom field with the same protection as posting, apart from the
+     * classifier, which has no text to read, and the posting rate limit, since uploads have a limit of their own.
+     * A preparation is used up by the upload, so the comment needs a fresh one.
+     *
+     * The upload's preparation was issued for the comment form's plan, and Protect refuses one checked
+     * against any other plan, so this checks against that same plan and skips the two checks by
+     * condition, which leaves the plan's fingerprint as it was.
+     */
+    public function checkUpload(int $ownerId, int $siteId, ?ProtectionEvidence $evidence, bool $headless = false): void
+    {
+        $context = new ProtectionContext(
+            action: 'comments.create',
+            identity: new ProtectionIdentity(['userId' => null]),
+            subject: $this->_subject($ownerId, $siteId, null),
+            content: new ProtectionContent(''),
+            request: $this->requestSignals(),
+            evidence: $evidence,
+        );
+
+        try {
+            $plan = $this->plan($siteId, false, $headless, origin: Comments::$plugin->getSignIn()->current()?->allowedOrigin);
+
+            foreach ($plan->checks() as $check) {
+                if ($check instanceof RateLimit || $check instanceof Classification) {
+                    $check->condition = static fn(): bool => false;
+                }
+            }
+
+            $result = Module::getInstance()->check($context, $plan);
+        } catch (InvalidPlanException $e) {
+            throw $this->_unavailable($e);
+        }
+
+        foreach ([FindingType::PassiveCheckFailed, FindingType::ChallengeFailed, FindingType::ReplayDetected, FindingType::MissingRequiredSignal] as $type) {
+            if ($result->hasFinding($type)) {
+                throw new ProtectionException(Craft::t('comments', 'Please refresh the form and complete verification before trying again.'), errorCode: $this->_refusalCode($result));
+            }
+        }
+
+        if ($result->hasErrors() && Comments::$plugin->getSettings()->protectionFailClosed) {
+            throw new ProtectionException(Craft::t('comments', 'Verification is temporarily unavailable. Please try again.'), 503, errorCode: 'protection_unavailable');
+        }
     }
 
     /**
@@ -352,19 +433,20 @@ class Protection extends Component
         $result = Module::getInstance()->check(new ProtectionContext(action: 'comments.' . $operation, identity: $identity, request: new RequestSignals(ipAddress: $ipAddress)), $plan);
 
         if ($result->hasFinding(FindingType::RateLimitExceeded)) {
-            throw new ProtectionException(Craft::t('comments', 'Please wait before trying again.'), 429, $result->retryAfter() ?? 1);
+            throw new ProtectionException(Craft::t('comments', 'Please wait before trying again.'), 429, $result->retryAfter() ?? 1, 'rate_limited');
         }
     }
 
     public function feedback(Comment $comment, bool $spam): void
     {
         $settings = Comments::$plugin->getSettings();
+        $classifier = $this->_classifier((int)$comment->siteId, $settings);
 
-        if (!$settings->akismetEnabled || !$settings->akismetFeedbackEnabled || !$comment->ipAddress) {
+        if (!$settings->spamFeedbackEnabled || !$classifier instanceof ClassifierFeedbackInterface || !$comment->ipAddress) {
             return;
         }
 
-        $this->_akismet((int)$comment->siteId)->feedback($this->_context($comment, null, new RequestSignals($comment->ipAddress, $comment->userAgent)), $spam);
+        $classifier->feedback($this->_context($comment, null, new RequestSignals($comment->ipAddress, $comment->userAgent)), $spam);
     }
 
 
@@ -380,8 +462,12 @@ class Protection extends Component
     {
         $providers = [
             'akismet' => 'Akismet',
+            'cleantalk' => 'CleanTalk',
+            'oopspam' => 'OOPSpam',
             'turnstile' => 'Turnstile',
             'recaptcha-v3' => 'reCAPTCHA',
+            'hcaptcha' => 'hCaptcha',
+            'friendly-captcha' => 'Friendly Captcha',
         ];
 
         if ($provider && isset($providers[$provider])) {
@@ -418,14 +504,33 @@ class Protection extends Component
     {
         Craft::error('Comments protection is misconfigured: ' . $e->getMessage(), __METHOD__);
 
-        return new ProtectionException(Craft::t('comments', 'Verification is temporarily unavailable. Please try again.'), 503);
+        return new ProtectionException(Craft::t('comments', 'Verification is temporarily unavailable. Please try again.'), 503, errorCode: 'protection_unavailable');
+    }
+
+    /**
+     * The data API's code for why protection refused a submission, so a client knows whether fetching a
+     * fresh preparation and trying again can help. A preparation that's missing or unreadable is
+     * `protection_required`, one that's expired, for another form or already used is
+     * `protection_expired`, a failed challenge is `challenge_failed`, and a honeypot or timing check
+     * that failed is `possible_spam`.
+     */
+    private function _refusalCode(ProtectionResult $result): string
+    {
+        $codes = array_map(static fn(Finding $finding): string => $finding->code, iterator_to_array($result->findings()));
+
+        return match (true) {
+            in_array('preparation-invalid', $codes, true) || $result->hasFinding(FindingType::MissingRequiredSignal) => 'protection_required',
+            in_array('preparation-expired', $codes, true) || in_array('preparation-mismatch', $codes, true) || $result->hasFinding(FindingType::ReplayDetected) => 'protection_expired',
+            $result->hasFinding(FindingType::ChallengeFailed) => 'challenge_failed',
+            default => 'possible_spam',
+        };
     }
 
     private function _context(Comment $comment, ?ProtectionEvidence $evidence, ?RequestSignals $request): ProtectionContext
     {
         $signals = ['userId' => $comment->userId ? (int)$comment->userId : null];
 
-        if (Comments::$plugin->getSettings()->akismetEnabled) {
+        if (Comments::$plugin->getSettings()->spamClassifier !== Settings::CLASSIFIER_NONE) {
             $signals['email'] = $comment->email ?: $comment->getUser()?->email;
         }
 
@@ -439,22 +544,79 @@ class Protection extends Component
         );
     }
 
-    private function _subject(int $ownerId, int $siteId, ?int $commentId): SubjectReference
+    private function _subject(int $ownerId, int $siteId, ?int $commentId, ?ElementInterface $owner = null): SubjectReference
     {
-        $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
+        $owner ??= Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
 
         return new SubjectReference($commentId ? 'comment' : 'owner', (string)($commentId ?? $ownerId), $siteId, $owner?->getUrl());
     }
 
-    private function _akismet(int $siteId, ?Settings $settings = null): Akismet
+    /**
+     * The chosen challenge provider. With none chosen, reCAPTCHA stands in, switched off, so the plan
+     * always has the same checks.
+     */
+    private function _challengeProvider(Settings $settings, string $action, array $hostnames, ?array $originKeys): ChallengeProvider
+    {
+        $config = match ($settings->challengeProvider) {
+            Settings::CHALLENGE_TURNSTILE => [
+                'class' => Turnstile::class,
+                'siteKey' => (string)$settings->turnstileKey,
+                'secretKey' => (string)$settings->turnstileSecret,
+                'expectedAction' => $action,
+            ],
+            Settings::CHALLENGE_HCAPTCHA => [
+                'class' => Hcaptcha::class,
+                'siteKey' => (string)$settings->hcaptchaKey,
+                'secretKey' => (string)$settings->hcaptchaSecret,
+            ],
+            Settings::CHALLENGE_FRIENDLY_CAPTCHA => [
+                'class' => FriendlyCaptcha::class,
+                'siteKey' => (string)$settings->friendlyCaptchaKey,
+                'secretKey' => (string)$settings->friendlyCaptchaSecret,
+                'endpoint' => $settings->friendlyCaptchaEndpoint,
+            ],
+            default => [
+                'class' => RecaptchaV3::class,
+                'siteKey' => (string)$settings->recaptchaKey,
+                'secretKey' => (string)$settings->recaptchaSecret,
+                'expectedAction' => $action,
+                'minimumScore' => $settings->recaptchaMinScore,
+            ],
+        };
+
+        return Craft::createObject([
+            ...$config,
+            'siteKey' => $originKeys['siteKey'] ?? $config['siteKey'],
+            'secretKey' => $originKeys['secretKey'] ?? $config['secretKey'],
+            'hostnames' => $hostnames,
+            'sendIp' => $settings->challengeSendIp,
+        ]);
+    }
+
+    /**
+     * The chosen spam classifier, or null for none.
+     */
+    private function _classifier(int $siteId, ?Settings $settings = null): ?ClassifierProvider
     {
         $settings ??= Comments::$plugin->getSettings();
 
-        return Craft::createObject([
-            'class' => Akismet::class,
-            'apiKey' => (string)$settings->akismetApiKey,
-            'blogUrl' => $settings->akismetBlogUrl ?: (string)Craft::$app->getSites()->getSiteById($siteId)->getBaseUrl(),
-            'testMode' => $settings->akismetTestMode,
-        ]);
+        return match ($settings->spamClassifier) {
+            Settings::CLASSIFIER_AKISMET => Craft::createObject([
+                'class' => Akismet::class,
+                'apiKey' => (string)$settings->akismetApiKey,
+                'blogUrl' => $settings->akismetBlogUrl ?: (string)Craft::$app->getSites()->getSiteById($siteId)->getBaseUrl(),
+                'testMode' => $settings->akismetTestMode,
+            ]),
+            Settings::CLASSIFIER_CLEANTALK => Craft::createObject([
+                'class' => CleanTalk::class,
+                'apiKey' => (string)$settings->cleantalkApiKey,
+            ]),
+            Settings::CLASSIFIER_OOPSPAM => Craft::createObject([
+                'class' => OopSpam::class,
+                'apiKey' => (string)$settings->oopspamApiKey,
+                'spamThreshold' => $settings->oopspamSpamThreshold,
+            ]),
+            default => null,
+        };
     }
 }

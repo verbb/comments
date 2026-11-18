@@ -113,6 +113,11 @@ class CommentEditor extends Component
 
         $comments->applyBodyFromRequest($comment);
 
+        // A moderator can take a GIF off a comment and leave its text.
+        if ($request->getBodyParam('removeGif')) {
+            CommentsPlugin::$plugin->getGiphy()->apply($comment, null);
+        }
+
         // The page no longer offers switching between a member and a guest author, so the comment's own is the default.
         $guestAuthor = $request->getBodyParam('guestAuthor');
         $comment->cpAuthorType = $guestAuthor === null ? ($comment->isGuest() ? 'guest' : 'user') : ($guestAuthor === '1' ? 'guest' : 'user');
@@ -208,7 +213,7 @@ class CommentEditor extends Component
         $assetReferences = $comments->takePendingAssetReferences();
 
         if ($assetReferences !== null) {
-            CommentsPlugin::$plugin->getCommentAssets()->syncEditedReferences((int)$comment->id, $assetReferences, (int)Craft::$app->getUser()->getId());
+            CommentsPlugin::$plugin->getCommentAssets()->syncEditedReferences($comment, $assetReferences, (int)Craft::$app->getUser()->getId());
         }
 
         if ($changes['owner']) {
@@ -271,10 +276,16 @@ class CommentEditor extends Component
      */
     public function panelHtml(Comment $comment): string
     {
+        $timeline = $this->historyTimeline($comment);
+
+        // Spam protection ran as it was posted, so its event follows posting, which is always first.
+        if ($protection = $this->_protectionItem($comment)) {
+            array_splice($timeline, 1, 0, [$protection]);
+        }
+
         return Html::tag('div', Craft::$app->getView()->renderTemplate('comments/comments/_editor-activity', [
             'comment' => $comment,
-            'timeline' => array_reverse($this->historyTimeline($comment)),
-            'protection' => CommentsPlugin::$plugin->getProtection()->describe($comment->protection),
+            'timeline' => array_reverse($timeline),
         ], View::TEMPLATE_MODE_CP), [
             'data' => ['comments-panel' => 'activity', 'comment-id' => $comment->id],
         ]);
@@ -461,6 +472,69 @@ class CommentEditor extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Spam protection as one timeline event: a single line when every check passed, or each check that
+     * didn't pass, with what it found, and a count of the rest. Null when no checks ran.
+     */
+    private function _protectionItem(Comment $comment): ?array
+    {
+        $lines = CommentsPlugin::$plugin->getProtection()->describe($comment->protection);
+
+        if (!$lines) {
+            return null;
+        }
+
+        $passed = array_values(array_filter($lines, static fn(array $line): bool => $line['status'] === 'passed'));
+        $other = array_values(array_filter($lines, static fn(array $line): bool => $line['status'] !== 'passed'));
+        $item = [
+            'date' => $comment->commentDate,
+            'actor' => null,
+            'actorUrl' => null,
+            'chips' => [],
+            'note' => null,
+        ];
+
+        if (!$other) {
+            return $item + [
+                'text' => Craft::t('comments', 'Passed spam protection'),
+                'tone' => 'teal',
+                'icon' => 'shield-check',
+                'context' => Html::encode(implode(', ', array_column($passed, 'label'))),
+            ];
+        }
+
+        $failed = array_filter($other, static fn(array $line): bool => $line['status'] === 'failed');
+        $checks = array_map(static fn(array $line): array => [
+            'tone' => match ($line['status']) {
+                'failed' => 'red',
+                'error' => 'amber',
+                default => 'gray',
+            },
+            'icon' => match ($line['status']) {
+                'failed' => 'xmark',
+                'error' => 'triangle-exclamation',
+                default => 'minus',
+            },
+            'text' => Craft::t('comments', '{check} {result}', [
+                'check' => $line['label'],
+                'result' => $line['detail'] ?? match ($line['status']) {
+                    'failed' => Craft::t('comments', 'failed'),
+                    'error' => Craft::t('comments', 'didn’t answer'),
+                    default => Craft::t('comments', 'didn’t run'),
+                },
+            ]),
+        ], $other);
+
+        return $item + [
+            'text' => $failed ? Craft::t('comments', 'Spam protection flagged this') : Craft::t('comments', 'Spam protection couldn’t finish every check'),
+            'tone' => $failed ? 'red' : 'amber',
+            'icon' => $failed ? 'shield-xmark' : 'shield-halved',
+            'context' => null,
+            'checks' => $checks,
+            'checksFoot' => $passed ? Craft::t('comments', '{count, plural, =1{1 other check passed} other{# other checks passed}}', ['count' => count($passed)]) : null,
+        ];
+    }
 
     /**
      * Why the comment is waiting, what it replies to, and a guest's name and address, around the

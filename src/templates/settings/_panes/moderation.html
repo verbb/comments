@@ -8,8 +8,19 @@
     name: 'requireModeration',
     on: settings.requireModeration,
     toggle: 'moderator-groups',
+    reverseToggle: 'first-comments',
     warning: macros.configWarning('requireModeration', 'comments'),
 }) }}
+
+<div id="first-comments"{% if settings.requireModeration %} class="hidden"{% endif %}>
+    {{ forms.lightswitchField({
+        label: 'Hold First Comments' | t('comments'),
+        instructions: 'Hold each person’s comments for review until a moderator has approved one of them.' | t('comments'),
+        name: 'holdFirstComments',
+        on: settings.holdFirstComments,
+        warning: macros.configWarning('holdFirstComments', 'comments'),
+    }) }}
+</div>
 
 <div id="moderator-groups"{% if not settings.requireModeration %} class="hidden"{% endif %}>
     {% set groups = [{ label: 'None' | t('comments'), value: '' }] %}

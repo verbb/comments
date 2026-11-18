@@ -15,7 +15,7 @@ class ProtectionEvidence
     {
         $challenge = GqlEntityRegistry::getEntity('CommentsProtectionChallenges') ?: GqlEntityRegistry::createEntity('CommentsProtectionChallenges', new InputObjectType([
             'name' => 'CommentsProtectionChallenges',
-            'fields' => ['turnstile' => Type::string(), 'recaptchaV3' => Type::string()],
+            'fields' => ['turnstile' => Type::string(), 'recaptchaV3' => Type::string(), 'hcaptcha' => Type::string(), 'friendlyCaptcha' => Type::string()],
         ]));
 
         return GqlEntityRegistry::getEntity('CommentsProtectionEvidence') ?: GqlEntityRegistry::createEntity('CommentsProtectionEvidence', new InputObjectType([

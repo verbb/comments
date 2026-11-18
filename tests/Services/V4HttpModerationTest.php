@@ -5,11 +5,13 @@ declare(strict_types=1);
 use craft\elements\User;
 use Tests\Support\Fixtures\CommentsFixtureFactory;
 use Tests\Support\HttpClient;
+use Tests\Support\SpamSettingsStore;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\ReviewSetting;
 use verbb\comments\models\CommentSubmission;
+use verbb\comments\services\SpamSettings;
 
 /**
  * The moderation controllers through real HTTP: sessions, CSRF and permissions as a browser meets them.
@@ -115,6 +117,19 @@ it('refuses moderation to people who can only view comments, and requests withou
         ->and(httpState($held))->toBe('pending');
 });
 
+it('keeps Comments’ settings to admins, whatever someone can do with comments', function() {
+    $moderator = httpBrowser(httpUser('httpSettings', ['accessPlugin-comments', 'comments-view', 'comments-moderate', 'comments-edit', 'comments-trash', 'comments-delete']));
+    $before = Comments::$plugin->getSettings()->allowGuest;
+
+    expect($moderator->get('/admin/comments/settings')['status'])->toBe(403)
+        ->and($moderator->post('/admin/actions/comments/settings/save-settings', ['pluginHandle' => 'comments', 'settings' => ['allowGuest' => $before ? '' : '1']])['status'])->toBe(403);
+
+    Craft::$app->getPlugins()->getPlugin('comments');
+    $saved = Craft::$app->getProjectConfig()->get('plugins.comments.settings.allowGuest');
+
+    expect((bool)$saved)->toBe((bool)$before);
+});
+
 it('only removes for people who can trash comments, and keeps a reported comment', function() {
     $moderator = httpBrowser(httpUser('httpNoTrash', ['comments-view', 'comments-moderate']));
     $reported = httpComment('Reported over HTTP');
@@ -196,31 +211,38 @@ it('lets a moderator keep a reported comment from the site, and nobody else', fu
     $reporter = Comments::$plugin->getIdentities()->createHistoricalGuest('Reporter', null);
     Comments::$plugin->getReports()->create((int)$reported->id, (int)$reporter->id, 'spam');
 
-    $member = httpBrowser(httpUser('httpMember', []));
-    $refused = $member->post('/actions/comments/frontend-api/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
+    // The thread's moderation goes through the data API, with the CSRF token it hands out.
+    $keep = static function(HttpClient $browser) use ($reported): array {
+        $csrf = (string)($browser->get('/actions/comments/api/session')['data']['csrf']['value'] ?? '');
 
-    expect($refused['data']['status'] ?? null)->toBe('error')
+        return $browser->postJson('/actions/comments/api/moderate', ['uid' => $reported->uid, 'action' => 'keep', 'operationId' => craft\helpers\StringHelper::UUID()], [], $csrf);
+    };
+
+    $refused = $keep(httpBrowser(httpUser('httpMember', [])));
+
+    expect($refused['status'])->toBe(403, $refused['body'])
+        ->and($refused['data']['errors'][0]['code'] ?? null)->toBe('forbidden')
         ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeTrue();
 
-    $moderator = httpBrowser(httpUser('httpSiteModerator', ['comments-view', 'comments-moderate']));
-    $kept = $moderator->post('/actions/comments/frontend-api/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
+    $kept = $keep(httpBrowser(httpUser('httpSiteModerator', ['comments-view', 'comments-moderate'])));
 
-    expect($kept['data']['status'] ?? null)->toBe('ok', $kept['body'])
+    expect($kept['status'])->toBe(200, $kept['body'])
+        ->and($kept['data']['status'] ?? null)->toBe('ok')
         ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeFalse();
 });
 
-it('still answers on the deprecated comments/api/v1 site URLs', function() {
+it('no longer answers on the unreleased comments/api/v1 site URLs', function() {
     Comments::$plugin->getSettings()->allowFlagging = true;
     $reported = httpComment('Reported through the old URL');
     $reporter = Comments::$plugin->getIdentities()->createHistoricalGuest('Reporter', null);
     Comments::$plugin->getReports()->create((int)$reported->id, (int)$reporter->id, 'spam');
 
-    // Custom clients written against the old site URLs keep working until the headless API replaces them.
+    // The data API takes the `comments/api/*` action path instead, so the old site URLs are gone.
     $moderator = httpBrowser(httpUser('httpAliasModerator', ['comments-view', 'comments-moderate']));
-    $kept = $moderator->post('/comments/api/v1/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
+    $refused = $moderator->post('/comments/api/v1/moderate', ['commentId' => $reported->id, 'moderationAction' => 'moderate-keep']);
 
-    expect($kept['data']['status'] ?? null)->toBe('ok', $kept['body'])
-        ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeFalse();
+    expect($refused['status'])->toBe(404, $refused['body'])
+        ->and(Comments::$plugin->getModeration()->hasOpenReports($reported))->toBeTrue();
 });
 
 it('adds a note from the Activity tab for moderators only, escaped, and refuses an empty one', function() {
@@ -293,4 +315,37 @@ it('shows a commenter’s page to moderators without their address, and to admin
     expect($adminPage['status'])->toBe(200, $adminPage['body'])
         ->and($adminPage['body'])->toContain($address)
         ->and(httpBrowser($admin)->get('/admin/comments/commenters/999999')['status'])->toBe(404);
+});
+
+it('opens Spam Protection to people who manage spam settings, saving to the database rather than project config', function() {
+    $snapshot = SpamSettingsStore::snapshot();
+    $path = '/admin/comments/spam-protection';
+
+    try {
+        expect(httpBrowser(httpUser('httpSpamViewer', ['accessPlugin-comments', 'comments-view']))->get($path)['status'])->toBe(403);
+
+        $manager = httpBrowser(httpUser('httpSpamManager', ['accessPlugin-comments', 'comments-manageSpamSettings']));
+        $page = $manager->get($path);
+
+        expect($page['status'])->toBe(200, $page['body'])
+            ->and($page['body'])->toContain('name="settings[maxLinks]"')
+            ->and($page['body'])->toContain('comments/spam-protection/save')
+            ->and($manager->get('/admin/comments/settings')['status'])->toBe(403);
+
+        // The Spam pane's old address leads to the new page.
+        $old = $manager->get('/admin/comments/settings/spam');
+
+        expect($old['status'])->toBe(302, $old['body'])
+            ->and(implode('', $old['headers']['location'] ?? []))->toContain('comments/spam-protection');
+
+        $saved = $manager->post($path, ['action' => 'comments/spam-protection/save', 'settings' => ['securityBanned' => 'http-banned', 'maxLinks' => '3']]);
+        $row = json_decode((string)(new craft\db\Query())->select(['settings'])->from(SpamSettings::TABLE)->scalar(), true);
+
+        expect($saved['status'])->toBeLessThan(400, $saved['body'])
+            ->and($row['securityBanned'] ?? null)->toBe('http-banned')
+            ->and($row['maxLinks'] ?? null)->toBe(3)
+            ->and(Craft::$app->getProjectConfig()->get('plugins.comments.settings.securityBanned'))->toBeNull();
+    } finally {
+        SpamSettingsStore::restore($snapshot);
+    }
 });

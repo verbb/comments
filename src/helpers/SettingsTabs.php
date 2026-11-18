@@ -51,10 +51,6 @@ class SettingsTabs
                 'label' => 'Moderation',
                 'pane' => true,
             ],
-            'spam' => [
-                'label' => 'Spam',
-                'pane' => true,
-            ],
             'presentationHeading' => [
                 'heading' => 'Presentation',
                 'pane' => false,
@@ -63,8 +59,16 @@ class SettingsTabs
                 'label' => 'Appearance',
                 'pane' => true,
             ],
-            'templates' => [
-                'label' => 'Templates & Resources',
+            'css-javascript' => [
+                'label' => 'CSS & JavaScript',
+                'pane' => true,
+            ],
+            'accessHeading' => [
+                'heading' => 'Access',
+                'pane' => false,
+            ],
+            'sites' => [
+                'label' => 'Other Sites',
                 'pane' => true,
             ],
         ];
@@ -85,8 +89,11 @@ class SettingsTabs
         return match ($handle) {
             'permissions' => 'commenting',
             'advanced' => 'authoring',
+            // The Spam pane became its own page, `comments/spam-protection`.
             'security' => 'spam',
             'frontend' => 'appearance',
+            // Development builds of Comments 4 called it Templates & Resources.
+            'templates' => 'css-javascript',
             default => $handle,
         };
     }
