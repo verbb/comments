@@ -70,12 +70,44 @@ it('translates the v3 notification matrix into canonical v4 settings', function(
         SubscriptionType::Replies->value,
     ]);
     expect($settings->subscriptionDefault)->toBe(Settings::SUBSCRIPTION_DEFAULT_REPLIES);
-    // Staff are told through an event now, so the address list goes.
+    // Comments 3's Comment Administrators become the Notification Recipients.
+    expect($settings->notificationRecipients)->toBe([['email' => 'staff@example.test', 'enabled' => true]])
+        ->and($settings->getEnabledNotificationRecipientEmails())->toBe(['staff@example.test']);
+
     $attributes = array_keys($settings->getAttributes());
 
-    foreach (['notificationAuthorEnabled', 'notificationAdmins', 'notificationRecipients', 'indexSidebarLimit'] as $retired) {
+    foreach (['notificationAuthorEnabled', 'notificationAdmins', 'emailModeratorGroup', 'indexSidebarLimit'] as $retired) {
         expect($attributes)->not->toContain($retired);
     }
+});
+
+it('reads Notification Recipients rows, plain addresses and closures, once each', function() {
+    $settings = new Settings();
+    $settings->setAttributes(['notificationRecipients' => [
+        ['email' => 'one@example.test', 'enabled' => '1'],
+        ['email' => 'off@example.test', 'enabled' => ''],
+        'plain@example.test',
+        ['email' => 'ONE@example.test', 'enabled' => true],
+        ['email' => '', 'enabled' => true],
+    ]], false);
+
+    expect($settings->getEnabledNotificationRecipientEmails())->toBe(['one@example.test', 'plain@example.test'])
+        ->and($settings->validate(['notificationRecipients']))->toBeTrue();
+
+    $settings->notificationRecipients = [['email' => 'not an address', 'enabled' => true]];
+
+    expect($settings->validate(['notificationRecipients']))->toBeFalse()
+        ->and($settings->getEnabledNotificationRecipientEmails())->toBe([]);
+
+    $settings->notificationRecipients = static fn() => [['email' => 'closure@example.test', 'enabled' => true]];
+
+    expect($settings->getEnabledNotificationRecipientEmails())->toBe(['closure@example.test']);
+
+    // An empty editable table posts an empty string, and Comments 4's development switches are dropped.
+    $settings->setAttributes(['notificationRecipients' => '', 'emailModeratorGroup' => true, 'javascriptCheckEnabled' => true], false);
+
+    expect($settings->notificationRecipients)->toBe([])
+        ->and(array_keys($settings->getAttributes()))->not->toContain('javascriptCheckEnabled');
 });
 
 it('rejects a default subscription type that is not available', function() {
@@ -91,7 +123,7 @@ it('rejects a default subscription type that is not available', function() {
 it('validates settings that are conditionally required', function() {
     $settings = new Settings([
         'allowAttachments' => true,
-        'recaptchaEnabled' => true,
+        'challengeProvider' => Settings::CHALLENGE_RECAPTCHA,
     ]);
 
     expect($settings->validate())->toBeFalse();

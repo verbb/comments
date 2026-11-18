@@ -51,7 +51,7 @@ it('persists eligible mentions when creating a rich comment', function() {
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => c2MentionPayload((int)$admin->id, (string)$admin->username),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -82,7 +82,7 @@ it('rejects mentions for users outside the conversation eligibility set', functi
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => c2MentionPayload(999999),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 })->throws(\yii\base\UserException::class);
@@ -109,7 +109,7 @@ it('syncs mention rows when a rich comment body is edited', function() {
         'content' => json_encode([
             ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'No mentions yet']]],
         ], JSON_THROW_ON_ERROR),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -149,7 +149,7 @@ it('rejects plain format tampering when editing rich comments', function() {
         'content' => json_encode([
             ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Rich body']]],
         ], JSON_THROW_ON_ERROR),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -205,7 +205,7 @@ it('queues mention notifications for newly mentioned users on approved rich crea
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => c2MentionPayload((int)$mentionedUser->id, (string)$mentionedUser->username),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -235,7 +235,8 @@ it('queues mention notifications when a pending rich comment is approved', funct
     $settings = Comments::$plugin->getSettings();
     $settings->authoringMode = AuthoringMode::Rich->value;
     $settings->allowMentions = true;
-    $settings->requireModeration = true;
+    // Only someone with an approved comment on the thread can be mentioned (SD-46).
+    $settings->requireModeration = false;
     $settings->useQueueForNotifications = true;
     $settings->participantNotifications = [Settings::NOTIFICATION_MENTION];
     $settings->subscriptionTypes = [];
@@ -258,12 +259,15 @@ it('queues mention notifications when a pending rich comment is approved', funct
     ]));
 
     $mentionedIdentity = Comments::$plugin->getIdentities()->getOrCreateForUser($mentionedUser);
+    $settings->requireModeration = true;
+    Comments::$plugin->getConversations()->clearCaches();
+    Craft::$app->getDb()->createCommand()->delete('{{%queue}}')->execute();
 
     $pending = Comments::$plugin->getComments()->create(new CommentSubmission([
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => c2MentionPayload((int)$mentionedUser->id, (string)$mentionedUser->username),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -337,7 +341,7 @@ it('stops treating a mention as a person once its target becomes inaccessible', 
         'ownerId' => $entry->id,
         'siteId' => $entry->siteId,
         'content' => c2MentionPayload((int)$target->id, 'Private label'),
-        'contentFormat' => ContentFormat::Editor,
+        'contentFormat' => ContentFormat::Rich,
         'userId' => (int)$admin->id,
     ]));
 
@@ -350,7 +354,7 @@ it('stops treating a mention as a person once its target becomes inaccessible', 
     expect($html)->not->toContain('verbb-editor-mention');
 });
 
-it('lets commenters mention the moderator group’s members', function() {
+it('only lets commenters mention a moderator once they’ve commented publicly on the thread (SD-46)', function() {
     $entry = CommentsFixtureFactory::entry('C2 mention moderator owner');
     $admin = Craft::$app->getUser()->getIdentity();
     $group = new craft\models\UserGroup(['name' => 'Mention moderators ' . bin2hex(random_bytes(3)), 'handle' => 'mentionModerators' . bin2hex(random_bytes(3))]);
@@ -364,25 +368,107 @@ it('lets commenters mention the moderator group’s members', function() {
     $settings->allowMentions = true;
     $settings->requireModeration = false;
     $settings->moderatorUserGroup = $group->uid;
+    $mention = static fn() => Comments::$plugin->getComments()->create(new CommentSubmission([
+        'ownerId' => $entry->id,
+        'siteId' => $entry->siteId,
+        'content' => c2MentionPayload((int)$moderator->id, 'Mod'),
+        'contentFormat' => ContentFormat::Rich,
+        'userId' => (int)$admin->id,
+    ]));
 
     try {
-        $eligible = Comments::$plugin->getMentions()->eligibleUserIdsForOwner((int)$entry->id, (int)$entry->siteId);
+        // Being in the moderator group alone doesn't make someone mentionable.
+        expect(Comments::$plugin->getMentions()->eligibleUserIdsForOwner((int)$entry->id, (int)$entry->siteId))
+            ->not->toContain((int)$moderator->id)
+            ->not->toContain((int)$outsider->id)
+            ->and($mention)->toThrow(yii\base\UserException::class, 'One or more mentions are not allowed.');
 
-        expect($eligible)->toContain((int)$moderator->id)
-            ->and($eligible)->not->toContain((int)$outsider->id);
-
-        // The moderator hasn't taken part in the discussion, so being in the group is what lets them be mentioned.
-        $result = Comments::$plugin->getComments()->create(new CommentSubmission([
+        Comments::$plugin->getComments()->create(new CommentSubmission([
             'ownerId' => $entry->id,
             'siteId' => $entry->siteId,
-            'content' => c2MentionPayload((int)$moderator->id, 'Mod'),
-            'contentFormat' => ContentFormat::Editor,
-            'userId' => (int)$admin->id,
+            'content' => 'A moderator joins in',
+            'userId' => (int)$moderator->id,
         ]));
+        $result = $mention();
 
         expect(Comments::$plugin->getMentions()->getIdentityIdsForComment((int)$result->comment->id))
             ->toBe([(int)Comments::$plugin->getIdentities()->getOrCreateForUser($moderator)->id]);
     } finally {
         Craft::$app->getUserGroups()->deleteGroup($group);
     }
+});
+
+it('suggests only people with an approved comment on the thread and the element’s author, on every path (SD-46)', function() {
+    $entry = CommentsFixtureFactory::entry('C2 mention eligibility owner');
+    $author = CommentsFixtureFactory::user('mentionEntryAuthor');
+    $entry->setAuthorIds([(int)$author->id]);
+    Craft::$app->getElements()->saveElement($entry, false);
+    $settings = Comments::$plugin->getSettings();
+    $settings->authoringMode = AuthoringMode::Rich->value;
+    $settings->allowMentions = true;
+    $post = static function(User $user, string $text, bool $held = false) use ($entry, $settings): Comment {
+        $settings->requireModeration = $held;
+        Comments::$plugin->getConversations()->clearCaches();
+
+        return Comments::$plugin->getComments()->create(new CommentSubmission([
+            'ownerId' => $entry->id,
+            'siteId' => $entry->siteId,
+            'content' => $text,
+            'userId' => (int)$user->id,
+        ]))->comment;
+    };
+    $approved = CommentsFixtureFactory::user('mentionApprovedOne');
+    $pending = CommentsFixtureFactory::user('mentionHiddenPending');
+    $spam = CommentsFixtureFactory::user('mentionHiddenSpam');
+    $removed = CommentsFixtureFactory::user('mentionHiddenRemoved');
+    $post($approved, 'Approved');
+    $post($pending, 'Waiting', true);
+    $spammed = $post($spam, 'Spammy');
+    Comments::$plugin->getModeration()->markSpam($spammed, Craft::$app->getUser()->getIdentity());
+    $gone = $post($removed, 'Removed');
+    Comments::$plugin->getModeration()->remove($gone, Craft::$app->getUser()->getIdentity());
+    $settings->requireModeration = false;
+
+    $eligible = Comments::$plugin->getMentions()->eligibleUserIdsForOwner((int)$entry->id, (int)$entry->siteId);
+
+    expect($eligible)->toContain((int)$approved->id)
+        ->toContain((int)$author->id)
+        ->not->toContain((int)$pending->id)
+        ->not->toContain((int)$spam->id)
+        ->not->toContain((int)$removed->id);
+
+    // A search through the data API, as every tier makes it, offers the same people.
+    $scope = ['ownerId' => (int)$entry->id, 'siteId' => (int)$entry->siteId];
+    $names = static fn(string $query): array => array_column(Comments::$plugin->getApi()->mentions('comments.reply', $scope, $query)['results'], 'id');
+
+    expect(array_map('intval', $names('mentionHidden')))->toBe([])
+        ->and(array_map('intval', $names('mentionApproved')))->toBe([(int)$approved->id]);
+});
+
+it('keeps someone a comment already mentions mentionable when its author edits it (SD-46)', function() {
+    $entry = CommentsFixtureFactory::entry('C2 mention edit owner');
+    $admin = Craft::$app->getUser()->getIdentity();
+    $settings = Comments::$plugin->getSettings();
+    $settings->authoringMode = AuthoringMode::Rich->value;
+    $settings->allowMentions = true;
+    $settings->requireModeration = false;
+    $mentioned = CommentsFixtureFactory::user('mentionLaterHidden');
+    $theirs = Comments::$plugin->getComments()->create(new CommentSubmission([
+        'ownerId' => $entry->id, 'siteId' => $entry->siteId, 'content' => 'Mine', 'userId' => (int)$mentioned->id,
+    ]))->comment;
+    $comment = Comments::$plugin->getComments()->create(new CommentSubmission([
+        'ownerId' => $entry->id, 'siteId' => $entry->siteId, 'content' => c2MentionPayload((int)$mentioned->id), 'contentFormat' => ContentFormat::Rich, 'userId' => (int)$admin->id,
+    ]))->comment;
+
+    // Their only comment is removed, so they're no longer offered, but the comment that mentions them
+    // can still be edited with the mention in it.
+    Comments::$plugin->getModeration()->remove($theirs, $admin);
+    $comment = Comment::find()->id($comment->id)->status(null)->one();
+
+    expect(Comments::$plugin->getMentions()->eligibleUserIdsForOwner((int)$entry->id, (int)$entry->siteId))->not->toContain((int)$mentioned->id)
+        ->and(Comments::$plugin->getMentions()->eligibleUserIdsForOwner((int)$entry->id, (int)$entry->siteId, (int)$comment->id))->toContain((int)$mentioned->id);
+
+    Comments::$plugin->getComments()->applyBody($comment, ContentFormat::Rich, c2MentionPayload((int)$mentioned->id, 'Still Pat'));
+
+    expect($comment->comment)->toContain('Still Pat');
 });

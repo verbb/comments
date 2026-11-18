@@ -11,8 +11,8 @@ use verbb\comments\services\Moderation;
 use verbb\comments\services\Notifications;
 
 /**
- * Email the Moderator Group: the one place Comments emails people with an account, and only the staff
- * its staff notifications name.
+ * Staff email, as in Comments 3: comments waiting for review and edits to them go to the moderator group,
+ * and new comments and reports go to the Notification Recipients addresses.
  */
 
 beforeEach(function() {
@@ -26,7 +26,7 @@ beforeEach(function() {
     $settings->participantNotifications = [];
     $settings->subscriptionTypes = [];
     $settings->useQueueForNotifications = false;
-    $settings->emailModeratorGroup = true;
+    $settings->notificationRecipients = [['email' => 'staff-list@example.test', 'enabled' => true]];
     $settings->staffNotifications = [
         Settings::NOTIFICATION_MODERATOR_PENDING,
         Settings::NOTIFICATION_MODERATOR_EDITED,
@@ -133,28 +133,29 @@ function staffEmailRunJob(Comment $comment, string $type): void
         ->execute(Craft::$app->getQueue());
 }
 
-it('emails the moderator group only once Email the Moderator Group is on', function() {
+it('emails staff only for the staff notifications that are chosen', function() {
     $entry = CommentsFixtureFactory::entry('Staff email switch');
     $events = staffEmailEvents();
-    Comments::$plugin->getSettings()->emailModeratorGroup = false;
+    Comments::$plugin->getSettings()->staffNotifications = [];
 
-    staffEmailPost($entry, $this->poster, 'Posted with staff email off');
+    staffEmailPost($entry, $this->poster, 'Posted with staff notifications off');
 
     expect($this->mail->messages)->toBe([])
-        ->and(array_map(static fn($event): string => $event->type, $events->events))->toBe(['admin', 'moderator']);
+        ->and($events->events)->toBe([]);
 
-    Comments::$plugin->getSettings()->emailModeratorGroup = true;
-    staffEmailPost($entry, $this->poster, 'Posted with staff email on');
+    Comments::$plugin->getSettings()->staffNotifications = [Settings::NOTIFICATION_MODERATOR_PENDING, Settings::NOTIFICATION_STAFF_NEW];
+    staffEmailPost($entry, $this->poster, 'Posted with staff notifications on');
 
     foreach ($this->moderators as $moderator) {
-        expect($this->mail->to($moderator->email))->toHaveCount(2);
+        expect($this->mail->subjectsTo($moderator->email))->toBe(['A comment is waiting for review on Plugin Tests']);
     }
 
-    expect($this->mail->messages)->toHaveCount(4)
+    expect($this->mail->subjectsTo('staff-list@example.test'))->toBe(['"' . $entry->title . '" has a new comment on Plugin Tests'])
+        ->and($this->mail->messages)->toHaveCount(3)
         ->and($this->mail->to($this->poster->email))->toBeEmpty();
 });
 
-it('emails each member of the group once for every staff notification, as the event names them', function() {
+it('emails the group about waiting and edited comments and the list about new and reported ones, as the event names them', function() {
     $entry = CommentsFixtureFactory::entry('Every staff email');
     $events = staffEmailEvents();
 
@@ -180,21 +181,17 @@ it('emails each member of the group once for every staff notification, as the ev
     Comments::$plugin->getModeration()->approve($comment);
     staffEmailReport($comment);
 
-    $expected = [
-        '"' . $entry->title . '" has a new comment on Plugin Tests',
-        'A comment is waiting for review on Plugin Tests',
-        'A comment waiting for review was edited on Plugin Tests',
-        'A comment on "' . $entry->title . '" was reported on Plugin Tests',
-    ];
-
     foreach ($this->moderators as $moderator) {
-        $subjects = $this->mail->subjectsTo($moderator->email);
-        sort($subjects);
-        $sorted = $expected;
-        sort($sorted);
-
-        expect($subjects)->toBe($sorted);
+        expect($this->mail->subjectsTo($moderator->email))->toBe([
+            'A comment is waiting for review on Plugin Tests',
+            'A comment waiting for review was edited on Plugin Tests',
+        ]);
     }
+
+    expect($this->mail->subjectsTo('staff-list@example.test'))->toBe([
+        '"' . $entry->title . '" has a new comment on Plugin Tests',
+        'A comment on "' . $entry->title . '" was reported on Plugin Tests',
+    ]);
 
     // Exactly the people each event named, and the message links to the comment in the control panel.
     $named = [];
@@ -220,7 +217,7 @@ it('emails each member of the group once for every staff notification, as the ev
         ->and($this->mail->messages[0]->getSymfonyEmail()->getTextBody())->toContain($comment->getCpEditUrl())->not->toContain('Unsubscribe');
 });
 
-it('leaves authors, replied-to commenters and followers with an account to the event', function() {
+it('emails authors, replied-to commenters and followers with an account alongside staff', function() {
     $settings = Comments::$plugin->getSettings();
     $settings->requireModeration = false;
     $settings->participantNotifications = [Settings::NOTIFICATION_OWNER, Settings::NOTIFICATION_REPLY];
@@ -228,7 +225,7 @@ it('leaves authors, replied-to commenters and followers with an account to the e
 
     // The fixture's entries are written by the signed-in admin, who isn't in the moderator group.
     $entryAuthor = $this->admin;
-    $entry = CommentsFixtureFactory::entry('Participants stay on the event');
+    $entry = CommentsFixtureFactory::entry('Participants are emailed');
 
     $follower = staffEmailUser('follower');
     $member = staffEmailUser('member');
@@ -242,17 +239,16 @@ it('leaves authors, replied-to commenters and followers with an account to the e
     $events = staffEmailEvents();
     staffEmailPost($entry, $this->poster, 'A reply to the member', (int)$parent->id);
 
-    $types = array_map(static fn($event): string => $event->type, $events->events);
+    expect(array_map(static fn($event): string => $event->type, $events->events))->toContain('admin', 'author', 'reply', 'subscribe')
+        ->and($this->mail->subjectsTo($entryAuthor->email))->toBe(['"' . $entry->title . '" has received a comment on Plugin Tests.'])
+        ->and($this->mail->subjectsTo($member->email))->toBe(['Someone has replied to your comment on Plugin Tests.'])
+        ->and($this->mail->subjectsTo($follower->email))->toBe(['A new comment has been made on ' . $entry->title])
+        ->and($this->mail->to($this->poster->email))->toBeEmpty()
+        ->and($this->mail->subjectsTo('staff-list@example.test'))->toBe(['"' . $entry->title . '" has a new comment on Plugin Tests']);
 
-    expect($types)->toContain('admin', 'author', 'reply', 'subscribe');
-
-    foreach ([$entryAuthor, $follower, $member, $this->poster] as $participant) {
-        expect($this->mail->to($participant->email))->toBeEmpty();
-    }
-
-    // The group is still emailed about the new comment.
+    // Nothing is waiting, so the group isn't emailed.
     foreach ($this->moderators as $moderator) {
-        expect($this->mail->subjectsTo($moderator->email))->toBe(['"' . $entry->title . '" has a new comment on Plugin Tests']);
+        expect($this->mail->to($moderator->email))->toBeEmpty();
     }
 });
 
@@ -298,11 +294,16 @@ it('does not email staff about a comment that has changed or gone since it was q
 it('leaves out whoever caused a staff notification, in the event and the email', function() {
     $settings = Comments::$plugin->getSettings();
     $settings->requireModeration = false;
+    // Listed addresses that belong to accounts are those users.
+    $settings->notificationRecipients = array_map(
+        static fn(User $moderator): array => ['email' => $moderator->email, 'enabled' => true],
+        $this->moderators,
+    );
     $entry = CommentsFixtureFactory::entry('Own staff notifications');
     [$one, $two] = $this->moderators;
     $events = staffEmailEvents();
 
-    // A moderator's own comment only goes to the rest of the group.
+    // A moderator's own comment only goes to the rest of the list.
     staffEmailPost($entry, $one, 'A moderator’s own comment');
 
     expect(array_map(static fn($event): string => $event->type, $events->events))->toBe(['admin'])

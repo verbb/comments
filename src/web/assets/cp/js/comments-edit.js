@@ -211,11 +211,12 @@ Craft.Comments.initCommentEditor = function(root) {
 
     if (editorRoot) {
         // Editor's bundle is a module, so it runs after this. A slideout can load it later still.
-        customElements.whenDefined('verbb-editor').then(function() {
+        customElements.whenDefined('verbb-editor').then(async function() {
             const contentInput = root.querySelector('input[name$="[editorContent]"]');
             const plainInput = root.querySelector('textarea[name$="[comment]"]');
             const options = JSON.parse(editorRoot.dataset.editorOptions);
-            const editor = new window.VerbbEditor.Editor(editorRoot, {
+            // `create()` loads the features the options use first, such as links and mentions.
+            const editor = await window.VerbbEditor.Editor.create(editorRoot, {
                 ...options,
                 placeholder: editorRoot.dataset.editorPlaceholder,
                 ariaLabel: editorRoot.dataset.editorLabel,
@@ -227,7 +228,11 @@ Craft.Comments.initCommentEditor = function(root) {
                 },
             });
 
-            contentInput.value = JSON.stringify(editor.getJSON());
+            // A plain comment is only sent as Editor's document once its text changes, so it stays
+            // plain otherwise.
+            if (!('editorFromPlain' in editorRoot.dataset)) {
+                contentInput.value = JSON.stringify(editor.getJSON());
+            }
         });
     }
 };

@@ -2,6 +2,8 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
+use verbb\comments\compatibility\forms\LegacyFormRequest;
+use verbb\comments\compatibility\twig\LegacyRenderOptions;
 use verbb\comments\elements\Comment;
 use verbb\comments\elements\db\CommentQuery;
 use verbb\comments\enums\ContentFormat;
@@ -9,8 +11,10 @@ use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\SubscriptionType;
 use verbb\comments\errors\NotificationDeliveryException;
+use verbb\comments\events\DefineBadgesEvent;
 use verbb\comments\events\EmailEvent;
 use verbb\comments\exceptions\CommentValidationException;
+use verbb\comments\exceptions\RefusedException;
 use verbb\comments\fieldlayoutelements\CommentsField as CommentsFieldElement;
 use verbb\comments\models\CommentResult;
 use verbb\comments\models\CommentSubmission;
@@ -18,8 +22,8 @@ use verbb\comments\models\ConversationConfig;
 use verbb\comments\models\Settings;
 use verbb\comments\records\Comment as CommentRecord;
 use verbb\comments\records\Identity as IdentityRecord;
-use verbb\comments\web\assets\frontend\FrontEndAsset;
-use verbb\comments\web\assets\frontend\FrontEndCssAsset;
+use verbb\comments\web\assets\frontend\CommentsScriptAsset;
+use verbb\comments\web\assets\frontend\CommentsStyleAsset;
 
 use Craft;
 use craft\base\Component;
@@ -49,27 +53,38 @@ use Exception;
 use Throwable;
 
 use Twig\Markup;
-use verbb\editor\web\assets\editor\EditorAsset;
 
 class Comments extends Component
 {
     // Constants
     // =========================================================================
 
+    // Fired before each email. Setting `isValid` to false stops that one email, so a site can deliver it its own way.
+    public const EVENT_BEFORE_SEND_AUTHOR_EMAIL = 'beforeSendAuthorEmail';
     public const EVENT_BEFORE_SEND_REPLY_EMAIL = 'beforeSendReplyEmail';
+    public const EVENT_BEFORE_SEND_MENTION_EMAIL = 'beforeSendMentionEmail';
     public const EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL = 'beforeSendModeratorApprovedEmail';
     public const EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL = 'beforeSendSubscribeEmail';
-    public const EVENT_BEFORE_SEND_STAFF_EMAIL = 'beforeSendStaffEmail';
+    public const EVENT_BEFORE_SEND_MODERATOR_EMAIL = 'beforeSendModeratorEmail';
+    public const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'beforeSendAdminEmail';
+    public const EVENT_BEFORE_SEND_FLAG_EMAIL = 'beforeSendFlagEmail';
+
+    /**
+     * Add badges, such as "Verified buyer", to a comment's author. They're shown in the thread and in
+     * every data API and GraphQL response that describes the author, and cached with them, so a
+     * handler must never make them depend on who's looking.
+     */
+    public const EVENT_DEFINE_BADGES = 'defineBadges';
 
     public const CONFIG_FIELDLAYOUT_KEY = 'comments.comments.fieldLayouts';
 
-    // The system message for each staff notification, when the moderator group is emailed. These keep
-    // Comments 3's keys, so a site's customised wording and translations carry over.
+    // The system message and event for each staff notification. These keep Comments 3's keys and event
+    // names, so a site's customised wording, translations and listeners carry over.
     private const STAFF_EMAIL_MESSAGES = [
-        Notifications::TYPE_ADMIN => 'comments_admin_notification',
-        Notifications::TYPE_MODERATOR => 'comments_moderator_notification',
-        Notifications::TYPE_MODERATOR_EDIT => 'comments_moderator_edit_notification',
-        Notifications::TYPE_FLAG => 'comments_flag_notification',
+        Notifications::TYPE_ADMIN => ['comments_admin_notification', self::EVENT_BEFORE_SEND_ADMIN_EMAIL],
+        Notifications::TYPE_MODERATOR => ['comments_moderator_notification', self::EVENT_BEFORE_SEND_MODERATOR_EMAIL],
+        Notifications::TYPE_MODERATOR_EDIT => ['comments_moderator_edit_notification', self::EVENT_BEFORE_SEND_MODERATOR_EMAIL],
+        Notifications::TYPE_FLAG => ['comments_flag_notification', self::EVENT_BEFORE_SEND_FLAG_EMAIL],
     ];
 
 
@@ -96,6 +111,38 @@ class Comments extends Component
         // A comment only exists on the site it was made on, which needn't be the current one.
         /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, Comment::class, $siteId ?? '*');
+    }
+
+    /**
+     * A comment author's badges after `EVENT_DEFINE_BADGES` handlers have added theirs. Anything a handler
+     * adds without a `type` and a `label` is left out, so a mistake can't break the thread.
+     */
+    public function defineBadges(Comment $comment, array $badges, array $comments = [], bool $isPublic = true): array
+    {
+        if (!$this->hasEventHandlers(self::EVENT_DEFINE_BADGES)) {
+            return $badges;
+        }
+
+        $event = new DefineBadgesEvent([
+            'comment' => $comment,
+            'badges' => $badges,
+            'comments' => $comments ?: [$comment],
+            'isPublic' => $isPublic,
+        ]);
+        $this->trigger(self::EVENT_DEFINE_BADGES, $event);
+
+        $defined = [];
+
+        foreach ($event->badges as $badge) {
+            $type = is_array($badge) ? trim((string)($badge['type'] ?? '')) : '';
+            $label = is_array($badge) ? trim((string)($badge['label'] ?? '')) : '';
+
+            if ($type !== '' && $label !== '') {
+                $defined[] = ['type' => $type, 'label' => $label];
+            }
+        }
+
+        return $defined;
     }
 
     public function fetch($criteria = null): CommentQuery
@@ -136,7 +183,8 @@ class Comments extends Component
         $submission->contentFormat = $normalized['contentFormat'];
         $submission->content = $normalized['bodyContent'];
 
-        if ($submission->content === '' && $normalized['plainText'] === '') {
+        // A GIF on its own is a comment.
+        if ($submission->content === '' && $normalized['plainText'] === '' && !$submission->gif) {
             throw CommentValidationException::fromErrors(['comment' => [Craft::t('comments', 'Comment content cannot be empty.')]]);
         }
 
@@ -154,7 +202,7 @@ class Comments extends Component
             $existingConversation = $conversations->getById($submission->conversationId);
 
             if (!$existingConversation) {
-                throw new UserException(Craft::t('comments', 'Conversation not found.'));
+                throw new RefusedException(Craft::t('comments', 'Conversation not found.'), 'not_found', 404);
             }
 
             $ownerId = (int)$existingConversation->ownerId;
@@ -170,18 +218,18 @@ class Comments extends Component
         $config = $conversations->getConfigForOwner($ownerId, $siteId);
 
         if (!$config->isCommentingEnabled()) {
-            throw new UserException(Craft::t('comments', 'Comments are closed for this element.'));
+            throw new RefusedException(Craft::t('comments', 'Comments are closed for this element.'), 'closed');
         }
 
         // Auto-closing depends on the element rather than its stored settings.
         $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
 
         if ($owner && $this->checkExpired($owner)) {
-            throw new UserException(Craft::t('comments', 'Comments are closed for this element.'));
+            throw new RefusedException(Craft::t('comments', 'Comments are closed for this element.'), 'closed');
         }
 
         if (!$submission->userId && !$config->allowGuests) {
-            throw new UserException(Craft::t('comments', 'Must be logged in to comment.'));
+            throw new RefusedException(Craft::t('comments', 'Must be logged in to comment.'), 'sign_in_required', 401);
         }
 
         if (!$submission->userId && $settings->guestRequireEmailName) {
@@ -203,7 +251,7 @@ class Comments extends Component
                 ->count();
 
             if ($commentCount >= (int)$settings->maxUserComments) {
-                throw new UserException(Craft::t('comments', 'Comment limit reached for this element.'));
+                throw new RefusedException(Craft::t('comments', 'Comment limit reached for this element.'));
             }
         }
 
@@ -211,7 +259,7 @@ class Comments extends Component
         $knownIdentity = $submission->userId ? $identities->findForUser($submission->userId) : null;
 
         if ($knownIdentity && $moderation->isBlocked((int)$knownIdentity->id, $existingConversation ? (int)$existingConversation->id : null)) {
-            throw new UserException(Craft::t('comments', 'You are not permitted to comment in this discussion.'));
+            throw new RefusedException(Craft::t('comments', 'You are not permitted to comment in this discussion.'), 'blocked');
         }
 
         $moderationState = $this->_resolveInitialModerationState($config);
@@ -221,6 +269,8 @@ class Comments extends Component
             'ownerId' => $ownerId,
             'ownerSiteId' => $siteId,
             'siteId' => $siteId,
+            // Placed in its thread as it saves, and known before then for the custom fields a reply takes.
+            'parentId' => $submission->parentId,
             'userId' => $submission->userId,
             'name' => $submission->name,
             'email' => $submission->email,
@@ -235,6 +285,7 @@ class Comments extends Component
             'bodyContent' => $submission->content,
             'skipAfterSaveSideEffects' => true,
         ]);
+        CommentsPlugin::$plugin->getGiphy()->apply($comment, $submission->gif);
         $comment->setScenario($prepareComment ? Comment::SCENARIO_FRONT_END : Comment::SCENARIO_LIVE);
         $comment->setAction(Comment::ACTION_SAVE);
 
@@ -256,7 +307,7 @@ class Comments extends Component
 
         // Behind Protect so registered emails can't be probed without hitting rate limits.
         if (!$submission->userId && $submission->email && User::find()->email(Db::escapeParam($submission->email))->status(null)->exists()) {
-            throw new UserException(Craft::t('comments', 'Unauthorized.'));
+            throw new RefusedException(Craft::t('comments', 'Unauthorized.'), 'sign_in_required', 401);
         }
 
         try {
@@ -265,7 +316,7 @@ class Comments extends Component
                 $identity = $this->_resolveSubmissionIdentity($submission);
 
                 if ($moderation->isBlocked((int)$identity->id, (int)$conversation->id)) {
-                    throw new UserException(Craft::t('comments', 'You are not permitted to comment in this discussion.'));
+                    throw new RefusedException(Craft::t('comments', 'You are not permitted to comment in this discussion.'), 'blocked');
                 }
 
                 [$parentId, $rootId, $depth] = $this->_resolveHierarchy(
@@ -274,7 +325,7 @@ class Comments extends Component
                 );
 
                 if (is_numeric($settings->maxReplyDepth) && $depth > (int)$settings->maxReplyDepth) {
-                    throw new UserException(Craft::t('comments', 'The maximum reply depth has been reached.'));
+                    throw new RefusedException(Craft::t('comments', 'The maximum reply depth has been reached.'));
                 }
 
                 $this->_applyReviewSetting($comment, (int)$identity->id, (int)$conversation->id);
@@ -334,6 +385,7 @@ class Comments extends Component
                     $assetReferences,
                     'comments.reply',
                     (int)$submission->userId,
+                    comment: $result->comment,
                 );
                 CommentsPlugin::$plugin->getCommentAssets()->syncAssetIds((int)$result->comment->id, $assetIds);
             } catch (Throwable $e) {
@@ -389,14 +441,14 @@ class Comments extends Component
                 $request = Craft::$app->getRequest();
                 $comment->ipAddress = \verbb\protect\helpers\Ip::clientIp($request);
                 $comment->userAgent = $request->getUserAgent();
-                $comment->setPublicFieldValuesFromRequest();
+                $comment->setFormFieldValuesFromRequest();
             },
         );
     }
 
     public function normalizeSubmissionContent(CommentSubmission $submission): array
     {
-        if ($submission->contentFormat === ContentFormat::Editor) {
+        if ($submission->contentFormat === ContentFormat::Rich) {
             if (!CommentsPlugin::$plugin->getSettings()->isRichAuthoringEnabled()) {
                 throw new UserException(Craft::t('comments', 'Rich comment authoring is not enabled.'));
             }
@@ -428,6 +480,7 @@ class Comments extends Component
         ?int $actorUserId = null,
         ?int $ownerId = null,
         ?int $siteId = null,
+        ?int $commentId = null,
     ): array {
         try {
             $decoded = Json::decode($payload);
@@ -459,6 +512,7 @@ class Comments extends Component
                 $actorUserId,
                 (int)$ownerId,
                 (int)$siteId,
+                $commentId,
             );
         }
 
@@ -466,7 +520,7 @@ class Comments extends Component
         $assetIds = array_map(static fn(array $reference): int => (int)$reference['id'], $assetReferences);
 
         return [
-            'contentFormat' => ContentFormat::Editor,
+            'contentFormat' => ContentFormat::Rich,
             'bodyContent' => Json::encode($richText->getValue()),
             'plainText' => $plainText,
             'mentionIdentityIds' => $mentionIdentityIds,
@@ -491,7 +545,7 @@ class Comments extends Component
         $siteId = (int)($comment->siteId ?: $request->getParam('siteId', Craft::$app->getSites()->getCurrentSite()->id));
 
         // Rich edits must preserve format; never silently flatten to plain.
-        if ($comment->id && $comment->contentFormat === ContentFormat::Editor->value) {
+        if ($comment->id && $comment->contentFormat === ContentFormat::Rich->value) {
             $formatParam = ContentFormat::tryFrom((string)$request->getParam('contentFormat', ''));
 
             if ($formatParam === ContentFormat::Plain) {
@@ -510,10 +564,11 @@ class Comments extends Component
                 $actorUserId ? (int)$actorUserId : null,
                 $ownerId,
                 $siteId,
+                $comment->id ? (int)$comment->id : null,
             );
             $comment->bodyContent = $normalized['bodyContent'];
             $comment->comment = $normalized['plainText'];
-            $comment->contentFormat = ContentFormat::Editor->value;
+            $comment->contentFormat = ContentFormat::Rich->value;
             $this->_pendingMentionIdentityIds = $normalized['mentionIdentityIds'];
             $this->_pendingAssetIds = $normalized['assetIds'];
             $this->_pendingAssetReferences = $normalized['assetReferences'];
@@ -524,7 +579,7 @@ class Comments extends Component
         $formatParam = (string)$request->getParam('contentFormat', ContentFormat::Plain->value);
         $contentFormat = ContentFormat::tryFrom($formatParam) ?? ContentFormat::Plain;
 
-        if ($contentFormat === ContentFormat::Editor && $settings->isRichAuthoringEnabled()) {
+        if ($contentFormat === ContentFormat::Rich && $settings->isRichAuthoringEnabled()) {
             $editorContent = (string)$request->getParam('fields.editorContent', '');
 
             if ($editorContent !== '') {
@@ -534,10 +589,11 @@ class Comments extends Component
                     $actorUserId ? (int)$actorUserId : null,
                     $ownerId,
                     $siteId,
+                    $comment->id ? (int)$comment->id : null,
                 );
                 $comment->bodyContent = $normalized['bodyContent'];
                 $comment->comment = $normalized['plainText'];
-                $comment->contentFormat = ContentFormat::Editor->value;
+                $comment->contentFormat = ContentFormat::Rich->value;
                 $this->_pendingMentionIdentityIds = $normalized['mentionIdentityIds'];
                 $this->_pendingAssetIds = $normalized['assetIds'];
                 $this->_pendingAssetReferences = $normalized['assetReferences'];
@@ -547,6 +603,55 @@ class Comments extends Component
         }
 
         $plain = $this->_normalizePlainContent((string)$request->getParam('fields.comment', $comment->comment ?? ''));
+        $comment->comment = $plain;
+        $comment->contentFormat = ContentFormat::Plain->value;
+        $comment->bodyContent = $plain;
+    }
+
+    /**
+     * Apply new body content to a comment its author is editing through the data API. A rich comment
+     * stays rich, and a plain one only becomes rich while rich authoring is on.
+     */
+    public function applyBody(Comment $comment, ContentFormat $format, string $content): void
+    {
+        $this->_pendingMentionIdentityIds = null;
+        $this->_pendingAssetIds = null;
+        $this->_pendingAssetReferences = null;
+
+        if ($comment->isEditorContent() && $format === ContentFormat::Plain) {
+            throw CommentValidationException::fromErrors(['comment' => [Craft::t('comments', 'Rich comments cannot be converted to plain text.')]]);
+        }
+
+        if ($format === ContentFormat::Rich) {
+            if (!$comment->isEditorContent() && !CommentsPlugin::$plugin->getSettings()->isRichAuthoringEnabled()) {
+                throw CommentValidationException::fromErrors(['comment' => [Craft::t('comments', 'Rich comment authoring is not enabled.')]]);
+            }
+
+            $actorUserId = CommentsPlugin::$plugin->getService()->getUser()?->id;
+            $normalized = $this->normalizeEditorPayload(
+                $content,
+                'comments.edit',
+                $actorUserId ? (int)$actorUserId : null,
+                (int)$comment->ownerId,
+                (int)$comment->ownerSiteId,
+                $comment->id ? (int)$comment->id : null,
+            );
+            $comment->bodyContent = $normalized['bodyContent'];
+            $comment->comment = $normalized['plainText'];
+            $comment->contentFormat = ContentFormat::Rich->value;
+            $this->_pendingMentionIdentityIds = $normalized['mentionIdentityIds'];
+            $this->_pendingAssetIds = $normalized['assetIds'];
+            $this->_pendingAssetReferences = $normalized['assetReferences'];
+
+            return;
+        }
+
+        $plain = $this->_normalizePlainContent($content);
+
+        if ($plain === '') {
+            throw CommentValidationException::fromErrors(['comment' => [Craft::t('comments', 'Comment content cannot be empty.')]]);
+        }
+
         $comment->comment = $plain;
         $comment->contentFormat = ContentFormat::Plain->value;
         $comment->bodyContent = $plain;
@@ -611,7 +716,7 @@ class Comments extends Component
         $conversationId = $comment->conversationId ? (int)$comment->conversationId : null;
 
         if ($identityId && $moderation->isBlocked($identityId, $conversationId)) {
-            throw new UserException(Craft::t('comments', 'You are not permitted to comment in this discussion.'));
+            throw new RefusedException(Craft::t('comments', 'You are not permitted to comment in this discussion.'), 'blocked');
         }
 
         $config = CommentsPlugin::$plugin->getConversations()->getConfigForOwner(
@@ -659,7 +764,7 @@ class Comments extends Component
         $ownerSiteId = (int)$request->getParam('ownerSiteId', Craft::$app->getSites()->getCurrentSite()->id);
         $ownerId = $request->getParam('ownerId') ?? $request->getParam('elementId');
         $siteId = (int)$request->getParam('siteId', $ownerSiteId);
-        $parentId = $request->getParam('parentId');
+        $parentId = LegacyFormRequest::parentId($request);
 
         $formatParam = (string)$request->getParam('contentFormat', ContentFormat::Plain->value);
         $contentFormat = ContentFormat::tryFrom($formatParam) ?? ContentFormat::Plain;
@@ -667,7 +772,7 @@ class Comments extends Component
         $content = (string)$request->getParam('fields.editorContent', '');
 
         // Without JavaScript there's no editor to fill this in, only the plain box beside it.
-        if ($contentFormat !== ContentFormat::Editor || !$settings->isRichAuthoringEnabled() || $content === '') {
+        if ($contentFormat !== ContentFormat::Rich || !$settings->isRichAuthoringEnabled() || $content === '') {
             $contentFormat = ContentFormat::Plain;
             $content = (string)$request->getParam('fields.comment', '');
         }
@@ -686,6 +791,7 @@ class Comments extends Component
             'notifyReplies' => (bool)$request->getParam('fields.notifyReplies'),
             'url' => $request->getParam('url', $request->referrer),
             'userId' => $currentUser ? (int)$currentUser->id : null,
+            'gif' => $this->_gifFromPost(),
         ]);
     }
 
@@ -710,9 +816,20 @@ class Comments extends Component
         $comment->setAction(Comment::ACTION_SAVE);
 
         $this->applyBodyFromRequest($comment);
+
+        // Comments 3's forms posted `gifUrl`: an empty value takes the GIF off, a new one replaces it while
+        // GIPHY is on, and leaving it out, or posting the same one back, keeps it.
+        $postedGif = Craft::$app->getRequest()->getBodyParam('gifUrl');
+
+        if (is_string($postedGif) && trim($postedGif) === '') {
+            CommentsPlugin::$plugin->getGiphy()->apply($comment, null);
+        } elseif (is_string($postedGif) && trim($postedGif) !== (string)$comment->gifUrl && CommentsPlugin::$plugin->getGiphy()->isEnabled()) {
+            CommentsPlugin::$plugin->getGiphy()->apply($comment, $this->_gifFromPost());
+        }
+
         $this->applyEditModerationState($comment);
 
-        $comment->setPublicFieldValuesFromRequest();
+        $comment->setFormFieldValuesFromRequest();
 
         $this->savePublicUpdate($comment, CommentsPlugin::$plugin->getProtection()->evidence(Craft::$app->getRequest()->getBodyParam('__protect', [])), false);
 
@@ -727,7 +844,7 @@ class Comments extends Component
 
         if ($pendingAssetReferences !== null) {
             CommentsPlugin::$plugin->getCommentAssets()->syncEditedReferences(
-                (int)$comment->id,
+                $comment,
                 $pendingAssetReferences,
                 (int)(CommentsPlugin::$plugin->getService()->getUser()?->id ?? 0),
             );
@@ -778,18 +895,50 @@ class Comments extends Component
         // A comment lives on one site. Compared here, because Craft leaves the site out of a query
         // while it knows of only one site.
         if (!$comment || ($siteId !== null && (int)$comment->siteId !== $siteId)) {
-            throw new UserException(Craft::t('comments', 'No comment with the ID “{id}”', ['id' => $commentId]));
+            throw new RefusedException(Craft::t('comments', 'No comment with the ID “{id}”', ['id' => $commentId]), 'not_found', 404);
         }
 
         $moderation = CommentsPlugin::$plugin->getModeration();
 
         if ($comment->authorRemovedAt || $moderation->currentState($comment) !== ModerationState::Approved) {
-            throw new UserException(Craft::t('comments', 'This comment is not available.'));
+            throw new RefusedException(Craft::t('comments', 'This comment is not available.'), 'not_found', 404);
+        }
+
+        // Someone blocked from a discussion can't vote or report in it either (SD-45).
+        $identity = $this->_engagingIdentity();
+
+        if ($identity && $moderation->isBlocked((int)$identity->id, $comment->conversationId ? (int)$comment->conversationId : null)) {
+            throw new RefusedException(Craft::t('comments', 'You can’t take part in this discussion.'), 'blocked');
+        }
+
+        // A closed conversation keeps its votes as they are, but harmful content can still be reported (SD-45).
+        if ($operation === Protection::ENGAGEMENT_INTERACTION) {
+            $owner = $comment->getOwner();
+
+            if (CommentsPlugin::$plugin->getConversations()->getConfigForOwner((int)$comment->ownerId, (int)$comment->ownerSiteId, $owner)->closed || ($owner && $this->checkExpired($owner))) {
+                throw new RefusedException(Craft::t('comments', 'Comments are closed for this element.'), 'closed');
+            }
         }
 
         CommentsPlugin::$plugin->getProtection()->limitEngagement($operation);
 
         return $comment;
+    }
+
+    /**
+     * Whether whoever's asking is blocked from this owner's discussion, or everywhere.
+     */
+    public function isRequestBlocked(int $ownerId, int $siteId): bool
+    {
+        $identity = $this->_engagingIdentity();
+
+        if (!$identity) {
+            return false;
+        }
+
+        $conversation = CommentsPlugin::$plugin->getConversations()->findForOwner($ownerId, $siteId);
+
+        return CommentsPlugin::$plugin->getModeration()->isBlocked((int)$identity->id, $conversation ? (int)$conversation->id : null);
     }
 
     /**
@@ -821,13 +970,13 @@ class Comments extends Component
         $comment = $this->getCommentById($commentId, $siteId);
 
         if (!$comment) {
-            throw new UserException(Craft::t('comments', 'No comment with the ID “{id}”', ['id' => $commentId]));
+            throw new RefusedException(Craft::t('comments', 'No comment with the ID “{id}”', ['id' => $commentId]), 'not_found', 404);
         }
 
         $viewer = $actor ?? Craft::$app->getUser()->getIdentity();
 
         if (!$viewer || !$comment->canDelete($viewer)) {
-            throw new UserException(Craft::t('comments', 'You do not have permission to delete this comment.'));
+            throw new RefusedException(Craft::t('comments', 'You do not have permission to delete this comment.'));
         }
 
         $comment->authorRemovedAt = new DateTime();
@@ -844,26 +993,53 @@ class Comments extends Component
         return $comment;
     }
 
-    public function render($elementId, $criteria = [], $jsSettings = []): Markup
+    /**
+     * Output an element's mount point and register the comments stylesheet and script, which fetch and
+     * draw the thread. `$owner` is the element or its ID, and an element's own site is used unless
+     * `$options` names one. Options that aren't an array, and options `Frontend::render()` doesn't know,
+     * are ignored. A `nonce` option reaches the stylesheet and script tags, and the script hands it on to
+     * what it loads itself (Editor and Protect's challenges).
+     */
+    public function render(ElementInterface|int|string|null $owner, mixed $options = []): Markup
     {
         $view = Craft::$app->getView();
         $settings = CommentsPlugin::$plugin->getSettings();
+        $options = is_array($options) ? $options : [];
 
-        $markup = CommentsPlugin::$plugin->getFrontend()->render((int)$elementId, is_array($criteria) ? $criteria : []);
+        // A draft or a Live Preview shows the comments of the entry it belongs to.
+        if ($owner instanceof ElementInterface) {
+            $options['siteId'] ??= $owner->siteId;
+            $owner = $owner->getCanonicalId() ?? $owner->id;
+        }
 
-        if ($settings->outputDefaultCss && $settings->resolveEditorTheme() !== 'none') {
-            $view->registerAssetBundle(FrontEndCssAsset::class);
+        if (!is_numeric($owner) || (int)$owner < 1) {
+            return Template::raw('');
+        }
+
+        // Options it no longer takes, from Comments 3 templates and Comments 4's development builds.
+        $options = LegacyRenderOptions::normalize($options);
+
+        $markup = CommentsPlugin::$plugin->getFrontend()->render((int)$owner, $options);
+        $nonce = is_string($options['nonce'] ?? null) && $options['nonce'] !== '' ? $options['nonce'] : null;
+
+        if ((string)$markup === '') {
+            return $markup;
+        }
+
+        if ($settings->outputDefaultCss) {
+            $bundle = $view->registerAssetBundle(CommentsStyleAsset::class);
+
+            if ($nonce) {
+                $bundle->cssOptions['nonce'] = $nonce;
+            }
         }
 
         if ($settings->outputDefaultJs) {
-            // The thread's script loads Editor itself, and only when someone starts writing in a rich editor.
-            // Plain authoring never needs it. A template override that leaves out where to load it from gets
-            // it with the page instead.
-            if ($settings->isRichAuthoringEnabled() && !str_contains((string)$markup, 'data-comments-editor-module')) {
-                $view->registerAssetBundle(EditorAsset::class);
-            }
+            $bundle = $view->registerAssetBundle(CommentsScriptAsset::class);
 
-            $view->registerAssetBundle(FrontEndAsset::class);
+            if ($nonce) {
+                $bundle->jsOptions['nonce'] = $nonce;
+            }
         }
 
         return $markup;
@@ -980,31 +1156,82 @@ class Comments extends Component
     }
 
     /**
-     * New comments, comments waiting for review, edits to them and reports go to the moderator group as
-     * an event. Staff have accounts and the control panel, so Comments only emails them when Email the
-     * Moderator Group is on, and then exactly the people the event named.
+     * Comments waiting for review and edits to them go to the moderator group's members, as in Comments 3.
+     * New comments and reports go to the Notification Recipients addresses.
      *
      * Whoever caused the notification is left out: the author of a new or edited comment, and the
      * person who made a report.
      */
     public function notifyStaff(string $type, Comment $comment, ?int $actorUserId = null): void
     {
+        [$messageKey, $eventName] = self::STAFF_EMAIL_MESSAGES[$type] ?? [null, null];
         $element = $comment->getOwner();
-        $actorUserId = $type === 'flag' ? $actorUserId : $comment->userId;
-        $recipients = array_filter(
-            $this->getModeratorRecipients(),
-            fn($recipient) => !$actorUserId || !$recipient instanceof User || (int)$recipient->id !== (int)$actorUserId,
-        );
-        $named = CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders($type, $comment, $element, $recipients);
-        $messageKey = self::STAFF_EMAIL_MESSAGES[$type] ?? null;
 
-        if (!$messageKey || !$element || !CommentsPlugin::$plugin->getSettings()->emailModeratorGroup) {
+        if (!$messageKey || !$element) {
             return;
         }
 
-        foreach ($named as $recipient) {
-            $this->_mail($messageKey, self::EVENT_BEFORE_SEND_STAFF_EMAIL, $comment, $element, $recipient);
+        $actor = $type === Notifications::TYPE_FLAG
+            ? ($actorUserId ? Craft::$app->getUsers()->getUserById($actorUserId) : null)
+            : $comment->getAuthor();
+
+        // A deleted author is `false`.
+        if (!$actor instanceof User) {
+            $actor = null;
         }
+
+        $actorId = $actor?->id ? (int)$actor->id : null;
+        $actorEmail = $actor?->email ? strtolower((string)$actor->email) : null;
+
+        $candidates = in_array($type, [Notifications::TYPE_ADMIN, Notifications::TYPE_FLAG], true)
+            ? $this->getNotificationRecipients()
+            : $this->getModeratorRecipients();
+        $recipients = [];
+
+        foreach ($candidates as $recipient) {
+            $email = strtolower((string)$recipient->email);
+
+            if ($email === '' || isset($recipients[$email])) {
+                continue;
+            }
+
+            if (($actorId && (int)$recipient->id === $actorId) || ($actorEmail && $email === $actorEmail)) {
+                continue;
+            }
+
+            $recipients[$email] = $recipient;
+        }
+
+        foreach ($recipients as $recipient) {
+            $this->_mail($messageKey, $eventName, $comment, $element, $recipient);
+        }
+
+        CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify($type, $comment, $element, array_values($recipients));
+    }
+
+    /**
+     * The Notification Recipients addresses, as users. An address that belongs to an account is that
+     * user, so the email can greet them by name. Any other address is an unsaved user with no ID.
+     *
+     * @return User[]
+     */
+    public function getNotificationRecipients(): array
+    {
+        $recipients = [];
+
+        foreach (CommentsPlugin::$plugin->getSettings()->getEnabledNotificationRecipientEmails() as $email) {
+            $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);
+
+            if (!$user || strcasecmp((string)$user->email, $email) !== 0) {
+                $user = new User();
+                $user->email = $email;
+                $user->username = $email;
+            }
+
+            $recipients[] = $user;
+        }
+
+        return $recipients;
     }
 
     /**
@@ -1040,11 +1267,13 @@ class Comments extends Component
             return;
         }
 
-        CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders(Notifications::TYPE_AUTHOR, $comment, $element, [$recipient]);
+        $this->_mail('comments_author_notification', self::EVENT_BEFORE_SEND_AUTHOR_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($identity, $comment));
+
+        CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify(Notifications::TYPE_AUTHOR, $comment, $element, [$recipient]);
     }
 
     /**
-     * Only people with an account can be mentioned, so this is always an event.
+     * Only people with an account can be mentioned.
      */
     public function notifyMention(Comment $comment, int $mentionedIdentityId): void
     {
@@ -1071,7 +1300,9 @@ class Comments extends Component
             return;
         }
 
-        CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders(Notifications::TYPE_MENTION, $comment, $element, [$recipient]);
+        $this->_mail('comments_mention_notification', self::EVENT_BEFORE_SEND_MENTION_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($identity, $comment));
+
+        CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify(Notifications::TYPE_MENTION, $comment, $element, [$recipient]);
     }
 
     public function sendReplyNotificationEmail(Comment $comment): void
@@ -1097,24 +1328,15 @@ class Comments extends Component
             return;
         }
 
-        if ($parentIdentity->userId) {
-            $recipient = $parentComment->getAuthor();
+        $recipient = $this->_participantRecipient($parentIdentity);
 
-            if ($recipient instanceof User && (int)$recipient->id !== (int)$comment->userId) {
-                CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders(Notifications::TYPE_REPLY, $comment, $element, [$recipient]);
-            }
-
-            return;
-        }
-
-        // A comment's own address was never confirmed, so a guest's comes from their identity.
-        $recipient = $this->_guestRecipient($parentIdentity);
-
-        if (!$recipient || ($comment->email && strcasecmp((string)$comment->email, (string)$recipient->email) === 0)) {
+        if (!$recipient || $this->_isCommenter($comment, $recipient)) {
             return;
         }
 
         $this->_mail('comments_reply_notification', self::EVENT_BEFORE_SEND_REPLY_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($parentIdentity, $comment));
+
+        CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify(Notifications::TYPE_REPLY, $comment, $element, [$recipient]);
     }
 
     public function sendModeratorApprovedNotificationEmail(Comment $comment): void
@@ -1135,21 +1357,15 @@ class Comments extends Component
             return;
         }
 
-        if ($authorIdentity->userId) {
-            $recipient = $comment->getAuthor();
+        $recipient = $this->_participantRecipient($authorIdentity);
 
-            if ($recipient instanceof User) {
-                CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders(Notifications::TYPE_MODERATOR_APPROVED, $comment, $element, [$recipient]);
-            }
-
+        if (!$recipient) {
             return;
         }
 
-        $recipient = $this->_guestRecipient($authorIdentity);
+        $this->_mail('comments_moderator_approved_notification', self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($authorIdentity, $comment));
 
-        if ($recipient) {
-            $this->_mail('comments_moderator_approved_notification', self::EVENT_BEFORE_SEND_MODERATOR_APPROVED_EMAIL, $comment, $element, $recipient, $this->_stopEmailsUrl($authorIdentity, $comment));
-        }
+        CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify(Notifications::TYPE_MODERATOR_APPROVED, $comment, $element, [$recipient]);
     }
 
     public function sendSubscribeNotificationEmail(Comment $comment): void
@@ -1241,7 +1457,6 @@ class Comments extends Component
 
         $identityService = CommentsPlugin::$plugin->getIdentities();
         $identities = $identityService->getByIds(array_keys($recipientTypes));
-        $accountHolders = [];
         $sentTo = [];
 
         foreach ($recipientTypes as $identityId => $subscriptionType) {
@@ -1251,24 +1466,15 @@ class Comments extends Component
                 continue;
             }
 
-            if ($identity->userId) {
-                $user = Craft::$app->getUsers()->getUserById((int)$identity->userId);
+            $recipient = $this->_participantRecipient($identity);
+            $email = strtolower((string)$recipient?->email);
 
-                if ($user) {
-                    $accountHolders[] = $user;
-                }
-
+            // Two identities can hold the same address, such as a guest who later made an account.
+            if (!$recipient || $email === '' || isset($sentTo[$email]) || $this->_isCommenter($comment, $recipient)) {
                 continue;
             }
 
-            $guest = $this->_guestRecipient($identity);
-
-            // Two guest identities can hold the same address.
-            if (!$guest || isset($sentTo[strtolower((string)$guest->email)])) {
-                continue;
-            }
-
-            $sentTo[strtolower((string)$guest->email)] = true;
+            $sentTo[$email] = $recipient;
             $emailKey = $subscriptionType === 'replies'
                 ? 'comments_subscriber_notification_comment'
                 : 'comments_subscriber_notification_element';
@@ -1278,14 +1484,14 @@ class Comments extends Component
                 self::EVENT_BEFORE_SEND_SUBSCRIBE_EMAIL,
                 $comment,
                 $element,
-                $guest,
+                $recipient,
                 $subscriptions->managementUrl(Subscriptions::PURPOSE_CONVERSATION, $identity, (int)$comment->siteId, $conversationId),
                 ['emailKey' => $emailKey],
             );
         }
 
-        if ($accountHolders !== []) {
-            CommentsPlugin::$plugin->getNotifications()->notifyAccountHolders(Notifications::TYPE_SUBSCRIBE, $comment, $element, $accountHolders);
+        if ($sentTo !== []) {
+            CommentsPlugin::$plugin->getNotifications()->triggerAfterNotify(Notifications::TYPE_SUBSCRIBE, $comment, $element, array_values($sentTo));
         }
     }
 
@@ -1404,6 +1610,27 @@ class Comments extends Component
     // Private Methods
     // =========================================================================
 
+    /**
+     * A GIF a form posted as Comments 3's `gifUrl`, with `gifWidth` and `gifHeight` if it gave them. As in
+     * Comments 3, it's ignored while GIPHY is off.
+     */
+    private function _gifFromPost(): ?array
+    {
+        $request = Craft::$app->getRequest();
+        $url = $request->getBodyParam('gifUrl');
+        $giphy = CommentsPlugin::$plugin->getGiphy();
+
+        if (!is_string($url) || trim($url) === '' || !$giphy->isEnabled()) {
+            return null;
+        }
+
+        return $giphy->fromInput([
+            'url' => trim($url),
+            'width' => $request->getBodyParam('gifWidth'),
+            'height' => $request->getBodyParam('gifHeight'),
+        ]);
+    }
+
     private function _normalizePlainContent(string $content): string
     {
         // Prefer NFC when intl is available; otherwise keep raw unicode.
@@ -1418,6 +1645,18 @@ class Comments extends Component
         $content = preg_replace("/\r\n?/", "\n", $content) ?? $content;
 
         return trim($content);
+    }
+
+    /**
+     * The identity of whoever is asking, without creating one: someone who has never commented, voted or
+     * reported has nothing that could be blocked.
+     */
+    private function _engagingIdentity(): ?IdentityRecord
+    {
+        $user = CommentsPlugin::$plugin->getService()->getUser();
+        $identities = CommentsPlugin::$plugin->getIdentities();
+
+        return $user instanceof User ? $identities->findForUser((int)$user->id) : $identities->findGuestForRequest();
     }
 
     private function _resolveSubmissionIdentity(CommentSubmission $submission): \verbb\comments\records\Identity
@@ -1526,10 +1765,24 @@ class Comments extends Component
             return;
         }
 
-        if ($state === ModerationState::Pending && $comment->heldReason === HeldReason::PreModeration->value && $moderation->isTrusted($identityId, $conversationId)) {
+        $trusted = $moderation->isTrusted($identityId, $conversationId);
+
+        if ($state === ModerationState::Pending && $comment->heldReason === HeldReason::PreModeration->value && $trusted) {
             $comment->moderationState = ModerationState::Approved->value;
             $comment->status = $this->_legacyStatus(ModerationState::Approved);
             $comment->heldReason = null;
+
+            return;
+        }
+
+        // **Hold First Comments** waits for one of the person's comments to be approved. Trusted commenters,
+        // and moderators whose comments skip moderation, are already known.
+        $settings = CommentsPlugin::$plugin->getSettings();
+
+        if ($state === ModerationState::Approved && $settings->holdFirstComments && !$trusted && !$settings->isExemptFromModeration() && !$moderation->hasApprovedComment($identityId)) {
+            $comment->moderationState = ModerationState::Pending->value;
+            $comment->status = $this->_legacyStatus(ModerationState::Pending);
+            $comment->heldReason = HeldReason::FirstComment->value;
         }
     }
 
@@ -1634,6 +1887,34 @@ class Comments extends Component
         $user->firstName = $user->fullName;
 
         return $user;
+    }
+
+    /**
+     * Who to email for an identity: the user for someone with an account, or an unsaved user holding a
+     * guest's confirmed address.
+     */
+    private function _participantRecipient(IdentityRecord $identity): ?User
+    {
+        if ($identity->userId) {
+            return Craft::$app->getUsers()->getUserById((int)$identity->userId);
+        }
+
+        return $this->_guestRecipient($identity);
+    }
+
+    /**
+     * Whether the recipient wrote the comment, by account or, for a guest, by the address they gave.
+     */
+    private function _isCommenter(Comment $comment, User $recipient): bool
+    {
+        if ($comment->userId && $recipient->id && (int)$comment->userId === (int)$recipient->id) {
+            return true;
+        }
+
+        $author = $comment->userId ? $comment->getAuthor() : null;
+        $email = $comment->userId ? ($author instanceof User ? $author->email : null) : $comment->email;
+
+        return $email && strcasecmp((string)$email, (string)$recipient->email) === 0;
     }
 
     private function _stopEmailsUrl(IdentityRecord $identity, Comment $comment): string

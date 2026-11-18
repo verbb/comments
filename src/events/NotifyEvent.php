@@ -9,8 +9,8 @@ use craft\elements\User;
 use yii\base\Event;
 
 /**
- * People with an account who should hear about a comment. Comments emails only guests, so delivering
- * this is left to the site or a notifications plugin.
+ * Everyone a notification was for, after Comments has emailed them. Guests and Notification Recipients
+ * addresses are users without an ID.
  */
 class NotifyEvent extends Event
 {
@@ -20,7 +20,9 @@ class NotifyEvent extends Event
     /** What happened, as one of the `Notifications::TYPE_*` constants. */
     public string $type;
     public Comment $comment;
-    public ?ElementInterface $element = null;
+    /** The element the comment is on. */
+    public ?ElementInterface $owner = null;
 
+    /** @var User[] */
     public array $recipients = [];
 }

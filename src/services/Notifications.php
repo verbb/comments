@@ -19,9 +19,8 @@ use craft\elements\User;
  * Post-commit notification orchestration. No Outbox — queue concrete jobs after save.
  *
  * Pending/Spam do not trigger participant notifications. Approval may trigger delayed public ones.
- * Guests, who have no account or other channel, are emailed. Everyone with an account, staff included,
- * is passed to `EVENT_AFTER_NOTIFY` for the site or a notifications plugin to tell. The one exception is
- * the opt-in Email the Moderator Group setting, which also emails the staff that event names.
+ * Everyone told is emailed, through `Comments`, which fires a cancellable `beforeSend…Email` event for
+ * each email. `EVENT_AFTER_NOTIFY` then names everyone the notification was for, for another channel.
  */
 class Notifications extends Component
 {
@@ -29,8 +28,9 @@ class Notifications extends Component
     // =========================================================================
 
     /**
-     * Fired with the account holders who should hear about a comment, once it's settled in the state
-     * that notifies them. Comments sends them nothing itself.
+     * Fired after a notification's emails, naming everyone it was for, whether or not a `beforeSend…Email`
+     * handler stopped their email. Use it to tell people through another channel, such as an in-app inbox.
+     * Guests and Notification Recipients addresses are users without an ID.
      */
     public const EVENT_AFTER_NOTIFY = 'afterNotify';
 
@@ -160,28 +160,24 @@ class Notifications extends Component
     }
 
     /**
-     * Name account holders in the event, once each, and return who was named.
+     * Name everyone a notification was for in `EVENT_AFTER_NOTIFY`.
+     *
+     * @param User[] $recipients
      */
-    public function notifyAccountHolders(string $type, Comment $comment, ?ElementInterface $element, array $recipients): array
+    public function triggerAfterNotify(string $type, Comment $comment, ?ElementInterface $element, array $recipients): void
     {
-        $unique = [];
+        $recipients = array_values(array_filter($recipients, fn($recipient) => $recipient instanceof User));
 
-        foreach ($recipients as $recipient) {
-            if ($recipient instanceof User && $recipient->id) {
-                $unique[(int)$recipient->id] = $recipient;
-            }
+        if ($recipients === [] || !$this->hasEventHandlers(self::EVENT_AFTER_NOTIFY)) {
+            return;
         }
 
-        if ($this->hasEventHandlers(self::EVENT_AFTER_NOTIFY)) {
-            $this->trigger(self::EVENT_AFTER_NOTIFY, new NotifyEvent([
-                'type' => $type,
-                'comment' => $comment,
-                'element' => $element,
-                'recipients' => array_values($unique),
-            ]));
-        }
-
-        return array_values($unique);
+        $this->trigger(self::EVENT_AFTER_NOTIFY, new NotifyEvent([
+            'type' => $type,
+            'comment' => $comment,
+            'owner' => $element,
+            'recipients' => $recipients,
+        ]));
     }
 
     public function queueMentionNotifications(Comment $comment, array $identityIds): void

@@ -87,14 +87,14 @@ it('bounds search input before dispatching to a provider', function() {
     expect($response->data['message'])->toBe('The search is too long.');
 });
 
-it('gives the browser an action URL Craft routes, rather than one under the Comments API', function() {
+it('sends the browser’s mention searches to the data API’s action, under its sign-in tiers', function() {
     EditorContexts::refresh();
     $entry = Tests\Support\Fixtures\CommentsFixtureFactory::entry('Transport options');
     $craft = EditorContexts::browserOptions('comments.reply', (int)$entry->id, (int)$entry->siteId)['craft'];
     $url = $craft['endpoints']['mentions'];
     $generalConfig = Craft::$app->getConfig()->getGeneral();
 
-    expect($url)->toContain($generalConfig->actionTrigger . '/verbb-editor/mentions/search');
-    expect($url)->not->toContain('comments/api');
+    expect($url)->toContain($generalConfig->actionTrigger . '/comments/api/mentions');
+    expect($url)->not->toContain('verbb-editor');
     expect($craft['csrfTokenName'])->toBe($generalConfig->csrfTokenName);
 });

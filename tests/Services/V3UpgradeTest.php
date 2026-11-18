@@ -9,7 +9,6 @@ use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\enums\IdentityType;
 use verbb\comments\migrations\support\V3Schema;
-use verbb\comments\migrations\support\V3SettingsReview;
 use verbb\comments\migrations\support\V3UpgradeLog;
 use verbb\comments\services\Moderation;
 
@@ -163,6 +162,9 @@ it('upgrades a representative site without losing anything', function() {
         'guestTokenHash' => null,
     ]);
 
+    // The address a guest gave Comments 3 counts as confirmed, so their reply emails carry on (SD-57).
+    expect($identity['verifiedAt'])->not->toBeNull();
+
     // Votes: withdrawn rows are dropped, sessions share an Identity, and anonymous rows stay distinct.
     $votes = (new Query())->select(['commentId', 'type'])->from('{{%comments_interactions}}')->all();
     expect($votes)->toHaveCount(6)
@@ -219,6 +221,11 @@ it('upgrades a representative site without losing anything', function() {
     // Comments 3 only wrote plain text, so the site keeps that rather than taking the new default.
     expect(Craft::$app->getProjectConfig()->get('plugins.comments.settings.authoringMode'))->toBe('plain');
 
+    // Comments 3's author scores and thresholds, which it had on unless a site changed them (SD-57).
+    expect(Craft::$app->getProjectConfig()->get('plugins.comments.settings.showAuthorScore'))->toBeTrue()
+        ->and(Craft::$app->getProjectConfig()->get('plugins.comments.settings.flaggedCommentLimit'))->toBe(5)
+        ->and(Craft::$app->getProjectConfig()->get('plugins.comments.settings.downvoteCommentLimit'))->toBe(5);
+
     // Migrated data is readable through the real element, and nothing is pending.
     $element = Comment::find()->id($root)->status(null)->one();
     expect($element)->toBeInstanceOf(Comment::class)
@@ -227,43 +234,6 @@ it('upgrades a representative site without losing anything', function() {
         ->and(Craft::$app->getProjectConfig()->get('plugins.comments.schemaVersion'))->toBe(Comments::$plugin->schemaVersion);
 
     expect($db->getTableSchema('{{%comments_comments}}', true)->getColumn('status')->allowNull)->toBeFalse();
-});
-
-it('keeps emailing the moderator group for a site whose Comments 3 install did', function() {
-    $projectConfig = Craft::$app->getProjectConfig();
-    $settings = Comments::$plugin->getSettings();
-    $original = $settings->toArray();
-    $group = legacyGroup('upgradeModerators');
-    $entry = CommentsFixtureFactory::entry('Staff email upgrade owner');
-    V3Site::tree([V3Site::comment(['ownerId' => $entry->id]) => []]);
-
-    // Comments 3 mailed the group about comments waiting for review.
-    $projectConfig->set('plugins.comments.settings.moderatorUserGroup', $group->uid);
-    $projectConfig->set('plugins.comments.settings.notificationModeratorEnabled', true);
-    $projectConfig->remove('plugins.comments.settings.emailModeratorGroup');
-    V3Site::writeProjectConfig();
-
-    try {
-        V3Site::upgrade();
-
-        expect($projectConfig->get('plugins.comments.settings.emailModeratorGroup'))->toBeTrue();
-    } finally {
-        foreach (['moderatorUserGroup', 'notificationModeratorEnabled', 'emailModeratorGroup'] as $key) {
-            $projectConfig->remove('plugins.comments.settings.' . $key);
-        }
-
-        $settings->setAttributes($original, false);
-    }
-});
-
-it('only carries staff email over when Comments 3 sent it to a moderator group', function() {
-    expect(V3SettingsReview::emailedModeratorGroup(['moderatorUserGroup' => 'uid', 'notificationModeratorEnabled' => true]))->toBeTrue()
-        ->and(V3SettingsReview::emailedModeratorGroup(['moderatorUserGroup' => 'uid', 'notificationModeratorEditEnabled' => '1']))->toBeTrue()
-        // No group, so Comments 3 sent nothing.
-        ->and(V3SettingsReview::emailedModeratorGroup(['notificationModeratorEnabled' => true]))->toBeFalse()
-        // New-comment and flag emails went to the Additional Notification Recipients, not the group.
-        ->and(V3SettingsReview::emailedModeratorGroup(['moderatorUserGroup' => 'uid', 'notificationAdminEnabled' => true, 'notificationFlaggedEnabled' => true]))->toBeFalse()
-        ->and(V3SettingsReview::emailedModeratorGroup(['moderatorUserGroup' => 'uid', 'notificationModeratorEnabled' => false]))->toBeFalse();
 });
 
 it('lets garbage collection run while the upgrade is still pending', function() {

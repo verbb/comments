@@ -17,11 +17,11 @@
 
 <h3>{{ 'Participants' | t('comments') }}</h3>
 
-<p class="light">{{ 'Comments emails guests, at an address they’ve confirmed. People with an account aren’t emailed. Comments fires an event naming them, for your site or a notifications plugin to deliver.' | t('comments') }}</p>
+<p class="light">{{ 'People with an account are emailed at their account’s address, and guests once they’ve confirmed theirs. Every email has a link to stop them.' | t('comments') }}</p>
 
 {{ forms.checkboxSelectField({
     label: 'Participant Notifications' | t('comments'),
-    instructions: 'Choose which comment events notify people taking part in the discussion.' | t('comments'),
+    instructions: 'Choose which comment events email people taking part in the discussion.' | t('comments'),
     name: 'participantNotifications',
     values: settings.participantNotifications,
     options: [
@@ -45,7 +45,7 @@
     warning: macros.configWarning('participantNotifications', 'comments'),
 }) }}
 
-<p class="light">{{ 'Guest email content can be edited in [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }) | md }}</p>
+<p class="light">{{ 'Edit the wording of these emails in [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }) | md }}</p>
 
 <hr>
 
@@ -88,7 +88,7 @@
 
 {{ forms.checkboxSelectField({
     label: 'Staff Notifications' | t('comments'),
-    instructions: 'Choose which events name the moderator group selected under Moderation, for your site or a notifications plugin to deliver.' | t('comments'),
+    instructions: 'Choose which events email staff. Comments awaiting approval and edits to them go to the moderator group chosen under Moderation. New comments and reports go to the **Notification Recipients** below.' | t('comments'),
     name: 'staffNotifications',
     values: settings.staffNotifications,
     options: [
@@ -112,13 +112,28 @@
     warning: macros.configWarning('staffNotifications', 'comments'),
 }) }}
 
-{{ forms.lightswitchField({
-    label: 'Email the Moderator Group' | t('comments'),
-    instructions: 'Also email the moderator group’s members about the staff notifications chosen above. Edit the wording in [System Messages]({link}). Element authors, mentioned people and followers with an account are still only named in the event.' | t('comments', { link: url('utilities/system-messages') }),
-    id: 'emailModeratorGroup',
-    name: 'emailModeratorGroup',
-    on: settings.emailModeratorGroup,
-    warning: macros.configWarning('emailModeratorGroup', 'comments'),
+{{ forms.editableTableField({
+    label: 'Notification Recipients' | t('comments'),
+    instructions: 'The email addresses told about new comments and reports, when those are chosen above. Edit the wording in [System Messages]({link}).' | t('comments', { link: url('utilities/system-messages') }),
+    name: 'notificationRecipients',
+    id: 'notificationRecipients',
+    cols: {
+        email: {
+            type: 'singleline',
+            heading: 'Email Address' | t('comments'),
+        },
+        enabled: {
+            type: 'lightswitch',
+            heading: 'Enabled' | t('comments'),
+            thin: true,
+        },
+    },
+    rows: settings.notificationRecipients is iterable ? settings.notificationRecipients : [],
+    errors: settings.getErrors('notificationRecipients'),
+    warning: macros.configWarning('notificationRecipients', 'comments'),
+    allowAdd: true,
+    allowDelete: true,
+    allowReorder: true,
 }) }}
 
 <hr>
@@ -127,7 +142,7 @@
 
 {{ forms.textField({
     label: 'HTML Email Template' | t('comments'),
-    instructions: 'Optional site template used to wrap the emails Comments sends guests and the moderator group.' | t('comments'),
+    instructions: 'Optional site template used to wrap the emails Comments sends.' | t('comments'),
     id: 'templateEmail',
     name: 'templateEmail',
     value: settings.templateEmail,

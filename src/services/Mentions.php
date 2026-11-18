@@ -2,7 +2,7 @@
 namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
-use verbb\comments\elements\Comment;
+use verbb\comments\enums\ModerationState;
 use verbb\comments\records\Conversation as ConversationRecord;
 
 use Craft;
@@ -10,7 +10,6 @@ use craft\base\Component;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\User;
-use craft\helpers\Db;
 
 use yii\base\UserException;
 
@@ -26,9 +25,14 @@ class Mentions extends Component
     // =========================================================================
 
     /**
-     * Resolve eligible Craft user IDs for mention discovery on an owner element.
+     * The users who can be mentioned on an owner's thread, for suggestions and for checking a comment's
+     * mentions: everyone with an approved comment there that the thread shows, and the element's author.
+     * A moderator is only included once they've commented publicly there, and someone whose only comments
+     * are waiting, marked as spam or removed isn't, so suggestions never reveal who that is (stage C's
+     * L8, SD-46). With `$commentId`, the people that comment already mentions stay mentionable, so its
+     * author can edit it and it still shows its mentions.
      */
-    public function eligibleUserIdsForOwner(int $ownerId, int $siteId): array
+    public function eligibleUserIdsForOwner(int $ownerId, int $siteId, ?int $commentId = null): array
     {
         $eligible = [];
 
@@ -39,12 +43,17 @@ class Mentions extends Component
 
         if ($conversation) {
             $participantUserIds = (new Query())
-                ->select(['userId'])
-                ->from('{{%comments_comments}}')
+                ->select(['comments.userId'])
+                ->distinct()
+                ->from(['comments' => '{{%comments_comments}}'])
+                ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[comments.id]]')
                 ->where([
-                    'conversationId' => (int)$conversation->id,
+                    'comments.conversationId' => (int)$conversation->id,
+                    'comments.moderationState' => ModerationState::Approved->value,
+                    'comments.authorRemovedAt' => null,
+                    'elements.dateDeleted' => null,
                 ])
-                ->andWhere(['not', ['userId' => null]])
+                ->andWhere(['not', ['comments.userId' => null]])
                 ->column();
 
             foreach ($participantUserIds as $userId) {
@@ -62,11 +71,27 @@ class Mentions extends Component
             }
         }
 
-        foreach ($this->_moderatorUserIds() as $userId) {
-            $eligible[$userId] = true;
+        if ($commentId) {
+            foreach ($this->mentionedUserIds($commentId) as $userId) {
+                $eligible[$userId] = true;
+            }
         }
 
         return array_values(array_map('intval', array_keys($eligible)));
+    }
+
+    /**
+     * The users a comment already mentions.
+     */
+    public function mentionedUserIds(int $commentId): array
+    {
+        return array_map('intval', (new Query())
+            ->select(['identities.userId'])
+            ->from(['mentions' => '{{%comments_mentions}}'])
+            ->innerJoin(['identities' => '{{%comments_identities}}'], '[[identities.id]] = [[mentions.identityId]]')
+            ->where(['mentions.commentId' => $commentId])
+            ->andWhere(['not', ['identities.userId' => null]])
+            ->column());
     }
 
     /**
@@ -77,6 +102,7 @@ class Mentions extends Component
         ?int $actorUserId,
         int $ownerId,
         int $siteId,
+        ?int $commentId = null,
     ): array {
         $settings = CommentsPlugin::$plugin->getSettings();
 
@@ -94,7 +120,7 @@ class Mentions extends Component
             throw new UserException(Craft::t('comments', 'You must be logged in to mention someone.'));
         }
 
-        $eligibleUserIds = array_fill_keys($this->eligibleUserIdsForOwner($ownerId, $siteId), true);
+        $eligibleUserIds = array_fill_keys($this->eligibleUserIdsForOwner($ownerId, $siteId, $commentId), true);
         $identityIds = [];
         $identities = CommentsPlugin::$plugin->getIdentities();
 
@@ -178,40 +204,5 @@ class Mentions extends Component
         }
 
         return $added;
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _moderatorUserIds(): array
-    {
-        $settings = CommentsPlugin::$plugin->getSettings();
-        $groupUid = $settings->moderatorUserGroup;
-
-        if (!$groupUid) {
-            return [];
-        }
-
-        $group = Craft::$app->getUserGroups()->getGroupByUid($groupUid);
-
-        if (!$group) {
-            return [];
-        }
-
-        $userIds = (new Query())
-            ->select(['elements.id'])
-            ->from(['elements' => Table::ELEMENTS])
-            ->innerJoin(['users' => Table::USERS], '[[users.id]] = [[elements.id]]')
-            ->innerJoin(['ug' => Table::USERGROUPS_USERS], '[[ug.userId]] = [[users.id]]')
-            ->where([
-                'ug.groupId' => (int)$group->id,
-                'elements.dateDeleted' => null,
-                'elements.draftId' => null,
-                'elements.revisionId' => null,
-            ])
-            ->column();
-
-        return array_values(array_map('intval', $userIds));
     }
 }
