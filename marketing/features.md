@@ -16,7 +16,7 @@ Each comment says why it's there, whether that's pre-moderation, a held commente
 <!-- feature-media -->
 ## Review in context
 
-Open a comment and the reason it's waiting is right at the top, with what it was reported for or what spam protection found. The decisions sit beside it in the sidebar — **Approve**, **Spam** and **Remove**, or **Keep** for a report you're happy to dismiss — and any edits you've made save in the same step.
+Open a comment and the reason it's waiting is right at the top, with what it was reported for or what spam protection found. The decisions sit beside it in the sidebar (**Approve**, **Spam** and **Remove**, or **Keep** for a report you're happy to dismiss), and any edits you've made save in the same step.
 
 Removing a comment asks for a reason and an optional private note, so the next moderator knows what happened. **Preview** shows the comment in its thread on your site before you decide.
 
@@ -73,18 +73,20 @@ A moderator bar counts what's waiting on the page, can hide held comments to sho
 
 Render a complete, styled discussion with one line of Twig. Threaded replies, likes or votes, author and staff badges, sorting and deep links to any comment are all there, in light, dark or automatic themes that follow your visitor's preference.
 
-Want it to look like the rest of your site? Override only the templates you need and keep the rest up to date with the plugin, or turn off the bundled styles and start from scratch. It keeps working for visitors without JavaScript, and its shared-cache mode lets the page sit in Craft's `{% cache %}` tag or a full-page cache while each visitor still gets their own form and controls.
+To match the rest of your site, set a few CSS variables for your colours, fonts and corners, reach for the stable class names for finer touches, and hand your design system's button and form classes straight to Comments' controls. When the markup itself needs to change, replace only that part, such as the author line, a badge or the actions, and keep everything else up to date with the plugin. For React and Vue apps, the companion packages draw the same thread, with your own components wherever you want them.
+
+The page stays fast and fully cacheable, too. Comments only puts a light placeholder in your HTML and loads the discussion as readers reach it, and because nothing in the page depends on who's looking, Craft's `{% cache %}` tag, [Blitz](https://plugins.craftcms.com/blitz) or a CDN can serve it to everyone while each visitor still gets their own form and controls.
 
 ![A threaded discussion on an article, with replies, author and staff badges, likes and sorting.](../screenshots/site/thread.png)
 
 <!-- feature-section-end -->
 
 <!-- feature-media -->
-## Room to say more
+## Rich formatting, mentions and attachments
 
 With rich authoring, commenters can format what they write, quote and share code, mention people in the discussion and attach images and files to a volume you choose. Drafts are kept in the browser, so a refreshed page doesn't cost anyone their reply.
 
-Mentions only suggest people connected to the discussion, so your user list stays private. Rich authoring is on for new installs, and the editor only loads once someone starts writing, so a page of comments stays light. If you'd rather keep things short and simple, switch to plain text and the same editor works without any formatting.
+Turn on GIFs and commenters can search GIPHY and add a GIF to any comment or reply, with rich or plain text. Mentions only suggest people connected to the discussion, so your user list stays private. Rich authoring is on for new installs, and the editor only loads once someone starts writing, so a page of comments stays light. If you'd rather keep things short and simple, switch to plain text and the same editor works without any formatting.
 
 ![The rich comment editor, with formatting controls, some bold text and a mention suggestion open.](../screenshots/site/rich-editor.png)
 
@@ -113,13 +115,12 @@ Decide whether comments wait for approval or go up straight away, who your moder
 <!-- feature-grid -->
 - :icon[thumb-up] **Likes or votes** Offer likes, or upvotes and downvotes, and let readers sort by the top comments.
 - :icon[flag] **Report this comment** Visitors report a comment with reasons you choose, and it lands in your Reported list.
-- :icon[mail] **Guest emails done right** Guests confirm their address before they're emailed, and every email has a one-click unsubscribe.
+- :icon[mail] **Email notifications** Authors, commenters, followers and mentioned people are emailed about what's new, guests once they confirm their address, and every email has a one-click unsubscribe.
 - :icon[bell] **Follow a discussion** Members and guests can follow a discussion to hear about every new comment.
-- :icon[plug-connected] **Your notifications, your way** Members and staff are handed to your site or a notifications plugin through one event, ready for email, Slack or anything else.
+- :icon[plug-connected] **Send notifications anywhere** Events let your site swap any email for its own delivery, or add Slack, an in-app inbox or anything else.
 - :icon[filter] **Keyword filters** Hold, mark as spam or reject comments that match words or addresses you list.
-- :icon[link] **Deep links** Link to any comment, however deep in a thread or far down the page it is.
-- :icon[bolt] **Load when reached** Leave comments out of the initial page and load them as visitors scroll near.
-- :icon[api] **GraphQL and JavaScript** Query and post comments with GraphQL, and hook into the browser with events and a JavaScript API.
+- :icon[api] **GraphQL, JSON and JavaScript** Query and post comments with GraphQL or the JSON data API, and hook into the browser with events and a JavaScript API.
+- :icon[search] **Found by search engines** Add your approved comments to the page as structured data, so crawlers that don't run scripts can read them too.
 <!-- feature-grid-end -->
 
 <!-- feature-section -->

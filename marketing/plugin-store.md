@@ -13,12 +13,13 @@ Attach comments to entries, categories, assets, users or other Craft elements, a
 - See the history of each person commenting, and mark them as Trusted, Held or Blocked.
 - Open, close or turn off comments for one entry with a Comments field, which also shows what's waiting on it.
 - Let commenters format what they write, mention people and attach images and files with rich authoring.
+- Let commenters add GIFs from GIPHY to their comments and replies.
 - Offer likes, or upvotes and downvotes, when community feedback benefits from them, and sort by the top comments.
 - Stop spam with a honeypot, rate limits, Cloudflare Turnstile, reCAPTCHA v3 and Akismet, and see what spam protection found on each comment it caught.
 - Hold, mark as spam, or reject comments that match your own keywords and addresses.
-- Email guests about replies and discussions they follow once they confirm their address, with an unsubscribe link in every email.
-- Hand notifications for members and staff to your site or a notifications plugin through a single event.
-- Use the styled default thread with light, dark and automatic themes, or override only the templates you want to change and keep the rest up to date with the plugin.
-- Load comments as visitors reach them, cache pages for everyone while keeping each visitor's controls private, and link to any comment wherever it is in a thread.
-- Keep everything working for visitors without JavaScript.
-- Query and post comments with GraphQL, and hook into the browser with events and a JavaScript API.
+- Email element authors, commenters, followers and mentioned people about new comments, replies and mentions, and email guests once they confirm their address, with an unsubscribe link in every email.
+- Email your moderators about comments waiting for review, and a list of addresses about new comments and reports.
+- Use the styled default thread with light, dark and automatic themes, and [make it your own](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/make-a-custom-theme) with CSS variables, stable class names, your design system's button and form classes, or your own markup for any part of the thread.
+- Load comments as visitors reach them, cache every page with comments for everyone while each visitor's own controls arrive separately, and link to any comment wherever it is in a thread.
+- Give search engines your approved comments as structured data, for crawlers that don't run scripts.
+- Query and post comments with GraphQL or a JSON data API, hook into the browser with events and a JavaScript API, and put threads in React and Vue apps with the companion packages.

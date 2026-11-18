@@ -14,11 +14,10 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
-            "feature-tour/control-panel",
             "feature-tour/moderation",
             "feature-tour/interactions",
             "feature-tour/rich-authoring",
-            "feature-tour/notifications-and-subscriptions",
+            "feature-tour/notifications-subscriptions",
             "feature-tour/anti-spam",
             "feature-tour/security",
             "feature-tour/permissions"
@@ -31,12 +30,21 @@
             "template-guides/rendering-comments",
             "template-guides/loading-comment-assets",
             "template-guides/theming",
-            "template-guides/custom-templates",
+            "template-guides/text-translations",
+            "template-guides/cookies-storage",
             "template-guides/custom-fields",
-            "template-guides/displaying-and-protecting-comments",
-            "template-guides/working-without-javascript",
-            "template-guides/javascript-api",
+            "template-guides/displaying-protecting-comments",
+            "template-guides/structured-data",
             "template-guides/finding-user-votes"
+        ]
+    },
+    {
+        "title": "Headless",
+        "collapsable": false,
+        "children": [
+            "headless/headless-overview",
+            "headless/signing-in-across-sites",
+            "headless/data-api"
         ]
     },
     {
@@ -50,12 +58,44 @@
         "title": "Developers",
         "collapsable": false,
         "children": [
-            "developers/comment",
-            "developers/flag",
-            "developers/vote",
             "developers/events",
-            "developers/graphql",
+            "developers/custom-form-field-types",
             "developers/console-commands"
+        ]
+    },
+    {
+        "title": "GraphQL",
+        "collapsable": false,
+        "children": [
+            "graphql/queries",
+            "graphql/mutations",
+            "graphql/interfaces-types"
+        ]
+    },
+    {
+        "title": "Reference",
+        "collapsable": false,
+        "children": [
+            "reference/comment",
+            "reference/vote",
+            "reference/report"
+        ]
+    },
+    {
+        "title": "User Guides",
+        "collapsable": false,
+        "children": [
+            "user-guides/make-a-custom-theme",
+            "user-guides/change-a-parts-structure",
+            "user-guides/add-your-own-data-to-comments",
+            "user-guides/ask-commenters-for-more-with-custom-fields",
+            "user-guides/style-comments-with-tailwind-or-a-design-system",
+            "user-guides/validate-and-track-comments",
+            "user-guides/bundle-comments-in-your-own-build",
+            "user-guides/comments-on-a-headless-site-on-the-same-domain",
+            "user-guides/comments-on-a-headless-site-on-another-domain",
+            "user-guides/comments-with-turbo-sprig-or-datastar",
+            "user-guides/upgrade-comments-3-custom-templates"
         ]
     }
 ]

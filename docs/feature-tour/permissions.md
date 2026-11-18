@@ -1,16 +1,18 @@
 # Permissions
 
-Comments has two sets of permissions: which elements can have comments, and what your team can do with them.
+Comments lets you choose where comments are allowed, and what each member of your team can do with them.
 
 ## Which Elements Can Have Comments
 
 By default, comments are enabled for all elements. Go to **Comments** → **Settings** → **Commenting** to narrow this down for entries, categories, assets and users, by choosing their sections and entry types, category groups, volumes and user groups. To do the same in your config file, see the [`permissions`](docs:get-started/configuration#permissions) setting.
 
-An element that isn't allowed shows nothing on the site: `craft.comments.render()` outputs nothing, and comments can't be posted to it.
+For an element that isn't allowed, `craft.comments.render()` outputs nothing, and comments can't be posted to it.
 
 ## Per-Element Settings
 
-Add a **Comments** field to an element's field layout when editors need to override this for an individual element. The field is a select with four options:
+Add a **Comments** field when editors need to override this for an individual element. Create it under **Settings** → **Fields**, then add it to the field layouts of the entry types, category groups, volumes or user layouts where editors need it. We recommend giving it a tab of its own, named **Comments**, so it stays out of the way of writers while moderators and editors know where to look. The field's label is the card's heading, so a short label such as “Comments” suits it.
+
+The field is a select with four options:
 
 | Option | Result |
 | --- | --- |
@@ -19,13 +21,13 @@ Add a **Comments** field to an element's field layout when editors need to overr
 | Closed | Visitors can read the existing comments, but not post. |
 | Off | Comments are hidden from visitors, along with the form. |
 
-A note under the select explains the option chosen. The field also shows a summary of the element's comments to people who can view them, which [Control Panel](docs:feature-tour/control-panel#comments-field) describes along with where to put the field.
+A note under the select explains the option chosen. The field also shows a summary of the element's comments to people who can view them, which [Moderation](docs:feature-tour/moderation#moderating-from-an-element) describes.
 
-**Close Comments Globally** under **Comments** → **Settings** → **General Settings** and the **Auto-close Comments** setting both work the same way as closing an element, and setting an element to **Open** doesn't reopen it while either applies.
+**Close Comments Globally** and **Auto-close Comments**, both under **Comments** → **Settings** → **General Settings**, work the same way as closing an element, and setting an element to **Open** doesn't reopen it while either applies.
 
 ## User Permissions
 
-Comments adds these under each user group's permissions, alongside **Access Comments**. The others are nested under **View comments**, so give someone that first.
+Comments adds these under each user group's permissions, alongside **Access Comments**. The moderation permissions are nested under **View comments**, so give someone that first.
 
 | Permission | Handle | What It Allows |
 | --- | --- | --- |
@@ -33,8 +35,9 @@ Comments adds these under each user group's permissions, alongside **Access Comm
 | Moderate comments | `comments-moderate` | Approving, keeping and marking comments as spam or not spam, the Moderation sources, the Activity tab and its notes, [Commenters](docs:feature-tour/moderation#commenters) and review settings, and moderating from the site. |
 | Edit other users’ comments | `comments-edit` | Editing any comment in the control panel, including changing its element and author. This also lifts the **Author Edit Window**. |
 | Trash other users’ comments | `comments-trash` | Removing and restoring comments, and restoring comments from Craft's trash. |
-| Delete comments | `comments-delete` | Moving comments to Craft's trash from the Comments index, deleting spam permanently, and deleting any comment from the site. |
+| Delete comments | `comments-delete` | Moving comments to Craft's trash from the Comments index, deleting comments permanently from the trash or from a spam comment's page, and deleting any comment from the site. |
+| Manage spam settings | `comments-manageSpamSettings` | Changing the settings on the [Spam Protection](docs:feature-tour/anti-spam) page, including provider keys and keyword filters, even where admin changes are turned off. |
 
-Admins can do all of this, along with seeing email addresses in Commenters and a comment's IP address, user agent and the page it was posted from. Changing **Comments** → **Settings** needs an admin account and Craft's `allowAdminChanges` setting. Nobody can make moderation decisions on their own comments.
+Admins can do all of this, along with seeing email addresses in Commenters and a comment's IP address, user agent and the page it was posted from. Changing **Comments** → **Settings** needs an admin account and Craft's `allowAdminChanges` setting. **Comments** → **Spam Protection** is open to admins and people with **Manage spam settings** on any environment. Nobody can make moderation decisions on their own comments.
 
 Signed-in commenters don't need any of these to work with their own comments. They can edit and delete them, within the **Author Edit Window** if you've set one, though a comment marked as spam or removed can't be edited.

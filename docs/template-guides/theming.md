@@ -1,8 +1,10 @@
 # Theming
 
-The bundled CSS draws the thread from a set of CSS custom properties, such as `--comments-color-accent` for buttons and links, and `--comments-radius` for rounded corners. Changing those properties in your own stylesheet restyles the whole thread to match your site, without copying or overriding the bundled rules. This page lists every property you can set and its default in the light and dark themes.
+The bundled CSS draws the thread from a set of CSS custom properties, such as `--comments-color-accent` for buttons and links, and `--comments-radius` for rounded corners. Changing those properties in your own stylesheet restyles the whole thread to match your site, without copying or overriding the bundled rules.
 
-Start with the **Theme** setting under **Comments** → **Settings** → **Appearance**, or the [`editorTheme`](docs:get-started/configuration#editortheme) config setting, which chooses **Light**, **Dark**, **Auto** or **None**. Auto follows the visitor's colour-scheme preference. None outputs no default CSS at all, for sites that [supply their own](docs:template-guides/loading-comment-assets#supplying-your-own-assets), and the properties on this page then do nothing.
+Start with the **Theme** setting under **Comments** → **Settings** → **Appearance**, or the [`theme`](docs:get-started/configuration#theme) config setting, which chooses **Light**, **Dark**, **Auto** or **None**. Auto follows the visitor's colour-scheme preference. None loads only the base styles the thread needs to work, for sites that [supply their own look](docs:template-guides/loading-comment-assets#choosing-what-the-bundled-css-includes), and the properties on this page then do nothing.
+
+For a walkthrough that takes a thread from the default look to your site's colours, fonts and spacing, with dark mode, follow [Make a Custom Theme](docs:user-guides/make-a-custom-theme). This page is the reference it builds on.
 
 ## Setting a Property
 
@@ -22,6 +24,26 @@ The Post button, links and focus rings turn pink, and the editor, buttons and me
 A wrapper selector works too, which is useful when only some pages should change, such as `.recipe-page [data-comments-root]`. Setting the properties on `:root` or `body` doesn't reach the thread, because the thread's own root sets every property and an element's own value always beats one it would inherit.
 
 The Editor's toolbar, menus and buttons use the same colours. Comments maps its properties onto the Editor's own `--verbb-editor-*` properties, so changing `--comments-color-accent` changes the Editor's accent as well.
+
+### Setting Properties from a Template
+
+A value that comes from your content, such as each section's brand colour, can be set from Twig. Craft's `{% css %}` tag adds the CSS to the page's `<head>` wherever you call it, so it can sit beside the thread in the entry template. This example assumes the entry type has a Color field with the handle `accentColor`.
+
+```twig
+{% if entry.accentColor %}
+    {% css %}
+        #comments-{{ entry.id }}-{{ entry.siteId }} {
+            --comments-color-accent: {{ entry.accentColor.hex }};
+            --comments-color-link: {{ entry.accentColor.hex }};
+            --comments-color-focus: {{ entry.accentColor.hex }};
+        }
+    {% endcss %}
+{% endif %}
+
+{{ craft.comments.render(entry) }}
+```
+
+Each entry's thread uses the colour picked on that entry, and entries without one keep the theme's defaults. The selector is the thread's `id`, which `render()` sets to `comments-` followed by the element's ID and its site ID, so the colour only reaches this entry's thread when a page shows more than one.
 
 ### Dark and Auto Themes
 
@@ -48,15 +70,35 @@ With **Auto**, the attribute stays `auto`, so pair it with a `prefers-color-sche
 }
 ```
 
+### Following Your Site's Dark Mode Toggle
+
+If your site has its own dark mode toggle that puts a class or attribute on `<html>`, such as `class="dark"`, give Comments a selector that matches it with the `darkSelector` setting. While the selector matches `<html>`, every thread uses the dark theme, and when it stops matching they switch back to light, so the `[data-comments-theme='dark']` rules above follow your toggle too. Threads using the **None** theme are left as they are.
+
+`darkSelector` is set from JavaScript with `Comments.configure()`, and isn't available in `config/comments.php` or `render()`. Add this to a script on the page. The bundled script is a module, so `window.Comments` is ready by the time `DOMContentLoaded` fires on a page with comments, and `?.` skips the call on pages without them:
+
+```js
+document.addEventListener('DOMContentLoaded', () => {
+    window.Comments?.configure({ darkSelector: 'html.dark' });
+});
+```
+
+For a toggle that doesn't change `<html>`, call `Comments.setTheme('dark')` or `Comments.setTheme('light')` from the toggle's own code. The [package docs](https://docs.verbb.io/comments/browser/dark-mode) cover both, including for a script bundled into your own build and the React and Vue components.
+
 ### Sites That Use Cascade Layers
 
-If your own CSS is in cascade layers, as Tailwind CSS 4's is, a property you set inside one of your layers loses to the `comments-tokens` layer unless that layer comes first. Name it at the start of your layer order, before anything that sets these properties:
+If your own CSS is in cascade layers, as Tailwind CSS 4's is, a property you set inside one of your layers loses to the `comments-tokens` layer the properties sit in, unless that layer comes first. Name it at the start of your layer order, before anything that sets these properties. Properties you set outside any layer always win, so this only matters for declarations inside your own layers.
 
 ```css
 @layer comments-tokens, theme, base, components, utilities;
 ```
 
-Properties you set outside any layer always win, so this only matters for declarations inside your own layers.
+Comments' other rules sit outside any layer, so they also win over your layered rules, including Tailwind's utilities. To have your utilities and `@apply` rules win instead, turn on **CSS Layer** under **Comments** → **Settings** → **CSS & JavaScript**, or the [`useCssLayers`](docs:get-started/configuration#useCssLayers) setting. The bundled stylesheet is then wrapped in a `comments` layer, which you place between your base styles and components:
+
+```css
+@layer theme, base, comments, components, utilities;
+```
+
+With the setting on, the custom properties move inside the `comments` layer too, so the `comments-tokens` order above no longer applies. Set your values for them in a layer after `comments`, such as `components`, or outside any layer. A site that imports Comments' stylesheet into its own build puts it in a layer itself instead, as the [package docs](https://docs.verbb.io/comments/browser/class-names-css-layers) explain.
 
 ## Properties
 
@@ -77,10 +119,11 @@ These tables list every supported property, with its light and dark defaults. Th
 | `--comments-color-text` | `#1f2328` | `#eceef0` | Comment text and headings. |
 | `--comments-color-muted` | `#5a6068` | `#b4b9c0` | Dates, counts, hints and quiet buttons. |
 | `--comments-color-link` | `#0b57d0` | `#8ab4f8` | Links in comments and around the thread. |
-| `--comments-color-border` | `#d6d9dd` | `#43484f` | The editor's frame, buttons, menus, the report dialog and the lines joining replies. |
+| `--comments-color-border` | `#d6d9dd` | `#43484f` | Buttons, menus, the report dialog and the lines joining replies. |
+| `--comments-color-control-border` | `#8b9198` | `#70767e` | Borders that are a control's only edge, such as the editor's frame, dark enough to stand out at 3:1 against the surface. |
 | `--comments-color-surface` | `#fff` | `#1f2226` | The background of the editor, menus, the report dialog and a guest's sign-in choice. |
 | `--comments-color-surface-muted` | `#f5f6f7` | `#2a2e33` | Hovered buttons, the sort control, a pressed **Follow** button and the quoted comment in the report dialog. |
-| `--comments-color-panel` | | `#17191c` | The background behind the whole thread in the dark theme, which also gets padding and rounded corners so its light text never sits on your page's background. It has no effect in the light theme. |
+| `--comments-color-panel` | Not set | `#17191c` | The background behind the whole thread in the dark theme, which also gets padding and rounded corners so its light text never sits on your page's background. It has no effect in the light theme. |
 | `--comments-color-accent` | `#0b57d0` | `#8ab4f8` | The Post button, selected and pressed controls, and the character count. |
 | `--comments-color-on-accent` | `#fff` | `#10223f` | Text on the accent colour, such as the Post button's label. |
 | `--comments-color-danger` | `#b3261e` | `#f2b8b5` | Errors and destructive actions. |
@@ -101,8 +144,10 @@ These tables list every supported property, with its light and dark defaults. Th
 | `--comments-space-5` | `1.5rem` | `1.5rem` | The largest step in the scale, for your own rules to use alongside the others. |
 | `--comments-radius` | `0.5rem` | `0.5rem` | Rounded corners on the editor, buttons, menus, dialogs and the dark panel. |
 | `--comments-avatar-size` | `2.25rem` | `2.25rem` | Avatars, and the column they sit in. |
+| `--comments-gif-max-size` | `15rem` | `15rem` | The square a comment's GIF fits inside. A GIF smaller than this keeps its own size. |
 | `--comments-thread-indent` | `0.875rem` | `0.875rem` | How far each level of replies is indented. It's `0.75rem` on screens narrower than `40rem`. |
 | `--comments-control-size` | `2.25rem` | `2.25rem` | The smallest height of buttons and other controls. It's `2.75rem` on touch screens, so they're easier to tap. |
+| `--comments-reserve` | Not set | Not set | The height kept for the thread while it loads, so the page doesn't jump when it arrives. Without it, Comments estimates the height from the comment count. [Rendering Comments](docs:template-guides/rendering-comments#reserving-space-for-the-thread) explains when to set it. |
 
 ### Avatars
 
@@ -110,14 +155,14 @@ People without a photo get their initials on one of eight colours, picked from t
 
 | Property | Light | Dark | What It Styles |
 | --- | --- | --- | --- |
-| `--comments-avatar-0` | `#3b6ea5` | `#3b6ea5` | The first initials colour. |
-| `--comments-avatar-1` | `#8a5a2b` | `#8a5a2b` | The second initials colour. |
-| `--comments-avatar-2` | `#2f7d4f` | `#2f7d4f` | The third initials colour. |
-| `--comments-avatar-3` | `#8a3f7d` | `#8a3f7d` | The fourth initials colour. |
-| `--comments-avatar-4` | `#b0532a` | `#b0532a` | The fifth initials colour. |
-| `--comments-avatar-5` | `#237a7a` | `#237a7a` | The sixth initials colour. |
-| `--comments-avatar-6` | `#5a4fa3` | `#5a4fa3` | The seventh initials colour. |
-| `--comments-avatar-7` | `#6b7a2a` | `#6b7a2a` | The eighth initials colour. |
+| `--comments-color-avatar-0` | `#3b6ea5` | `#3b6ea5` | The first initials colour. |
+| `--comments-color-avatar-1` | `#8a5a2b` | `#8a5a2b` | The second initials colour. |
+| `--comments-color-avatar-2` | `#2f7d4f` | `#2f7d4f` | The third initials colour. |
+| `--comments-color-avatar-3` | `#8a3f7d` | `#8a3f7d` | The fourth initials colour. |
+| `--comments-color-avatar-4` | `#b0532a` | `#b0532a` | The fifth initials colour. |
+| `--comments-color-avatar-5` | `#237a7a` | `#237a7a` | The sixth initials colour. |
+| `--comments-color-avatar-6` | `#5a4fa3` | `#5a4fa3` | The seventh initials colour. |
+| `--comments-color-avatar-7` | `#6b7a2a` | `#6b7a2a` | The eighth initials colour. |
 | `--comments-color-on-avatar` | `#fff` | `#fff` | The initials themselves. |
 
 ### Held and Reported Comments
@@ -146,16 +191,18 @@ Confirmations and errors, such as "Comment posted.", appear as a small message a
 
 ### Internal Properties
 
-The bundled CSS also sets `--comments-tint-border` on held and reported comments, and `--comments-toast-icon` on the message, to share a value between its own rules. They aren't part of the supported set, so they can change in any release. Use the properties above instead.
+The bundled CSS also sets `--_comments-tint-border` on held and reported comments, and `--_comments-toast-icon` on the message, to share a value between its own rules. They aren't part of the supported set, so they can change in any release. Use the properties above instead.
 
 ## Changing Individual Elements
 
-When a property doesn't reach what you want to change, target the `comments__*` classes in your own stylesheet. The theme is on the root element as `data-comments-theme`, holding `light`, `dark`, `auto` or `none`, so a rule can follow it:
+When a property doesn't reach what you want to change, every element the thread draws has a `comments__*` class you can style in your own stylesheet, such as `comments__author-name`, and the root's `data-comments-theme` attribute lets a rule follow the theme. Comments' own rules mostly use a single class, so a rule of yours wins with one more class, such as `.comments .comments__author-name`. The [package docs](https://docs.verbb.io/comments/browser/class-names-css-layers) explain which classes are stable between releases and how to make your rules win, and the [markup reference](https://docs.verbb.io/comments/browser/markup-reference) lists every class and `data-comments-*` attribute the thread draws.
 
-```css
-[data-comments-root][data-comments-theme='dark'] .comments__author-name {
-    color: #fff;
-}
-```
+Hiding a feature with CSS only hides it. The server still offers it, so anyone could still vote through the data API with the vote buttons hidden. To remove a feature, such as voting, avatars or guest commenting, turn it off under **Comments** → **Settings**, as explained in [Configuration](docs:get-started/configuration). To change the thread's wording rather than its look, see [Text & Translations](docs:template-guides/text-translations).
 
-Bundled rules use ordinary specificity, so a rule of yours needs at least the same specificity, or to load after the bundled CSS, to win. [Custom Templates](docs:template-guides/custom-templates) lists the classes and the markup each template outputs.
+## Using Your Design System's Classes
+
+Sites built on a design system, such as Bootstrap, DaisyUI or a component library of their own, usually want that system's button and form classes on Comments' controls rather than restyling Comments' own. The `themeConfig` option adds your classes and attributes to ten controls, such as the **Post** button and the comment box, and can drop Comments' own styling classes from them. Pass it to `craft.comments.render()`, or set [`themeConfig`](docs:get-started/configuration#themeConfig) in `config/comments.php` for every thread. The [package docs](https://docs.verbb.io/comments/browser/theme-config) explain the controls and their options with examples, and [Style Comments with Tailwind or a Design System](docs:user-guides/style-comments-with-tailwind-or-a-design-system) works through a complete example.
+
+## Changing a Part's Markup
+
+When a different look isn't enough and you need different markup, such as a badge drawn with your design system's component or a comment laid out differently, replace one part of the thread with a part override and keep everything else, including the theme, the controls' classes and the thread's behaviour. Part overrides are set from JavaScript, and the [package docs](https://docs.verbb.io/comments/browser/part-overrides) explain them, with the parts you can replace. [Change a Part's Structure](docs:user-guides/change-a-parts-structure) works through one step by step.

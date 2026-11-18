@@ -1,0 +1,3 @@
+# The built site and VitePress cache, from `npm run build:package-docs`.
+.vitepress/cache
+.vitepress/dist

@@ -17,9 +17,7 @@ cd /path/to/project
 composer require verbb/comments && php craft plugin/install comments
 ```
 
-Composer also installs `verbb/editor`, which powers rich authoring, and `verbb/protect`, which runs the spam checks. Both are Composer dependencies that Comments loads itself, so neither appears as a separate plugin for you to install or enable.
-
 ## Licensing
-You can try Comments in a development environment for as long as you like. Once your site goes live, you are required to purchase a license for the plugin.
+You can try Comments in a development environment for as long as you like. Once your site goes live, you are required to purchase a licence for the plugin.
 
 For more information, see [Craft's Commercial Plugin Licensing](https://craftcms.com/docs/5.x/system/plugins.html#commercial-plugin-licensing).

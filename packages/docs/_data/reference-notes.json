@@ -1,0 +1,163 @@
+{
+    "controls": {
+        "primaryButton": "Post, Reply and Save, the sign-in card’s Sign in, the report dialog’s submit, and a moderator’s main decision (Approve or Keep)",
+        "secondaryButton": "Cancel, Show comments, Load more comments and replies, Try again, Follow, the sign-in card’s Comment as a guest and Follow by email, Review in Comments, adding files to an Assets field, and a moderator’s other decisions",
+        "quietButton": "The text actions on each comment (Like, upvote and downvote, Reply and the ··· toggle), the sort options and Show replies",
+        "input": "Guest name and email, and text, email, number, URL and date custom fields",
+        "textarea": "The plain comment box, the report dialog’s details and multi-line custom fields. Rich mode’s editor follows the CSS custom properties instead",
+        "select": "Dropdown and multi-select custom fields",
+        "checkbox": "The reply-email opt-in, and checkbox and lightswitch custom fields",
+        "radio": "The report reasons and radio custom fields",
+        "link": "The link around each comment’s date, which is its permalink. Links inside a comment’s text are reached with `.comments__content a` instead",
+        "avatar": "Every avatar, on comments and beside the editor"
+    },
+    "parts": {
+        "header": {
+            "group": "Thread",
+            "draws": "The heading with the count, the sort options, Follow and a moderator’s summary of held and reported comments",
+            "context": "`viewer`, `conversation` and `state`"
+        },
+        "empty": {
+            "group": "Thread",
+            "draws": "What a thread with no comments says",
+            "context": "`viewer`, `conversation` and `state`"
+        },
+        "showButton": {
+            "group": "Thread",
+            "draws": "The **Show comments** button for the `button` load mode",
+            "context": "`viewer`, `conversation` and `state`"
+        },
+        "loading": {
+            "group": "Thread",
+            "draws": "The loading line while the thread’s data is on its way",
+            "context": "`viewer`, `conversation` and `state`"
+        },
+        "notice": {
+            "group": "Thread",
+            "draws": "Why nobody can post, such as a closed thread’s notice",
+            "context": "`notice`, the text, with `viewer`, `conversation` and `state`"
+        },
+        "comment": {
+            "group": "Comment",
+            "draws": "The whole comment",
+            "context": "`comment`, `permissions`, `viewer`, `conversation`, `actions`, and `form()` and `replies()`, which the override must draw"
+        },
+        "avatar": {
+            "group": "Comment",
+            "draws": "The author’s avatar",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "authorName": {
+            "group": "Comment",
+            "draws": "The author’s name",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "badge": {
+            "group": "Comment",
+            "draws": "One of the author’s badges, once for each",
+            "context": "`badge` (its `type` and `label`), with the comment’s context"
+        },
+        "meta": {
+            "group": "Comment",
+            "draws": "The date and permalink, inline custom fields and the edited note",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "content": {
+            "group": "Comment",
+            "draws": "The comment’s text",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "fields": {
+            "group": "Comment",
+            "draws": "The custom fields shown under the text, as a labelled list",
+            "context": "`fields`, the comment’s entries shown under its text, with the comment’s context"
+        },
+        "actions": {
+            "group": "Comment",
+            "draws": "Votes, Reply and the ··· menu",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "review": {
+            "group": "Comment",
+            "draws": "A moderator’s review box on a held or reported comment",
+            "context": "`moderation`, the comment’s moderation details, with the comment’s context"
+        },
+        "placeholder": {
+            "group": "Comment",
+            "draws": "What stands in for a comment that’s no longer shown but still has replies",
+            "context": "`comment`, `permissions`, `viewer`, `conversation` and `actions`"
+        },
+        "join": {
+            "group": "Editor",
+            "draws": "The sign-in card a guest sees in place of the comment box",
+            "context": "`viewer`, `conversation` and `state`"
+        },
+        "postingAs": {
+            "group": "Editor",
+            "draws": "“Posting as” and the member’s badges, above a member’s comment box",
+            "context": "`viewer`"
+        },
+        "formFields": {
+            "group": "Editor",
+            "draws": "The custom fields the form asks for, once for those above the text and once for those below it",
+            "context": "`fields`, the descriptions of the fields in this group, and `position`, `above` or `below`"
+        }
+    },
+    "eventGroups": {
+        "comments:mounted": "Lifecycle",
+        "comments:destroyed": "Lifecycle",
+        "comments:before-render": "Lifecycle",
+        "comments:viewer-loaded": "Lifecycle",
+        "comments:roots-loaded": "Lifecycle",
+        "comments:replies-loaded": "Lifecycle",
+        "comments:sorted": "Lifecycle",
+        "comments:request-start": "Requests",
+        "comments:request-end": "Requests",
+        "comments:request-error": "Requests",
+        "comments:before-submit": "Editor",
+        "comments:editor-opened": "Editor",
+        "comments:editor-closed": "Editor",
+        "comments:before-action": "Comment changes",
+        "comments:comment-created": "Comment changes",
+        "comments:comment-updated": "Comment changes",
+        "comments:comment-deleted": "Comment changes",
+        "comments:comment-moderated": "Comment changes",
+        "comments:vote-changed": "Comment changes",
+        "comments:report-changed": "Comment changes",
+        "comments:follow-changed": "Comment changes"
+    },
+    "errors": {
+        "validation_failed": "Something posted didn’t pass validation, such as an empty comment or a required field left out. `fieldErrors` says which.",
+        "file_type_not_allowed": "An upload’s type isn’t allowed, or its contents don’t match its extension.",
+        "file_too_large": "An upload is larger than the field or the server allows.",
+        "too_many_files": "More files than a field takes, or a guest’s address has too many uploads waiting to be posted.",
+        "protection_required": "A write arrived without the spam protection evidence it needs, or with a preparation that isn’t valid.",
+        "protection_expired": "The protection preparation ran out or was already used. Core fetches a new one and tries once more by itself.",
+        "protection_unavailable": "The spam protection service couldn’t be reached. Trying again later can work.",
+        "challenge_failed": "The visitor didn’t pass a challenge, such as Turnstile’s. Never retried automatically.",
+        "possible_spam": "Protect judged the comment to be spam. Never retried automatically.",
+        "rate_limited": "Too many requests from one address. `retryAfter` says how many seconds to wait.",
+        "sign_in_required": "The action needs a signed-in member, or a request on another site came without a member token.",
+        "token_expired": "A member token ran out. `memberToken()` fetches the next one and tries once more.",
+        "token_revoked": "A member token was revoked or isn’t known, or its member changed their password since it was minted.",
+        "session_expired": "A guest’s session token ran out, changed or moved. The sign-in provider starts a new session and tries once more.",
+        "origin_not_allowed": "The request’s origin doesn’t fit its profile, or isn’t listed in **Other Sites** with what it needs.",
+        "csrf_failed": "A cookie sign-in’s write came without a valid CSRF token. `cookieSession()` reads a new token and tries once more.",
+        "signature_invalid": "A signed `member-token` or `revoke-member-tokens` request from a site’s own server has a missing, wrong, old or repeated signature.",
+        "user_not_eligible": "A `member-token` request named a user who can’t have one, such as a suspended or unknown user.",
+        "forbidden": "The person can’t do this to this comment, such as voting where voting is off or editing someone else’s comment.",
+        "blocked": "The person is blocked from taking part.",
+        "closed": "The thread is closed to new comments.",
+        "edit_window_passed": "The comment can no longer be edited or deleted by its author.",
+        "not_found": "The owner, comment or thread doesn’t exist or isn’t public, or has comments turned off.",
+        "conflict": "The comment changed since it was loaded. Load it again before saving.",
+        "limit_exceeded": "A request asked for too many items at once.",
+        "invalid_cursor": "A page’s cursor isn’t valid any more, such as after the sort or limit changed. Load the thread again.",
+        "method_not_allowed": "The action was called with the wrong HTTP method.",
+        "unsupported_api_version": "The server and the package read different versions of the JSON format, usually a page left open across an upgrade. Reloading fixes it.",
+        "server_error": "The server failed, or answered with an error page rather than the data API’s JSON.",
+        "network_error": "The request never reached the server, or was abandoned after the timeout.",
+        "invalid_response": "The answer wasn’t the data API’s JSON, such as a proxy’s page or a body without `apiVersion`.",
+        "invalid_request": "The request couldn’t be read, such as a body that isn’t a JSON object or a profile the API doesn’t know."
+    }
+}

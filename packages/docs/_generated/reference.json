@@ -1,0 +1,2410 @@
+{
+    "classes": {
+        "stable": {
+            "comments": "<section> in mountPoint",
+            "comments__action": "<button> in member",
+            "comments__actions": "<div> in member",
+            "comments__author": "<div> in member",
+            "comments__author-name": "<span> in member",
+            "comments__author-score": "<span> in folded",
+            "comments__author-score--negative": "<span> in folded",
+            "comments__author-score--positive": "<span> in folded",
+            "comments__avatar": "<span> in member",
+            "comments__avatar--guest": "<span> in guest",
+            "comments__avatar--initials": "<span> in member",
+            "comments__badge": "<span> in member",
+            "comments__badge--*": "<span> in member",
+            "comments__button": "<button> in member",
+            "comments__button--primary": "<button> in member",
+            "comments__button--quiet": "<button> in member",
+            "comments__button--secondary": "<button> in member",
+            "comments__cancel": "<button> in member",
+            "comments__checkbox": "<input> in member",
+            "comments__closed-notice": "<p> in closed",
+            "comments__comment": "<li> in member",
+            "comments__comment--held": "<li> in moderator",
+            "comments__comment--highlight": "<li> in member",
+            "comments__comment--pending": "<li> in member",
+            "comments__comment--reported": "<li> in moderator",
+            "comments__content": "<div> in member",
+            "comments__content-plain": "<p> in member",
+            "comments__content-rich": "<div> in member",
+            "comments__count": "<span> in member",
+            "comments__date": "<time> in member",
+            "comments__edited": "<span> in member",
+            "comments__editor": "<form> in member",
+            "comments__editor--create": "<form> in member",
+            "comments__editor--edit": "<form> in memberEdit",
+            "comments__editor--reply": "<form> in member",
+            "comments__empty": "<div> in empty",
+            "comments__field": "<div> in member",
+            "comments__field-error": "<p> in formStates",
+            "comments__field-file": "<a> in member",
+            "comments__field-file--image": "<a> in member",
+            "comments__field-files": "<span> in member",
+            "comments__field-label": "<label> in member",
+            "comments__field-link": "<a> in member",
+            "comments__field-thumb": "<img> in member",
+            "comments__field-value": "<div> in member",
+            "comments__field-value--*": "<span> in member",
+            "comments__fields": "<dl> in member",
+            "comments__folded": "<div> in folded",
+            "comments__folded-label": "<p> in folded",
+            "comments__folded-show": "<button> in folded",
+            "comments__follow": "<button> in member",
+            "comments__form-error": "<p> in member",
+            "comments__frame": "<div> in member",
+            "comments__frame--fields": "<div> in member",
+            "comments__gif": "<img> in member",
+            "comments__gif--portrait": "<img> in member",
+            "comments__gif-attribution": "<p> in gifs",
+            "comments__gif-button": "<button> in gifs",
+            "comments__gif-picker": "<div> in gifs",
+            "comments__gif-preview": "<figure> in gifs",
+            "comments__gif-remove": "<button> in gifs",
+            "comments__gif-result": "<button> in gifs",
+            "comments__gif-results": "<div> in gifs",
+            "comments__gif-search": "<input> in gifs",
+            "comments__guest-fields": "<fieldset> in guest",
+            "comments__header": "<header> in member",
+            "comments__heading": "<h2> in mountPoint",
+            "comments__icon": "<svg> in member",
+            "comments__icon--*": "<svg> in member",
+            "comments__input": "<input> in member",
+            "comments__join": "<section> in guest",
+            "comments__join-actions": "<div> in guest",
+            "comments__join-guest": "<details> in guest",
+            "comments__join-text": "<p> in guest",
+            "comments__join-title": "<h3> in guest",
+            "comments__link": "<a> in member",
+            "comments__list": "<ol> in member",
+            "comments__live": "<div> in member",
+            "comments__load-error": "<div> in error",
+            "comments__load-more": "<div> in member",
+            "comments__load-more-button": "<button> in member",
+            "comments__loading": "<p> in waiting",
+            "comments__menu": "<details> in member",
+            "comments__menu-item": "<button> in member",
+            "comments__menu-item--danger": "<button> in member",
+            "comments__menu-items": "<div> in member",
+            "comments__menu-toggle": "<summary> in member",
+            "comments__meta-item": "<span> in member",
+            "comments__moderation-actions": "<div> in moderator",
+            "comments__moderator-bar": "<div> in moderator",
+            "comments__permalink": "<a> in member",
+            "comments__placeholder": "<p> in member",
+            "comments__posting-as": "<p> in member",
+            "comments__radio": "<input> in member",
+            "comments__replies": "<div> in member",
+            "comments__replies-list": "<ol> in member",
+            "comments__report-dialog": "<dialog> in member",
+            "comments__report-form": "<form> in member",
+            "comments__report-reason": "<label> in member",
+            "comments__retry": "<button> in error",
+            "comments__review": "<div> in member",
+            "comments__review-label": "<p> in member",
+            "comments__score": "<span> in moderator",
+            "comments__select": "<select> in member",
+            "comments__show-comments": "<div> in button",
+            "comments__show-comments-button": "<button> in button",
+            "comments__sort": "<nav> in member",
+            "comments__sort-option": "<button> in member",
+            "comments__submit": "<button> in member",
+            "comments__textarea": "<textarea> in member",
+            "comments__toast": "<div> in member",
+            "comments__toggle-replies": "<button> in member",
+            "comments__upload": "<li> in fileTray",
+            "comments__upload--file": "<li> in fileTray",
+            "comments__upload--image": "<li> in fileTray",
+            "comments__upload-add": "<button> in member",
+            "comments__upload-remove": "<button> in fileTray",
+            "comments__upload-retry": "<button> in fileTray",
+            "comments__uploads": "<ul> in fileTray",
+            "comments__visually-hidden": "<span> in member",
+            "comments__vote": "<button> in member",
+            "comments__vote--down": "<button> in moderator",
+            "comments__vote--up": "<button> in member",
+            "comments__vote-count": "<span> in member"
+        },
+        "internal": {
+            "comments--reserve-*": "<section> in mountPoint",
+            "comments__author-meta": "<div> in member",
+            "comments__contextual-editor": "<div> in member",
+            "comments__editor-fields": "<div> in member",
+            "comments__editor-fields--above": "<div> in member",
+            "comments__editor-row": "<div> in member",
+            "comments__field--checkbox": "<label> in member",
+            "comments__field--files": "<div> in member",
+            "comments__field-cell": "<div> in member",
+            "comments__field-custom": "<div> in member",
+            "comments__field-hint": "<span> in guest",
+            "comments__field-instructions": "<p> in member",
+            "comments__field-name": "<dt> in member",
+            "comments__field-required": "<span> in member",
+            "comments__field-text": "<dd> in member",
+            "comments__follow-form": "<form> in member",
+            "comments__frame-box": "<div> in member",
+            "comments__frame-count": "<span> in member",
+            "comments__frame-count--bad": "<span> in formStates",
+            "comments__frame-count--warn": "<span> in formStates",
+            "comments__frame-foot": "<div> in member",
+            "comments__frame-head": "<div> in member",
+            "comments__frame-icon": "<svg> in member",
+            "comments__frame-link": "<button> in formStates",
+            "comments__frame-meta": "<span> in member",
+            "comments__frame-notice": "<div> in member",
+            "comments__frame-notice-text": "<span> in formStates",
+            "comments__frame-reply": "<p> in member",
+            "comments__frame-reply-cancel": "<button> in member",
+            "comments__frame-reply-text": "<span> in member",
+            "comments__frame-status": "<span> in member",
+            "comments__frame-status--bad": "<span> in formStates",
+            "comments__frame-status--faded": "<span> in formStates",
+            "comments__frame-status-text": "<span> in formStates",
+            "comments__gif-area": "<div> in gifs",
+            "comments__gif-cell": "<div> in gifs",
+            "comments__gif-preview-image": "<img> in gifs",
+            "comments__gif-result-image": "<img> in gifs",
+            "comments__gif-status": "<p> in gifs",
+            "comments__header-main": "<div> in member",
+            "comments__interactions": "<div> in member",
+            "comments__join-follow": "<details> in guest",
+            "comments__label": "<legend> in member",
+            "comments__menu-group": "<div> in moderator",
+            "comments__menu-heading": "<span> in moderator",
+            "comments__moderator-bar-actions": "<div> in moderator",
+            "comments__noscript": "<p> in mountPoint",
+            "comments__report-actions": "<div> in member",
+            "comments__report-close": "<button> in member",
+            "comments__report-fields": "<fieldset> in member",
+            "comments__report-header": "<div> in member",
+            "comments__report-quote": "<blockquote> in member",
+            "comments__report-reason-description": "<span> in member",
+            "comments__report-reason-label": "<span> in member",
+            "comments__report-title": "<h3> in member",
+            "comments__ring-bg": "<circle> in formStates",
+            "comments__ring-fg": "<circle> in formStates",
+            "comments__submit-icon": "<svg> in member",
+            "comments__submit-keys": "<kbd> in member",
+            "comments__submit-label": "<span> in member",
+            "comments__switch": "<input> in member",
+            "comments__textarea-fallback": "<textarea> in member",
+            "comments__upload--done": "<li> in fileTray",
+            "comments__upload--failed": "<li> in fileTray",
+            "comments__upload--uploading": "<li> in fileTray",
+            "comments__upload-icon": "<span> in fileTray",
+            "comments__upload-limit": "<span> in fileTray",
+            "comments__upload-meta": "<span> in fileTray",
+            "comments__upload-name": "<span> in fileTray",
+            "comments__upload-row": "<div> in member",
+            "comments__upload-text": "<span> in fileTray",
+            "comments__upload-thumb": "<img> in fileTray",
+            "comments__vote-label": "<span> in member",
+            "comments__vote-total": "<span> in closed",
+            "verbb-editor__button": "<button> in member"
+        },
+        "attributes": {
+            "public": {
+                "data-comments-action": "<button> in member",
+                "data-comments-adapter": "on the mount point",
+                "data-comments-auto-mount": "on the mount point",
+                "data-comments-control": "<button> in member",
+                "data-comments-phase": "on the mount point",
+                "data-comments-root": "<section> in mountPoint",
+                "data-comments-state": "<li> in member",
+                "data-comments-theme": "on the mount point"
+            },
+            "internal": {
+                "data-comments-api-version": "on the mount point",
+                "data-comments-body": "<textarea> in member",
+                "data-comments-collapsed": "<div> in member",
+                "data-comments-collapsible": "<form> in member",
+                "data-comments-comment": "<li> in member",
+                "data-comments-comment-uid": "<li> in member",
+                "data-comments-config": "on the mount point",
+                "data-comments-count": "on the mount point",
+                "data-comments-depth": "<li> in member",
+                "data-comments-endpoint": "on the mount point",
+                "data-comments-field": "<input> in member",
+                "data-comments-folded": "<div> in folded",
+                "data-comments-form": "<form> in member",
+                "data-comments-gif-action": "<button> in gifs",
+                "data-comments-gif-index": "<button> in gifs",
+                "data-comments-gif-search": "<input> in gifs",
+                "data-comments-host": "on a component override’s host",
+                "data-comments-host-kind": "on a component override’s host",
+                "data-comments-host-name": "on a component override’s host",
+                "data-comments-interaction-mode": "<div> in member",
+                "data-comments-js": "on the mount point",
+                "data-comments-labels": "on the mount point",
+                "data-comments-load-mode": "on the mount point",
+                "data-comments-moderation-action": "<button> in moderator",
+                "data-comments-owner-id": "on the mount point",
+                "data-comments-placeholder": "<span> in waiting",
+                "data-comments-region": "<div> in member",
+                "data-comments-replies": "<div> in member",
+                "data-comments-report-dialog": "<dialog> in member",
+                "data-comments-root-uid": "<div> in member",
+                "data-comments-site-id": "on the mount point",
+                "data-comments-slot": "<p> in member",
+                "data-comments-sort": "<button> in member",
+                "data-comments-state-badge": "<div> in member",
+                "data-comments-upload": "<button> in fileTray",
+                "data-comments-upload-action": "<button> in member",
+                "data-comments-upload-field": "<button> in member",
+                "data-comments-upload-input": "<input> in member",
+                "data-comments-visual-depth": "<li> in member",
+                "data-comments-vote": "<button> in member",
+                "data-comments-width": "<div> in member"
+            }
+        },
+        "lists": {
+            "stable": [
+                "comments",
+                "comments__header",
+                "comments__heading",
+                "comments__count",
+                "comments__sort",
+                "comments__sort-option",
+                "comments__moderator-bar",
+                "comments__follow",
+                "comments__list",
+                "comments__comment",
+                "comments__comment--held",
+                "comments__comment--pending",
+                "comments__comment--reported",
+                "comments__comment--highlight",
+                "comments__author",
+                "comments__avatar",
+                "comments__avatar--initials",
+                "comments__avatar--guest",
+                "comments__author-name",
+                "comments__author-score",
+                "comments__author-score--positive",
+                "comments__author-score--negative",
+                "comments__badge",
+                "comments__badge--*",
+                "comments__permalink",
+                "comments__date",
+                "comments__edited",
+                "comments__meta-item",
+                "comments__content",
+                "comments__content-plain",
+                "comments__content-rich",
+                "comments__gif",
+                "comments__gif--portrait",
+                "comments__folded",
+                "comments__folded-label",
+                "comments__folded-show",
+                "comments__fields",
+                "comments__field-value",
+                "comments__field-value--*",
+                "comments__field-link",
+                "comments__field-files",
+                "comments__field-file",
+                "comments__field-file--image",
+                "comments__field-thumb",
+                "comments__uploads",
+                "comments__upload",
+                "comments__upload--image",
+                "comments__upload--file",
+                "comments__upload-add",
+                "comments__upload-remove",
+                "comments__upload-retry",
+                "comments__actions",
+                "comments__vote",
+                "comments__vote--up",
+                "comments__vote--down",
+                "comments__vote-count",
+                "comments__score",
+                "comments__action",
+                "comments__menu",
+                "comments__menu-toggle",
+                "comments__menu-items",
+                "comments__menu-item",
+                "comments__menu-item--danger",
+                "comments__review",
+                "comments__review-label",
+                "comments__moderation-actions",
+                "comments__placeholder",
+                "comments__replies",
+                "comments__replies-list",
+                "comments__toggle-replies",
+                "comments__load-more",
+                "comments__load-more-button",
+                "comments__show-comments",
+                "comments__show-comments-button",
+                "comments__load-error",
+                "comments__retry",
+                "comments__editor",
+                "comments__editor--create",
+                "comments__editor--reply",
+                "comments__editor--edit",
+                "comments__frame",
+                "comments__frame--fields",
+                "comments__posting-as",
+                "comments__guest-fields",
+                "comments__field",
+                "comments__field-label",
+                "comments__field-error",
+                "comments__form-error",
+                "comments__submit",
+                "comments__cancel",
+                "comments__gif-button",
+                "comments__gif-preview",
+                "comments__gif-remove",
+                "comments__gif-picker",
+                "comments__gif-search",
+                "comments__gif-results",
+                "comments__gif-result",
+                "comments__gif-attribution",
+                "comments__button",
+                "comments__button--primary",
+                "comments__button--secondary",
+                "comments__button--quiet",
+                "comments__input",
+                "comments__textarea",
+                "comments__select",
+                "comments__checkbox",
+                "comments__radio",
+                "comments__link",
+                "comments__join",
+                "comments__join-title",
+                "comments__join-text",
+                "comments__join-actions",
+                "comments__join-guest",
+                "comments__empty",
+                "comments__closed-notice",
+                "comments__loading",
+                "comments__toast",
+                "comments__report-dialog",
+                "comments__report-form",
+                "comments__report-reason",
+                "comments__icon",
+                "comments__icon--*",
+                "comments__live",
+                "comments__visually-hidden"
+            ],
+            "internal": [
+                "comments__author-meta",
+                "comments__interactions",
+                "comments__vote-label",
+                "comments__vote-total",
+                "comments__menu-group",
+                "comments__menu-heading",
+                "comments__contextual-editor",
+                "comments__header-main",
+                "comments__moderator-bar-actions",
+                "comments__follow-form",
+                "comments__editor-row",
+                "comments__editor-fields",
+                "comments__editor-fields--above",
+                "comments__field-cell",
+                "comments__upload-row",
+                "comments__upload-limit",
+                "comments__frame-box",
+                "comments__textarea-fallback",
+                "comments__frame-head",
+                "comments__frame-foot",
+                "comments__frame-meta",
+                "comments__frame-status",
+                "comments__frame-status-text",
+                "comments__frame-count",
+                "comments__frame-icon",
+                "comments__frame-reply",
+                "comments__frame-reply-text",
+                "comments__frame-reply-cancel",
+                "comments__frame-notice",
+                "comments__frame-notice-text",
+                "comments__frame-link",
+                "comments__submit-label",
+                "comments__submit-keys",
+                "comments__submit-icon",
+                "comments__ring-bg",
+                "comments__ring-fg",
+                "comments__field--files",
+                "comments__upload-thumb",
+                "comments__upload-icon",
+                "comments__upload-text",
+                "comments__upload-name",
+                "comments__upload-meta",
+                "comments__field--checkbox",
+                "comments__field-required",
+                "comments__switch",
+                "comments__field-custom",
+                "comments__field-instructions",
+                "comments__field-hint",
+                "comments__field-name",
+                "comments__field-text",
+                "comments__label",
+                "comments__join-follow",
+                "comments__report-header",
+                "comments__report-title",
+                "comments__report-close",
+                "comments__report-quote",
+                "comments__report-fields",
+                "comments__report-reason-label",
+                "comments__report-reason-description",
+                "comments__report-actions",
+                "comments--reserve-*",
+                "comments__noscript",
+                "verbb-editor__button",
+                "comments__frame-count--warn",
+                "comments__frame-count--bad",
+                "comments__frame-status--bad",
+                "comments__frame-status--faded",
+                "comments__upload--uploading",
+                "comments__upload--failed",
+                "comments__upload--done",
+                "comments__gif-area",
+                "comments__gif-preview-image",
+                "comments__gif-cell",
+                "comments__gif-result-image",
+                "comments__gif-status"
+            ]
+        }
+    },
+    "controls": [
+        {
+            "name": "primaryButton",
+            "styleClasses": [
+                "comments__button",
+                "comments__button--primary"
+            ]
+        },
+        {
+            "name": "secondaryButton",
+            "styleClasses": [
+                "comments__button",
+                "comments__button--secondary"
+            ]
+        },
+        {
+            "name": "quietButton",
+            "styleClasses": [
+                "comments__button",
+                "comments__button--quiet"
+            ]
+        },
+        {
+            "name": "input",
+            "styleClasses": [
+                "comments__input"
+            ]
+        },
+        {
+            "name": "textarea",
+            "styleClasses": [
+                "comments__textarea"
+            ]
+        },
+        {
+            "name": "select",
+            "styleClasses": [
+                "comments__select"
+            ]
+        },
+        {
+            "name": "checkbox",
+            "styleClasses": [
+                "comments__checkbox"
+            ]
+        },
+        {
+            "name": "radio",
+            "styleClasses": [
+                "comments__radio"
+            ]
+        },
+        {
+            "name": "link",
+            "styleClasses": [
+                "comments__link"
+            ]
+        },
+        {
+            "name": "avatar",
+            "styleClasses": [
+                "comments__avatar"
+            ]
+        }
+    ],
+    "allowedAttributes": "/^(class|title|aria-label|data-(?!comments-)[a-z0-9]+(-[a-z0-9]+)*)$/",
+    "parts": {
+        "names": [
+            "header",
+            "empty",
+            "showButton",
+            "loading",
+            "notice",
+            "comment",
+            "avatar",
+            "authorName",
+            "badge",
+            "meta",
+            "content",
+            "fields",
+            "actions",
+            "review",
+            "placeholder",
+            "join",
+            "postingAs",
+            "formFields"
+        ],
+        "core": [
+            "header",
+            "empty",
+            "showButton",
+            "loading",
+            "notice",
+            "comment",
+            "avatar",
+            "authorName",
+            "badge",
+            "meta",
+            "content",
+            "fields",
+            "actions",
+            "review",
+            "placeholder",
+            "join",
+            "postingAs",
+            "formFields"
+        ]
+    },
+    "tokens": {
+        "public": [
+            {
+                "name": "--comments-avatar-size",
+                "light": "2.25rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-accent",
+                "light": "#0b57d0",
+                "dark": "#8ab4f8",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-avatar-0",
+                "light": "#3b6ea5",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-1",
+                "light": "#8a5a2b",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-2",
+                "light": "#2f7d4f",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-3",
+                "light": "#8a3f7d",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-4",
+                "light": "#b0532a",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-5",
+                "light": "#237a7a",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-6",
+                "light": "#5a4fa3",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-avatar-7",
+                "light": "#6b7a2a",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-border",
+                "light": "#d6d9dd",
+                "dark": "#43484f",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-control-border",
+                "light": "#8b9198",
+                "dark": "#70767e",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-danger",
+                "light": "#b3261e",
+                "dark": "#f2b8b5",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-focus",
+                "light": "#0b57d0",
+                "dark": "#8ab4f8",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-held-border",
+                "light": "#f2d39b",
+                "dark": "#6b5428",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-held-surface",
+                "light": "#fff8eb",
+                "dark": "#33291a",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-held-text",
+                "light": "#8a5300",
+                "dark": "#f3c77a",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-like",
+                "light": "#c4314b",
+                "dark": "#ff8a9e",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-link",
+                "light": "#0b57d0",
+                "dark": "#8ab4f8",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-muted",
+                "light": "#5a6068",
+                "dark": "#b4b9c0",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-on-accent",
+                "light": "#fff",
+                "dark": "#10223f",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-on-avatar",
+                "light": "#fff",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-on-toast",
+                "light": "#fff",
+                "dark": "#17191c",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-panel",
+                "light": null,
+                "dark": "#17191c",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-reported-border",
+                "light": "#f5c2bd",
+                "dark": "#74403b",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-reported-surface",
+                "light": "#fff1f0",
+                "dark": "#3a2422",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-reported-text",
+                "light": "#a8322a",
+                "dark": "#f2a8a1",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-scrim",
+                "light": "rgb(0 0 0 / 45%)",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-color-success",
+                "light": "#146c2e",
+                "dark": "#7dd99b",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-surface",
+                "light": "#fff",
+                "dark": "#1f2226",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-surface-muted",
+                "light": "#f5f6f7",
+                "dark": "#2a2e33",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-text",
+                "light": "#1f2328",
+                "dark": "#eceef0",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-toast",
+                "light": "#1f2328",
+                "dark": "#eceef0",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-toast-danger",
+                "light": "#ff9a93",
+                "dark": "#b3261e",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-toast-success",
+                "light": "#7dd99b",
+                "dark": "#146c2e",
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": true
+            },
+            {
+                "name": "--comments-color-warning",
+                "light": "#a85d00",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-control-size",
+                "light": "2.25rem",
+                "dark": null,
+                "other": [
+                    {
+                        "context": "@media (pointer: coarse)",
+                        "value": "2.75rem"
+                    }
+                ],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-font-family",
+                "light": "inherit",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-font-size",
+                "light": "1rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-gif-max-size",
+                "light": "15rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-line-height",
+                "light": "1.5",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-radius",
+                "light": "0.5rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-reserve",
+                "light": null,
+                "dark": null,
+                "other": [],
+                "declaredIn": null,
+                "usedWithFallback": "10rem",
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-space-1",
+                "light": "0.25rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-space-2",
+                "light": "0.5rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-space-3",
+                "light": "0.75rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-space-4",
+                "light": "1rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-space-5",
+                "light": "1.5rem",
+                "dark": null,
+                "other": [],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": false,
+                "autoMatchesDark": null
+            },
+            {
+                "name": "--comments-thread-indent",
+                "light": "0.875rem",
+                "dark": null,
+                "other": [
+                    {
+                        "context": "@media (max-width: 40rem)",
+                        "value": "0.75rem"
+                    }
+                ],
+                "declaredIn": "packages/comments-browser/src/css/comments-theme.css",
+                "usedWithFallback": null,
+                "used": true,
+                "autoMatchesDark": null
+            }
+        ],
+        "internal": [
+            "--_comments-tint-border",
+            "--_comments-toast-icon"
+        ]
+    },
+    "events": {
+        "shared": [
+            "apiVersion",
+            "root",
+            "instanceId",
+            "conversationUid",
+            "controller",
+            "source"
+        ],
+        "events": [
+            {
+                "name": "comments:mounted",
+                "listed": true,
+                "browser": [],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onMounted",
+                "vueEvent": "mounted"
+            },
+            {
+                "name": "comments:destroyed",
+                "listed": true,
+                "browser": [],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onDestroyed",
+                "vueEvent": "destroyed"
+            },
+            {
+                "name": "comments:before-render",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    },
+                    {
+                        "name": "data",
+                        "optional": false
+                    }
+                ],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": true,
+                "reactProp": "onBeforeRender",
+                "vueEvent": "before-render"
+            },
+            {
+                "name": "comments:before-action",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "action",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": true,
+                "reactProp": "onBeforeAction",
+                "vueEvent": "before-action"
+            },
+            {
+                "name": "comments:before-submit",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "form",
+                        "optional": false
+                    },
+                    {
+                        "name": "mode",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "formData",
+                        "optional": false
+                    }
+                ],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": true,
+                "reactProp": "onBeforeSubmit",
+                "vueEvent": "before-submit"
+            },
+            {
+                "name": "comments:request-start",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onRequestStart",
+                "vueEvent": "request-start"
+            },
+            {
+                "name": "comments:request-end",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onRequestEnd",
+                "vueEvent": "request-end"
+            },
+            {
+                "name": "comments:request-error",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "message",
+                        "optional": false
+                    },
+                    {
+                        "name": "reason",
+                        "optional": true
+                    },
+                    {
+                        "name": "category",
+                        "optional": true
+                    },
+                    {
+                        "name": "code",
+                        "optional": true
+                    },
+                    {
+                        "name": "fieldErrors",
+                        "optional": true
+                    },
+                    {
+                        "name": "recoverable",
+                        "optional": true
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    },
+                    {
+                        "name": "message",
+                        "optional": false
+                    },
+                    {
+                        "name": "category",
+                        "optional": true
+                    },
+                    {
+                        "name": "code",
+                        "optional": true
+                    },
+                    {
+                        "name": "fieldErrors",
+                        "optional": true
+                    },
+                    {
+                        "name": "recoverable",
+                        "optional": true
+                    },
+                    {
+                        "name": "error",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [
+                    "error"
+                ],
+                "cancelable": false,
+                "reactProp": "onRequestError",
+                "vueEvent": "request-error"
+            },
+            {
+                "name": "comments:viewer-loaded",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "viewer",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "viewer",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onViewerLoaded",
+                "vueEvent": "viewer-loaded"
+            },
+            {
+                "name": "comments:roots-loaded",
+                "listed": true,
+                "browser": [],
+                "store": [
+                    {
+                        "name": "cursor",
+                        "optional": false
+                    },
+                    {
+                        "name": "count",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [
+                    "cursor",
+                    "count"
+                ],
+                "cancelable": false,
+                "reactProp": "onRootsLoaded",
+                "vueEvent": "roots-loaded"
+            },
+            {
+                "name": "comments:replies-loaded",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "count",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [
+                    "count"
+                ],
+                "cancelable": false,
+                "reactProp": "onRepliesLoaded",
+                "vueEvent": "replies-loaded"
+            },
+            {
+                "name": "comments:sorted",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "sort",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "sort",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onSorted",
+                "vueEvent": "sorted"
+            },
+            {
+                "name": "comments:editor-opened",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "mode",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onEditorOpened",
+                "vueEvent": "editor-opened"
+            },
+            {
+                "name": "comments:editor-closed",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "reason",
+                        "optional": false
+                    }
+                ],
+                "store": null,
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onEditorClosed",
+                "vueEvent": "editor-closed"
+            },
+            {
+                "name": "comments:comment-created",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "moderationState",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "parentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "moderationState",
+                        "optional": false
+                    },
+                    {
+                        "name": "replayed",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [
+                    "parentUid",
+                    "replayed"
+                ],
+                "cancelable": false,
+                "reactProp": "onCommentCreated",
+                "vueEvent": "comment-created"
+            },
+            {
+                "name": "comments:comment-updated",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onCommentUpdated",
+                "vueEvent": "comment-updated"
+            },
+            {
+                "name": "comments:comment-deleted",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onCommentDeleted",
+                "vueEvent": "comment-deleted"
+            },
+            {
+                "name": "comments:comment-moderated",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "moderationAction",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "moderationAction",
+                        "optional": false
+                    },
+                    {
+                        "name": "state",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [
+                    "state"
+                ],
+                "cancelable": false,
+                "reactProp": "onCommentModerated",
+                "vueEvent": "comment-moderated"
+            },
+            {
+                "name": "comments:vote-changed",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "vote",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "vote",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onVoteChanged",
+                "vueEvent": "vote-changed"
+            },
+            {
+                "name": "comments:report-changed",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "reported",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "commentUid",
+                        "optional": false
+                    },
+                    {
+                        "name": "commentId",
+                        "optional": false
+                    },
+                    {
+                        "name": "reported",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onReportChanged",
+                "vueEvent": "report-changed"
+            },
+            {
+                "name": "comments:follow-changed",
+                "listed": true,
+                "browser": [
+                    {
+                        "name": "following",
+                        "optional": false
+                    }
+                ],
+                "store": [
+                    {
+                        "name": "following",
+                        "optional": false
+                    }
+                ],
+                "storeOnly": [],
+                "cancelable": false,
+                "reactProp": "onFollowChanged",
+                "vueEvent": "follow-changed"
+            }
+        ]
+    },
+    "errors": [
+        {
+            "code": "validation_failed",
+            "category": "validation",
+            "status": 422
+        },
+        {
+            "code": "file_type_not_allowed",
+            "category": "validation",
+            "status": 422
+        },
+        {
+            "code": "file_too_large",
+            "category": "validation",
+            "status": 422
+        },
+        {
+            "code": "too_many_files",
+            "category": "validation",
+            "status": 422
+        },
+        {
+            "code": "protection_required",
+            "category": "protection",
+            "status": 422
+        },
+        {
+            "code": "protection_expired",
+            "category": "protection",
+            "status": 422
+        },
+        {
+            "code": "protection_unavailable",
+            "category": "protection",
+            "status": 503
+        },
+        {
+            "code": "challenge_failed",
+            "category": "protection",
+            "status": 422
+        },
+        {
+            "code": "possible_spam",
+            "category": "protection",
+            "status": 422
+        },
+        {
+            "code": "rate_limited",
+            "category": "rate",
+            "status": 429
+        },
+        {
+            "code": "sign_in_required",
+            "category": "auth",
+            "status": 401
+        },
+        {
+            "code": "token_expired",
+            "category": "auth",
+            "status": 401
+        },
+        {
+            "code": "token_revoked",
+            "category": "auth",
+            "status": 401
+        },
+        {
+            "code": "session_expired",
+            "category": "auth",
+            "status": 401
+        },
+        {
+            "code": "origin_not_allowed",
+            "category": "auth",
+            "status": 403
+        },
+        {
+            "code": "csrf_failed",
+            "category": "auth",
+            "status": 403
+        },
+        {
+            "code": "signature_invalid",
+            "category": "auth",
+            "status": 401
+        },
+        {
+            "code": "user_not_eligible",
+            "category": "auth",
+            "status": 403
+        },
+        {
+            "code": "forbidden",
+            "category": "policy",
+            "status": 403
+        },
+        {
+            "code": "blocked",
+            "category": "policy",
+            "status": 403
+        },
+        {
+            "code": "closed",
+            "category": "policy",
+            "status": 403
+        },
+        {
+            "code": "edit_window_passed",
+            "category": "policy",
+            "status": 403
+        },
+        {
+            "code": "not_found",
+            "category": "state",
+            "status": 404
+        },
+        {
+            "code": "conflict",
+            "category": "state",
+            "status": 409
+        },
+        {
+            "code": "limit_exceeded",
+            "category": "request",
+            "status": 400
+        },
+        {
+            "code": "invalid_cursor",
+            "category": "request",
+            "status": 400
+        },
+        {
+            "code": "method_not_allowed",
+            "category": "request",
+            "status": 405
+        },
+        {
+            "code": "unsupported_api_version",
+            "category": "request",
+            "status": 400
+        },
+        {
+            "code": "server_error",
+            "category": "server",
+            "status": 500
+        },
+        {
+            "code": "network_error",
+            "category": "network",
+            "status": 0
+        },
+        {
+            "code": "invalid_response",
+            "category": "server",
+            "status": 0
+        },
+        {
+            "code": "invalid_request",
+            "category": "request",
+            "status": 400
+        }
+    ],
+    "labels": [
+        {
+            "key": "commentCountOne",
+            "text": "1 comment",
+            "translatable": true
+        },
+        {
+            "key": "commentCountOther",
+            "text": "{count} comments",
+            "translatable": true
+        },
+        {
+            "key": "showComments",
+            "text": "Show comments",
+            "translatable": true
+        },
+        {
+            "key": "showCommentsCount",
+            "text": "Show comments ({count})",
+            "translatable": true
+        },
+        {
+            "key": "loading",
+            "text": "Loading comments…",
+            "translatable": true
+        },
+        {
+            "key": "loadMore",
+            "text": "Load more comments",
+            "translatable": true
+        },
+        {
+            "key": "empty",
+            "text": "No comments yet.",
+            "translatable": true
+        },
+        {
+            "key": "beFirst",
+            "text": "Be the first to comment.",
+            "translatable": true
+        },
+        {
+            "key": "closed",
+            "text": "Comments are closed.",
+            "translatable": true
+        },
+        {
+            "key": "sortLabel",
+            "text": "Sort comments",
+            "translatable": true
+        },
+        {
+            "key": "sortNewest",
+            "text": "Newest",
+            "translatable": true
+        },
+        {
+            "key": "sortOldest",
+            "text": "Oldest",
+            "translatable": true
+        },
+        {
+            "key": "sortTop",
+            "text": "Top",
+            "translatable": true
+        },
+        {
+            "key": "reply",
+            "text": "Reply",
+            "translatable": true
+        },
+        {
+            "key": "replyTo",
+            "text": "Reply to {name}…",
+            "translatable": true
+        },
+        {
+            "key": "replyingTo",
+            "text": "Replying to {name}",
+            "translatable": true
+        },
+        {
+            "key": "cancelReply",
+            "text": "Cancel reply",
+            "translatable": true
+        },
+        {
+            "key": "cancel",
+            "text": "Cancel",
+            "translatable": true
+        },
+        {
+            "key": "post",
+            "text": "Post",
+            "translatable": true
+        },
+        {
+            "key": "posting",
+            "text": "Posting…",
+            "translatable": true
+        },
+        {
+            "key": "save",
+            "text": "Save comment",
+            "translatable": true
+        },
+        {
+            "key": "edit",
+            "text": "Edit",
+            "translatable": true
+        },
+        {
+            "key": "edited",
+            "text": "Edited",
+            "translatable": true
+        },
+        {
+            "key": "delete",
+            "text": "Delete",
+            "translatable": true
+        },
+        {
+            "key": "deleteConfirm",
+            "text": "Delete this comment? This can’t be undone.",
+            "translatable": true
+        },
+        {
+            "key": "like",
+            "text": "Like",
+            "translatable": true
+        },
+        {
+            "key": "likes",
+            "text": "Likes",
+            "translatable": true
+        },
+        {
+            "key": "upvote",
+            "text": "Upvote",
+            "translatable": true
+        },
+        {
+            "key": "downvote",
+            "text": "Downvote",
+            "translatable": true
+        },
+        {
+            "key": "score",
+            "text": "Score",
+            "translatable": true
+        },
+        {
+            "key": "report",
+            "text": "Report…",
+            "translatable": true
+        },
+        {
+            "key": "reportTitle",
+            "text": "Report this comment",
+            "translatable": true
+        },
+        {
+            "key": "reportReason",
+            "text": "What’s wrong with it?",
+            "translatable": true
+        },
+        {
+            "key": "reportDetails",
+            "text": "Anything else?",
+            "translatable": true
+        },
+        {
+            "key": "reportDetailsHint",
+            "text": "Optional. Only moderators see this.",
+            "translatable": true
+        },
+        {
+            "key": "sendReport",
+            "text": "Send report",
+            "translatable": true
+        },
+        {
+            "key": "reportSent",
+            "text": "Thanks for reporting this. A moderator will take a look.",
+            "translatable": true
+        },
+        {
+            "key": "reportWithdrawn",
+            "text": "Report withdrawn.",
+            "translatable": true
+        },
+        {
+            "key": "close",
+            "text": "Close",
+            "translatable": true
+        },
+        {
+            "key": "moreActions",
+            "text": "More actions",
+            "translatable": true
+        },
+        {
+            "key": "copyLink",
+            "text": "Copy link",
+            "translatable": true
+        },
+        {
+            "key": "linkCopied",
+            "text": "Link copied.",
+            "translatable": true
+        },
+        {
+            "key": "showReplies",
+            "text": "Show replies",
+            "translatable": true
+        },
+        {
+            "key": "hideReplies",
+            "text": "Hide replies",
+            "translatable": true
+        },
+        {
+            "key": "loadMoreReplies",
+            "text": "Load more replies",
+            "translatable": true
+        },
+        {
+            "key": "guest",
+            "text": "Guest",
+            "translatable": true
+        },
+        {
+            "key": "commentBy",
+            "text": "Comment by {name}",
+            "translatable": true
+        },
+        {
+            "key": "unavailable",
+            "text": "Comment unavailable.",
+            "translatable": true
+        },
+        {
+            "key": "awaitingApproval",
+            "text": "Waiting for approval. Only you can see this until a moderator approves it.",
+            "translatable": true
+        },
+        {
+            "key": "editorPlaceholder",
+            "text": "Add to the conversation…",
+            "translatable": true
+        },
+        {
+            "key": "editPlaceholder",
+            "text": "Edit your comment…",
+            "translatable": true
+        },
+        {
+            "key": "yourComment",
+            "text": "Your comment",
+            "translatable": true
+        },
+        {
+            "key": "writeSomethingFirst",
+            "text": "Write something first.",
+            "translatable": true
+        },
+        {
+            "key": "tooLong",
+            "text": "Too long by {count} characters",
+            "translatable": true
+        },
+        {
+            "key": "charactersLeft",
+            "text": "{count} characters left",
+            "translatable": true
+        },
+        {
+            "key": "characterCount",
+            "text": "{count} of {limit} characters",
+            "translatable": true
+        },
+        {
+            "key": "draftSaved",
+            "text": "Draft saved",
+            "translatable": true
+        },
+        {
+            "key": "draftRestored",
+            "text": "Restored your draft from {time}.",
+            "translatable": true
+        },
+        {
+            "key": "discardConfirm",
+            "text": "Discard what you’ve written?",
+            "translatable": true
+        },
+        {
+            "key": "discard",
+            "text": "Discard",
+            "translatable": true
+        },
+        {
+            "key": "uploadInProgress",
+            "text": "Please wait for your upload to finish.",
+            "translatable": true
+        },
+        {
+            "key": "joinTitle",
+            "text": "Join the conversation",
+            "translatable": true
+        },
+        {
+            "key": "signIn",
+            "text": "Sign in",
+            "translatable": true
+        },
+        {
+            "key": "signInToComment",
+            "text": "Sign in to comment.",
+            "translatable": true
+        },
+        {
+            "key": "signInOrGuest",
+            "text": "Sign in to comment and hear about replies, or post as a guest.",
+            "translatable": true
+        },
+        {
+            "key": "commentAsGuest",
+            "text": "Comment as a guest",
+            "translatable": true
+        },
+        {
+            "key": "postingAs",
+            "text": "Posting as {name}",
+            "translatable": true
+        },
+        {
+            "key": "yourDetails",
+            "text": "Your details",
+            "translatable": true
+        },
+        {
+            "key": "yourName",
+            "text": "Your name",
+            "translatable": true
+        },
+        {
+            "key": "yourEmail",
+            "text": "Your email",
+            "translatable": true
+        },
+        {
+            "key": "notShownPublicly",
+            "text": "Not shown publicly",
+            "translatable": true
+        },
+        {
+            "key": "replyEmails",
+            "text": "Email me when someone replies. We’ll ask you to confirm your address first.",
+            "translatable": true
+        },
+        {
+            "key": "follow",
+            "text": "Follow",
+            "translatable": true
+        },
+        {
+            "key": "following",
+            "text": "Following",
+            "translatable": true
+        },
+        {
+            "key": "followByEmail",
+            "text": "Follow by email",
+            "translatable": true
+        },
+        {
+            "key": "error",
+            "text": "Something went wrong. Please try again.",
+            "translatable": true
+        },
+        {
+            "key": "tryAgain",
+            "text": "Try again",
+            "translatable": true
+        },
+        {
+            "key": "moderator",
+            "text": "Moderator",
+            "translatable": true
+        },
+        {
+            "key": "moderatorView",
+            "text": "Moderator view.",
+            "translatable": true
+        },
+        {
+            "key": "reviewInComments",
+            "text": "Review in Comments",
+            "translatable": true
+        },
+        {
+            "key": "heldCount",
+            "text": "{count} held",
+            "translatable": true
+        },
+        {
+            "key": "reportedCount",
+            "text": "{count} reported",
+            "translatable": true
+        },
+        {
+            "key": "showHeld",
+            "text": "Show held",
+            "translatable": true
+        },
+        {
+            "key": "hideHeld",
+            "text": "Hide held",
+            "translatable": true
+        },
+        {
+            "key": "approve",
+            "text": "Approve",
+            "translatable": true
+        },
+        {
+            "key": "markSpam",
+            "text": "Mark as spam",
+            "translatable": true
+        },
+        {
+            "key": "notSpam",
+            "text": "Not spam",
+            "translatable": true
+        },
+        {
+            "key": "remove",
+            "text": "Remove",
+            "translatable": true
+        },
+        {
+            "key": "restore",
+            "text": "Restore",
+            "translatable": true
+        },
+        {
+            "key": "keep",
+            "text": "Keep",
+            "translatable": true
+        },
+        {
+            "key": "spam",
+            "text": "Spam",
+            "translatable": true
+        },
+        {
+            "key": "gif",
+            "text": "GIF",
+            "translatable": true
+        },
+        {
+            "key": "gifAdd",
+            "text": "Add a GIF",
+            "translatable": true
+        },
+        {
+            "key": "gifSearch",
+            "text": "Search GIPHY",
+            "translatable": true
+        },
+        {
+            "key": "gifResults",
+            "text": "GIFs",
+            "translatable": true
+        },
+        {
+            "key": "gifRemove",
+            "text": "Remove GIF",
+            "translatable": true
+        },
+        {
+            "key": "gifEmpty",
+            "text": "No GIFs found.",
+            "translatable": true
+        },
+        {
+            "key": "gifPoweredBy",
+            "text": "Powered by GIPHY",
+            "translatable": true
+        },
+        {
+            "key": "gifUnavailable",
+            "text": "GIFs can’t be loaded right now.",
+            "translatable": true
+        },
+        {
+            "key": "foldedReports",
+            "text": "Comment marked as inappropriate",
+            "translatable": true
+        },
+        {
+            "key": "foldedDownvotes",
+            "text": "Comment hidden due to low rating",
+            "translatable": true
+        },
+        {
+            "key": "showFolded",
+            "text": "Show comment",
+            "translatable": true
+        },
+        {
+            "key": "authorScore",
+            "text": "Total votes across this user’s comments",
+            "translatable": true
+        },
+        {
+            "key": "comments",
+            "text": "Comments",
+            "translatable": true
+        },
+        {
+            "key": "moderation",
+            "text": "Moderation",
+            "translatable": true
+        },
+        {
+            "key": "onThisPage",
+            "text": "on this page",
+            "translatable": true
+        },
+        {
+            "key": "hold",
+            "text": "Hold",
+            "translatable": true
+        },
+        {
+            "key": "removedNote",
+            "text": "Removed · only moderators see this",
+            "translatable": true
+        },
+        {
+            "key": "chooseOption",
+            "text": "Choose…",
+            "translatable": true
+        },
+        {
+            "key": "addFiles",
+            "text": "Add files",
+            "translatable": true
+        },
+        {
+            "key": "addFile",
+            "text": "Add a file",
+            "translatable": true
+        },
+        {
+            "key": "removeFile",
+            "text": "Remove {name}",
+            "translatable": true
+        },
+        {
+            "key": "retryUpload",
+            "text": "Try {name} again",
+            "translatable": true
+        },
+        {
+            "key": "uploading",
+            "text": "Uploading…",
+            "translatable": true
+        },
+        {
+            "key": "uploaded",
+            "text": "{name} uploaded.",
+            "translatable": true
+        },
+        {
+            "key": "uploadFailed",
+            "text": "{name} didn’t upload.",
+            "translatable": true
+        },
+        {
+            "key": "fileRemoved",
+            "text": "{name} removed.",
+            "translatable": true
+        },
+        {
+            "key": "uploadLimits",
+            "text": "Up to {count} files, {size} each.",
+            "translatable": true
+        },
+        {
+            "key": "uploadLimit",
+            "text": "Up to {size}.",
+            "translatable": true
+        },
+        {
+            "key": "fileTypeNotAllowed",
+            "text": "{name} can’t be added here. Choose {types}.",
+            "translatable": true
+        },
+        {
+            "key": "fileTooLarge",
+            "text": "{name} is larger than {size}.",
+            "translatable": true
+        },
+        {
+            "key": "tooManyFiles",
+            "text": "You can add up to {count} files here.",
+            "translatable": true
+        },
+        {
+            "key": "formFailed",
+            "text": "The comment form couldn’t load. Please try again.",
+            "translatable": false
+        },
+        {
+            "key": "uploadsFailed",
+            "text": "Remove or try again the files that didn’t upload, so nothing is left out.",
+            "translatable": false
+        },
+        {
+            "key": "uploadsUnavailable",
+            "text": "Files can’t be added right now.",
+            "translatable": false
+        }
+    ]
+}

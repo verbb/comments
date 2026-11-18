@@ -31,18 +31,18 @@ A vote is a record with these properties:
 
 Guests' votes aren't connected to a user, so they aren't included. A vote that's been taken back doesn't appear.
 
-To check one comment for the person viewing the page, such as to show a vote button as already pressed, use [`hasVoted()`, `hasUpvoted()` and `hasDownvoted()`](docs:developers/comment#hasvoted) on the comment. They recognise guests as well as signed-in users.
+To check one comment for the person viewing the page, such as to show a vote button as already pressed, use [`hasVoted()`, `hasUpvoted()` and `hasDownvoted()`](docs:reference/comment#hasVoted) on the comment. They recognise guests as well as signed-in users.
 
-## Calls Used in This Task
+## Getting All of a User's Votes
 
-### `craft.comments.getUserVotes(userId)`
+`craft.comments.getUserVotes(userId)` returns all of a user's votes, both upvotes and downvotes. `userId` is required. The array is empty when the user hasn't voted, or has never taken part in a discussion.
 
-Returns all of a user's votes.
+## Getting Only Upvotes or Downvotes
 
-### `craft.comments.getUserUpvotes(userId)`
+`craft.comments.getUserUpvotes(userId)` returns a user's upvotes, which are their likes when **Interaction Mode** is set to **Likes (upvote only)**. `userId` is required. Use it for a count on a profile page:
 
-Returns a user's upvotes, which are their likes when **Interaction Mode** is set to **Likes (upvote only)**.
+```twig
+<p>{{ craft.comments.getUserUpvotes(currentUser.id)|length }} comments liked</p>
+```
 
-### `craft.comments.getUserDownvotes(userId)`
-
-Returns a user's downvotes.
+`craft.comments.getUserDownvotes(userId)` returns a user's downvotes. `userId` is required.

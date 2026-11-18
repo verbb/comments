@@ -1,0 +1,19 @@
+{
+    "name": "@verbb/comments-frontend-docs",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "description": "VitePress site for the Comments front-end packages (core, browser, web components, React and Vue).",
+    "scripts": {
+        "docs:dev": "vitepress dev .",
+        "docs:build": "vitepress build .",
+        "docs:preview": "vitepress preview ."
+    },
+    "devDependencies": {
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.2.4",
+        "@verbb/vitepress-theme": "1.0.0",
+        "tailwindcss": "^4.2.4",
+        "vitepress": "^1.6.4"
+    }
+}

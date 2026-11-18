@@ -9,7 +9,7 @@ Two defaults affect this test. Guests can't comment until you turn on **Allow Gu
 Place this in the entry's template where its comments should appear:
 
 ```twig
-{{ craft.comments.render(entry.id) }}
+{{ craft.comments.render(entry) }}
 ```
 
 Open the page as your signed-in test user and you'll see a Comments heading, links to sort the comments, a message saying there are no comments yet, and the comment form. A signed-out visitor sees a **Join the conversation** card instead, with a way to sign in, and to comment as a guest when guests are allowed. Post a recognisable test message. The page tells you it's been submitted for moderation, because it isn't public yet.
@@ -28,4 +28,4 @@ Open your test entry and choose the **Comments** tab. The select shows **Default
 
 ![An entry's Comments tab, with the Default (Open) select, comments waiting for review and reported, the latest comments and how many people follow the discussion.](../../screenshots/entries/comments-field.png)
 
-[Rendering Comments](docs:template-guides/rendering-comments) explains the options you can pass to `render()`, [Control Panel](docs:feature-tour/control-panel#comments-field) covers the Comments field in full, and [Moderation](docs:feature-tour/moderation) covers what moderators can do from here.
+[Rendering Comments](docs:template-guides/rendering-comments) explains the options you can pass to `render()`, [Per-Element Settings](docs:feature-tour/permissions#per-element-settings) covers the Comments field's options, and [Moderation](docs:feature-tour/moderation) covers what moderators can do from here.
