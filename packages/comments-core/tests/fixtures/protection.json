@@ -1,0 +1,22 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "protection": {
+        "version": 1,
+        "manifest": {
+            "version": 1,
+            "instanceId": "pi-2",
+            "preparation": "prep-2",
+            "issuedAt": 1762810300,
+            "expiresAt": 1762810900,
+            "honeypot": "a1b2c3",
+            "javascript": true,
+            "challenges": []
+        },
+        "expiresAt": 1762810900
+    },
+    "csrf": {
+        "name": "CRAFT_CSRF_TOKEN",
+        "value": "csrf-protection"
+    }
+}

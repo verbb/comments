@@ -1,0 +1,59 @@
+{
+    "name": "@verbb/comments-web-components",
+    "version": "4.0.0-beta.1",
+    "description": "A light-DOM <verbb-comments> element that draws a Comments thread on any page, with or without a framework.",
+    "keywords": [
+        "craftcms",
+        "comments",
+        "web-components"
+    ],
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "author": "Verbb",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/verbb/comments.git",
+        "directory": "packages/comments-web-components"
+    },
+    "bugs": {
+        "url": "https://github.com/verbb/comments/issues"
+    },
+    "homepage": "https://docs.verbb.io/comments",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tests/tsconfig.json",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@verbb/comments-browser": "4.0.0-beta.1",
+        "@verbb/editor": "file:../../../../../editor/craft5/plugin/packages/editor"
+    },
+    "devDependencies": {
+        "happy-dom": "21.0.4",
+        "typescript": "^5.7.3",
+        "vitest": "4.1.11"
+    }
+}

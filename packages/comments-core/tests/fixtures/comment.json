@@ -1,0 +1,97 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "targetUid": "r9",
+    "ownerId": 109,
+    "siteId": 1,
+    "comment": {
+        "uid": "c9",
+        "parentUid": null,
+        "depth": 0,
+        "state": "approved",
+        "content": {
+            "format": "rich",
+            "html": "<p>An older thread starter.</p>",
+            "text": "An older thread starter.",
+            "gifUrl": null,
+            "gifWidth": null,
+            "gifHeight": null
+        },
+        "author": {
+            "name": "Sam Lee",
+            "initials": "SL",
+            "avatarUrl": "https://example.com/uploads/sl.jpg",
+            "avatarTone": 1,
+            "isGuest": false,
+            "badges": [],
+            "score": null
+        },
+        "createdAt": "2026-10-01T10:00:00+00:00",
+        "editedAt": null,
+        "display": {
+            "timeAgo": "2 hours ago",
+            "fullDate": "9 November 2026, 9:04 pm"
+        },
+        "permalink": "https://example.com/blog/trail-running-knees#comment-c9",
+        "fields": [],
+        "interaction": {
+            "upvotes": 0,
+            "downvotes": 0
+        },
+        "folded": null,
+        "custom": {},
+        "replies": {
+            "count": 4,
+            "items": [
+                {
+                    "uid": "r9",
+                    "parentUid": "c9",
+                    "depth": 1,
+                    "state": "approved",
+                    "content": {
+                        "format": "rich",
+                        "html": "<p>The linked reply.</p>",
+                        "text": "The linked reply.",
+                        "gifUrl": null,
+                        "gifWidth": null,
+                        "gifHeight": null
+                    },
+                    "author": {
+                        "name": "Alex Morgan",
+                        "initials": "AM",
+                        "avatarUrl": "https://example.com/uploads/am.jpg",
+                        "avatarTone": 3,
+                        "isGuest": false,
+                        "badges": [
+                            {
+                                "type": "owner",
+                                "label": "Author"
+                            }
+                        ],
+                        "score": null
+                    },
+                    "createdAt": "2026-10-02T10:00:00+00:00",
+                    "editedAt": null,
+                    "display": {
+                        "timeAgo": "2 hours ago",
+                        "fullDate": "9 November 2026, 9:04 pm"
+                    },
+                    "permalink": "https://example.com/blog/trail-running-knees#comment-r9",
+                    "fields": [],
+                    "interaction": {
+                        "upvotes": 0,
+                        "downvotes": 0
+                    },
+                    "folded": null,
+                    "custom": {},
+                    "replies": {
+                        "count": 0,
+                        "items": [],
+                        "next": null
+                    }
+                }
+            ],
+            "next": "cursor-replies-c9"
+        }
+    }
+}

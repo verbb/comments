@@ -1,5 +1,0 @@
-{% if conversation.closedNotice %}
-    <p class="comments__closed-notice">{{ conversation.closedNotice }}</p>
-{% elseif conversation.guestNotice %}
-    <p class="comments__guest-notice">{{ conversation.guestNotice | t('comments') }}</p>
-{% endif %}

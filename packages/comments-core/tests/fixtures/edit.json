@@ -1,0 +1,38 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "r1",
+        "content": {
+            "format": "rich",
+            "text": "Same here, rest helped.",
+            "document": {
+                "type": "doc",
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Same here, rest helped."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gif": null
+        }
+    },
+    "fields": {
+        "rating": "5",
+        "orderNumber": "A-1001"
+    },
+    "editor": {
+        "richEditor": {
+            "context": "comments.edit",
+            "options": {}
+        },
+        "fields": [],
+        "gifs": null
+    }
+}

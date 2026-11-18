@@ -1,0 +1,47 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{# The pane's own heading names this section, so it starts with the note. #}
+<div class="readable">
+    <blockquote class="note warning">
+        {{ 'If you turn off the bundled CSS, your site must style the thread itself. If you turn off the bundled JavaScript, nothing draws the thread until your own build starts it with `@verbb/comments-browser`.' | t('comments') | md(inlineOnly=true) }}
+    </blockquote>
+</div>
+
+{{ forms.lightswitchField({
+    label: 'Load Bundled CSS' | t('comments'),
+    instructions: 'Load the bundled stylesheet when rendering comments.' | t('comments'),
+    name: 'outputDefaultCss',
+    on: settings.outputDefaultCss,
+    warning: macros.configWarning('outputDefaultCss', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'CSS Layer' | t('comments'),
+    instructions: 'Wrap the bundled stylesheet in `@layer comments`, so a site whose own CSS uses cascade layers, such as Tailwind’s, can place Comments below its utilities.' | t('comments'),
+    name: 'useCssLayers',
+    on: settings.useCssLayers,
+    warning: macros.configWarning('useCssLayers', 'comments'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Load Bundled JavaScript' | t('comments'),
+    instructions: 'Load the bundled comments script and, with rich authoring, Editor when someone starts writing.' | t('comments'),
+    name: 'outputDefaultJs',
+    on: settings.outputDefaultJs,
+    warning: macros.configWarning('outputDefaultJs', 'comments'),
+}) }}
+
+<hr>
+
+<h3>{{ 'Loading' | t('comments') }}</h3>
+
+{{ forms.selectField({
+    label: 'Load Comments' | t('comments'),
+    instructions: 'When the comments script loads a thread. A link to one comment always loads its thread straight away.' | t('comments'),
+    id: 'loadMode',
+    name: 'loadMode',
+    options: craft.comments.loadModeOptions,
+    value: settings.loadMode,
+    warning: (macros.configWarning('loadMode', 'comments') | trim) ?: (macros.configWarning('lazyLoad', 'comments') | trim),
+}) }}

@@ -1,0 +1,106 @@
+{
+    "thread.json": {
+        "schema": "ThreadResponse",
+        "request": "GET thread?ownerId=109&siteId=1&sort=newest&limit=2"
+    },
+    "thread-page-2.json": {
+        "schema": "ThreadResponse",
+        "request": "GET thread with the first page's cursor, ending with a placeholder"
+    },
+    "replies.json": {
+        "schema": "RepliesResponse",
+        "request": "GET replies?parentUid=c1&cursor=…"
+    },
+    "comment.json": {
+        "schema": "CommentResponse",
+        "request": "GET comment?uid=r9"
+    },
+    "viewer-member.json": {
+        "schema": "ViewerResponse",
+        "request": "GET viewer as a member with a pending comment of their own"
+    },
+    "viewer-guest.json": {
+        "schema": "ViewerResponse",
+        "request": "GET viewer as a guest with no session (the slim answer)"
+    },
+    "viewer-moderator.json": {
+        "schema": "ViewerResponse",
+        "request": "GET viewer as a moderator with held and reported comments"
+    },
+    "session.json": {
+        "schema": "SessionResponse",
+        "request": "GET session as a guest (stage C)"
+    },
+    "protection.json": {
+        "schema": "ProtectionResponse",
+        "request": "GET protection?ownerId=109&siteId=1&channel=browser"
+    },
+    "structured-data.json": {
+        "schema": "StructuredDataResponse",
+        "request": "GET structured-data?ownerId=109"
+    },
+    "edit.json": {
+        "schema": "EditResponse",
+        "request": "GET edit?uid=r1 as its author"
+    },
+    "create.json": {
+        "schema": "CreateResponse",
+        "request": "POST create"
+    },
+    "update.json": {
+        "schema": "UpdateResponse",
+        "request": "POST update"
+    },
+    "delete.json": {
+        "schema": "DeleteResponse",
+        "request": "POST delete"
+    },
+    "vote.json": {
+        "schema": "VoteResponse",
+        "request": "POST vote"
+    },
+    "report.json": {
+        "schema": "ReportResponse",
+        "request": "POST report"
+    },
+    "follow.json": {
+        "schema": "FollowResponse",
+        "request": "POST follow"
+    },
+    "moderate.json": {
+        "schema": "ModerateResponse",
+        "request": "POST moderate with action spam"
+    },
+    "moderate-removed.json": {
+        "schema": "ModerateResponse",
+        "request": "POST moderate with action remove"
+    },
+    "error-validation.json": {
+        "schema": "ErrorResponse",
+        "request": "POST create with an empty comment"
+    },
+    "error-protection-expired.json": {
+        "schema": "ErrorResponse",
+        "request": "POST create with an expired preparation"
+    },
+    "error-challenge-failed.json": {
+        "schema": "ErrorResponse",
+        "request": "POST create with a failed challenge"
+    },
+    "error-csrf.json": {
+        "schema": "ErrorResponse",
+        "request": "POST vote with a stale CSRF token"
+    },
+    "error-rate-limited.json": {
+        "schema": "ErrorResponse",
+        "request": "Any request over the rate limit"
+    },
+    "error-unsupported-version.json": {
+        "schema": "ErrorResponse",
+        "request": "Any request with X-Comments-Api-Version: 2"
+    },
+    "upload-field.json": {
+        "schema": "FieldUploadResponse",
+        "request": "POST upload with field=photo, ownerId=109, siteId=1 and the file"
+    }
+}

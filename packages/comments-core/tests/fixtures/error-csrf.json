@@ -1,0 +1,14 @@
+{
+    "apiVersion": 1,
+    "status": "error",
+    "errors": [
+        {
+            "category": "auth",
+            "code": "csrf_failed",
+            "message": "Your session expired. Refresh the page and try again.",
+            "fieldErrors": {},
+            "recoverable": true,
+            "retryAfter": null
+        }
+    ]
+}

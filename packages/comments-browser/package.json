@@ -1,0 +1,78 @@
+{
+    "name": "@verbb/comments-browser",
+    "version": "4.0.0-beta.1",
+    "description": "The renderer for Comments threads in the browser, with lazy loading, the comment editor, themes, control classes and part overrides.",
+    "keywords": [
+        "craftcms",
+        "comments"
+    ],
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "markup",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "author": "Verbb",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/verbb/comments.git",
+        "directory": "packages/comments-browser"
+    },
+    "bugs": {
+        "url": "https://github.com/verbb/comments/issues"
+    },
+    "homepage": "https://docs.verbb.io/comments",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "sideEffects": [
+        "**/*.css"
+    ],
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./renderer": {
+            "types": "./dist/renderer.d.ts",
+            "import": "./dist/renderer.js"
+        },
+        "./form": {
+            "types": "./dist/form.d.ts",
+            "import": "./dist/form.js"
+        },
+        "./css/comments.css": "./dist/css/comments.css",
+        "./css/comments-base.css": "./dist/css/comments-base.css",
+        "./css/comments-theme.css": "./dist/css/comments-theme.css",
+        "./markup/classes.json": "./markup/classes.json",
+        "./package.json": "./package.json"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && node scripts/build-css.mjs",
+        "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tests/tsconfig.json",
+        "test": "vitest run",
+        "classes": "UPDATE_CLASSES=1 vitest run tests/classes.test.ts"
+    },
+    "dependencies": {
+        "@verbb/comments-core": "4.0.0-beta.1",
+        "@verbb/editor": "file:../../../../../editor/craft5/plugin/packages/editor",
+        "@verbb/protect": "file:../../../../../protect/craft5/plugin/packages/protect",
+        "lit-html": "3.3.3"
+    },
+    "devDependencies": {
+        "axe-core": "4.14.0",
+        "happy-dom": "21.0.4",
+        "typescript": "^5.7.3",
+        "vite": "^8.3.5",
+        "vitest": "4.1.11"
+    }
+}

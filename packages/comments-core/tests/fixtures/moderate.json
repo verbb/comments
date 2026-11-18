@@ -1,0 +1,74 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "h1",
+        "parentUid": null,
+        "depth": 0,
+        "state": "spam",
+        "content": {
+            "format": "rich",
+            "html": "<p>Buy cheap shoes here.</p>",
+            "text": "Buy cheap shoes here.",
+            "gifUrl": null,
+            "gifWidth": null,
+            "gifHeight": null
+        },
+        "author": {
+            "name": "Jo",
+            "initials": "J",
+            "avatarUrl": null,
+            "avatarTone": 4,
+            "isGuest": true,
+            "badges": [],
+            "score": null
+        },
+        "createdAt": "2026-11-09T21:30:00+00:00",
+        "editedAt": null,
+        "display": {
+            "timeAgo": "2 hours ago",
+            "fullDate": "9 November 2026, 9:04 pm"
+        },
+        "permalink": "https://example.com/blog/trail-running-knees#comment-h1",
+        "fields": [],
+        "interaction": {
+            "upvotes": 0,
+            "downvotes": 0
+        },
+        "folded": null,
+        "custom": {},
+        "replies": {
+            "count": 0,
+            "items": [],
+            "next": null
+        },
+        "moderation": {
+            "reviewLabel": null,
+            "openReportCount": 0,
+            "actions": [
+                "not-spam"
+            ]
+        },
+        "viewer": {
+            "canReply": false,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": false,
+            "canDownvote": false,
+            "canReport": false,
+            "vote": null,
+            "reported": false,
+            "isAuthor": false,
+            "moderation": {
+                "reviewLabel": null,
+                "openReportCount": 0,
+                "actions": [
+                    "not-spam"
+                ]
+            },
+            "custom": {}
+        }
+    },
+    "announcement": "Marked as spam.",
+    "replayed": false
+}

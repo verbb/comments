@@ -1,0 +1,17 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "h2",
+        "state": "removed",
+        "moderation": {
+            "reviewLabel": null,
+            "openReportCount": 0,
+            "actions": [
+                "restore"
+            ]
+        }
+    },
+    "announcement": "Comment removed.",
+    "replayed": false
+}

@@ -1,0 +1,14 @@
+{
+    "apiVersion": 1,
+    "status": "error",
+    "errors": [
+        {
+            "category": "rate",
+            "code": "rate_limited",
+            "message": "Too many requests. Please wait a moment.",
+            "fieldErrors": {},
+            "recoverable": true,
+            "retryAfter": 30
+        }
+    ]
+}

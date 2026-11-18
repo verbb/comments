@@ -1,0 +1,28 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "viewer": {
+        "isGuest": true,
+        "hasSession": false,
+        "name": null,
+        "initials": "",
+        "avatarUrl": null,
+        "avatarTone": 0,
+        "badges": [],
+        "canComment": true,
+        "canVote": false,
+        "canReport": true,
+        "isModerator": false,
+        "blocked": false,
+        "loginUrl": "https://example.com/login",
+        "follow": {
+            "available": true,
+            "following": false,
+            "needsEmail": true
+        }
+    },
+    "csrf": {
+        "name": "CRAFT_CSRF_TOKEN",
+        "value": "csrf-session"
+    }
+}

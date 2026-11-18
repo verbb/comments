@@ -1,0 +1,2212 @@
+/* Comments' theme: the look of the light, dark and auto themes, on top of comments-base.css.
+
+   Controls (buttons, inputs, avatars and links) take their look from their styling classes alone,
+   such as comments__button--primary, so themeConfig's resetClass leaves a design system's classes
+   with nothing to fight. A control's own variation, such as the editor's Post button, is written as
+   `.comments__submit:where(.comments__button)`, which applies only while that styling class is there.
+   The rest of the rules use one class, plus a state where needed, so a site rule wins with one more.
+
+   The thread's design tokens, in their own cascade layer. Any declaration of these properties in a
+   site's ordinary stylesheet wins over the layer, whatever its specificity and whichever file loads
+   last, and that includes the dark and auto themes' values. A layer rather than `:where()` also lets
+   a site whose own CSS uses layers, such as Tailwind's, put `comments-tokens` first in its `@layer`
+   statement, where unlayered `:where()` rules would always beat its layered ones. Only the tokens are
+   layered, so the thread's own rules still hold against a site's broad element styles. */
+@layer comments-tokens {
+  [data-comments-root] {
+    --comments-font-family: inherit;
+    --comments-font-size: 1rem;
+    --comments-line-height: 1.5;
+    --comments-color-text: #1f2328;
+    --comments-color-muted: #5a6068;
+    --comments-color-link: #0b57d0;
+    --comments-color-border: #d6d9dd;
+    --comments-color-control-border: #8b9198;
+    --comments-color-surface: #fff;
+    --comments-color-surface-muted: #f5f6f7;
+    --comments-color-accent: #0b57d0;
+    --comments-color-on-accent: #fff;
+    --comments-color-danger: #b3261e;
+    --comments-color-success: #146c2e;
+    --comments-color-warning: #a85d00;
+    --comments-color-focus: #0b57d0;
+    --comments-color-scrim: rgb(0 0 0 / 45%);
+    --comments-color-toast: #1f2328;
+    --comments-color-on-toast: #fff;
+    --comments-color-toast-success: #7dd99b;
+    --comments-color-toast-danger: #ff9a93;
+    --comments-color-held-surface: #fff8eb;
+    --comments-color-held-border: #f2d39b;
+    --comments-color-held-text: #8a5300;
+    --comments-color-reported-surface: #fff1f0;
+    --comments-color-reported-border: #f5c2bd;
+    --comments-color-reported-text: #a8322a;
+    --comments-color-like: #c4314b;
+    --comments-color-avatar-0: #3b6ea5;
+    --comments-color-avatar-1: #8a5a2b;
+    --comments-color-avatar-2: #2f7d4f;
+    --comments-color-avatar-3: #8a3f7d;
+    --comments-color-avatar-4: #b0532a;
+    --comments-color-avatar-5: #237a7a;
+    --comments-color-avatar-6: #5a4fa3;
+    --comments-color-avatar-7: #6b7a2a;
+    --comments-color-on-avatar: #fff;
+    --comments-space-1: 0.25rem;
+    --comments-space-2: 0.5rem;
+    --comments-space-3: 0.75rem;
+    --comments-space-4: 1rem;
+    --comments-space-5: 1.5rem;
+    --comments-radius: 0.5rem;
+    --comments-avatar-size: 2.25rem;
+    --comments-gif-max-size: 15rem;
+    --comments-thread-indent: 0.875rem;
+    --comments-control-size: 2.25rem;
+  }
+
+  [data-comments-root][data-comments-theme='dark'] {
+    --comments-color-text: #eceef0;
+    --comments-color-muted: #b4b9c0;
+    --comments-color-link: #8ab4f8;
+    --comments-color-border: #43484f;
+    --comments-color-control-border: #70767e;
+    --comments-color-surface: #1f2226;
+    --comments-color-surface-muted: #2a2e33;
+    --comments-color-panel: #17191c;
+    --comments-color-accent: #8ab4f8;
+    --comments-color-on-accent: #10223f;
+    --comments-color-danger: #f2b8b5;
+    --comments-color-success: #7dd99b;
+    --comments-color-focus: #8ab4f8;
+    --comments-color-toast: #eceef0;
+    --comments-color-on-toast: #17191c;
+    --comments-color-toast-success: #146c2e;
+    --comments-color-toast-danger: #b3261e;
+    --comments-color-held-surface: #33291a;
+    --comments-color-held-border: #6b5428;
+    --comments-color-held-text: #f3c77a;
+    --comments-color-reported-surface: #3a2422;
+    --comments-color-reported-border: #74403b;
+    --comments-color-reported-text: #f2a8a1;
+    --comments-color-like: #ff8a9e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    [data-comments-root][data-comments-theme='auto'] {
+      --comments-color-text: #eceef0;
+      --comments-color-muted: #b4b9c0;
+      --comments-color-link: #8ab4f8;
+      --comments-color-border: #43484f;
+      --comments-color-control-border: #70767e;
+      --comments-color-surface: #1f2226;
+      --comments-color-surface-muted: #2a2e33;
+      --comments-color-panel: #17191c;
+      --comments-color-accent: #8ab4f8;
+      --comments-color-on-accent: #10223f;
+      --comments-color-danger: #f2b8b5;
+      --comments-color-success: #7dd99b;
+      --comments-color-focus: #8ab4f8;
+      --comments-color-toast: #eceef0;
+      --comments-color-on-toast: #17191c;
+      --comments-color-toast-success: #146c2e;
+      --comments-color-toast-danger: #b3261e;
+      --comments-color-held-surface: #33291a;
+      --comments-color-held-border: #6b5428;
+      --comments-color-held-text: #f3c77a;
+      --comments-color-reported-surface: #3a2422;
+      --comments-color-reported-border: #74403b;
+      --comments-color-reported-text: #f2a8a1;
+      --comments-color-like: #ff8a9e;
+    }
+  }
+
+  @media (pointer: coarse) {
+    [data-comments-root] {
+      --comments-control-size: 2.75rem;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    [data-comments-root] {
+      --comments-thread-indent: 0.75rem;
+    }
+  }
+}
+
+[data-comments-root] {
+  font-family: var(--comments-font-family);
+  font-size: var(--comments-font-size);
+  line-height: var(--comments-line-height);
+  color: var(--comments-color-text);
+  color-scheme: light;
+}
+
+/* Its light text can't rely on what's behind it on the page. */
+[data-comments-root][data-comments-theme='dark'] {
+  padding: var(--comments-space-4);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-panel);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-comments-root][data-comments-theme='auto'] {
+    padding: var(--comments-space-4);
+    border-radius: var(--comments-radius);
+    background: var(--comments-color-panel);
+    color-scheme: dark;
+  }
+}
+
+.comments {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-4);
+}
+
+.comments :where(a:not([data-editor-root] *)) {
+  color: var(--comments-color-link);
+}
+
+/* Browsers give form controls their own font, monospace for a textarea, so a control without
+   one of our classes would look out of place. */
+.comments :where(input, select, textarea, button):where(:not([data-editor-root] *)) {
+  font: inherit;
+}
+
+/* A button without a control's classes, such as a menu item, starts plain. */
+.comments :where(button:not([data-editor-root] *)) {
+  color: inherit;
+  cursor: pointer;
+}
+
+.comments :where(a, button, input, select, textarea, summary, article):focus-visible {
+  outline: 2px solid var(--comments-color-focus);
+  outline-offset: 2px;
+}
+
+/* Only ever focused from script, to move someone to what just changed. */
+.comments article:focus:not(:focus-visible),
+.comments__heading:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Header */
+
+.comments__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--comments-space-3);
+}
+
+.comments__header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--comments-space-2) var(--comments-space-3);
+  margin-inline-end: auto;
+}
+
+.comments__heading {
+  margin: 0;
+  font-size: 1.25em;
+  line-height: 1.3;
+}
+
+.comments__count {
+  margin: 0;
+  color: var(--comments-color-muted);
+}
+
+.comments__follow-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--comments-space-2);
+  max-inline-size: 100%;
+  margin: 0;
+}
+
+/* Lists and comments */
+
+.comments__list,
+.comments__replies-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comments__comment {
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+}
+
+/* A thread line says what cards inside cards would, and leaves room on a phone. */
+.comments__replies .comments__comment {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.comments__replies {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-4);
+  margin-block-start: 0.875rem;
+  padding-inline-start: var(--comments-thread-indent);
+  border-inline-start: 2px solid color-mix(in srgb, var(--comments-color-border) 65%, transparent);
+}
+
+/* However deep a thread goes, it stops moving across the page. */
+.comments__comment[data-comments-visual-depth='4'] > article > .comments__replies {
+  grid-column: 1 / -1;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+/* The avatar has a column of its own, and the name, text, actions, reply form and replies line up
+   beside it. */
+.comments__comment > article {
+  display: grid;
+  grid-template-columns: var(--comments-avatar-size) minmax(0, 1fr);
+  column-gap: var(--comments-space-3);
+  align-items: start;
+  border-radius: var(--comments-radius);
+}
+
+.comments__comment > article > * {
+  grid-column: 2;
+}
+
+.comments__comment > article > .comments__placeholder {
+  grid-column: 1 / -1;
+}
+
+.comments__comment > article:target,
+.comments__comment--highlight > article {
+  outline: 2px solid var(--comments-color-accent);
+  outline-offset: 4px;
+}
+
+.comments__author {
+  display: contents;
+}
+
+.comments__author > [data-comments-control='avatar'] {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.comments__avatar {
+  flex: none;
+  inline-size: var(--comments-avatar-size);
+  block-size: var(--comments-avatar-size);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comments__author-meta {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--comments-space-1) var(--comments-space-2);
+  min-inline-size: 0;
+  margin-block-end: 0.125rem;
+  font-size: 0.875em;
+}
+
+.comments__author-name {
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.comments__date,
+.comments__edited {
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__permalink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.comments__permalink:hover .comments__date,
+.comments__permalink:focus-visible .comments__date {
+  color: var(--comments-color-link);
+  text-decoration: underline;
+}
+
+/* An author's net votes across their comments, as Comments 3 showed it. */
+.comments__author-score {
+  color: var(--comments-color-muted);
+  font-size: 0.8em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.comments__author-score--positive {
+  color: var(--comments-color-success);
+}
+
+.comments__author-score--negative {
+  color: var(--comments-color-danger);
+}
+
+.comments__badge {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--comments-color-accent) 12%, transparent);
+  color: var(--comments-color-accent);
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.comments__state-badge {
+  display: inline-block;
+  margin: 0 0 var(--comments-space-2);
+  padding: 0.1rem 0.45rem;
+  border: 1px dashed var(--comments-color-muted);
+  border-radius: var(--comments-radius);
+  font-size: 0.8125em;
+}
+
+.comments__content {
+  font-size: 0.9375em;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.comments__content-plain {
+  margin: 0;
+}
+
+.comments__content-muted,
+.comments__placeholder {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-style: italic;
+}
+
+/* A comment folded away after reports or downvotes, with a way to read it. */
+.comments__folded {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-1) var(--comments-space-2);
+  font-size: 0.9375em;
+}
+
+.comments__folded-label {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-style: italic;
+}
+
+.comments__content-rich :where(p, ul, ol, blockquote, pre) {
+  margin-block: var(--comments-space-2);
+}
+
+.comments__content-rich :where(:first-child) {
+  margin-block-start: 0;
+}
+
+.comments__content-rich :where(:last-child) {
+  margin-block-end: 0;
+}
+
+.comments__content-rich :where(img, video) {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.comments__content-rich :where(pre) {
+  overflow-x: auto;
+}
+
+/* A GIF fits a square of `--comments-gif-max-size` without growing past its own size. Its width and
+   height attributes keep its space before it loads, so a landscape GIF is sized from its width and a
+   portrait one from its height. */
+.comments__gif {
+  display: block;
+  max-inline-size: min(100%, var(--comments-gif-max-size));
+  max-block-size: var(--comments-gif-max-size);
+  margin-block-start: var(--comments-space-2);
+  border-radius: var(--comments-space-1);
+}
+
+.comments__gif:not(:where(.comments__gif--portrait)) {
+  block-size: auto;
+}
+
+.comments__gif--portrait {
+  inline-size: auto;
+  object-fit: contain;
+}
+
+/* Actions */
+
+/* Buttons: the base look every button control shares. A link styled as a button looks like one, so
+   Review in Comments matches the Hide held button beside it. */
+.comments__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--comments-space-1);
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.comments__button:hover {
+  background: var(--comments-color-surface-muted);
+}
+
+.comments__button--primary {
+  border-color: var(--comments-color-accent);
+  background: var(--comments-color-accent);
+  color: var(--comments-color-on-accent);
+  font-weight: 600;
+}
+
+.comments__button--primary:hover {
+  background: var(--comments-color-accent);
+  filter: brightness(0.92);
+}
+
+.comments__button--secondary {
+  background: transparent;
+}
+
+/* Quiet text buttons that pick up a soft background on hover: Like, Reply, the ··· toggle. */
+.comments__button--quiet {
+  gap: 0.3125rem;
+  min-block-size: 1.75rem;
+  padding: var(--comments-space-1) var(--comments-space-2);
+  border-color: transparent;
+  border-radius: 0.375rem;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.comments__button--quiet:hover {
+  background: var(--comments-color-surface-muted);
+  color: var(--comments-color-text);
+}
+
+@media (pointer: coarse) {
+  .comments__button--quiet {
+    min-block-size: var(--comments-control-size);
+  }
+}
+
+/* Pills, where a button stands on its own in a card or a strip. */
+.comments__moderation-actions > .comments__button,
+.comments__moderator-bar-actions > .comments__button,
+.comments__join-actions > .comments__button,
+.comments__join-guest > .comments__button,
+.comments__report-actions > .comments__button--secondary {
+  border-radius: 999px;
+}
+
+.comments__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-1);
+  margin-block-start: var(--comments-space-1);
+  margin-inline-start: calc(var(--comments-space-2) * -1);
+}
+
+.comments__interactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-1);
+}
+
+.comments__follow[aria-pressed='true']:where(.comments__button) {
+  border-color: currentColor;
+  background: var(--comments-color-surface-muted);
+  font-weight: 600;
+}
+
+.comments__vote-count,
+.comments__score {
+  font-variant-numeric: tabular-nums;
+}
+
+.comments__score {
+  min-inline-size: 1.25em;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.comments__moderation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+  margin-inline-start: auto;
+}
+
+.comments__toggle-replies {
+  justify-self: start;
+}
+
+.comments__toggle-replies:where(.comments__button) {
+  min-block-size: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--comments-color-muted);
+  font-size: 0.8125em;
+  font-weight: 600;
+}
+
+.comments__toggle-replies:where(.comments__button):hover {
+  background: transparent;
+  color: var(--comments-color-text);
+  text-decoration: underline;
+}
+
+.comments__load-more,
+.comments__show-comments,
+.comments__load-error {
+  margin-block-start: var(--comments-space-1);
+}
+
+/* Forms */
+
+/* The editor: the visitor's avatar beside a frame they write in. The frame is the plugin's own
+   editor, drawn to match Editor's so that a rich form can swap Editor's in without anything moving.
+   It works without JavaScript, and the script adds the rest. When Editor takes over, it
+   draws the frame itself and the parts marked `data-comments-slot` move into it. */
+.comments__editor {
+  display: block;
+  margin: 0;
+}
+
+.comments__editor-row {
+  display: grid;
+  grid-template-columns: var(--comments-avatar-size) minmax(0, 1fr);
+  gap: var(--comments-space-3);
+  align-items: start;
+}
+
+/* Level with the first line of the text. */
+.comments__editor-row > .comments__avatar {
+  margin-block-start: 0.2rem;
+}
+
+.comments__avatar--guest:where(.comments__avatar) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1.5px solid var(--comments-color-border);
+  color: var(--comments-color-muted);
+}
+
+.comments__avatar--guest:where(.comments__avatar) .comments__icon {
+  inline-size: 60%;
+  block-size: 60%;
+}
+
+.comments__frame {
+  container: comments-frame / inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  border: 1px solid var(--comments-color-control-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.comments__frame:focus-within {
+  border-color: color-mix(in srgb, var(--comments-color-accent) 70%, var(--comments-color-control-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--comments-color-accent) 22%, transparent);
+}
+
+/* With fields in the form, the frame only groups the text's box and the fields, which carry the
+   clear edges controls need, so its own edge is lighter. The ring is on what has focus, the text's
+   box or a field, as for any form, rather than on the whole form. */
+.comments__frame--fields:not([data-comments-collapsed]),
+.comments__frame--fields:not([data-comments-collapsed]):focus-within,
+.comments verbb-editor .verbb-editor.has-fields:not(.is-collapsed) {
+  border-color: var(--comments-color-border);
+  box-shadow: none;
+}
+
+.comments__frame--fields:not([data-comments-collapsed]) > .comments__frame-box {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.comments__frame--fields:not([data-comments-collapsed]) > .comments__frame-box:focus-within,
+.comments :is(.comments__input, .comments__select, .comments__textarea:not(.comments__textarea-fallback)):focus-visible {
+  border-color: color-mix(in srgb, var(--comments-color-accent) 70%, var(--comments-color-control-border));
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--comments-color-accent) 22%, transparent);
+}
+
+/* A message about what's written, such as "Write something first.", marks the frame too. */
+.comments__frame:has(> .comments__frame-box > [aria-invalid='true']) {
+  border-color: var(--comments-color-danger);
+}
+
+/* Editor draws focus 1px out. */
+.comments__frame :focus-visible {
+  outline-offset: 1px;
+}
+
+.comments__frame-icon {
+  flex: none;
+  inline-size: 18px;
+  block-size: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Who's being replied to, then who's posting or a guest's details. */
+.comments__frame-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+  padding: 9px 12px 0;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+}
+
+.comments__frame-head > .comments__guest-fields {
+  flex: 1 0 100%;
+}
+
+.comments__frame-head > .comments__posting-as {
+  flex: 1 0 auto;
+}
+
+.comments__frame-reply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  block-size: 26px;
+  margin: 0;
+  padding: 0 4px 0 9px;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--comments-color-accent) 10%, var(--comments-color-surface));
+  color: var(--comments-color-text);
+  font-size: 0.78125rem;
+}
+
+.comments__frame-reply > .comments__frame-icon {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.comments__frame-reply-text {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comments__frame-reply b,
+.comments__posting-as b {
+  font-weight: 600;
+}
+
+.comments__frame-reply-cancel {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 20px;
+  min-block-size: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: color-mix(in srgb, var(--comments-color-text) 72%, transparent);
+  cursor: pointer;
+}
+
+.comments__frame-reply-cancel:hover {
+  color: var(--comments-color-text);
+}
+
+.comments__frame-reply-cancel .comments__frame-icon {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.comments__frame .comments__textarea-fallback:where(.comments__textarea) {
+  display: block;
+  box-sizing: border-box;
+  block-size: calc(3.75em + 16px);
+  min-block-size: calc(3.75em + 16px);
+  max-block-size: 436px;
+  padding: 10px 14px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: inherit;
+  line-height: inherit;
+  overflow-wrap: anywhere;
+  resize: vertical;
+}
+
+.comments__frame .comments__textarea-fallback:where(.comments__textarea)::placeholder {
+  color: color-mix(in srgb, var(--comments-color-muted) 85%, transparent);
+  opacity: 1;
+}
+
+.comments__frame .comments__textarea-fallback:where(.comments__textarea):focus-visible {
+  outline: none;
+}
+
+/* The script grows the box with its text, as Editor does. */
+.comments__frame .comments__textarea-fallback:where(.comments__textarea) {
+  resize: none;
+}
+
+/* A restored draft, with a way to discard it. */
+.comments__frame-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 10px 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--comments-color-accent) 10%, var(--comments-color-surface));
+  font-size: 0.8125rem;
+}
+
+.comments__frame-notice[hidden] {
+  display: none;
+}
+
+.comments__frame-notice > .comments__frame-icon {
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+.comments__frame-notice-text {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.comments__frame-link {
+  display: inline;
+  min-block-size: 0;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--comments-color-accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.comments__frame > .comments__editor-fields {
+  padding: 0 12px 8px;
+}
+
+/* Fields placed before the Comment element in the field layout, such as a rating, come first. */
+/* The head, the fields, the text's box and the foot share one 12px inset, as in Editor's frame. */
+.comments__frame > .comments__editor-fields--above {
+  padding: 10px 12px 0;
+}
+
+/* With fields in the form, the text is outlined as a box of its own, as Editor outlines the text and
+   its toolbar, so the fields read as part of the comment rather than part of the text. */
+/* Only while open: a collapsed form is one line, with no box or fields around the text. */
+.comments__frame--fields:not([data-comments-collapsed]) > .comments__frame-box {
+  margin: 10px 12px;
+  border: 1px solid var(--comments-color-control-border);
+  border-radius: calc(var(--comments-radius) - 2px);
+}
+
+.comments__frame--fields:not([data-comments-collapsed]) > :is(.comments__frame-head, .comments__editor-fields--above) + .comments__frame-box {
+  margin-block-start: 8px;
+}
+
+.comments__frame--fields:not([data-comments-collapsed]) > .comments__frame-box ~ .comments__editor-fields {
+  padding-block-start: 2px;
+}
+
+.comments__frame-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-inline-size: 0;
+  padding: 6px 8px 8px;
+}
+
+/* The draft note and the character count, ahead of Cancel and Post. */
+.comments__frame-meta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+  margin-inline-end: auto;
+  padding-inline-start: 6px;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+}
+
+.comments__frame-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s;
+}
+
+.comments__frame-status .comments__frame-icon {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.comments__frame-status--bad {
+  color: var(--comments-color-danger);
+  font-weight: 600;
+}
+
+.comments__frame-status--faded {
+  opacity: 0.55;
+}
+
+.comments__frame-count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.comments__frame-count svg {
+  inline-size: 20px;
+  block-size: 20px;
+  transform: rotate(-90deg);
+}
+
+.comments__frame-count circle {
+  fill: none;
+  stroke-width: 2.6;
+}
+
+.comments__frame-count .comments__ring-bg {
+  stroke: color-mix(in srgb, var(--comments-color-text) 14%, transparent);
+}
+
+.comments__frame-count .comments__ring-fg {
+  stroke: var(--comments-color-accent);
+  stroke-linecap: round;
+}
+
+.comments__frame-count--warn {
+  color: var(--comments-color-warning);
+}
+
+.comments__frame-count--warn .comments__ring-fg {
+  stroke: var(--comments-color-warning);
+}
+
+.comments__frame-count--bad {
+  color: var(--comments-color-danger);
+}
+
+.comments__frame-count--bad .comments__ring-fg {
+  stroke: var(--comments-color-danger);
+}
+
+.comments__frame-foot .comments__submit:where(.comments__button),
+.comments__cancel:where(.comments__button),
+.comments__gif-button:where(.comments__button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  block-size: 34px;
+  min-block-size: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: calc(var(--comments-radius) * 0.7);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.comments__cancel:where(.comments__button),
+.comments__gif-button:where(.comments__button) {
+  background: transparent;
+  color: var(--comments-color-text);
+}
+
+/* GIF reads as a word, set a little tighter, like a format badge. */
+.comments__gif-button:where(.comments__button) {
+  padding: 0 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.comments__gif-button:where(.comments__button)[aria-expanded='true'] {
+  background: var(--comments-color-surface-muted);
+}
+
+.comments__frame-foot .comments__submit:where(.comments__button):hover {
+  background: color-mix(in srgb, var(--comments-color-accent) 88%, #000);
+  filter: none;
+}
+
+.comments__cancel:where(.comments__button):hover,
+.comments__gif-button:where(.comments__button):hover {
+  background: var(--comments-color-surface-muted);
+}
+
+/* A chosen GIF, and the picker, sit under the text inside the plain frame. With rich authoring,
+   Editor's own GIF control takes over. */
+.comments__gif-area {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 8px;
+}
+
+.comments__gif-preview {
+  gap: 8px;
+}
+
+.comments__gif-preview-image {
+  border-radius: calc(var(--comments-radius) * 0.5);
+}
+
+.comments__gif-picker {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--comments-color-control-border);
+  border-radius: calc(var(--comments-radius) - 2px);
+  background: var(--comments-color-surface);
+}
+
+.comments__gif-results {
+  gap: 6px;
+}
+
+.comments__gif-result {
+  overflow: hidden;
+  border-radius: calc(var(--comments-radius) * 0.5);
+  background: var(--comments-color-surface-muted);
+}
+
+.comments__gif-result:hover .comments__gif-result-image {
+  opacity: 0.85;
+}
+
+.comments__gif-status {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+}
+
+.comments__gif-status:empty {
+  display: none;
+}
+
+/* GIPHY's terms ask for its mark to be easy to see wherever its search is used. */
+.comments__gif-attribution {
+  margin: 0;
+  color: var(--comments-color-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: end;
+}
+
+/* Post waits for some text, and says why when it's pressed. */
+.comments__frame-foot .comments__submit:where(.comments__button)[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.comments__frame-foot .comments__submit:where(.comments__button)[aria-disabled='true']:hover {
+  background: var(--comments-color-accent);
+}
+
+.comments__submit-keys {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.comments__submit-icon {
+  display: none;
+}
+
+.comments__submit .comments__frame-icon {
+  inline-size: 18px;
+  block-size: 18px;
+  stroke-width: 2.2;
+}
+
+/* A narrow editor drops the shortcut, and at phone width Post becomes an arrow. */
+@container comments-frame (max-width: 520px) {
+  .comments__submit-keys,
+  .comments__frame-status-text {
+    display: none;
+  }
+
+  .comments__frame-meta {
+    gap: 4px;
+    padding-inline-start: 2px;
+  }
+}
+
+@container comments-frame (max-width: 400px) {
+  .comments__frame-foot .comments__submit:where(.comments__button) {
+    inline-size: 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .comments__submit-label {
+    display: none;
+  }
+
+  .comments__submit-icon {
+    display: block;
+  }
+}
+
+/* A member's new comment is one line until they start; leaving it waits a moment so a press on
+   Cancel lands first. Editor does the same once it's running. */
+.comments__frame[data-comments-collapsed] {
+  border-radius: 999px;
+}
+
+.comments__frame[data-comments-collapsed] .comments__textarea-fallback:where(.comments__textarea) {
+  block-size: auto;
+  min-block-size: 0;
+  padding-block: 9px;
+  padding-inline: 16px;
+}
+
+/* Once Editor is running, the frame is its. */
+form[data-comments-editor-mounted] .comments__frame {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* A message about what's written sits under the frame, beside the avatar's column. */
+.comments__editor-row > .comments__field-error {
+  grid-column: 2;
+}
+
+.comments__contextual-editor:not(:empty) {
+  margin-block-start: var(--comments-space-3);
+}
+
+/* A guest gives a name and an address at the top of the frame, side by side where there's room. */
+.comments__guest-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--comments-space-2) var(--comments-space-3);
+  align-items: start;
+  flex: 1 0 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--comments-color-text);
+  font-size: 0.875rem;
+}
+
+.comments__guest-fields > .comments__field--checkbox {
+  grid-column: 1 / -1;
+}
+
+/* The frame, or Editor's `<verbb-editor>` once it's running, is the container a phone-width form is measured by. */
+@container (max-width: 30rem) {
+  .comments__guest-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.comments__guest-fields .comments__input,
+.comments__editor-fields :is(.comments__input, .comments__select),
+.comments__editor-fields .comments__textarea {
+  border-color: var(--comments-color-control-border);
+  background: var(--comments-color-surface);
+}
+
+.comments__field-hint {
+  margin-inline-start: var(--comments-space-1);
+  color: var(--comments-color-muted);
+  font-weight: 400;
+}
+
+.comments__editor-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--comments-space-3);
+  align-items: start;
+  color: var(--comments-color-text);
+  font-size: 0.875rem;
+}
+
+/* Each field spans the share of the row its field layout width sets, and the whole row on a narrow form. */
+.comments__field-cell {
+  grid-column: span 4;
+  min-inline-size: 0;
+}
+
+.comments__field-cell[data-comments-width='25'] {
+  grid-column: span 1;
+}
+
+.comments__field-cell[data-comments-width='50'] {
+  grid-column: span 2;
+}
+
+.comments__field-cell[data-comments-width='75'] {
+  grid-column: span 3;
+}
+
+@container (max-width: 30rem) {
+  .comments__field-cell {
+    grid-column: span 4;
+  }
+}
+
+.comments__report-fields,
+.comments__field-custom:where(fieldset) {
+  display: grid;
+  gap: var(--comments-space-3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.comments__report-fields legend,
+.comments__field-custom legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.comments__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--comments-space-1);
+}
+
+.comments__field-label,
+.comments__label {
+  font-size: 0.875em;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.comments__field-instructions {
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+  line-height: 1.4;
+}
+
+/* Instructions read as part of their label, so they sit closer to it than to the input below. */
+.comments__field-label + .comments__field-instructions {
+  margin-block-start: calc(var(--comments-space-1) * -0.5);
+}
+
+.comments__field--checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+  font-size: 0.875em;
+}
+
+.comments__field--checkbox input {
+  flex: none;
+  margin: 0.2em 0 0;
+}
+
+/* A choice field's options sit under its label and instructions, a little apart, as a list. */
+.comments__field-custom:where(fieldset) > legend {
+  margin-block-end: var(--comments-space-1);
+}
+
+.comments__field-custom:where(fieldset) {
+  gap: var(--comments-space-2);
+}
+
+/* A Lightswitch field, drawn as a switch. */
+.comments__switch:where(.comments__checkbox) {
+  appearance: none;
+  position: relative;
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--comments-color-control-border);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.comments__switch:where(.comments__checkbox)::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 1px;
+  inset-inline-start: 1px;
+  inline-size: calc(1.25rem - 4px);
+  block-size: calc(1.25rem - 4px);
+  border-radius: 50%;
+  background: var(--comments-color-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  transition: inset-inline-start 0.15s;
+}
+
+.comments__switch:where(.comments__checkbox):checked {
+  background: var(--comments-color-accent);
+}
+
+.comments__switch:where(.comments__checkbox):checked::before {
+  inset-inline-start: calc(100% - 1.25rem + 3px);
+}
+
+.comments__switch:where(.comments__checkbox)[aria-invalid='true'] {
+  border-color: var(--comments-color-danger);
+}
+
+@media (forced-colors: active) {
+  .comments__switch:where(.comments__checkbox) {
+    border-color: ButtonText;
+    background: ButtonFace;
+  }
+
+  .comments__switch:where(.comments__checkbox)::before {
+    background: ButtonText;
+  }
+
+  .comments__switch:where(.comments__checkbox):checked {
+    background: Highlight;
+  }
+
+  .comments__switch:where(.comments__checkbox):checked::before {
+    background: HighlightText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comments__switch:where(.comments__checkbox),
+  .comments__switch:where(.comments__checkbox)::before {
+    transition: none;
+  }
+}
+
+.comments__input,
+.comments__textarea,
+.comments__select {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-control-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  color: inherit;
+  font: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* The browser's own arrow sits against the edge, so a select draws its own, in the text's colour. */
+.comments__select:not([multiple]) {
+  appearance: none;
+  padding-inline-end: calc(var(--comments-space-3) + 18px);
+  /* Two strokes, \ and /, meeting at the bottom. */
+  background-image:
+    linear-gradient(45deg, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+    linear-gradient(-45deg, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px));
+  background-position: calc(100% - var(--comments-space-3) - 5px) 50%, calc(100% - var(--comments-space-3)) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.comments__select:not([multiple]):dir(rtl) {
+  background-position: var(--comments-space-3) 50%, calc(var(--comments-space-3) + 5px) 50%;
+}
+
+.comments__field-required {
+  color: var(--comments-color-danger);
+}
+
+.comments__textarea {
+  min-block-size: 6rem;
+  resize: vertical;
+}
+
+/* The report's details start at the height of their three rows. */
+.comments__report-form .comments__textarea {
+  min-block-size: var(--comments-control-size);
+}
+
+.comments [aria-invalid='true'] {
+  border-color: var(--comments-color-danger);
+}
+
+.comments__field-error,
+.comments__form-error {
+  margin: 0;
+  color: var(--comments-color-danger);
+  font-size: 0.875em;
+}
+
+.comments__report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+}
+
+.comments__report-actions {
+  margin-block-start: var(--comments-space-4);
+}
+
+.comments__report-dialog {
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  color: var(--comments-color-text);
+}
+
+.comments__report-dialog::backdrop {
+  /* Older browsers don't pass custom properties on to a backdrop, so it keeps its own fallback. */
+  background: var(--comments-color-scrim, rgb(0 0 0 / 45%));
+}
+
+/* States */
+
+.comments__empty p,
+.comments__guest-notice,
+.comments__closed-notice,
+.comments__loading {
+  margin: 0;
+  color: var(--comments-color-muted);
+}
+
+.comments__empty p + p {
+  margin-block-start: var(--comments-space-1);
+}
+
+/* Confirmations and errors show as a small toast at the bottom of the thread, in the style of Editor's
+   tooltips. The base keeps it in view; successes fade on their own, and errors stay until the next
+   thing happens. */
+[data-comments-region='toast'] {
+  inset-block-end: var(--comments-space-4);
+}
+
+.comments__toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--comments-space-2);
+  max-inline-size: min(100%, 32rem);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border-radius: 0.5rem;
+  background: var(--comments-color-toast);
+  color: var(--comments-color-on-toast);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px -8px rgb(0 0 0 / 45%);
+  animation: comments-toast-in 0.18s ease-out;
+}
+
+.comments__toast[data-comments-state]::before {
+  content: '';
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  background: currentColor;
+  -webkit-mask: var(--_comments-toast-icon) center / contain no-repeat;
+  mask: var(--_comments-toast-icon) center / contain no-repeat;
+}
+
+.comments__toast[data-comments-state='success'] {
+  --_comments-toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+.comments__toast[data-comments-state='success']::before {
+  color: var(--comments-color-toast-success);
+}
+
+.comments__toast[data-comments-state='error'] {
+  --_comments-toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E");
+}
+
+.comments__toast[data-comments-state='error']::before {
+  color: var(--comments-color-toast-danger);
+}
+
+/* Try again reads as a link inside the toast. */
+.comments__toast button {
+  min-block-size: 0;
+  margin-inline-start: var(--comments-space-1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.comments__toast button:hover {
+  background: transparent;
+  opacity: 0.85;
+}
+
+@keyframes comments-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 40rem) {
+  .comments__moderation-actions {
+    margin-inline-start: 0;
+  }
+}
+
+/* Thread design: quiet actions, a menu, moderator review, guests' way in. */
+
+/* One line-icon style throughout, matching the editor's. A pressed vote fills its icon. */
+.comments__icon {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.comments__icon--more circle,
+.comments__vote[aria-pressed='true'] .comments__icon--heart {
+  fill: currentColor;
+}
+
+/* A pressed arrow can't fill like the heart, so it takes the colour and a heavier line. */
+.comments__vote[aria-pressed='true'] :is(.comments__icon--up, .comments__icon--down) {
+  stroke-width: 2.4;
+}
+
+.comments__heading .comments__count {
+  margin-inline-start: var(--comments-space-1);
+  font-size: 0.7em;
+  font-weight: 400;
+}
+
+.comments__sort {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--comments-color-surface-muted);
+}
+
+/* The sort options, a segmented pill. */
+.comments__sort-option:where(.comments__button) {
+  display: inline;
+  min-block-size: 0;
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--comments-color-muted);
+  /* Closer to the text colour than other muted text, since the pill behind it is grey. */
+  color: color-mix(in srgb, var(--comments-color-text) 60%, var(--comments-color-muted));
+  font-size: 0.875em;
+  font-weight: 400;
+  line-height: inherit;
+}
+
+.comments__sort-option:where(.comments__button):hover {
+  background: transparent;
+  color: var(--comments-color-text);
+}
+
+.comments__sort-option:where(.comments__button)[aria-pressed='true'] {
+  background: var(--comments-color-surface);
+  color: var(--comments-color-text);
+  font-weight: 600;
+}
+
+.comments__actions .comments__icon {
+  inline-size: 0.9375rem;
+  block-size: 0.9375rem;
+}
+
+/* The count for someone who can't like: the Like button's look, without being a control. */
+.comments .comments__vote-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  min-block-size: 1.75rem;
+  padding: var(--comments-space-1) var(--comments-space-2);
+  border: 1px solid transparent;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Up and down sit close around the score. */
+.comments [data-comments-interaction-mode='updown'] {
+  gap: 0;
+}
+
+.comments__vote[aria-pressed='true'] {
+  color: var(--comments-color-like);
+}
+
+[data-comments-interaction-mode='updown'] .comments__vote--up[aria-pressed='true'] {
+  color: var(--comments-color-accent);
+}
+
+.comments__follow:where(.comments__button) {
+  gap: var(--comments-space-2);
+}
+
+.comments__menu-items {
+  min-inline-size: 12rem;
+  margin-block-start: var(--comments-space-1);
+  padding: var(--comments-space-1);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.comments__menu-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--comments-space-1);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border: 1px solid transparent;
+  border-radius: calc(var(--comments-radius) - var(--comments-space-1));
+  background: transparent;
+  font-size: 0.875em;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.comments__menu-item:hover {
+  background: var(--comments-color-surface-muted);
+}
+
+/* Inside the menu, the focus ring is drawn within the item so it doesn't crowd the menu's edge. */
+.comments .comments__menu-item:focus-visible {
+  outline-offset: -2px;
+}
+
+.comments__menu-group {
+  display: grid;
+  margin-block-start: var(--comments-space-1);
+  padding-block-start: var(--comments-space-1);
+  border-block-start: 1px solid var(--comments-color-border);
+}
+
+.comments__menu-group:first-child {
+  margin-block-start: 0;
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.comments__menu-heading {
+  padding: var(--comments-space-1) var(--comments-space-3);
+  color: var(--comments-color-muted);
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comments__menu-item--danger {
+  color: var(--comments-color-danger);
+}
+
+.comments__avatar--initials:where(.comments__avatar) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--comments-color-on-avatar);
+  background: var(--comments-color-avatar-0);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.comments__avatar--initials:where(.comments__avatar)[data-tone='1'] { background: var(--comments-color-avatar-1); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='2'] { background: var(--comments-color-avatar-2); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='3'] { background: var(--comments-color-avatar-3); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='4'] { background: var(--comments-color-avatar-4); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='5'] { background: var(--comments-color-avatar-5); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='6'] { background: var(--comments-color-avatar-6); }
+.comments__avatar--initials:where(.comments__avatar)[data-tone='7'] { background: var(--comments-color-avatar-7); }
+
+.comments__avatar--small {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  font-size: 0.625em;
+}
+
+/* Held and reported comments, which only moderators see. */
+.comments__comment--held > article,
+.comments__comment--pending > article,
+.comments__comment--reported > article {
+  padding: var(--comments-space-3);
+  border: 1px solid var(--comments-color-held-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-held-surface);
+}
+
+.comments__comment--reported > article {
+  border-color: var(--comments-color-reported-border);
+  background: var(--comments-color-reported-surface);
+}
+
+.comments__review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+  margin-block-start: var(--comments-space-3);
+  padding-block-start: var(--comments-space-2);
+  border-block-start: 1px solid var(--comments-color-held-border);
+}
+
+.comments__review-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--comments-space-1);
+  margin: 0;
+  color: var(--comments-color-held-text);
+  font-size: 0.875em;
+}
+
+/* A reported comment's strip is red, like its card. */
+.comments__comment--reported > article > .comments__review {
+  border-block-start-color: var(--comments-color-reported-border);
+}
+
+.comments__comment--reported > article > .comments__review .comments__review-label {
+  color: var(--comments-color-reported-text);
+}
+
+/* On the amber and red moderator surfaces, quiet buttons take the surface's own border and hover tint
+   instead of the thread's grey. */
+.comments :is(.comments__moderator-bar, .comments__comment--held > article, .comments__comment--pending > article, .comments__comment--reported > article) {
+  --_comments-tint-border: var(--comments-color-held-border);
+}
+
+.comments .comments__comment--reported > article {
+  --_comments-tint-border: var(--comments-color-reported-border);
+}
+
+.comments :is(.comments__moderator-bar, .comments__comment--held > article, .comments__comment--reported > article) .comments__button--secondary {
+  border-color: var(--_comments-tint-border);
+}
+
+.comments :is(.comments__moderator-bar, .comments__comment--held > article, .comments__comment--reported > article) .comments__button--secondary:hover {
+  background: color-mix(in srgb, var(--_comments-tint-border) 35%, transparent);
+}
+
+.comments__moderator-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--comments-space-2);
+  inline-size: 100%;
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-held-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-held-surface);
+  color: var(--comments-color-held-text);
+}
+
+.comments__moderator-bar p {
+  margin: 0;
+}
+
+.comments__moderator-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+}
+
+.comments__join {
+  padding: var(--comments-space-4);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface);
+}
+
+.comments__join-title {
+  margin: 0;
+  font-size: 1em;
+}
+
+.comments__join-text {
+  margin: var(--comments-space-1) 0 var(--comments-space-3);
+  color: var(--comments-color-muted);
+}
+
+.comments__join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+}
+
+.comments__join-guest {
+  flex: 0 1 auto;
+}
+
+.comments__join-guest[open] {
+  flex-basis: 100%;
+}
+
+.comments__join-guest > summary {
+  list-style: none;
+}
+
+.comments__join-guest > summary:where(.comments__button) {
+  padding-inline: var(--comments-space-4);
+}
+
+.comments__join-guest > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Choosing to comment as a guest swaps the card for the editor, as a member would see it. Cancel
+   brings the card back. */
+.comments__join:has(.comments__join-guest[open]) {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* State, so `!important`, as the state hides in comments-base.css are: the site's own classes on these
+   buttons mustn't bring them back. */
+.comments__join:has(.comments__join-guest[open]) > :is(.comments__join-title, .comments__join-text),
+.comments__join-actions:has(.comments__join-guest[open]) > :not(.comments__join-guest[open]),
+.comments__join-guest[open] > summary {
+  display: none !important;
+}
+
+.comments__join-actions > .comments__button {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-4);
+  text-decoration: none;
+}
+
+.comments__join-actions:has(.comments__join-guest[open]) {
+  display: block;
+}
+
+.comments__posting-as {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+  margin: 0;
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+}
+
+.comments__posting-as b {
+  color: var(--comments-color-text);
+}
+
+.comments__report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--comments-space-2);
+  margin-block-end: var(--comments-space-3);
+}
+
+.comments__report-title {
+  margin: 0;
+  font-size: 1.05em;
+}
+
+.comments__report-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--comments-control-size);
+  padding: var(--comments-space-1) var(--comments-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--comments-radius);
+  background: transparent;
+  font-size: 1.25em;
+}
+
+.comments__report-close:hover {
+  background: var(--comments-color-surface-muted);
+}
+
+.comments__report-quote {
+  margin: 0 0 var(--comments-space-3);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border-inline-start: 3px solid var(--comments-color-border);
+  background: var(--comments-color-surface-muted);
+  font-size: 0.875em;
+}
+
+.comments__report-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--comments-space-2);
+  margin-block-end: var(--comments-space-2);
+  padding: var(--comments-space-2) var(--comments-space-3);
+  border: 1px solid var(--comments-color-border);
+  border-radius: var(--comments-radius);
+  cursor: pointer;
+}
+
+.comments__report-reason:has(input:checked) {
+  border-color: var(--comments-color-accent);
+}
+
+.comments__report-reason input {
+  margin-block-start: 0.25em;
+}
+
+.comments__report-reason-label {
+  display: block;
+  font-weight: 600;
+}
+
+.comments__report-reason-description {
+  display: block;
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+/* A flat thread, as the design shows: avatars and spacing separate comments, not boxes. Held and
+   reported comments get the only tinted box, so they stand out to moderators. */
+.comments__comment {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.comments__list {
+  gap: 1.25rem;
+}
+
+/* Editor's `<verbb-editor>`, themed from the thread's own tokens. */
+.comments verbb-editor {
+  --verbb-editor-accent: var(--comments-color-accent);
+  --verbb-editor-accent-fg: var(--comments-color-on-accent);
+  --verbb-editor-bg: var(--comments-color-surface);
+  --verbb-editor-fg: var(--comments-color-text);
+  --verbb-editor-muted: var(--comments-color-muted);
+  /* The text's box is a control, like the form's fields, so its edge is as clear as theirs. */
+  --verbb-editor-border: var(--comments-color-control-border);
+  --verbb-editor-hover: var(--comments-color-surface-muted);
+  --verbb-editor-danger: var(--comments-color-danger);
+  --verbb-editor-radius: var(--comments-radius);
+  --verbb-editor-font-family: inherit;
+}
+
+/* Collapsed, the editor is a pill that reads "Add to the conversation…". */
+.comments verbb-editor .verbb-editor.is-collapsed {
+  border-radius: 999px;
+}
+
+.comments verbb-editor .verbb-editor.is-collapsed .verbb-editor__body {
+  padding-inline: 16px;
+}
+
+.comments verbb-editor .verbb-editor__head .comments__posting-as,
+.comments verbb-editor .verbb-editor__head .comments__guest-fields {
+  flex: 1 0 100%;
+}
+
+.comments verbb-editor .verbb-editor__head .comments__posting-as {
+  flex-basis: auto;
+}
+
+.comments__meta-item {
+  color: var(--comments-color-muted);
+  font-size: 0.875em;
+}
+
+.comments__meta-item::before {
+  content: '· ';
+}
+
+/* Custom field values shown under a comment's text. */
+.comments__fields {
+  display: grid;
+  gap: var(--comments-space-1);
+  margin: var(--comments-space-2) 0 0;
+  font-size: 0.875em;
+}
+
+.comments__field-value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+}
+
+.comments__field-name {
+  color: var(--comments-color-muted);
+  font-weight: 600;
+}
+
+.comments__field-text {
+  margin: 0;
+}
+
+.comments__field-link,
+.comments__field-file {
+  color: var(--comments-color-link);
+  overflow-wrap: anywhere;
+}
+
+.comments__field-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-2);
+}
+
+span.comments__field-file {
+  color: inherit;
+}
+
+.comments__field-thumb {
+  display: block;
+  inline-size: 4rem;
+  block-size: 4rem;
+  border-radius: var(--comments-radius);
+  box-shadow: inset 0 0 0 1px var(--comments-color-border);
+}
+
+/* An Assets field's files on the comment form, drawn like Editor's uploads tray. Its size limit
+   reads as the field's instructions, above the button, as other fields' instructions are. */
+.comments__field--files {
+  justify-items: start;
+}
+
+/* The size limit sits beside Add a file, as a detail of the button rather than the field's
+   instructions, which stay under the label like every other field's. */
+.comments__field--files > :is(.comments__uploads, .comments__upload-row) {
+  margin-block-start: var(--comments-space-1);
+}
+
+.comments__upload-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--comments-space-1) var(--comments-space-3);
+}
+
+.comments__upload-limit {
+  color: var(--comments-color-muted);
+  font-size: 0.8125rem;
+}
+
+.comments__uploads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--comments-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comments__upload {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+  min-inline-size: 0;
+  max-inline-size: 15rem;
+  block-size: 4rem;
+  padding-block: 0;
+  padding-inline: 0.375rem 2rem;
+  border-radius: var(--comments-radius);
+  background: var(--comments-color-surface-muted);
+  box-shadow: inset 0 0 0 1px var(--comments-color-border);
+}
+
+.comments__upload--failed {
+  box-shadow: inset 0 0 0 1px var(--comments-color-danger);
+}
+
+.comments__upload--uploading {
+  opacity: 0.75;
+}
+
+.comments__upload-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 2.125rem;
+  block-size: 2.5rem;
+  border-radius: 0.3125rem;
+  background: var(--comments-color-surface);
+  box-shadow: 0 0 0 1px var(--comments-color-border);
+  color: var(--comments-color-accent);
+}
+
+.comments__upload-text {
+  display: grid;
+  gap: 0.1875rem;
+  min-inline-size: 0;
+  font-size: 0.8125rem;
+}
+
+.comments__upload-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comments__upload-meta {
+  color: var(--comments-color-muted);
+}
+
+.comments__upload--failed .comments__upload-meta {
+  color: var(--comments-color-danger);
+}
+
+.comments__upload-remove,
+.comments__upload-retry {
+  position: absolute;
+  inset-block-start: 0.25rem;
+  inset-inline-end: 0.25rem;
+  display: grid;
+  place-items: center;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--comments-color-toast);
+  color: var(--comments-color-on-toast);
+  cursor: pointer;
+}
+
+.comments__upload-retry {
+  inset-block: auto 0.25rem;
+}
+
+.comments__upload-remove .comments__icon,
+.comments__upload-retry .comments__icon {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  stroke-width: 2.4;
+}
+
+@media (pointer: coarse) {
+  .comments__upload-remove::after,
+  .comments__upload-retry::after {
+    content: '';
+    position: absolute;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+}
+
+.comments__upload-add {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--comments-space-1);
+}
+
+/* The line before the thread arrives. */
+.comments__loading[aria-busy='true'] {
+  animation: comments-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes comments-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Arrows that mean "back", such as Reply's, point the other way in a right-to-left language. */
+[dir='rtl'] :is(.comments__icon--reply, .comments__frame-reply > .comments__frame-icon) {
+  transform: scaleX(-1);
+}
+
+/* A failed load: the reason and Try again, in place of the loading line. */
+.comments__load-error > .comments__loading {
+  margin-block-end: var(--comments-space-2);
+}

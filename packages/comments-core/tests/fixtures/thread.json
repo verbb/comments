@@ -1,0 +1,221 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "threadVersion": "v1",
+    "conversation": {
+        "uid": "9f3a2c1e-0000-4000-8000-000000000109",
+        "ownerId": 109,
+        "siteId": 1,
+        "status": "open",
+        "closedNotice": null,
+        "commentCount": 6,
+        "rootCount": 3,
+        "sort": "newest",
+        "sorts": [
+            "newest",
+            "oldest",
+            "top"
+        ],
+        "interactionMode": "like",
+        "maxLength": 5000,
+        "guestPolicy": {
+            "allowed": true,
+            "nameAndEmail": "required",
+            "canVote": false,
+            "canReport": true
+        },
+        "followAvailable": true,
+        "reportReasons": [
+            {
+                "value": "spam",
+                "label": "Spam",
+                "description": null
+            },
+            {
+                "value": "harassment",
+                "label": "Harassment",
+                "description": "Abuse aimed at a person."
+            }
+        ]
+    },
+    "editor": {
+        "authoring": "rich",
+        "maxLength": 5000,
+        "richEditor": {
+            "context": "comments.reply",
+            "module": "https://example.com/cpresources/abc/editor.js",
+            "css": "https://example.com/cpresources/abc/editor.css"
+        }
+    },
+    "comments": [
+        {
+            "uid": "c1",
+            "parentUid": null,
+            "depth": 0,
+            "state": "approved",
+            "content": {
+                "format": "rich",
+                "html": "<p>Ice and rest for a week.</p>",
+                "text": "Ice and rest for a week.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Alex Morgan",
+                "initials": "AM",
+                "avatarUrl": "https://example.com/uploads/am.jpg",
+                "avatarTone": 3,
+                "isGuest": false,
+                "badges": [
+                    {
+                        "type": "owner",
+                        "label": "Author"
+                    }
+                ],
+                "score": null
+            },
+            "createdAt": "2026-11-09T21:04:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-c1",
+            "fields": [
+                {
+                    "handle": "location",
+                    "label": "Where are you?",
+                    "type": "text",
+                    "placement": "inline",
+                    "value": "Rotorua",
+                    "text": "Rotorua"
+                },
+                {
+                    "handle": "photo",
+                    "label": "Photo",
+                    "type": "file",
+                    "placement": "details",
+                    "value": [
+                        {
+                            "url": "https://example.com/uploads/comments/run.jpg",
+                            "filename": "run.jpg",
+                            "kind": "image",
+                            "width": 1200,
+                            "height": 800
+                        }
+                    ],
+                    "text": "run.jpg"
+                }
+            ],
+            "interaction": {
+                "upvotes": 3,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {
+                "verifiedBuyer": true
+            },
+            "replies": {
+                "count": 2,
+                "items": [
+                    {
+                        "uid": "r1",
+                        "parentUid": "c1",
+                        "depth": 1,
+                        "state": "approved",
+                        "content": {
+                            "format": "rich",
+                            "html": "<p>Same here, rest helped.</p>",
+                            "text": "Same here, rest helped.",
+                            "gifUrl": null,
+                            "gifWidth": null,
+                            "gifHeight": null
+                        },
+                        "author": {
+                            "name": "Sam Lee",
+                            "initials": "SL",
+                            "avatarUrl": "https://example.com/uploads/sl.jpg",
+                            "avatarTone": 1,
+                            "isGuest": false,
+                            "badges": [],
+                            "score": null
+                        },
+                        "createdAt": "2026-11-09T22:00:00+00:00",
+                        "editedAt": null,
+                        "display": {
+                            "timeAgo": "2 hours ago",
+                            "fullDate": "9 November 2026, 9:04 pm"
+                        },
+                        "permalink": "https://example.com/blog/trail-running-knees#comment-r1",
+                        "fields": [],
+                        "interaction": {
+                            "upvotes": 0,
+                            "downvotes": 0
+                        },
+                        "folded": null,
+                        "custom": {},
+                        "replies": {
+                            "count": 0,
+                            "items": [],
+                            "next": null
+                        }
+                    }
+                ],
+                "next": "cursor-replies-c1"
+            }
+        },
+        {
+            "uid": "c2",
+            "parentUid": null,
+            "depth": 0,
+            "state": "approved",
+            "content": {
+                "format": "plain",
+                "html": null,
+                "text": "Try a foam roller.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Jo",
+                "initials": "J",
+                "avatarUrl": null,
+                "avatarTone": 4,
+                "isGuest": true,
+                "badges": [],
+                "score": null
+            },
+            "createdAt": "2026-11-09T20:00:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-c2",
+            "fields": [],
+            "interaction": {
+                "upvotes": 0,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {},
+            "replies": {
+                "count": 0,
+                "items": [],
+                "next": null
+            }
+        }
+    ],
+    "page": {
+        "next": "cursor-roots-2",
+        "limit": 2
+    },
+    "labels": {
+        "reply": "Reply",
+        "like": "Like",
+        "post": "Post"
+    },
+    "locale": "en-GB"
+}

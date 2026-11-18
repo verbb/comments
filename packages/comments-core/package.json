@@ -1,0 +1,64 @@
+{
+    "name": "@verbb/comments-core",
+    "version": "4.0.0-beta.1",
+    "description": "The data layer for Comments front ends, with the JSON types, REST and GraphQL transports, sign-in and a thread store, and no DOM.",
+    "keywords": [
+        "craftcms",
+        "comments"
+    ],
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "schema",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "author": "Verbb",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/verbb/comments.git",
+        "directory": "packages/comments-core"
+    },
+    "bugs": {
+        "url": "https://github.com/verbb/comments/issues"
+    },
+    "homepage": "https://docs.verbb.io/comments",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./graphql": {
+            "types": "./dist/graphql.d.ts",
+            "import": "./dist/graphql.js"
+        },
+        "./schema/data.json": "./schema/data.json",
+        "./package.json": "./package.json"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tests/tsconfig.json",
+        "test": "vitest run",
+        "schema": "node scripts/generate-schema.mjs --write"
+    },
+    "dependencies": {
+        "@verbb/protect": "file:../../../../../protect/craft5/plugin/packages/protect"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.3",
+        "vite": "^8.3.5",
+        "vitest": "4.1.11"
+    }
+}

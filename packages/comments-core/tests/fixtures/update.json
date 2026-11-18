@@ -1,0 +1,62 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "r1",
+        "parentUid": "c1",
+        "depth": 1,
+        "state": "approved",
+        "content": {
+            "format": "rich",
+            "html": "<p>Edited.</p>",
+            "text": "Edited.",
+            "gifUrl": null,
+            "gifWidth": null,
+            "gifHeight": null
+        },
+        "author": {
+            "name": "Sam Lee",
+            "initials": "SL",
+            "avatarUrl": "https://example.com/uploads/sl.jpg",
+            "avatarTone": 1,
+            "isGuest": false,
+            "badges": [],
+            "score": null
+        },
+        "createdAt": "2026-11-09T22:00:00+00:00",
+        "editedAt": "2026-11-10T09:05:00+00:00",
+        "display": {
+            "timeAgo": "2 hours ago",
+            "fullDate": "9 November 2026, 9:04 pm"
+        },
+        "permalink": "https://example.com/blog/trail-running-knees#comment-r1",
+        "fields": [],
+        "interaction": {
+            "upvotes": 0,
+            "downvotes": 0
+        },
+        "folded": null,
+        "custom": {},
+        "replies": {
+            "count": 0,
+            "items": [],
+            "next": null
+        },
+        "viewer": {
+            "canReply": true,
+            "canEdit": true,
+            "canDelete": true,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": false,
+            "vote": null,
+            "reported": false,
+            "isAuthor": true,
+            "moderation": null,
+            "custom": {}
+        }
+    },
+    "moderationState": "approved",
+    "announcement": "Comment updated.",
+    "replayed": false
+}

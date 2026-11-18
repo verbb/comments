@@ -1,0 +1,72 @@
+{
+    "name": "@verbb/comments-vue",
+    "version": "4.0.0-beta.1",
+    "description": "Vue components and composables for Comments threads, with a plugin for settings, component part overrides, composables for your own interface and server helpers.",
+    "keywords": [
+        "craftcms",
+        "comments",
+        "vue"
+    ],
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "author": "Verbb",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/verbb/comments.git",
+        "directory": "packages/comments-vue"
+    },
+    "bugs": {
+        "url": "https://github.com/verbb/comments/issues"
+    },
+    "homepage": "https://docs.verbb.io/comments",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./server": {
+            "types": "./dist/server.d.ts",
+            "import": "./dist/server.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tests/tsconfig.json",
+        "test": "vitest run",
+        "test:browser": "node tests/browser/run.mjs"
+    },
+    "peerDependencies": {
+        "vue": "^3.5.0"
+    },
+    "dependencies": {
+        "@verbb/comments-browser": "4.0.0-beta.1",
+        "@verbb/comments-core": "4.0.0-beta.1",
+        "@verbb/editor": "file:../../../../../editor/craft5/plugin/packages/editor",
+        "@verbb/protect": "file:../../../../../protect/craft5/plugin/packages/protect"
+    },
+    "devDependencies": {
+        "@vue/test-utils": "2.5.1",
+        "happy-dom": "21.0.4",
+        "typescript": "^5.7.3",
+        "vite": "^8.3.5",
+        "vitest": "4.1.11",
+        "vue": "3.5.45"
+    }
+}

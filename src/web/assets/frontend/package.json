@@ -1,0 +1,15 @@
+{
+    "name": "comments-frontend",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "@verbb/comments-browser": "4.0.0-beta.1"
+    },
+    "devDependencies": {
+        "vite": "^8.3.5"
+    },
+    "scripts": {
+        "prebuild": "node ../../../../scripts/check-frontend-pin.mjs",
+        "build": "vite build && vite build --mode css && node layered.mjs"
+    }
+}

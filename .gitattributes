@@ -4,6 +4,8 @@
 /docs export-ignore
 /marketing export-ignore
 /output export-ignore
+/packages export-ignore
+/scripts export-ignore
 /screenshots export-ignore
 /tests export-ignore
 /.gitattributes export-ignore
@@ -12,10 +14,11 @@
 /package.json export-ignore
 /package-lock.json export-ignore
 /phpunit.craft.xml export-ignore
-/tsconfig.frontend.json export-ignore
-/tsconfig.types.json export-ignore
-/vite.frontend.config.ts export-ignore
-/src/resources/src export-ignore
+/src/web/assets/frontend/src export-ignore
+/src/web/assets/frontend/package.json export-ignore
+/src/web/assets/frontend/vite.config.mjs export-ignore
+/src/web/assets/frontend/layered.mjs export-ignore
+/src/web/assets/frontend/dist/manifest.json export-ignore
 *.map export-ignore
 
 * text=auto

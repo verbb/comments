@@ -1,0 +1,261 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "threadVersion": "v1",
+    "viewer": {
+        "isGuest": false,
+        "hasSession": true,
+        "name": "Alex Morgan",
+        "initials": "AM",
+        "avatarUrl": null,
+        "avatarTone": 2,
+        "badges": [
+            {
+                "type": "staff",
+                "label": "Staff"
+            }
+        ],
+        "canComment": true,
+        "canVote": true,
+        "canReport": true,
+        "isModerator": true,
+        "blocked": false,
+        "loginUrl": null,
+        "follow": {
+            "available": true,
+            "following": false,
+            "needsEmail": false
+        }
+    },
+    "editor": {
+        "draftKey": "comments-109-1-7",
+        "guest": {
+            "show": false,
+            "required": false,
+            "name": null,
+            "email": null,
+            "offerReplyEmails": false
+        },
+        "fields": {
+            "comment": [],
+            "reply": []
+        },
+        "protection": null,
+        "richEditor": null,
+        "gifs": null
+    },
+    "comments": {
+        "c1": {
+            "canReply": true,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": true,
+            "vote": null,
+            "reported": false,
+            "isAuthor": false,
+            "moderation": null,
+            "custom": {}
+        },
+        "c2": {
+            "canReply": true,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": true,
+            "vote": null,
+            "reported": false,
+            "isAuthor": false,
+            "moderation": null,
+            "custom": {}
+        }
+    },
+    "extraComments": [
+        {
+            "uid": "h1",
+            "parentUid": null,
+            "depth": 0,
+            "state": "held",
+            "content": {
+                "format": "rich",
+                "html": "<p>Buy cheap shoes here.</p>",
+                "text": "Buy cheap shoes here.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Jo",
+                "initials": "J",
+                "avatarUrl": null,
+                "avatarTone": 4,
+                "isGuest": true,
+                "badges": [],
+                "score": null
+            },
+            "createdAt": "2026-11-09T21:30:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-h1",
+            "fields": [],
+            "interaction": {
+                "upvotes": 0,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {},
+            "replies": {
+                "count": 0,
+                "items": [],
+                "next": null
+            },
+            "moderation": {
+                "reviewLabel": "Possible spam",
+                "openReportCount": 0,
+                "actions": [
+                    "approve",
+                    "spam",
+                    "remove"
+                ]
+            },
+            "viewer": {
+                "canReply": false,
+                "canEdit": false,
+                "canDelete": false,
+                "canVote": false,
+                "canDownvote": false,
+                "canReport": false,
+                "vote": null,
+                "reported": false,
+                "isAuthor": false,
+                "moderation": {
+                    "reviewLabel": "Possible spam",
+                    "openReportCount": 0,
+                    "actions": [
+                        "approve",
+                        "spam",
+                        "remove"
+                    ]
+                },
+                "custom": {}
+            }
+        },
+        {
+            "uid": "h2",
+            "parentUid": "c1",
+            "depth": 1,
+            "state": "reported",
+            "content": {
+                "format": "rich",
+                "html": "<p>A reported reply.</p>",
+                "text": "A reported reply.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Sam Lee",
+                "initials": "SL",
+                "avatarUrl": "https://example.com/uploads/sl.jpg",
+                "avatarTone": 1,
+                "isGuest": false,
+                "badges": [],
+                "score": null
+            },
+            "createdAt": "2026-11-09T22:30:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-h2",
+            "fields": [],
+            "interaction": {
+                "upvotes": 0,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {},
+            "replies": {
+                "count": 0,
+                "items": [],
+                "next": null
+            },
+            "moderation": {
+                "reviewLabel": "Reported",
+                "openReportCount": 1,
+                "actions": [
+                    "keep",
+                    "remove"
+                ]
+            }
+        },
+        {
+            "uid": "h3",
+            "parentUid": "zz",
+            "depth": 1,
+            "state": "held",
+            "content": {
+                "format": "rich",
+                "html": "<p>A held reply to a comment on a later page.</p>",
+                "text": "A held reply to a comment on a later page.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Sam Lee",
+                "initials": "SL",
+                "avatarUrl": "https://example.com/uploads/sl.jpg",
+                "avatarTone": 1,
+                "isGuest": false,
+                "badges": [],
+                "score": null
+            },
+            "createdAt": "2026-11-09T22:40:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-h3",
+            "fields": [],
+            "interaction": {
+                "upvotes": 0,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {},
+            "replies": {
+                "count": 0,
+                "items": [],
+                "next": null
+            },
+            "moderation": {
+                "reviewLabel": "Held",
+                "openReportCount": 0,
+                "actions": [
+                    "approve",
+                    "remove"
+                ]
+            }
+        }
+    ],
+    "moderation": {
+        "heldCount": 2,
+        "reportedCount": 1,
+        "reviewUrl": "https://example.com/admin/comments?ownerId=109&source=needs-review"
+    },
+    "csrf": {
+        "name": "CRAFT_CSRF_TOKEN",
+        "value": "csrf-moderator"
+    },
+    "custom": {
+        "plan": "pro"
+    }
+}

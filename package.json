@@ -2,26 +2,52 @@
     "name": "verbb-comments-cp",
     "private": true,
     "workspaces": [
-        "docs"
+        "docs",
+        "packages/*",
+        "src/web/assets/frontend"
     ],
     "type": "module",
     "scripts": {
-        "build": "npm run build:frontend && npm run build:cp",
-        "build:frontend": "npm run typecheck:frontend && vite build --config vite.frontend.config.ts && npm run typecheck:types",
+        "build": "npm run build:cp && npm run build:assets",
         "build:cp": "npm run typecheck:cp && vite build --config vite.cp.config.ts",
+        "build:packages": "npm run build -w @verbb/comments-core && npm run build -w @verbb/comments-browser && npm run build -w @verbb/comments-web-components && npm run build -w @verbb/comments-react && npm run build -w @verbb/comments-vue",
+        "test:packages": "npm run typecheck -w @verbb/comments-core && npm run test -w @verbb/comments-core && npm run typecheck -w @verbb/comments-browser && npm run test -w @verbb/comments-browser && npm run typecheck -w @verbb/comments-web-components && npm run test -w @verbb/comments-web-components && npm run typecheck -w @verbb/comments-react && npm run test -w @verbb/comments-react && npm run typecheck -w @verbb/comments-vue && npm run test -w @verbb/comments-vue",
+        "check:packages": "npm run test:packages && npm run build:assets && npm run check:package-size && npm run check:package-pack",
+        "check:package-size": "node scripts/check-package-size.mjs",
+        "check:package-pack": "node scripts/check-package-pack.mjs --allow-local-links",
         "screenshots": "npm --prefix screenshots run screenshots --",
-        "typecheck:frontend": "tsc -p tsconfig.frontend.json",
         "typecheck:cp": "tsc -p tsconfig.cp.json",
-        "typecheck:types": "tsc -p tsconfig.types.json",
-        "dev:plugin-docs": "npm run docs:dev --prefix docs"
+        "dev:plugin-docs": "npm run docs:dev --prefix docs",
+        "dev:package-docs": "npm run docs:dev -w @verbb/comments-frontend-docs",
+        "build:package-docs": "npm run docs:build -w @verbb/comments-frontend-docs",
+        "docs:reference": "node scripts/docs-reference.mjs",
+        "check:docs": "node scripts/docs-check-reference.mjs && node scripts/docs-check-links.mjs && node scripts/docs-check-prose.mjs",
+        "test:browser": "node tests/browser/load-modes.mjs && node packages/comments-browser/tests/browser/run.mjs && node packages/comments-react/tests/browser/run.mjs && node packages/comments-vue/tests/browser/run.mjs",
+        "build:assets": "npm run build:packages && npm run build -w comments-frontend",
+        "release:prepare": "node scripts/prepare-release.mjs",
+        "release:check-lockfile": "node scripts/prepare-release.mjs --check-lockfile",
+        "release:refresh-lockfile": "node scripts/prepare-release.mjs --refresh-lockfile-only",
+        "release:rehearse": "node scripts/rehearse-release.mjs",
+        "release:publish-prepared": "node scripts/publish-prepared.mjs",
+        "test:release": "node --test tests/scripts/package-release.test.mjs"
     },
     "dependencies": {
         "@verbb/plugin-kit-web": "file:../../../plugin-kit/plugin-kit/plugin-kit-web",
         "@verbb/protect": "file:../../../protect/craft5/plugin/packages/protect"
     },
     "devDependencies": {
+        "@arethetypeswrong/cli": "0.18.5",
         "@verbb/editor": "file:../../../editor/craft5/plugin/packages/editor",
+        "publint": "0.3.25",
         "typescript": "^5.7.3",
         "vite": "^8.3.5"
+    },
+    "overrides": {
+        "vitest": "4.1.11",
+        "@docsearch/react": {
+            "react": "19.3.1",
+            "react-dom": "19.3.1",
+            "@types/react": "19.3.0"
+        }
     }
 }

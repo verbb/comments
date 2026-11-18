@@ -1,0 +1,100 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "parentUid": "c1",
+    "replies": {
+        "count": 2,
+        "items": [
+            {
+                "uid": "r1",
+                "parentUid": "c1",
+                "depth": 1,
+                "state": "approved",
+                "content": {
+                    "format": "rich",
+                    "html": "<p>Same here, rest helped.</p>",
+                    "text": "Same here, rest helped.",
+                    "gifUrl": null,
+                    "gifWidth": null,
+                    "gifHeight": null
+                },
+                "author": {
+                    "name": "Sam Lee",
+                    "initials": "SL",
+                    "avatarUrl": "https://example.com/uploads/sl.jpg",
+                    "avatarTone": 1,
+                    "isGuest": false,
+                    "badges": [],
+                    "score": null
+                },
+                "createdAt": "2026-11-09T22:00:00+00:00",
+                "editedAt": null,
+                "display": {
+                    "timeAgo": "2 hours ago",
+                    "fullDate": "9 November 2026, 9:04 pm"
+                },
+                "permalink": "https://example.com/blog/trail-running-knees#comment-r1",
+                "fields": [],
+                "interaction": {
+                    "upvotes": 0,
+                    "downvotes": 0
+                },
+                "folded": null,
+                "custom": {},
+                "replies": {
+                    "count": 0,
+                    "items": [],
+                    "next": null
+                }
+            },
+            {
+                "uid": "r2",
+                "parentUid": "c1",
+                "depth": 1,
+                "state": "approved",
+                "content": {
+                    "format": "rich",
+                    "html": "<p>Thanks both.</p>",
+                    "text": "Thanks both.",
+                    "gifUrl": null,
+                    "gifWidth": null,
+                    "gifHeight": null
+                },
+                "author": {
+                    "name": "Alex Morgan",
+                    "initials": "AM",
+                    "avatarUrl": "https://example.com/uploads/am.jpg",
+                    "avatarTone": 3,
+                    "isGuest": false,
+                    "badges": [
+                        {
+                            "type": "owner",
+                            "label": "Author"
+                        }
+                    ],
+                    "score": null
+                },
+                "createdAt": "2026-11-09T23:00:00+00:00",
+                "editedAt": null,
+                "display": {
+                    "timeAgo": "2 hours ago",
+                    "fullDate": "9 November 2026, 9:04 pm"
+                },
+                "permalink": "https://example.com/blog/trail-running-knees#comment-r2",
+                "fields": [],
+                "interaction": {
+                    "upvotes": 0,
+                    "downvotes": 0
+                },
+                "folded": null,
+                "custom": {},
+                "replies": {
+                    "count": 0,
+                    "items": [],
+                    "next": null
+                }
+            }
+        ],
+        "next": null
+    }
+}

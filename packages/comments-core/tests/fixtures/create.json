@@ -1,0 +1,70 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "n1",
+        "parentUid": null,
+        "depth": 0,
+        "state": "approved",
+        "content": {
+            "format": "rich",
+            "html": "<p>A new comment.</p>",
+            "text": "A new comment.",
+            "gifUrl": null,
+            "gifWidth": null,
+            "gifHeight": null
+        },
+        "author": {
+            "name": "Alex Morgan",
+            "initials": "AM",
+            "avatarUrl": "https://example.com/uploads/am.jpg",
+            "avatarTone": 3,
+            "isGuest": false,
+            "badges": [
+                {
+                    "type": "owner",
+                    "label": "Author"
+                }
+            ],
+            "score": null
+        },
+        "createdAt": "2026-11-10T09:00:00+00:00",
+        "editedAt": null,
+        "display": {
+            "timeAgo": "2 hours ago",
+            "fullDate": "9 November 2026, 9:04 pm"
+        },
+        "permalink": "https://example.com/blog/trail-running-knees#comment-n1",
+        "fields": [],
+        "interaction": {
+            "upvotes": 0,
+            "downvotes": 0
+        },
+        "folded": null,
+        "custom": {},
+        "replies": {
+            "count": 0,
+            "items": [],
+            "next": null
+        },
+        "viewer": {
+            "canReply": true,
+            "canEdit": true,
+            "canDelete": true,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": false,
+            "vote": null,
+            "reported": false,
+            "isAuthor": true,
+            "moderation": null,
+            "custom": {}
+        }
+    },
+    "moderationState": "approved",
+    "conversation": {
+        "commentCount": 7
+    },
+    "announcement": "Comment posted.",
+    "replayed": false
+}

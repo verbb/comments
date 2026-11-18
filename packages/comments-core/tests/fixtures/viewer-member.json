@@ -1,0 +1,220 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "threadVersion": "v1",
+    "viewer": {
+        "isGuest": false,
+        "hasSession": true,
+        "name": "Alex Morgan",
+        "initials": "AM",
+        "avatarUrl": null,
+        "avatarTone": 2,
+        "badges": [
+            {
+                "type": "staff",
+                "label": "Staff"
+            }
+        ],
+        "canComment": true,
+        "canVote": true,
+        "canReport": true,
+        "isModerator": false,
+        "blocked": false,
+        "loginUrl": null,
+        "follow": {
+            "available": true,
+            "following": false,
+            "needsEmail": false
+        }
+    },
+    "editor": {
+        "draftKey": "comments-109-1-7",
+        "guest": {
+            "show": false,
+            "required": false,
+            "name": null,
+            "email": null,
+            "offerReplyEmails": false
+        },
+        "fields": {
+            "comment": [
+                {
+                    "handle": "rating",
+                    "uid": "c0a1-rating",
+                    "label": "Rating",
+                    "instructions": null,
+                    "required": true,
+                    "type": "radio",
+                    "multiple": false,
+                    "options": [
+                        {
+                            "label": "1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "5",
+                            "value": "5"
+                        }
+                    ],
+                    "attributes": {},
+                    "public": true,
+                    "placement": "details"
+                },
+                {
+                    "handle": "photo",
+                    "uid": "c0a1-photo",
+                    "label": "Photo",
+                    "instructions": "Up to two images.",
+                    "required": false,
+                    "type": "file",
+                    "multiple": true,
+                    "options": [],
+                    "attributes": {},
+                    "public": true,
+                    "accept": [
+                        ".jpg",
+                        ".jpeg",
+                        ".png"
+                    ],
+                    "maxFiles": 2,
+                    "maxSize": 5242880,
+                    "placement": "details"
+                }
+            ],
+            "reply": []
+        },
+        "protection": {
+            "version": 1,
+            "manifest": {
+                "version": 1,
+                "instanceId": "pi-1",
+                "preparation": "prep-1",
+                "issuedAt": 1762810000,
+                "expiresAt": 1762810600,
+                "honeypot": "a1b2c3",
+                "javascript": true,
+                "challenges": []
+            },
+            "expiresAt": 1762810600
+        },
+        "richEditor": {
+            "context": "comments.reply",
+            "options": {
+                "endpoints": {
+                    "mentions": "/actions/comments/api/mentions",
+                    "upload": "/actions/comments/api/upload"
+                }
+            }
+        },
+        "gifs": null
+    },
+    "comments": {
+        "c1": {
+            "canReply": true,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": true,
+            "vote": "upvote",
+            "reported": false,
+            "isAuthor": false,
+            "moderation": null,
+            "custom": {}
+        },
+        "c2": {
+            "canReply": true,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": true,
+            "vote": null,
+            "reported": false,
+            "isAuthor": false,
+            "moderation": null,
+            "custom": {}
+        },
+        "r1": {
+            "canReply": true,
+            "canEdit": true,
+            "canDelete": true,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": false,
+            "vote": null,
+            "reported": false,
+            "isAuthor": true,
+            "moderation": null,
+            "custom": {}
+        }
+    },
+    "extraComments": [
+        {
+            "uid": "p1",
+            "parentUid": null,
+            "depth": 0,
+            "state": "pending",
+            "content": {
+                "format": "rich",
+                "html": "<p>My pending comment.</p>",
+                "text": "My pending comment.",
+                "gifUrl": null,
+                "gifWidth": null,
+                "gifHeight": null
+            },
+            "author": {
+                "name": "Alex Morgan",
+                "initials": "AM",
+                "avatarUrl": "https://example.com/uploads/am.jpg",
+                "avatarTone": 3,
+                "isGuest": false,
+                "badges": [
+                    {
+                        "type": "owner",
+                        "label": "Author"
+                    }
+                ],
+                "score": null
+            },
+            "createdAt": "2026-11-10T08:00:00+00:00",
+            "editedAt": null,
+            "display": {
+                "timeAgo": "2 hours ago",
+                "fullDate": "9 November 2026, 9:04 pm"
+            },
+            "permalink": "https://example.com/blog/trail-running-knees#comment-p1",
+            "fields": [],
+            "interaction": {
+                "upvotes": 0,
+                "downvotes": 0
+            },
+            "folded": null,
+            "custom": {},
+            "replies": {
+                "count": 0,
+                "items": [],
+                "next": null
+            },
+            "viewer": {
+                "canReply": true,
+                "canEdit": true,
+                "canDelete": true,
+                "canVote": true,
+                "canDownvote": false,
+                "canReport": false,
+                "vote": null,
+                "reported": false,
+                "isAuthor": true,
+                "moderation": null,
+                "custom": {}
+            }
+        }
+    ],
+    "moderation": null,
+    "csrf": {
+        "name": "CRAFT_CSRF_TOKEN",
+        "value": "csrf-member"
+    },
+    "custom": {}
+}

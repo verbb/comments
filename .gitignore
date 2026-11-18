@@ -31,6 +31,7 @@
 # BUILD FILES
 /bower_components/*
 /node_modules/*
+/packages/*/node_modules/
 /build/*
 /yarn-error.log
 

@@ -1,0 +1,26 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "comment": {
+        "uid": "c2",
+        "interaction": {
+            "upvotes": 1,
+            "downvotes": 0
+        },
+        "viewer": {
+            "canReply": true,
+            "canEdit": false,
+            "canDelete": false,
+            "canVote": true,
+            "canDownvote": false,
+            "canReport": true,
+            "vote": "upvote",
+            "reported": false,
+            "isAuthor": false,
+            "moderation": null,
+            "custom": {}
+        }
+    },
+    "announcement": "Interaction saved.",
+    "replayed": false
+}

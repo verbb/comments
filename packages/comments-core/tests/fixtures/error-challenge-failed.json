@@ -1,0 +1,14 @@
+{
+    "apiVersion": 1,
+    "status": "error",
+    "errors": [
+        {
+            "category": "protection",
+            "code": "challenge_failed",
+            "message": "Verification failed. Please try again.",
+            "fieldErrors": {},
+            "recoverable": false,
+            "retryAfter": null
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "uid": "c2",
+    "conversation": {
+        "commentCount": 5
+    },
+    "announcement": "Comment deleted.",
+    "replayed": false
+}

@@ -1,0 +1,14 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "viewer": {
+        "follow": {
+            "available": true,
+            "following": true,
+            "needsEmail": false
+        }
+    },
+    "outcome": "followed",
+    "announcement": "You’re following this conversation.",
+    "replayed": false
+}

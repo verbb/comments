@@ -1,0 +1,14 @@
+{
+    "apiVersion": 1,
+    "status": "error",
+    "errors": [
+        {
+            "category": "request",
+            "code": "unsupported_api_version",
+            "message": "This site serves version 1 of the comments API.",
+            "fieldErrors": {},
+            "recoverable": false,
+            "retryAfter": null
+        }
+    ]
+}

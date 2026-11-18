@@ -1,0 +1,21 @@
+{
+    "apiVersion": 1,
+    "status": "error",
+    "errors": [
+        {
+            "category": "validation",
+            "code": "validation_failed",
+            "message": "Please fix the errors below.",
+            "fieldErrors": {
+                "content": [
+                    "Write something first."
+                ],
+                "fields.rating": [
+                    "Rating cannot be blank."
+                ]
+            },
+            "recoverable": true,
+            "retryAfter": null
+        }
+    ]
+}

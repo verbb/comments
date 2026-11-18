@@ -1,0 +1,2494 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://docs.verbb.io/comments/schema/data.json",
+    "title": "Comments data API",
+    "description": "The JSON sent and accepted by the Comments data API (comments/api/*) for API version 1, generated from @verbb/comments-core’s types.",
+    "$defs": {
+        "ApiVersion": {
+            "description": "The version of the JSON format, sent as `apiVersion` and the `X-Comments-Api-Version` header.",
+            "const": 1
+        },
+        "AuthorData": {
+            "description": "The public author: no user ID, email or identity ID.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "initials": {
+                    "type": "string"
+                },
+                "avatarUrl": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "avatarTone": {
+                    "type": "number"
+                },
+                "isGuest": {
+                    "type": "boolean"
+                },
+                "badges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/BadgeData"
+                    }
+                },
+                "score": {
+                    "description": "The signed-in author's net votes across their approved comments, while the site shows author scores. Null for a guest, or when scores are off.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "name",
+                "initials",
+                "avatarUrl",
+                "avatarTone",
+                "isGuest",
+                "badges",
+                "score"
+            ]
+        },
+        "BadgeData": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "label"
+            ]
+        },
+        "CommentCountData": {
+            "type": "object",
+            "properties": {
+                "commentCount": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "commentCount"
+            ]
+        },
+        "CommentData": {
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string"
+                },
+                "parentUid": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "depth": {
+                    "type": "number"
+                },
+                "state": {
+                    "$ref": "#/$defs/CommentState"
+                },
+                "content": {
+                    "description": "Null on a placeholder.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/ContentData"
+                        }
+                    ]
+                },
+                "author": {
+                    "description": "Null on a placeholder.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/AuthorData"
+                        }
+                    ]
+                },
+                "createdAt": {
+                    "description": "Null on a placeholder.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "editedAt": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "display": {
+                    "description": "Null on a placeholder.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/DisplayData"
+                        }
+                    ]
+                },
+                "permalink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/FieldValueData"
+                    }
+                },
+                "interaction": {
+                    "description": "Null on a placeholder, or when voting is off.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/InteractionData"
+                        }
+                    ]
+                },
+                "folded": {
+                    "description": "Why the thread folds the comment away, as Comments 3 hid it: `reports` once it has the site's number of open reports, or `downvotes` once it has its number of downvotes. It's still public, and its moderation state is unchanged; a reader can open it. Null when it isn't folded.",
+                    "enum": [
+                        null,
+                        "reports",
+                        "downvotes"
+                    ]
+                },
+                "custom": {
+                    "description": "Public data a site adds with `Api::EVENT_DEFINE_COMMENT_DATA`.",
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "replies": {
+                    "$ref": "#/$defs/RepliesData"
+                },
+                "viewer": {
+                    "description": "Present only in private data: `viewer`'s `extraComments` and write responses.",
+                    "$ref": "#/$defs/CommentViewerData"
+                },
+                "moderation": {
+                    "description": "Present only for moderators, in private data.",
+                    "$ref": "#/$defs/ModerationData"
+                }
+            },
+            "required": [
+                "uid",
+                "parentUid",
+                "depth",
+                "state",
+                "content",
+                "author",
+                "createdAt",
+                "editedAt",
+                "display",
+                "permalink",
+                "fields",
+                "interaction",
+                "folded",
+                "custom",
+                "replies"
+            ]
+        },
+        "CommentPatchData": {
+            "description": "Part of one comment, for writes that change only that part.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string"
+                },
+                "interaction": {
+                    "$ref": "#/$defs/InteractionData"
+                },
+                "viewer": {
+                    "$ref": "#/$defs/CommentViewerData"
+                }
+            },
+            "required": [
+                "uid"
+            ]
+        },
+        "CommentResponse": {
+            "description": "The `comment` read, for a link to a comment that isn't loaded: its root comment, with the replies leading down to the target first among their siblings.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "targetUid": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "description": "The element the comment's thread belongs to.",
+                    "type": "number"
+                },
+                "siteId": {
+                    "type": "number"
+                },
+                "comment": {
+                    "$ref": "#/$defs/CommentData"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "targetUid",
+                "comment"
+            ]
+        },
+        "CommentState": {
+            "description": "`approved` and `placeholder` are the only states in public data. `pending`, `held` and `reported` arrive only through `viewer`, and `removed` and `spam` only in a `moderate` response, after which the comment leaves the thread. A comment waiting for a moderator is `held` to a moderator and `pending` to its author, so its author learns nothing about why it's waiting.",
+            "enum": [
+                "approved",
+                "placeholder",
+                "pending",
+                "held",
+                "reported",
+                "removed",
+                "spam"
+            ]
+        },
+        "CommentViewerData": {
+            "description": "What the person asking may do with one comment. Never in public data.",
+            "type": "object",
+            "properties": {
+                "canReply": {
+                    "type": "boolean"
+                },
+                "canEdit": {
+                    "type": "boolean"
+                },
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canVote": {
+                    "type": "boolean"
+                },
+                "canDownvote": {
+                    "type": "boolean"
+                },
+                "canReport": {
+                    "type": "boolean"
+                },
+                "vote": {
+                    "enum": [
+                        null,
+                        "upvote",
+                        "downvote"
+                    ]
+                },
+                "reported": {
+                    "description": "Whether this person has an open report on the comment.",
+                    "type": "boolean"
+                },
+                "isAuthor": {
+                    "type": "boolean"
+                },
+                "moderation": {
+                    "description": "For moderators only.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/ModerationData"
+                        }
+                    ]
+                },
+                "custom": {
+                    "description": "Private data a site adds with `Api::EVENT_DEFINE_VIEWER_DATA`.",
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            },
+            "required": [
+                "canReply",
+                "canEdit",
+                "canDelete",
+                "canVote",
+                "canDownvote",
+                "canReport",
+                "vote",
+                "reported",
+                "isAuthor",
+                "moderation",
+                "custom"
+            ]
+        },
+        "ContentData": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "$ref": "#/$defs/ContentFormat"
+                },
+                "html": {
+                    "description": "Rich comments only. Sanitised on the server by Editor, and the only raw HTML a renderer inserts.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "text": {
+                    "type": "string"
+                },
+                "gifUrl": {
+                    "description": "A GIF shown with the comment, chosen through GIPHY or from Comments 3.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "gifWidth": {
+                    "description": "The GIF's size, when it's known, so the page can make room for it before it loads.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "gifHeight": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "format",
+                "html",
+                "text",
+                "gifUrl",
+                "gifWidth",
+                "gifHeight"
+            ]
+        },
+        "ContentFormat": {
+            "enum": [
+                "plain",
+                "rich"
+            ]
+        },
+        "ContentInput": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/PlainContentInput"
+                },
+                {
+                    "$ref": "#/$defs/RichContentInput"
+                }
+            ]
+        },
+        "ConversationData": {
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "description": "Null until the conversation's first comment.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ownerId": {
+                    "type": "number"
+                },
+                "siteId": {
+                    "type": "number"
+                },
+                "status": {
+                    "$ref": "#/$defs/ConversationStatus"
+                },
+                "closedNotice": {
+                    "description": "The notice shown on a closed conversation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "commentCount": {
+                    "description": "Approved comments in the whole conversation, replies included.",
+                    "type": "number"
+                },
+                "rootCount": {
+                    "description": "Approved top-level comments.",
+                    "type": "number"
+                },
+                "sort": {
+                    "$ref": "#/$defs/SortOrder"
+                },
+                "sorts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/SortOrder"
+                    }
+                },
+                "interactionMode": {
+                    "$ref": "#/$defs/InteractionMode"
+                },
+                "maxLength": {
+                    "description": "Null when there's no limit.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "guestPolicy": {
+                    "$ref": "#/$defs/GuestPolicy"
+                },
+                "followAvailable": {
+                    "description": "Whether following by email is offered here.",
+                    "type": "boolean"
+                },
+                "reportReasons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/ReportReason"
+                    }
+                }
+            },
+            "required": [
+                "uid",
+                "ownerId",
+                "siteId",
+                "status",
+                "closedNotice",
+                "commentCount",
+                "rootCount",
+                "sort",
+                "sorts",
+                "interactionMode",
+                "maxLength",
+                "guestPolicy",
+                "followAvailable",
+                "reportReasons"
+            ]
+        },
+        "ConversationStatus": {
+            "enum": [
+                "open",
+                "closed"
+            ]
+        },
+        "CreateRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "type": "number"
+                },
+                "siteId": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "parentUid": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "content": {
+                    "$ref": "#/$defs/ContentInput"
+                },
+                "guest": {
+                    "$ref": "#/$defs/GuestInput"
+                },
+                "fields": {
+                    "description": "Values keyed by field handle.",
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "protection": {
+                    "$ref": "#/$defs/ProtectionEvidenceData"
+                }
+            },
+            "required": [
+                "operationId",
+                "ownerId",
+                "siteId",
+                "parentUid",
+                "content"
+            ]
+        },
+        "CreateResponse": {
+            "description": "A repeat of a write's `operationId` within ten minutes returns the first result with `replayed: true` instead of acting twice. Every write has an `announcement` for the live region, which is null over GraphQL.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "description": "The new comment, with `viewer`.",
+                    "$ref": "#/$defs/CommentData"
+                },
+                "moderationState": {
+                    "enum": [
+                        "approved",
+                        "pending"
+                    ]
+                },
+                "conversation": {
+                    "description": "Null over GraphQL, where the store counts the change itself.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/CommentCountData"
+                        }
+                    ]
+                },
+                "announcement": {
+                    "description": "A sentence for the live region, such as \"Comment submitted for moderation.\"",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "comment",
+                "moderationState",
+                "conversation",
+                "announcement"
+            ]
+        },
+        "CsrfData": {
+            "description": "Craft's CSRF parameter, sent back on writes as the `X-CSRF-Token` header.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "value"
+            ]
+        },
+        "DeleteRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operationId",
+                "uid"
+            ]
+        },
+        "DeleteResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "conversation": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/CommentCountData"
+                        }
+                    ]
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "uid",
+                "conversation",
+                "announcement"
+            ]
+        },
+        "DisplayData": {
+            "type": "object",
+            "properties": {
+                "timeAgo": {
+                    "description": "The relative time in the site's language.",
+                    "type": "string"
+                },
+                "fullDate": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "timeAgo",
+                "fullDate"
+            ]
+        },
+        "EditContentData": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "$ref": "#/$defs/ContentFormat"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "document": {
+                    "description": "Editor's document JSON, for rich comments.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": {}
+                        }
+                    ]
+                },
+                "gif": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/GifData"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "format",
+                "text",
+                "document",
+                "gif"
+            ]
+        },
+        "EditFileData": {
+            "description": "A file an edited comment already has, in an Assets field's value.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number"
+                },
+                "url": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id",
+                "url",
+                "filename",
+                "kind"
+            ]
+        },
+        "EditorData": {
+            "description": "The editor's public definition, the same for everyone.",
+            "type": "object",
+            "properties": {
+                "authoring": {
+                    "$ref": "#/$defs/ContentFormat"
+                },
+                "maxLength": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "richEditor": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/RichEditorData"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "authoring",
+                "maxLength",
+                "richEditor"
+            ]
+        },
+        "EditorOptionsData": {
+            "description": "Editor's options for the person asking, such as their mention and upload endpoints.",
+            "type": "object",
+            "properties": {
+                "context": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            },
+            "required": [
+                "context",
+                "options"
+            ]
+        },
+        "EditResponse": {
+            "description": "The `edit` read, for the comment's author. Includes collected-only field values.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "comment": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {
+                            "type": "string"
+                        },
+                        "content": {
+                            "$ref": "#/$defs/EditContentData"
+                        }
+                    },
+                    "required": [
+                        "uid",
+                        "content"
+                    ]
+                },
+                "fields": {
+                    "description": "Values keyed by handle, for the fields the comment was posted with, in the shape a submission sends; a file field's is a list of `EditFileData`, whose IDs keep the files when sent back.",
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "editor": {
+                    "type": "object",
+                    "properties": {
+                        "richEditor": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "$ref": "#/$defs/EditorOptionsData"
+                                }
+                            ]
+                        },
+                        "fields": {
+                            "description": "Exactly the fields the comment was posted with, minus any since turned Off, to draw instead of `viewer`'s.",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/FormFieldData"
+                            }
+                        },
+                        "gifs": {
+                            "description": "GIF search, as on `viewer`'s editor, so an edit can change or add a GIF.",
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "$ref": "#/$defs/GifsData"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "richEditor",
+                        "gifs"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "comment",
+                "fields",
+                "editor"
+            ]
+        },
+        "ErrorData": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "A broad group, such as `validation` or `protection`, for handling a code a client doesn't know.",
+                    "type": "string"
+                },
+                "code": {
+                    "description": "A machine-readable code from `COMMENTS_ERROR_CODES`.",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "A translated sentence for the visitor.",
+                    "type": "string"
+                },
+                "fieldErrors": {
+                    "description": "Messages keyed by field: `content`, `guest.name`, `guest.email` or `fields.<handle>`.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "recoverable": {
+                    "description": "Whether trying again (after a refresh or a wait) can succeed.",
+                    "type": "boolean"
+                },
+                "retryAfter": {
+                    "description": "Seconds to wait before trying again, for `rate_limited`.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "code",
+                "message",
+                "fieldErrors",
+                "recoverable",
+                "retryAfter"
+            ]
+        },
+        "ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "error"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/ErrorData"
+                    }
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "errors"
+            ]
+        },
+        "FieldInputType": {
+            "description": "The input a custom field uses on the site. `custom` needs a field override in JavaScript.",
+            "enum": [
+                "number",
+                "text",
+                "textarea",
+                "email",
+                "url",
+                "date",
+                "select",
+                "radio",
+                "checkboxes",
+                "toggle",
+                "file",
+                "custom"
+            ]
+        },
+        "FieldOptionData": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "label",
+                "value"
+            ]
+        },
+        "FieldPlacement": {
+            "description": "Where a shown custom field appears: after the date, or in a labelled list under the text.",
+            "enum": [
+                "inline",
+                "details"
+            ]
+        },
+        "FieldUploadResponse": {
+            "description": "`upload` for an Assets field.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "field": {
+                    "description": "The field's handle.",
+                    "type": "string"
+                },
+                "file": {
+                    "$ref": "#/$defs/UploadedFileData"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "field",
+                "file"
+            ]
+        },
+        "FieldValueData": {
+            "description": "One shown custom field value. Collected-only values never appear in public data.",
+            "type": "object",
+            "properties": {
+                "handle": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/$defs/FieldInputType"
+                },
+                "placement": {
+                    "$ref": "#/$defs/FieldPlacement"
+                },
+                "value": {
+                    "description": "The raw value: a string, number, `YYYY-MM-DD` (or an ISO 8601 date and time), an option's value or a list of them, true or false, or for files a list of `FileValueData`. For `url`, the address only when it's `http` or `https`, and null otherwise, with the address in `text`."
+                },
+                "text": {
+                    "description": "The formatted value, as text.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "handle",
+                "label",
+                "type",
+                "placement",
+                "value",
+                "text"
+            ]
+        },
+        "FileValueData": {
+            "description": "A file in a shown Assets field.",
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "Null for a volume without public URLs.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "url",
+                "filename",
+                "kind"
+            ]
+        },
+        "FoldReason": {
+            "description": "Why a comment is folded away.",
+            "enum": [
+                "reports",
+                "downvotes"
+            ]
+        },
+        "FollowData": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "following": {
+                    "type": "boolean"
+                },
+                "needsEmail": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "available",
+                "following",
+                "needsEmail"
+            ]
+        },
+        "FollowOutcome": {
+            "enum": [
+                "followed",
+                "unfollowed",
+                "confirming"
+            ]
+        },
+        "FollowRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "type": "number"
+                },
+                "siteId": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "following": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "description": "Guests only.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operationId",
+                "ownerId",
+                "siteId",
+                "following"
+            ]
+        },
+        "FollowResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "viewer": {
+                    "type": "object",
+                    "properties": {
+                        "follow": {
+                            "$ref": "#/$defs/FollowData"
+                        }
+                    },
+                    "required": [
+                        "follow"
+                    ]
+                },
+                "outcome": {
+                    "description": "`confirming` when a guest must confirm their address first.",
+                    "$ref": "#/$defs/FollowOutcome"
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "viewer",
+                "outcome",
+                "announcement"
+            ]
+        },
+        "FormFieldData": {
+            "description": "A custom field this person may fill in, after conditions and the replies rule.",
+            "type": "object",
+            "properties": {
+                "handle": {
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "The field layout element's UID.",
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "instructions": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/$defs/FieldInputType"
+                },
+                "multiple": {
+                    "type": "boolean"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/FieldOptionData"
+                    }
+                },
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
+                    }
+                },
+                "public": {
+                    "description": "Whether the value is shown publicly on the comment, which matters to the person filling it in.",
+                    "type": "boolean"
+                },
+                "placement": {
+                    "description": "Where a shown field's value appears, or null for a field that's only collected.",
+                    "enum": [
+                        null,
+                        "inline",
+                        "details"
+                    ]
+                },
+                "formPosition": {
+                    "description": "Where the field goes in the form: `above` the text, for a field placed before the Comment element in the Comment field layout, such as a rating, or `below` it. Missing means below.",
+                    "enum": [
+                        "above",
+                        "below"
+                    ]
+                },
+                "width": {
+                    "description": "The width set in the Comment field layout, as a percentage of the form: 25, 50, 75 or 100. Missing means 100.",
+                    "enum": [
+                        25,
+                        50,
+                        75,
+                        100
+                    ]
+                },
+                "accept": {
+                    "description": "Assets fields only: the extensions taken, with their dots, such as `.jpg`.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "maxFiles": {
+                    "description": "Assets fields only: null for no limit.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "maxSize": {
+                    "description": "Assets fields only: the largest file, in bytes.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "meta": {
+                    "description": "Anything else the field type's description gives, for the site's own field override.",
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            },
+            "required": [
+                "handle",
+                "uid",
+                "label",
+                "instructions",
+                "required",
+                "type",
+                "multiple",
+                "options",
+                "attributes",
+                "public",
+                "placement"
+            ]
+        },
+        "FormFieldsData": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/FormFieldData"
+                    }
+                },
+                "reply": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/FormFieldData"
+                    }
+                }
+            },
+            "required": [
+                "comment",
+                "reply"
+            ]
+        },
+        "GifData": {
+            "description": "A comment's GIF: its address as GIPHY gave it, and its size when known.",
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "height": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "url",
+                "width",
+                "height"
+            ]
+        },
+        "GifInput": {
+            "description": "A GIF to post with a comment, by the address GIPHY gave it. On an update, leaving `gif` out keeps the comment's GIF, and `null` removes it.",
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "height": {
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "url"
+            ]
+        },
+        "GifsData": {
+            "description": "What the browser needs to search GIPHY itself, as GIPHY's terms require. The key is the site's GIPHY key, which GIPHY treats as public for a website; `rating` and `limit` go to GIPHY with each search.",
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                },
+                "rating": {
+                    "enum": [
+                        "g",
+                        "pg",
+                        "pg-13",
+                        "r"
+                    ]
+                },
+                "limit": {
+                    "type": "number"
+                },
+                "language": {
+                    "description": "The site's language, for GIPHY's `lang`.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "apiKey",
+                "rating",
+                "limit",
+                "language"
+            ]
+        },
+        "GuestEditorData": {
+            "type": "object",
+            "properties": {
+                "show": {
+                    "type": "boolean"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "email": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "offerReplyEmails": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "show",
+                "required",
+                "name",
+                "email",
+                "offerReplyEmails"
+            ]
+        },
+        "GuestInput": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "notifyReplies": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "name",
+                "email",
+                "notifyReplies"
+            ]
+        },
+        "GuestPolicy": {
+            "type": "object",
+            "properties": {
+                "allowed": {
+                    "type": "boolean"
+                },
+                "nameAndEmail": {
+                    "enum": [
+                        "required",
+                        "optional",
+                        "hidden"
+                    ]
+                },
+                "canVote": {
+                    "type": "boolean"
+                },
+                "canReport": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "allowed",
+                "nameAndEmail",
+                "canVote",
+                "canReport"
+            ]
+        },
+        "InteractionData": {
+            "type": "object",
+            "properties": {
+                "upvotes": {
+                    "type": "number"
+                },
+                "downvotes": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "upvotes",
+                "downvotes"
+            ]
+        },
+        "InteractionMode": {
+            "description": "`like` counts upvotes only, `updown` counts both directions, and `none` turns voting off.",
+            "enum": [
+                "none",
+                "like",
+                "updown"
+            ]
+        },
+        "ModerateRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "action": {
+                    "$ref": "#/$defs/ModerationAction"
+                },
+                "reason": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "note": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "operationId",
+                "uid",
+                "action"
+            ]
+        },
+        "ModerateResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "description": "The comment with `moderation`. A `removed` or `spam` state means it has left the thread.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/CommentData"
+                        },
+                        {
+                            "$ref": "#/$defs/RemovedCommentData"
+                        }
+                    ]
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "comment",
+                "announcement"
+            ]
+        },
+        "ModerationAction": {
+            "enum": [
+                "spam",
+                "approve",
+                "not-spam",
+                "remove",
+                "keep",
+                "restore",
+                "hold"
+            ]
+        },
+        "ModerationData": {
+            "description": "A moderator's view of a held or reported comment. Never in public data.",
+            "type": "object",
+            "properties": {
+                "reviewLabel": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "openReportCount": {
+                    "type": "number"
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/ModerationAction"
+                    }
+                }
+            },
+            "required": [
+                "reviewLabel",
+                "openReportCount",
+                "actions"
+            ]
+        },
+        "ModerationSummaryData": {
+            "type": "object",
+            "properties": {
+                "heldCount": {
+                    "type": "number"
+                },
+                "reportedCount": {
+                    "type": "number"
+                },
+                "reviewUrl": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "heldCount",
+                "reportedCount",
+                "reviewUrl"
+            ]
+        },
+        "PageData": {
+            "type": "object",
+            "properties": {
+                "next": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "limit": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "next",
+                "limit"
+            ]
+        },
+        "PlainContentInput": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "const": "plain"
+                },
+                "text": {
+                    "description": "Can be empty when the comment is only a GIF.",
+                    "type": "string"
+                },
+                "gif": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/GifInput"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "format",
+                "text"
+            ]
+        },
+        "ProtectionChallengeData": {
+            "description": "One challenge in a preparation. This and the two types after it are Protect's own (`ChallengeManifest`, `BrowserManifest` and `Evidence` in `@verbb/protect`), written out so core's types need neither Protect's nor the DOM's; a test keeps them the same.",
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "type": "string"
+                },
+                "siteKey": {
+                    "type": "string"
+                },
+                "action": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "provider",
+                "siteKey",
+                "action"
+            ]
+        },
+        "ProtectionData": {
+            "description": "A Protect preparation for one form, single-use.",
+            "type": "object",
+            "properties": {
+                "version": {
+                    "const": 1
+                },
+                "manifest": {
+                    "$ref": "#/$defs/ProtectionManifestData"
+                },
+                "expiresAt": {
+                    "description": "Unix seconds, on the server's clock.",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "version",
+                "manifest",
+                "expiresAt"
+            ]
+        },
+        "ProtectionEvidenceData": {
+            "description": "What a form sends back for a preparation, from Protect's `prepare()`.",
+            "type": "object",
+            "properties": {
+                "version": {
+                    "const": 1
+                },
+                "preparation": {
+                    "type": "string"
+                },
+                "honeypot": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "javascript": {
+                    "type": "string"
+                },
+                "challenges": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "version",
+                "preparation",
+                "honeypot",
+                "javascript",
+                "challenges"
+            ]
+        },
+        "ProtectionManifestData": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "const": 1
+                },
+                "instanceId": {
+                    "type": "string"
+                },
+                "preparation": {
+                    "type": "string"
+                },
+                "issuedAt": {
+                    "description": "Unix seconds, on the server's clock.",
+                    "type": "number"
+                },
+                "expiresAt": {
+                    "type": "number"
+                },
+                "notBefore": {
+                    "type": "number"
+                },
+                "honeypot": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "javascript": {
+                    "type": "boolean"
+                },
+                "challenges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/ProtectionChallengeData"
+                    }
+                }
+            },
+            "required": [
+                "version",
+                "instanceId",
+                "preparation",
+                "issuedAt",
+                "expiresAt",
+                "honeypot",
+                "javascript",
+                "challenges"
+            ]
+        },
+        "ProtectionResponse": {
+            "description": "The `protection` read, for someone about to write: a fresh preparation, or null when the site doesn't use protection here, and the CSRF token, since this is where a guest's session starts.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "protection": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/ProtectionData"
+                        }
+                    ]
+                },
+                "csrf": {
+                    "$ref": "#/$defs/CsrfData"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "protection",
+                "csrf"
+            ]
+        },
+        "RemovedCommentData": {
+            "description": "What's left of a comment a moderator removed.",
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string"
+                },
+                "state": {
+                    "const": "removed"
+                },
+                "moderation": {
+                    "$ref": "#/$defs/ModerationData"
+                }
+            },
+            "required": [
+                "uid",
+                "state",
+                "moderation"
+            ]
+        },
+        "RepliesData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "description": "Every approved reply, loaded or not.",
+                    "type": "number"
+                },
+                "items": {
+                    "description": "A preview, three by default, nested up to four levels in one response.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/CommentData"
+                    }
+                },
+                "next": {
+                    "description": "The cursor for the rest, through `replies`.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "count",
+                "items",
+                "next"
+            ]
+        },
+        "RepliesResponse": {
+            "description": "The `replies` read: a page of approved replies to one comment, with `next` for the page after.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "parentUid": {
+                    "type": "string"
+                },
+                "replies": {
+                    "$ref": "#/$defs/RepliesData"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "parentUid",
+                "replies"
+            ]
+        },
+        "ReportReason": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "value",
+                "label",
+                "description"
+            ]
+        },
+        "ReportRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "withdraw": {
+                    "description": "Withdraws this person's open report instead.",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "operationId",
+                "uid"
+            ]
+        },
+        "ReportResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "$ref": "#/$defs/CommentPatchData"
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "comment",
+                "announcement"
+            ]
+        },
+        "RichContentInput": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "const": "rich"
+                },
+                "document": {
+                    "description": "Editor's document JSON.",
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "gif": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/GifInput"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "format",
+                "document"
+            ]
+        },
+        "RichEditorData": {
+            "type": "object",
+            "properties": {
+                "context": {
+                    "description": "Editor's context handle, such as `comments.reply`.",
+                    "type": "string"
+                },
+                "module": {
+                    "description": "Editor's own module, loaded only when someone starts writing.",
+                    "type": "string"
+                },
+                "css": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "context",
+                "module",
+                "css"
+            ]
+        },
+        "SessionResponse": {
+            "description": "The `session` read: who's signed in and the CSRF token, starting a guest's session. A tier 3 guest's token arrives in the `X-Comments-Session` header. `csrf` is null for tier 3, whose requests carry no cookies.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "viewer": {
+                    "$ref": "#/$defs/ViewerData"
+                },
+                "csrf": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/CsrfData"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "viewer",
+                "csrf"
+            ]
+        },
+        "SortOrder": {
+            "enum": [
+                "newest",
+                "oldest",
+                "top"
+            ]
+        },
+        "StructuredDataResponse": {
+            "description": "The `structured-data` read: the schema.org JSON-LD object for the comments.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "structuredData": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "structuredData"
+            ]
+        },
+        "ThreadResponse": {
+            "description": "The `thread` read: public data, the same for every visitor.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "threadVersion": {
+                    "description": "A stamp of the public data this was built from. When the `viewer` read's `threadVersion` differs, a cache served an older thread, such as just after the visitor's own comment.",
+                    "type": "string"
+                },
+                "conversation": {
+                    "$ref": "#/$defs/ConversationData"
+                },
+                "editor": {
+                    "$ref": "#/$defs/EditorData"
+                },
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/CommentData"
+                    }
+                },
+                "page": {
+                    "$ref": "#/$defs/PageData"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "locale": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "threadVersion",
+                "conversation",
+                "editor",
+                "comments",
+                "page",
+                "labels",
+                "locale"
+            ]
+        },
+        "UpdateRequest": {
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "content": {
+                    "$ref": "#/$defs/ContentInput"
+                },
+                "fields": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "protection": {
+                    "$ref": "#/$defs/ProtectionEvidenceData"
+                }
+            },
+            "required": [
+                "operationId",
+                "uid",
+                "content"
+            ]
+        },
+        "UpdateResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "$ref": "#/$defs/CommentData"
+                },
+                "moderationState": {
+                    "description": "An edit can send a comment back for approval.",
+                    "enum": [
+                        "approved",
+                        "pending"
+                    ]
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "comment",
+                "moderationState",
+                "announcement"
+            ]
+        },
+        "UploadedFileData": {
+            "description": "A file uploaded for an Assets field, waiting to be posted with a comment.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id",
+                "filename",
+                "kind",
+                "size"
+            ]
+        },
+        "ViewerData": {
+            "type": "object",
+            "properties": {
+                "isGuest": {
+                    "type": "boolean"
+                },
+                "hasSession": {
+                    "description": "False in the slim answer for a browser Comments doesn't recognise.",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "initials": {
+                    "type": "string"
+                },
+                "avatarUrl": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "avatarTone": {
+                    "type": "number"
+                },
+                "badges": {
+                    "description": "The badges this person's comments carry here, in the same shape as an author's.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/BadgeData"
+                    }
+                },
+                "canComment": {
+                    "type": "boolean"
+                },
+                "canVote": {
+                    "type": "boolean"
+                },
+                "canReport": {
+                    "type": "boolean"
+                },
+                "isModerator": {
+                    "type": "boolean"
+                },
+                "blocked": {
+                    "type": "boolean"
+                },
+                "loginUrl": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "follow": {
+                    "$ref": "#/$defs/FollowData"
+                }
+            },
+            "required": [
+                "isGuest",
+                "hasSession",
+                "name",
+                "initials",
+                "avatarUrl",
+                "avatarTone",
+                "badges",
+                "canComment",
+                "canVote",
+                "canReport",
+                "isModerator",
+                "blocked",
+                "loginUrl",
+                "follow"
+            ]
+        },
+        "ViewerEditorData": {
+            "description": "The editor's private half, for the person asking.",
+            "type": "object",
+            "properties": {
+                "draftKey": {
+                    "type": "string"
+                },
+                "guest": {
+                    "$ref": "#/$defs/GuestEditorData"
+                },
+                "fields": {
+                    "$ref": "#/$defs/FormFieldsData"
+                },
+                "protection": {
+                    "description": "Null for a guest who hasn't started writing, or when the site doesn't use protection.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/ProtectionData"
+                        }
+                    ]
+                },
+                "richEditor": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/EditorOptionsData"
+                        }
+                    ]
+                },
+                "gifs": {
+                    "description": "GIF search through GIPHY, or null when it's off or this person can't comment.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/GifsData"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "draftKey",
+                "guest",
+                "fields",
+                "protection",
+                "richEditor",
+                "gifs"
+            ]
+        },
+        "ViewerResponse": {
+            "description": "The `viewer` read: everything personal for the window a `thread` or `replies` read loaded.",
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "threadVersion": {
+                    "description": "The current public data's stamp, to compare with the drawn thread's `threadVersion`.",
+                    "type": "string"
+                },
+                "viewer": {
+                    "$ref": "#/$defs/ViewerData"
+                },
+                "editor": {
+                    "$ref": "#/$defs/ViewerEditorData"
+                },
+                "comments": {
+                    "description": "Permissions keyed by comment UID.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/$defs/CommentViewerData"
+                    }
+                },
+                "extraComments": {
+                    "description": "Comments the public data leaves out but this person may see: their own pending ones, and held or reported ones for moderators.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/CommentData"
+                    }
+                },
+                "moderation": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/ModerationSummaryData"
+                        }
+                    ]
+                },
+                "csrf": {
+                    "description": "Null in the slim answer for a guest with no session.",
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "$ref": "#/$defs/CsrfData"
+                        }
+                    ]
+                },
+                "custom": {
+                    "description": "Private data a site adds with `Api::EVENT_DEFINE_VIEWER_DATA`.",
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "threadVersion",
+                "viewer",
+                "editor",
+                "comments",
+                "extraComments",
+                "moderation",
+                "csrf",
+                "custom"
+            ]
+        },
+        "VoteRequest": {
+            "description": "Sets the vote rather than toggling it, so a repeat is harmless. `null` clears it.",
+            "type": "object",
+            "properties": {
+                "operationId": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "vote": {
+                    "enum": [
+                        null,
+                        "upvote",
+                        "downvote"
+                    ]
+                }
+            },
+            "required": [
+                "operationId",
+                "uid",
+                "vote"
+            ]
+        },
+        "VoteResponse": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "const": 1
+                },
+                "status": {
+                    "const": "ok"
+                },
+                "replayed": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "$ref": "#/$defs/CommentPatchData"
+                },
+                "announcement": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "apiVersion",
+                "status",
+                "replayed",
+                "comment",
+                "announcement"
+            ]
+        },
+        "VoteValue": {
+            "enum": [
+                "upvote",
+                "downvote"
+            ]
+        }
+    }
+}

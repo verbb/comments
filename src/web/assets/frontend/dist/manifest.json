@@ -1,0 +1,70 @@
+{
+  "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js": {
+    "file": "js/chunks/dist-yjg6AO3v.js",
+    "name": "dist",
+    "src": "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+    "isDynamicEntry": true
+  },
+  "../../../../packages/comments-browser/dist/form-controller.js": {
+    "file": "js/chunks/form-controller-CNYWVcSg.js",
+    "name": "form-controller",
+    "src": "../../../../packages/comments-browser/dist/form-controller.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+      "../../../../packages/comments-browser/dist/threads.js"
+    ],
+    "dynamicImports": [
+      "../../../../packages/comments-browser/dist/uploads.js",
+      "../../../../packages/comments-browser/dist/gif-picker.js"
+    ]
+  },
+  "../../../../packages/comments-browser/dist/gif-picker.js": {
+    "file": "js/chunks/gif-picker-Dk20cL8w.js",
+    "name": "gif-picker",
+    "src": "../../../../packages/comments-browser/dist/gif-picker.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "../../../../packages/comments-browser/dist/threads.js"
+    ]
+  },
+  "../../../../packages/comments-browser/dist/parts/report.js": {
+    "file": "js/chunks/report-B5LLoOhE.js",
+    "name": "report",
+    "src": "../../../../packages/comments-browser/dist/parts/report.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "../../../../packages/comments-browser/dist/threads.js"
+    ]
+  },
+  "../../../../packages/comments-browser/dist/threads.js": {
+    "file": "js/chunks/threads-BHcwqFsO.js",
+    "name": "threads",
+    "src": "../../../../packages/comments-browser/dist/threads.js",
+    "isDynamicEntry": true,
+    "dynamicImports": [
+      "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+      "../../../../packages/comments-browser/dist/parts/report.js",
+      "../../../../packages/comments-browser/dist/form-controller.js"
+    ]
+  },
+  "../../../../packages/comments-browser/dist/uploads.js": {
+    "file": "js/chunks/uploads-BCzudn_h.js",
+    "name": "uploads",
+    "src": "../../../../packages/comments-browser/dist/uploads.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "../../../../packages/comments-browser/dist/form-controller.js",
+      "../../../../packages/comments-browser/dist/threads.js"
+    ]
+  },
+  "src/js/comments.ts": {
+    "file": "js/comments.js",
+    "name": "comments",
+    "src": "src/js/comments.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "../../../../packages/comments-browser/dist/threads.js"
+    ]
+  }
+}

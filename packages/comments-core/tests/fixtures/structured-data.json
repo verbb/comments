@@ -1,0 +1,19 @@
+{
+    "apiVersion": 1,
+    "status": "ok",
+    "structuredData": {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "url": "https://example.com/blog/trail-running-knees",
+        "commentCount": 6,
+        "comment": [
+            {
+                "@type": "Comment",
+                "text": "Ice and rest for a week.",
+                "datePublished": "2026-11-09T21:04:00+00:00",
+                "url": "https://example.com/blog/trail-running-knees#comment-c1",
+                "upvoteCount": 3
+            }
+        ]
+    }
+}
