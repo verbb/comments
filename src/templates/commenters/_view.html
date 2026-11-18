@@ -1,52 +1,81 @@
 {% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentersAsset') %}
 <div class="comments-commenter">
-    <section class="comments-commenter__card">
+    {# One row: the page title already names them, so this is who they are on the left and their counts on the
+       right. Their review setting is in the sidebar. #}
+    <section class="pane comments-commenter__card" aria-label="{{ 'Summary' | t('comments') }}">
         <div class="comments-commenter__identity">
             {% if photoUrl %}
                 <img class="comments-avatar comments-avatar--large" src="{{ photoUrl }}" alt="">
             {% else %}
                 <span class="comments-avatar comments-avatar--large{% if isGuest %} comments-avatar--guest{% endif %}" data-tone="{{ avatarTone }}" aria-hidden="true">{{ initials }}</span>
             {% endif %}
-            <div>
-                <h2 class="comments-commenter__name">{{ name }}</h2>
-                <p class="light">
-                    {% set facts = [] %}
-                    {% if email %}{% set facts = facts | merge([email]) %}{% endif %}
-                    {% if user %}
-                        {% set facts = facts | merge(['member since {date}' | t('comments', { date: user.dateCreated | date('long') })]) %}
-                    {% elseif isGuest %}
-                        {% set facts = facts | merge([isRecognisedGuest ? 'Guest, recognised by browser' | t('comments') : 'Guest, imported or not recognisable' | t('comments')]) %}
-                    {% endif %}
-                    {% set total = counts.approved + counts.pending + counts.spam + counts.removed %}
-                    {% set facts = facts | merge([total == 1 ? '1 comment' | t('comments') : '{count} comments' | t('comments', { count: total | number })]) %}
-                    {{ facts | join(' · ') }}
-                </p>
-            </div>
-            {% if reviewSetting.value != 'normal' %}
-                <span class="comments-setting-pill comments-setting-pill--{{ reviewSetting.value }}">
-                    {{ { trusted: 'Trusted commenter' | t('comments'), held: 'Comments held for review' | t('comments'), blocked: 'Blocked' | t('comments') }[reviewSetting.value] }}
-                </span>
+            {% if user %}
+                {% set kind = 'Member since {date}' | t('comments', { date: user.dateCreated | date('long') }) %}
+            {% elseif isGuest %}
+                {% set kind = isRecognisedGuest ? 'Guest, recognised by browser' | t('comments') : 'Guest, imported or not recognisable' | t('comments') %}
+            {% else %}
+                {% set kind = null %}
             {% endif %}
+            {# A tag only when comment emails won't reach them, as Identities::acceptsEmail() decides. #}
+            {% if not email %}
+                {% set emailTag = null %}
+            {% elseif identity.emailOptOutAt %}
+                {% set emailTag = { label: 'Emails off' | t('comments'), reason: 'They turned off comment emails.' | t('comments') } %}
+            {% elseif isGuest and not identity.verifiedAt %}
+                {% set emailTag = { label: 'Not confirmed' | t('comments'), reason: 'They won’t get comment emails until they confirm this address.' | t('comments') } %}
+            {% else %}
+                {% set emailTag = null %}
+            {% endif %}
+            <div class="comments-commenter__facts">
+                <div class="comments-commenter__email">
+                    <span class="comments-commenter__address">{{ email ?: kind }}</span>
+                    {% if emailTag %}
+                        <craft-tooltip self-managed placement="bottom" max-width="240px" text="{{ emailTag.reason }}">
+                            <span class="comments-email-tag" tabindex="0">
+                                {{ iconSvg('bell-slash') }}{{ emailTag.label }}<span class="visually-hidden">. {{ emailTag.reason }}</span>
+                            </span>
+                        </craft-tooltip>
+                    {% endif %}
+                </div>
+                {% if email and kind %}<div class="light">{{ kind }}</div>{% endif %}
+            </div>
         </div>
 
         <dl class="comments-commenter__counts">
-            {% for label, count in {
-                ('Approved' | t('comments')): counts.approved,
-                ('Waiting' | t('comments')): counts.pending,
-                ('Removed' | t('comments')): counts.removed,
-                ('Spam' | t('comments')): counts.spam,
-                ('Reports against' | t('comments')): reportsAgainst,
-            } %}
-                <div>
-                    <dt class="light">{{ label }}</dt>
-                    <dd>{{ count | number }}</dd>
+            {% for item in [
+                { label: 'Approved' | t('comments'), count: counts.approved },
+                { label: 'Waiting' | t('comments'), count: counts.pending, warn: true },
+                { label: 'Removed' | t('comments'), count: counts.removed },
+                { label: 'Spam' | t('comments'), count: counts.spam },
+                { label: 'Reports against' | t('comments'), count: reportsAgainst },
+            ] %}
+                <div class="comments-commenter__count{% if item.warn ?? false and item.count %} comments-commenter__count--warn{% endif %}">
+                    <dt>{{ item.label }}</dt>
+                    <dd>{{ item.count | number }}</dd>
                 </div>
             {% endfor %}
         </dl>
     </section>
 
-    <section class="comments-commenter__comments">
-        <h2>{{ 'Comments' | t('comments') }}</h2>
-        {{ commentsIndexHtml | raw }}
-    </section>
+    {# Their comments and their activity, as tabs like a comment's own, in a pane of their own. #}
+    <div class="pane comments-commenter__tabbed">
+        <header class="pane-header">
+            {% include '_includes/tabs' with {
+                tabs: {
+                    'commenter-comments': { label: 'Comments' | t('comments'), url: '#commenter-comments' },
+                    'commenter-activity': { label: 'Activity' | t('comments'), url: '#commenter-activity' },
+                },
+                tablistLabel: 'Commenter' | t('comments'),
+                containerAttributes: { 'data-comments-commenter-tabs': true },
+            } %}
+        </header>
+
+        <div id="commenter-comments" class="comments-commenter__comments">
+            {{ commentsIndexHtml | raw }}
+        </div>
+
+        <div id="commenter-activity" class="comments-commenter__activity hidden">
+            {% include 'comments/commenters/_activity' with { id, history } only %}
+        </div>
+    </div>
 </div>

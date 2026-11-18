@@ -1,0 +1,27 @@
+{% import '_includes/forms' as forms %}
+
+{# A commenter's Activity tab, like a comment's: a note box, then everything moderators have done, newest first.
+   Adding a note redraws this panel. #}
+<div data-comments-commenter-activity data-identity-id="{{ id }}">
+    <div class="comments-note-form">
+        {{ forms.textarea({
+            id: 'commenter-note',
+            rows: 2,
+            placeholder: 'Add a note for other moderators' | t('comments'),
+            inputAttributes: {
+                'data-comments-note-input': true,
+                'aria-label': 'Add a note for other moderators' | t('comments'),
+            },
+        }) }}
+        <div class="comments-note-form__foot">
+            <span class="light">{{ 'Only moderators see notes.' | t('comments') }}</span>
+            <button type="button" class="btn small" data-comments-commenter-note>{{ 'Add note' | t('comments') }}</button>
+        </div>
+    </div>
+
+    {% if history %}
+        {% include 'comments/comments/_editor-history' with { timeline: history } only %}
+    {% else %}
+        <p class="light">{{ 'Nothing yet.' | t('comments') }}</p>
+    {% endif %}
+</div>

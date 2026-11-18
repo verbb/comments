@@ -13,6 +13,7 @@ use verbb\comments\enums\ReviewSetting;
 use verbb\comments\events\ModerationEvent;
 use verbb\comments\records\Comment as CommentRecord;
 use verbb\comments\records\ModerationAction as ModerationActionRecord;
+use verbb\comments\records\CommenterNote as CommenterNoteRecord;
 use verbb\comments\records\ModeratorNote as ModeratorNoteRecord;
 use verbb\comments\records\Restriction as RestrictionRecord;
 
@@ -322,6 +323,42 @@ class Moderation extends Component
             ->all();
     }
 
+    /**
+     * A moderator's note about a commenter, for their Activity tab.
+     */
+    public function addCommenterNote(int $identityId, string $note, ?User $actor = null): CommenterNoteRecord
+    {
+        $note = trim($note);
+
+        if ($note === '') {
+            throw new UserException(Craft::t('comments', 'Internal note cannot be empty.'));
+        }
+
+        if (!CommentsPlugin::$plugin->getIdentities()->getById($identityId)) {
+            throw new InvalidArgumentException("Identity {$identityId} was not found.");
+        }
+
+        $record = new CommenterNoteRecord([
+            'identityId' => $identityId,
+            'userId' => $actor?->id,
+            'note' => $note,
+        ]);
+        $record->save(false);
+
+        return $record;
+    }
+
+    /**
+     * @return CommenterNoteRecord[] Newest first.
+     */
+    public function getCommenterNotes(int $identityId): array
+    {
+        return CommenterNoteRecord::find()
+            ->where(['identityId' => $identityId])
+            ->orderBy(['dateCreated' => SORT_DESC, 'id' => SORT_DESC])
+            ->all();
+    }
+
     public function blockIdentity(
         int $identityId,
         ?int $conversationId = null,
@@ -396,7 +433,17 @@ class Moderation extends Component
 
             $type = $setting->restrictionType();
 
-            return $type ? $this->_createRestriction($identityId, $type, null, $actor, $note, null) : null;
+            // Normal is only the end of the other settings, with nowhere of its own for a note, so the note
+            // is kept as a note about the commenter.
+            if (!$type) {
+                if ($note !== null) {
+                    $this->addCommenterNote($identityId, $note, $actor);
+                }
+
+                return null;
+            }
+
+            return $this->_createRestriction($identityId, $type, null, $actor, $note, null);
         });
     }
 
@@ -474,6 +521,58 @@ class Moderation extends Component
         }
 
         return false;
+    }
+
+    /**
+     * Whether any of a commenter's comments is approved, not counting any in the trash.
+     */
+    public function hasApprovedComment(int $identityId): bool
+    {
+        return (new Query())
+            ->from(['comments' => '{{%comments_comments}}'])
+            ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[comments.id]]')
+            ->where([
+                'comments.identityId' => $identityId,
+                'comments.moderationState' => ModerationState::Approved->value,
+                'elements.dateDeleted' => null,
+            ])
+            ->exists();
+    }
+
+    /**
+     * Deletes spam older than **Delete Spam After** for good, a batch at a time, when Craft collects
+     * garbage. Spam with replies stays until they've gone. Returns how many were deleted.
+     */
+    public function deleteExpiredSpam(int $limit = 100): int
+    {
+        $days = CommentsPlugin::$plugin->getSettings()->spamRetentionDays;
+
+        if (!is_numeric($days) || (int)$days < 1) {
+            return 0;
+        }
+
+        $cutoff = (new DateTime())->modify('-' . (int)$days . ' days');
+        $ids = (new Query())
+            ->select(['comments.id'])
+            ->from(['comments' => '{{%comments_comments}}'])
+            ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[comments.id]]')
+            ->where(['comments.moderationState' => ModerationState::Spam->value])
+            ->andWhere(['<', 'elements.dateUpdated', Db::prepareDateForDb($cutoff)])
+            ->andWhere(['not exists', (new Query())->from(['replies' => '{{%comments_comments}}'])->where('[[replies.parentId]] = [[comments.id]]')])
+            ->orderBy(['elements.dateUpdated' => SORT_ASC])
+            ->limit($limit)
+            ->column();
+        $deleted = 0;
+
+        foreach ($ids as $id) {
+            $comment = Comment::find()->id((int)$id)->status(null)->trashed(null)->site('*')->unique()->one();
+
+            if ($comment && Craft::$app->getElements()->deleteElement($comment, true)) {
+                $deleted++;
+            }
+        }
+
+        return $deleted;
     }
 
     public function getActions(int $commentId): array
@@ -557,7 +656,8 @@ class Moderation extends Component
      */
     public function canModerateComment(?User $actor, ?Comment $comment = null): bool
     {
-        if (!$actor) {
+        // A member signed in by a member token only moderates where its origin allows it.
+        if (!$actor || !CommentsPlugin::$plugin->getSignIn()->allowsModeration($actor)) {
             return false;
         }
 
@@ -574,7 +674,7 @@ class Moderation extends Component
 
     public function canRemoveComment(?User $actor): bool
     {
-        return $actor && ($actor->admin || $actor->can('comments-trash'));
+        return $actor && CommentsPlugin::$plugin->getSignIn()->allowsModeration($actor) && ($actor->admin || $actor->can('comments-trash'));
     }
 
 
@@ -698,6 +798,10 @@ class Moderation extends Component
             $action,
             $actor?->id,
         );
+
+        // Changing state doesn't save the element, so the data API's cached responses are cleared here,
+        // after the change is committed.
+        CommentsPlugin::$plugin->getApi()->invalidateCaches();
 
         // Changing state doesn't save the element, so its save events don't fire for this.
         if ($this->hasEventHandlers(self::EVENT_AFTER_CHANGE_STATE)) {

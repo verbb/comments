@@ -11,6 +11,7 @@ use Craft;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
+use craft\web\View;
 use craft\web\Controller;
 
 use yii\web\BadRequestHttpException;
@@ -78,6 +79,7 @@ class CommentersController extends Controller
         $photo = $detail['user']?->getPhoto();
         $screen = $this->asCpScreen()
             ->title($detail['name'])
+            ->selectedSubnavItem('commenters')
             ->addCrumb(Craft::t('comments', Comments::$plugin->getPluginName()), 'comments')
             ->addCrumb(Craft::t('comments', 'Commenters'), 'comments/commenters')
             ->contentTemplate('comments/commenters/_view', $detail + [
@@ -125,6 +127,9 @@ class CommentersController extends Controller
             foreach ($identityIds as $identityId) {
                 if ($moderation->getReviewSetting($identityId) !== $setting) {
                     $moderation->setReviewSetting($identityId, $setting, $actor, $note);
+                } elseif ($note !== null) {
+                    // Saving the same setting with a note keeps the note rather than dropping it.
+                    $moderation->addCommenterNote($identityId, $note, $actor);
                 }
             }
         } catch (Throwable $e) {
@@ -136,6 +141,39 @@ class CommentersController extends Controller
             : Craft::t('comments', 'Review setting saved for {count} commenters.', ['count' => count($identityIds)]);
 
         return $this->asSuccess($message, redirect: count($identityIds) === 1 ? UrlHelper::cpUrl("comments/commenters/{$identityIds[0]}") : null);
+    }
+
+    /**
+     * A note about a commenter, from their Activity tab, which comes back redrawn with the note in it.
+     */
+    public function actionAddNote(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $identityId = (int)$this->request->getRequiredBodyParam('identityId');
+        $commenters = Comments::$plugin->getCommenters();
+
+        if (!Comments::$plugin->getIdentities()->getById($identityId)) {
+            throw new NotFoundHttpException('Commenter not found.');
+        }
+
+        try {
+            Comments::$plugin->getModeration()->addCommenterNote(
+                $identityId,
+                (string)$this->request->getRequiredBodyParam('note'),
+                Craft::$app->getUser()->getIdentity(),
+            );
+        } catch (Throwable $e) {
+            return $this->asFailure($e->getMessage());
+        }
+
+        return $this->asSuccess(Craft::t('comments', 'Note added.'), [
+            'html' => $this->getView()->renderTemplate('comments/commenters/_activity', [
+                'id' => $identityId,
+                'history' => $commenters->getHistory($identityId),
+            ], View::TEMPLATE_MODE_CP),
+        ]);
     }
 
     public function actionRevoke(): ?Response

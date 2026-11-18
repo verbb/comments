@@ -19,6 +19,7 @@ use craft\elements\Asset;
 use craft\elements\User;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 
 use DateTime;
@@ -165,28 +166,29 @@ class Commenters extends Component
         $viewer = Craft::$app->getUser()->getIdentity();
         $canViewEmail = $viewer && $viewer->admin;
 
+        // Counted like the Comments tab's table, which leaves out comments in the trash.
         $states = (new Query())
             ->select(['moderationState', 'count' => 'COUNT(*)'])
-            ->from('{{%comments_comments}}')
+            ->from(['c' => $this->_liveComments()])
             ->where(['identityId' => $identityId])
             ->groupBy(['moderationState'])
             ->pairs();
 
         $dates = (new Query())
             ->select(['first' => 'MIN([[commentDate]])', 'last' => 'MAX([[commentDate]])'])
-            ->from('{{%comments_comments}}')
+            ->from(['c' => $this->_liveComments()])
             ->where(['identityId' => $identityId])
             ->one();
 
         $openFlags = (int)(new Query())
             ->from(['r' => '{{%comments_reports}}'])
-            ->innerJoin(['c' => '{{%comments_comments}}'], '[[c.id]] = [[r.commentId]]')
+            ->innerJoin(['c' => $this->_liveComments()], '[[c.id]] = [[r.commentId]]')
             ->where(['c.identityId' => $identityId, 'r.status' => ReportStatus::Open->value])
             ->count();
 
         $reportsAgainst = (int)(new Query())
             ->from(['r' => '{{%comments_reports}}'])
-            ->innerJoin(['c' => '{{%comments_comments}}'], '[[c.id]] = [[r.commentId]]')
+            ->innerJoin(['c' => $this->_liveComments()], '[[c.id]] = [[r.commentId]]')
             ->where(['c.identityId' => $identityId])
             ->count();
 
@@ -216,25 +218,59 @@ class Commenters extends Component
     }
 
     /**
-     * The commenter's review history: settings moderators chose, comments they removed, and when
-     * the commenter started. Newest first.
+     * The commenter's Activity tab, newest first, as items for the comment timeline: moderators' notes about
+     * them, the review settings moderators chose, with their notes, and their changes back to normal, the
+     * comments moderators removed, and the commenter's first approved comment.
      */
     public function getHistory(int $identityId): array
     {
         $users = Craft::$app->getUsers();
+        $restrictions = $this->_restrictionHistory($identityId);
         $items = [];
 
-        foreach ($this->_restrictionHistory($identityId) as $restriction) {
-            $items[] = [
-                'date' => $restriction['dateCreated'],
-                'actor' => $restriction['createdBy'],
-                'text' => $restriction['isGlobal']
-                    ? Craft::t('comments', 'set comments to {setting}', ['setting' => mb_strtolower($this->restrictionLabel($restriction['type']))])
-                    : Craft::t('comments', 'set comments in one conversation to {setting}', ['setting' => mb_strtolower($this->restrictionLabel($restriction['type']))]),
-                'element' => null,
-                'detail' => null,
-                'note' => $restriction['reason'],
-            ];
+        foreach ($restrictions as $restriction) {
+            $setting = mb_strtolower($this->restrictionLabel($restriction['type']));
+            [$tone, $icon] = match ($restriction['type']) {
+                RestrictionType::Trusted->value => ['teal', 'user-check'],
+                RestrictionType::Blocked->value => ['red', 'ban'],
+                default => ['amber', 'user-clock'],
+            };
+
+            $items[] = $this->_historyItem(
+                $restriction['dateCreated'],
+                $restriction['createdBy'],
+                $restriction['isGlobal']
+                    ? Craft::t('comments', 'set comments to {setting}', ['setting' => $setting])
+                    : Craft::t('comments', 'set comments in one conversation to {setting}', ['setting' => $setting]),
+                $tone,
+                $icon,
+                note: $restriction['reason'],
+            );
+
+            // Choosing another setting ends this one as that one starts, and that one's event says so. Only a
+            // change back to normal is an event of its own.
+            if ($restriction['revokedAt'] && !$this->_replacedWhenRevoked($restriction, $restrictions)) {
+                $items[] = $this->_historyItem(
+                    $restriction['revokedAt'],
+                    $restriction['revokedBy'],
+                    $restriction['isGlobal']
+                        ? Craft::t('comments', 'set comments back to normal')
+                        : Craft::t('comments', 'set comments in one conversation back to normal'),
+                    'gray',
+                    'arrow-rotate-left',
+                );
+            }
+        }
+
+        foreach (CommentsPlugin::$plugin->getModeration()->getCommenterNotes($identityId) as $note) {
+            $items[] = $this->_historyItem(
+                $note->dateCreated,
+                $note->userId ? $users->getUserById((int)$note->userId)?->getName() : Craft::t('comments', 'Unknown user'),
+                Craft::t('comments', 'left a note'),
+                'note',
+                'note-sticky',
+                note: (string)$note->note,
+            );
         }
 
         $removals = (new Query())
@@ -248,14 +284,17 @@ class Commenters extends Component
             ->all();
 
         foreach ($removals as $removal) {
-            $items[] = [
-                'date' => $removal['dateCreated'],
-                'actor' => $removal['userId'] ? $users->getUserById((int)$removal['userId'])?->getName() : null,
-                'text' => Craft::t('comments', 'removed a comment on'),
-                'element' => $removal['title'] ?: Craft::t('comments', '[Deleted element]'),
-                'detail' => $removal['reason'] ? (RemovalReason::tryFrom((string)$removal['reason'])?->label() ?? $removal['reason']) : null,
-                'note' => null,
-            ];
+            $reason = $removal['reason'] ? (RemovalReason::tryFrom((string)$removal['reason'])?->label() ?? $removal['reason']) : null;
+
+            $items[] = $this->_historyItem(
+                $removal['dateCreated'],
+                $removal['userId'] ? $users->getUserById((int)$removal['userId'])?->getName() : null,
+                Craft::t('comments', 'removed a comment'),
+                'red',
+                'trash',
+                context: Craft::t('comments', 'on {element}', ['element' => Html::encode($removal['title'] ?: Craft::t('comments', '[Deleted element]'))]),
+                chips: $reason ? [['label' => $reason, 'tone' => 'red']] : [],
+            );
         }
 
         $first = (new Query())
@@ -266,14 +305,7 @@ class Commenters extends Component
             ->scalar();
 
         if ($first) {
-            $items[] = [
-                'date' => $first,
-                'actor' => null,
-                'text' => Craft::t('comments', 'First comment approved'),
-                'element' => null,
-                'detail' => null,
-                'note' => null,
-            ];
+            $items[] = $this->_historyItem($first, null, Craft::t('comments', 'First comment approved'), 'blue', 'comment');
         }
 
         usort($items, static fn(array $a, array $b): int => DateTimeHelper::toDateTime($b['date'])?->getTimestamp() <=> DateTimeHelper::toDateTime($a['date'])?->getTimestamp());
@@ -293,6 +325,18 @@ class Commenters extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Comments that aren't in the trash, so counts match what the element index shows.
+     */
+    private function _liveComments(): Query
+    {
+        return (new Query())
+            ->select(['c.id', 'c.identityId', 'c.moderationState', 'c.commentDate', 'c.ownerId', 'c.ownerSiteId'])
+            ->from(['c' => '{{%comments_comments}}'])
+            ->innerJoin(['e' => Table::ELEMENTS], '[[e.id]] = [[c.id]]')
+            ->where(['e.dateDeleted' => null]);
+    }
 
     private function _listQuery(string $source, ?string $search): Query
     {
@@ -316,7 +360,7 @@ class Commenters extends Component
                 'firstSeen' => 'MIN([[c.commentDate]])',
             ])
             ->from(['i' => '{{%comments_identities}}'])
-            ->leftJoin(['c' => '{{%comments_comments}}'], '[[c.identityId]] = [[i.id]]')
+            ->leftJoin(['c' => $this->_liveComments()], '[[c.identityId]] = [[i.id]]')
             ->leftJoin(['u' => Table::USERS], '[[u.id]] = [[i.userId]]')
             ->groupBy(['i.id', 'i.type', 'i.name', 'i.email', 'u.username', 'u.fullName', 'u.photoId', 'u.email']);
 
@@ -398,7 +442,7 @@ class Commenters extends Component
 
         $latest = (new Query())
             ->select(['identityId', 'id' => 'MAX([[id]])'])
-            ->from('{{%comments_comments}}')
+            ->from(['c' => $this->_liveComments()])
             ->where(['identityId' => $identityIds])
             ->groupBy(['identityId'])
             ->pairs();
@@ -411,6 +455,47 @@ class Commenters extends Component
             ->pairs();
 
         return array_map('strval', array_filter($owners, static fn($title): bool => $title !== null && $title !== ''));
+    }
+
+    /**
+     * One event on the commenter's Activity tab, in the comment timeline's shape.
+     */
+    private function _historyItem(mixed $date, ?string $actor, string $text, string $tone, string $icon, ?string $context = null, array $chips = [], ?string $note = null): array
+    {
+        return [
+            'date' => $date,
+            'actor' => $actor,
+            'actorUrl' => null,
+            'text' => $text,
+            'tone' => $tone,
+            'icon' => $icon,
+            'context' => $context,
+            'chips' => $chips,
+            'note' => $note,
+        ];
+    }
+
+    /**
+     * Whether a later setting, for all conversations or the same one, started as this one ended, which is how
+     * a change between two settings is stored. Only a later one counts, as quick changes can share a second.
+     */
+    private function _replacedWhenRevoked(array $restriction, array $restrictions): bool
+    {
+        $revokedAt = DateTimeHelper::toDateTime($restriction['revokedAt'])?->getTimestamp();
+
+        foreach ($restrictions as $other) {
+            if ($other['id'] <= $restriction['id'] || $other['isGlobal'] !== $restriction['isGlobal']) {
+                continue;
+            }
+
+            $created = DateTimeHelper::toDateTime($other['dateCreated'])?->getTimestamp();
+
+            if ($revokedAt !== null && $created !== null && abs($created - $revokedAt) <= 5) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function _restrictionHistory(int $identityId): array

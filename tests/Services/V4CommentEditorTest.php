@@ -442,6 +442,46 @@ it('summarises a commenter and their restriction history', function() {
         ->and(Comments::$plugin->getCommenters()->getDetail(999999))->toBeNull();
 });
 
+it('leaves trashed comments out of a commenter’s counts, as their Comments tab does', function() {
+    $author = CommentsFixtureFactory::user('commenterTrash');
+    $kept = editorComment((int)$author->id);
+    $trashed = editorComment((int)$author->id);
+    expect(Craft::$app->getElements()->deleteElement($trashed))->toBeTrue();
+
+    $commenters = Comments::$plugin->getCommenters();
+    $detail = $commenters->getDetail((int)$kept->identityId);
+    $rows = array_column($commenters->getTableData(Commenters::SOURCE_ALL, null, 1)['rows'], null, 'id');
+
+    expect($detail['counts']['approved'])->toBe(1)
+        ->and($rows[(int)$kept->identityId]['comments'])->toBe(1);
+});
+
+it('keeps moderators’ notes about a commenter on their Activity tab, including one left when setting them back to normal', function() {
+    $author = CommentsFixtureFactory::user('commenterNotes');
+    $comment = editorComment((int)$author->id);
+    $identityId = (int)$comment->identityId;
+    $moderation = Comments::$plugin->getModeration();
+    $admin = Craft::$app->getUser()->getIdentity();
+
+    $moderation->addCommenterNote($identityId, '  Watching after the October reports  ', $admin);
+    $moderation->setReviewSetting($identityId, verbb\comments\enums\ReviewSetting::Held, $admin, 'Two removed this week');
+    $moderation->setReviewSetting($identityId, verbb\comments\enums\ReviewSetting::Blocked, $admin, 'Kept going');
+    $moderation->setReviewSetting($identityId, verbb\comments\enums\ReviewSetting::Normal, $admin, 'Behaving again');
+
+    $history = Comments::$plugin->getCommenters()->getHistory($identityId);
+    $texts = array_column($history, 'text');
+    $notes = array_column(array_values(array_filter($history, static fn(array $item): bool => $item['tone'] === 'note')), 'note');
+
+    // Held to Blocked is one change, so only the change from Blocked to Normal reads as going back to normal.
+    expect($moderation->getCommenterNotes($identityId))->toHaveCount(2)
+        ->and($notes)->toContain('Watching after the October reports')
+        ->and($notes)->toContain('Behaving again')
+        ->and($texts)->toContain('set comments to held for review')
+        ->and($texts)->toContain('set comments to blocked')
+        ->and(array_count_values($texts)['set comments back to normal'] ?? 0)->toBe(1)
+        ->and(fn() => $moderation->addCommenterNote($identityId, '   ', $admin))->toThrow(yii\base\UserException::class);
+});
+
 it('closes an element to new comments from the Comments field, keeping existing ones', function() {
     $entry = CommentsFixtureFactory::entry('Closed field owner');
     $comment = editorComment(null, $entry);

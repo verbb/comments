@@ -27,7 +27,7 @@ declare global {
 
 const t = (message: string, params: Record<string, string | number> = {}): string => window.Craft?.t('comments', message, params) ?? message;
 
-const settingStatus: Record<string, string> = { trusted: 'green', normal: 'disabled', held: 'orange', blocked: 'red' };
+const settingStatus: Record<string, string> = { trusted: 'teal', normal: 'disabled', held: 'orange', blocked: 'red' };
 
 // Cells render inside the table's shadow root, where page styles don't reach, so the little layout
 // they need is inline. Colours still come from Craft's variables, which do inherit.
@@ -58,7 +58,7 @@ function avatar(row: DataTableRow): HTMLElement {
         return element('img', { src: row.photo, alt: '', style: styles.avatar });
     }
 
-    const tone = row.guest ? styles.guestAvatar : `background-color:var(--comments-avatar-${Number(row.tone) || 0})`;
+    const tone = row.guest ? styles.guestAvatar : `background-color:var(--comments-color-avatar-${Number(row.tone) || 0})`;
 
     return element('span', { style: `${styles.avatar};${tone}`, 'aria-hidden': 'true' }, String(row.initials ?? ''));
 }
@@ -93,15 +93,23 @@ function mountCommenters(root: HTMLElement): void {
         {
             id: 'name', label: t('Commenter'), type: 'custom', sortable: true, hideable: false, width: '15rem',
             renderCell: ({ row }) => {
+                // The whole block is one link, so the avatar and email open the commenter too, with a single tab stop.
                 // A floor too, so on a narrow screen the table scrolls rather than squeezing names to an initial.
-                const cell = element('div', { style: `${styles.cell};min-width:200px` });
+                // Hovering underlines only the name: the link's own underline would run under the email and the Guest
+                // pill too, and inline styles can't target :hover, so the pointer events set it.
+                const cell = element('a', { href: String(row.url), style: `${styles.cell};min-width:200px;text-decoration:none` });
                 cell.append(avatar(row));
                 const text = element('div', { style: 'display:grid;gap:1px;min-width:0;line-height:1.35' });
                 const name = element('div', { style: styles.name });
-                name.append(element('a', { href: String(row.url), style: `font-weight:600;color:var(--text-color);${styles.truncate}` }, String(row.name)));
+                // The table sets its cell colours only on selected rows, where the text turns white on grey.
+                const label = element('span', { style: `font-weight:600;color:var(--pk-data-table-cell-color, var(--link-color));${styles.truncate}` }, String(row.name));
+                cell.addEventListener('pointerenter', () => { label.style.textDecoration = 'underline'; });
+                cell.addEventListener('pointerleave', () => { label.style.textDecoration = ''; });
+                name.append(label);
                 if (row.guest) name.append(element('span', { style: styles.guestPill }, t('Guest')));
                 text.append(name);
-                if (row.email) text.append(element('div', { style: `color:var(--light-text-color);font-size:13px;${styles.truncate}`, title: String(row.email) }, String(row.email)));
+                // A truncated address is still read in full, as it's all in the link's text.
+                if (row.email) text.append(element('div', { style: `color:var(--pk-data-table-cell-muted-color, var(--light-text-color));font-size:13px;${styles.truncate}` }, String(row.email)));
                 cell.append(text);
                 return cell;
             },
@@ -201,16 +209,85 @@ function mountCommenters(root: HTMLElement): void {
     root.replaceChildren(table);
 }
 
-// The review setting form on a commenter's page asks before blocking.
-function confirmBlock(form: HTMLFormElement): void {
-    const initial = form.querySelector<HTMLInputElement>('input[name="reviewSetting"]:checked')?.value;
+// Craft's jQuery, only to hand elements to its tab manager.
+type JQueryLike = object;
+
+declare global {
+    interface Window {
+        jQuery?: (element: HTMLElement) => JQueryLike;
+    }
+}
+
+// Each review setting on a commenter's page saves when it's clicked, and Blocked asks first.
+function initReviewSetting(form: HTMLFormElement): void {
     form.addEventListener('submit', (event) => {
-        const chosen = form.querySelector<HTMLInputElement>('input[name="reviewSetting"]:checked');
-        if (chosen && chosen.value !== initial && chosen.dataset.commentsConfirm && !window.confirm(chosen.dataset.commentsConfirm)) {
+        const chosen = event.submitter as HTMLElement | null;
+        if (chosen?.dataset.commentsConfirm && !window.confirm(chosen.dataset.commentsConfirm)) {
             event.preventDefault();
         }
     });
 }
 
+interface CraftTabs {
+    on(event: 'selectTab', handler: (event: { $tab: { attr(name: string): string | undefined } }) => void): void;
+    selectTab(tab: JQueryLike): void;
+}
+
+// A commenter's Comments and Activity tabs, with Craft's tab manager, showing the panel each tab links to as
+// Craft does for its own content tabs, then letting the element index re-measure itself.
+function initCommenterTabs(container: HTMLElement): void {
+    const $ = window.jQuery;
+    const Tabs = (window.Craft as unknown as { Tabs?: new (element: JQueryLike) => CraftTabs }).Tabs;
+
+    if (!$ || !Tabs) return;
+
+    const panels = [...container.querySelectorAll<HTMLAnchorElement>('[role="tab"]')]
+        .map((tab) => document.getElementById(tab.dataset.id ?? ''))
+        .filter((panel): panel is HTMLElement => panel !== null);
+
+    const tabs = new Tabs($(container));
+    tabs.on('selectTab', ({ $tab }) => {
+        const id = ($tab.attr('href') ?? '').replace(/^#/, '');
+        panels.forEach((panel) => panel.classList.toggle('hidden', panel.id !== id));
+        window.dispatchEvent(new Event('resize'));
+    });
+
+    // A link to #commenter-activity opens on that tab, as Craft's own tabs do. Craft takes the hash off the URL
+    // as the page loads and keeps it, without the #, in LOCATION_HASH.
+    const hash = (window as unknown as { LOCATION_HASH?: string }).LOCATION_HASH || window.location.hash.slice(1);
+    const linked = [...container.querySelectorAll<HTMLElement>('[role="tab"]')].find((tab) => hash !== '' && tab.getAttribute('href') === `#${hash}`);
+    if (linked) tabs.selectTab($(linked));
+}
+
+// A note on a commenter's Activity tab saves straight away, and the panel comes back redrawn with it.
+document.addEventListener('click', async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-comments-commenter-note]');
+    const panel = button?.closest<HTMLElement>('[data-comments-commenter-activity]');
+    const input = panel?.querySelector<HTMLTextAreaElement>('[data-comments-note-input]');
+
+    if (!button || !panel || !input) return;
+
+    event.preventDefault();
+
+    if (!input.value.trim()) {
+        input.focus();
+        return;
+    }
+
+    button.classList.add('loading');
+
+    try {
+        const response = await window.Craft.sendActionRequest('POST', 'comments/commenters/add-note', {
+            data: { identityId: panel.dataset.identityId, note: input.value },
+        }) as { data: { message?: string; html?: string } };
+        panel.outerHTML = response.data.html ?? panel.outerHTML;
+        window.Craft.cp.displaySuccess(response.data.message ?? '');
+    } catch (error) {
+        button.classList.remove('loading');
+        window.Craft.cp.displayError((error as { response?: { data?: { message?: string } } }).response?.data?.message);
+    }
+});
+
 document.querySelectorAll<HTMLElement>('[data-comments-commenters]').forEach(mountCommenters);
-document.querySelectorAll<HTMLFormElement>('form.comments-review-setting').forEach(confirmBlock);
+document.querySelectorAll<HTMLElement>('[data-comments-commenter-tabs]').forEach(initCommenterTabs);
+document.querySelectorAll<HTMLFormElement>('[data-comments-review-form]').forEach(initReviewSetting);
