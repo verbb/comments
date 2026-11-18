@@ -1,0 +1,24 @@
+{
+    "repository": "git+https://github.com/verbb/comments.git",
+    "branch": "craft-5",
+    "plugin": "composer.json",
+    "packages": [
+        "packages/comments-core",
+        "packages/comments-browser",
+        "packages/comments-web-components",
+        "packages/comments-react",
+        "packages/comments-vue"
+    ],
+    "pinnedBy": [
+        "src/web/assets/frontend/package.json"
+    ],
+    "workspaceManifests": [
+        "docs/package.json",
+        "packages/docs/package.json",
+        "src/web/assets/frontend/package.json"
+    ],
+    "libraries": [
+        { "npm": "@verbb/protect", "composer": "verbb/protect" },
+        { "npm": "@verbb/editor", "composer": "verbb/editor" }
+    ]
+}

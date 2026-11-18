@@ -1,0 +1,181 @@
+name: Publish Comments Packages
+
+# Publishes the @verbb/comments-* packages to npm from a reviewed release commit on craft-5.
+# Copied from Formie's publish workflow, with two differences.
+#
+# It's off until the repository variable COMMENTS_NPM_PUBLISH is set to "enabled". Comments 4 isn't
+# released yet, and Editor and Protect must be on npm first.
+#
+# It only runs when dispatched. Formie also publishes every change to next automatically, which can be
+# added once Comments 4 is stable. Until then, each beta goes to next as itself, such as 4.0.0-beta.2.
+#
+# npm's trusted publishing only works for a package that already exists, so each package's first version
+# is published by hand from a clean rehearsal's tarballs. npm also points latest at a package's first
+# version, whatever tag it went out with, so latest shows that beta until 4.0.0 replaces it.
+
+on:
+    workflow_dispatch:
+        inputs:
+            release_sha:
+                description: Full reviewed release commit SHA on craft-5
+                required: true
+                type: string
+            release_version:
+                description: The packages' version, such as 4.0.0-beta.2 or 4.0.0. Leave it empty only for a generated next build between stable releases.
+                required: false
+                type: string
+            channel:
+                description: npm distribution channel. Prereleases go to next, stable versions to latest.
+                required: true
+                default: next
+                type: choice
+                options:
+                    - next
+                    - latest
+
+env:
+    RELEASE_SHA: ${{ inputs.release_sha }}
+    RELEASE_VERSION: ${{ inputs.release_version }}
+    RELEASE_CHANNEL: ${{ inputs.channel }}
+
+# Never let two attempts race over the same lockstep release. Channels stay separate so a waiting
+# stable release isn't replaced by a newer next run.
+concurrency:
+    group: comments-npm-publish-${{ inputs.channel }}
+    cancel-in-progress: false
+
+jobs:
+    validate:
+        if: vars.COMMENTS_NPM_PUBLISH == 'enabled' && github.ref == 'refs/heads/craft-5'
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
+        permissions:
+            contents: read
+        steps:
+            - name: Check out reviewed commit
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ env.RELEASE_SHA }}
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Verify commit belongs to craft-5
+              run: |
+                  if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+                    echo 'A full lowercase commit SHA is required.' >&2
+                    exit 1
+                  fi
+                  test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+                  git fetch origin craft-5
+                  git merge-base --is-ancestor "$RELEASE_SHA" origin/craft-5
+
+            - name: Set up Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '24'
+                  package-manager-cache: false
+
+            - name: Check Node and npm versions
+              run: |
+                  node --version
+                  npm --version
+                  node -e 'const version = require("node:child_process").execFileSync("npm", ["--version"], { encoding: "utf8" }).trim(); const [major, minor, patch] = version.split(".").map(Number); if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) process.exit(1)'
+
+            - name: Verify standalone dependency lockfile
+              run: npm run release:check-lockfile
+
+            - name: Install dependencies
+              run: npm ci --legacy-peer-deps
+
+            - name: Build publishable packages
+              run: npm run build:packages
+
+            - name: Run package tests
+              run: npm run test:packages
+
+            - name: Test package publication tooling
+              run: npm run test:release
+
+            - name: Check the plugin's own asset pins the packages
+              run: node scripts/check-frontend-pin.mjs
+
+            # Gate 10: the file set, the licence, the plugin's version, no local links, and the packed
+            # declarations compiling for TypeScript consumers.
+            - name: Check package tarballs as consumers meet them
+              run: node scripts/check-package-pack.mjs
+
+            - name: Inspect all package tarballs
+              run: |
+                  for package in \
+                    @verbb/comments-core \
+                    @verbb/comments-browser \
+                    @verbb/comments-web-components \
+                    @verbb/comments-react \
+                    @verbb/comments-vue; do
+                    echo "::group::Pack $package"
+                    npm pack --dry-run -w "$package"
+                    echo '::endgroup::'
+                  done
+
+            - name: Reject regenerated repository files
+              run: |
+                  if [[ -n "$(git status --porcelain)" ]]; then
+                    echo 'Build or pack regenerated repository files:' >&2
+                    git status --short
+                    git diff --stat
+                    git diff --
+                    exit 1
+                  fi
+
+            # Also checks each tarball with publint and Are the Types Wrong.
+            - name: Create reviewed package tarballs
+              env:
+                  PACKAGE_TARBALL_DIR: ${{ runner.temp }}/comments-tarballs
+              run: node scripts/pack-prepared.mjs
+
+            - name: Transfer validated tarballs to publish job
+              uses: actions/upload-artifact@v4
+              with:
+                  name: comments-release-tarballs
+                  path: ${{ runner.temp }}/comments-tarballs/*.tgz
+                  if-no-files-found: error
+                  retention-days: 7
+
+    publish:
+        needs: validate
+        if: vars.COMMENTS_NPM_PUBLISH == 'enabled' && github.ref == 'refs/heads/craft-5'
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        environment: npm-publish
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - name: Check out reviewed commit without dependencies
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ env.RELEASE_SHA }}
+                  persist-credentials: false
+
+            - name: Set up Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '24'
+                  package-manager-cache: false
+
+            - name: Check supported npm CLI
+              run: |
+                  node --version
+                  npm --version
+                  node -e 'const version = require("node:child_process").execFileSync("npm", ["--version"], { encoding: "utf8" }).trim(); const [major, minor, patch] = version.split(".").map(Number); if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) process.exit(1)'
+
+            - name: Receive validated tarballs
+              uses: actions/download-artifact@v4
+              with:
+                  name: comments-release-tarballs
+                  path: ${{ runner.temp }}/comments-tarballs
+
+            - name: Publish missing package versions with npm OIDC
+              env:
+                  PACKAGE_TARBALL_DIR: ${{ runner.temp }}/comments-tarballs
+              run: npm run release:publish-prepared
