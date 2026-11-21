@@ -2,6 +2,7 @@
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
+use craft\helpers\Json;
 use craft\models\UserGroup;
 use Tests\Support\Fixtures\CommentsFixtureFactory;
 use Tests\Support\V3Site;
@@ -499,6 +500,26 @@ it('grants the new permissions to user groups through project config', function(
     }
 });
 
+it('saves the project config it changes before each migration is recorded', function() {
+    // Craft saves project config when the request ends, which an upgrade that stops part way never reaches,
+    // and the migrations that made the changes wouldn't run again.
+    $group = legacyGroup('savedModerators');
+
+    try {
+        V3Site::upgrade();
+
+        $saved = array_map(static fn(string $value): mixed => Json::decode($value), (new Query())
+            ->select(['value'])
+            ->from(Table::PROJECTCONFIG)
+            ->where(['like', 'path', 'users.groups.' . $group->uid . '.permissions.%', false])
+            ->column());
+
+        expect($saved)->toContain('comments-view')->toContain('comments-moderate');
+    } finally {
+        Craft::$app->getUserGroups()->deleteGroup($group);
+    }
+});
+
 it('leaves group permissions to the deployed config once another environment has upgraded', function() {
     $group = legacyGroup('syncedModerators');
     Craft::$app->getProjectConfig()->set('plugins.comments.schemaVersion', Comments::$plugin->schemaVersion);
@@ -511,5 +532,49 @@ it('leaves group permissions to the deployed config once another environment has
         expect(Craft::$app->getProjectConfig()->get($path))->toBe(['comments-edit']);
     } finally {
         Craft::$app->getUserGroups()->deleteGroup($group);
+    }
+});
+
+it('confirms guest addresses when users has a different collation from the Comments tables', function() {
+    $db = Craft::$app->getDb();
+
+    if (!$db->getIsMysql()) {
+        $this->markTestSkipped('Collations only clash on MySQL.');
+    }
+
+    // A site installed before Craft 5 keeps its older collation on `users`, while tables created since get
+    // the server's, so MySQL refuses to compare a column from each.
+    $users = $db->getSchema()->getRawTableName(Table::USERS);
+    $collationOf = fn(string $table): string => (string)(new Query())
+        ->select(['TABLE_COLLATION'])
+        ->from('information_schema.TABLES')
+        ->where(['TABLE_SCHEMA' => $db->createCommand('SELECT DATABASE()')->queryScalar(), 'TABLE_NAME' => $table])
+        ->scalar();
+    $original = $collationOf($users);
+    $db->createCommand("ALTER TABLE `{$users}` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")->execute();
+
+    try {
+        $member = CommentsFixtureFactory::user('collationMember');
+        $entry = CommentsFixtureFactory::entry('Collation owner');
+        $guest = V3Site::comment(['ownerId' => $entry->id, 'name' => 'Guest', 'email' => 'Guest@Example.test']);
+        $impostor = V3Site::comment(['ownerId' => $entry->id, 'name' => 'Not the member', 'email' => strtoupper($member->email)]);
+        V3Site::tree([$guest => [], $impostor => []]);
+
+        V3Site::upgrade();
+
+        $verifiedAt = fn(int $comment): ?string => (new Query())
+            ->select(['verifiedAt'])
+            ->from('{{%comments_identities}}')
+            ->where(['id' => commentRow($comment)['identityId']])
+            ->scalar() ?: null;
+
+        expect($collationOf($db->getSchema()->getRawTableName('{{%comments_identities}}')))->not->toBe('utf8mb4_unicode_ci')
+            ->and(Comments::$plugin->getMigrator()->getNewMigrations())->toBe([])
+            ->and($verifiedAt($guest))->not->toBeNull()
+            // An address that belongs to a user isn't confirmed for a guest, whatever its case.
+            ->and($verifiedAt($impostor))->toBeNull();
+    } finally {
+        [$charset] = explode('_', $original);
+        $db->createCommand("ALTER TABLE `{$users}` CONVERT TO CHARACTER SET {$charset} COLLATE {$original}")->execute();
     }
 });

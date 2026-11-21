@@ -13,7 +13,7 @@
     name: 'interactionMode',
     value: settings.interactionMode,
     options: interactionOptions,
-    warning: macros.configWarning('interactionMode', 'comments'),
+    warning: (macros.configWarning('interactionMode', 'comments') | trim) ?: (macros.configWarning('allowVoting', 'comments') | trim),
 }) }}
 
 {{ forms.lightswitchField({

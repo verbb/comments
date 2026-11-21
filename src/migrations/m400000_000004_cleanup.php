@@ -2,10 +2,12 @@
 namespace verbb\comments\migrations;
 
 use verbb\comments\migrations\support\RunsOutsideTransaction;
+use verbb\comments\migrations\support\SavesProjectConfig;
 use verbb\comments\migrations\support\V3Reconciler;
 use verbb\comments\migrations\support\V3Schema;
 use verbb\comments\migrations\support\V3SettingsReview;
 use verbb\comments\migrations\support\V3UpgradeLog;
+use verbb\comments\enums\InteractionMode;
 use verbb\comments\helpers\Gql;
 use verbb\comments\services\Comments as CommentsService;
 
@@ -33,6 +35,13 @@ class m400000_000004_cleanup extends Migration
     // =========================================================================
 
     use RunsOutsideTransaction;
+    use SavesProjectConfig;
+
+
+    // Constants
+    // =========================================================================
+
+    private const BATCH_SIZE = 500;
 
 
     // Public Methods
@@ -202,6 +211,12 @@ class m400000_000004_cleanup extends Migration
             }
         }
 
+        // Comments 3 had up and down voting unless a site turned it off, which the settings model reads from
+        // `allowVoting`. New installs default to likes, so a site that never saved it records up and down voting.
+        if ($projectConfig->get('plugins.comments.settings.allowVoting') === null && $projectConfig->get('plugins.comments.settings.interactionMode') === null) {
+            $projectConfig->set('plugins.comments.settings.interactionMode', InteractionMode::UpDown->value);
+        }
+
         // Comments 3's GraphQL gave every schema commenters' email addresses. Comments 4 only gives them to a
         // private schema allowed to read them, which each private schema that could read comments is (SD-57).
         foreach ($projectConfig->get(ProjectConfig::PATH_GRAPHQL_SCHEMAS) ?? [] as $uid => $schema) {
@@ -231,14 +246,46 @@ class m400000_000004_cleanup extends Migration
      */
     private function _confirmGuestAddresses(): void
     {
-        $userEmails = (new Query())->select([new Expression('LOWER([[email]])')])->from(Table::USERS)->where(['not', ['email' => null]]);
+        // Matched against users a batch at a time, by value. A site installed before Craft 5 keeps its older
+        // collation on `users`, while tables created since get the server's, and MySQL refuses to compare a
+        // column from each.
+        $now = Db::prepareDateForDb(new DateTime());
+        $lastId = 0;
 
-        $this->update('{{%comments_identities}}', ['verifiedAt' => Db::prepareDateForDb(new DateTime())], [
-            'and',
-            ['type' => 'guest', 'userId' => null, 'guestTokenHash' => null, 'verifiedAt' => null],
-            ['not', ['email' => null]],
-            ['not in', new Expression('LOWER([[email]])'), $userEmails],
-        ], [], false);
+        do {
+            $rows = (new Query())
+                ->select(['id', 'email'])
+                ->from('{{%comments_identities}}')
+                ->where(['type' => 'guest', 'userId' => null, 'guestTokenHash' => null, 'verifiedAt' => null])
+                ->andWhere(['not', ['email' => null]])
+                ->andWhere(['>', 'id', $lastId])
+                ->orderBy(['id' => SORT_ASC])
+                ->limit(self::BATCH_SIZE)
+                ->all($this->db);
+
+            if ($rows === []) {
+                break;
+            }
+
+            $lastId = (int)$rows[array_key_last($rows)]['id'];
+            $emails = array_values(array_unique(array_map(static fn(array $row): string => mb_strtolower((string)$row['email']), $rows)));
+            $taken = array_flip(array_map('mb_strtolower', (new Query())
+                ->select(['email'])
+                ->from(Table::USERS)
+                ->where(['in', new Expression('LOWER([[email]])'), $emails])
+                ->column($this->db)));
+            $ids = [];
+
+            foreach ($rows as $row) {
+                if (!isset($taken[mb_strtolower((string)$row['email'])])) {
+                    $ids[] = (int)$row['id'];
+                }
+            }
+
+            if ($ids !== []) {
+                $this->db->createCommand()->update('{{%comments_identities}}', ['verifiedAt' => $now], ['id' => $ids], [], false)->execute();
+            }
+        } while (count($rows) === self::BATCH_SIZE);
     }
 
     private function _recordRetiredSettings(): void

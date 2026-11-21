@@ -118,7 +118,12 @@ trait LegacySettings
             && $values['interactionMode'] !== null
             && $values['interactionMode'] !== '';
 
-        if (!$hasInteractionMode && array_key_exists('allowVoting', $values)) {
+        // A config file overrides what's saved, so its `allowVoting` wins over a saved `interactionMode`
+        // unless the file sets `interactionMode` too, as with `lazyLoad` below.
+        $file = self::_configFile();
+        $votingFromFile = ($file['allowVoting'] ?? null) !== null && !array_key_exists('interactionMode', $file);
+
+        if (($votingFromFile || !$hasInteractionMode) && array_key_exists('allowVoting', $values)) {
             // v3 voting always offered both directions, so up/down is what preserves behaviour.
             $values['interactionMode'] = (bool)$values['allowVoting']
                 ? InteractionMode::UpDown->value

@@ -2,6 +2,7 @@
 namespace verbb\comments\migrations;
 
 use verbb\comments\migrations\support\V3UpgradeLog;
+use verbb\comments\migrations\support\SavesProjectConfig;
 
 use Craft;
 use craft\db\Migration;
@@ -20,6 +21,12 @@ use Throwable;
  */
 class m400000_000003_permissions extends Migration
 {
+    // Traits
+    // =========================================================================
+
+    use SavesProjectConfig;
+
+
     // Constants
     // =========================================================================
 

@@ -2,6 +2,7 @@
 namespace verbb\comments\migrations;
 
 use verbb\comments\enums\LoadMode;
+use verbb\comments\migrations\support\SavesProjectConfig;
 
 use Craft;
 use craft\db\Migration;
@@ -12,6 +13,12 @@ use craft\db\Migration;
  */
 class m400000_000007_load_mode extends Migration
 {
+    // Traits
+    // =========================================================================
+
+    use SavesProjectConfig;
+
+
     // Public Methods
     // =========================================================================
 

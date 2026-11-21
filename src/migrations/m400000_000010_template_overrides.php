@@ -2,6 +2,7 @@
 namespace verbb\comments\migrations;
 
 use verbb\comments\migrations\support\V3UpgradeLog;
+use verbb\comments\migrations\support\SavesProjectConfig;
 
 use Craft;
 use craft\db\Migration;
@@ -24,6 +25,12 @@ use RecursiveIteratorIterator;
  */
 class m400000_000010_template_overrides extends Migration
 {
+    // Traits
+    // =========================================================================
+
+    use SavesProjectConfig;
+
+
     // Constants
     // =========================================================================
 

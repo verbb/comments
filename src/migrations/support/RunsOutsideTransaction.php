@@ -33,6 +33,9 @@ trait RunsOutsideTransaction
             return false;
         }
 
+        // As Craft's own `up()` does once the work is done.
+        $this->afterUp();
+
         return true;
     }
 

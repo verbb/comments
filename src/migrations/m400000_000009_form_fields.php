@@ -4,6 +4,7 @@ namespace verbb\comments\migrations;
 use verbb\comments\migrations\support\V3UpgradeLog;
 use verbb\comments\elements\Comment;
 use verbb\comments\services\FormFields;
+use verbb\comments\migrations\support\SavesProjectConfig;
 
 use Craft;
 use craft\db\Migration;
@@ -20,6 +21,12 @@ use craft\db\Table;
  */
 class m400000_000009_form_fields extends Migration
 {
+    // Traits
+    // =========================================================================
+
+    use SavesProjectConfig;
+
+
     // Constants
     // =========================================================================
 
