@@ -1972,9 +1972,16 @@ class Comments extends Component
         $message->setSubject(CommentsPlugin::$plugin->getTemplates()->renderSandboxedString($systemMessage->subject, $variables));
         $textBody = CommentsPlugin::$plugin->getTemplates()->renderSandboxedString($systemMessage->body, $variables);
 
+        // The HTML body escapes what it outputs, as Craft's own emails do, because a message can include what
+        // a commenter wrote. Twig names a compiled template after its source, not how it escapes, so the
+        // source differs from the text body's, or that unescaped template would be reused.
+        $htmlBody = CommentsPlugin::$plugin->getTemplates()->renderSandboxedString($systemMessage->body . '{# html #}', $variables, 'html');
+
         // Added here so a customised system message can't lose the way out.
         if ($stopEmailsUrl) {
-            $textBody .= "\n\n---\n\n" . Craft::t('comments', 'Don’t want these emails? [Unsubscribe]({url}).', ['url' => $stopEmailsUrl]);
+            $stopEmails = "\n\n---\n\n" . Craft::t('comments', 'Don’t want these emails? [Unsubscribe]({url}).', ['url' => $stopEmailsUrl]);
+            $textBody .= $stopEmails;
+            $htmlBody .= $stopEmails;
             $message->addHeader('List-Unsubscribe', "<{$stopEmailsUrl}>");
             $message->addHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
         }
@@ -1992,7 +1999,7 @@ class Comments extends Component
 
         try {
             $message->setHtmlBody($view->renderTemplate($template, array_merge($variables, [
-                'body' => Template::raw(Markdown::process($textBody)),
+                'body' => Template::raw(Markdown::process($htmlBody)),
 
                 // Required when using `_special/email` from Craft.
                 'language' => $language,
