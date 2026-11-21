@@ -964,4 +964,9 @@ return [
   'Comment is too long.' => 'Comment is too long.',
   'Start Closed' => 'Start Closed',
   'Elements without their own setting are closed, so their existing comments show, but nobody can post until an editor chooses Open.' => 'Elements without their own setting are closed, so their existing comments show, but nobody can post until an editor chooses Open.',
+  'Reply to {name}' => 'Reply to {name}',
+  'Post reply' => 'Post reply',
+  'Reply posted.' => 'Reply posted.',
+  'Write a reply…' => 'Write a reply…',
+  'Posted as you and published straight away, without spam checks or moderation. The commenter and anyone following the discussion are told, as they would be for a reply on the site.' => 'Posted as you and published straight away, without spam checks or moderation. The commenter and anyone following the discussion are told, as they would be for a reply on the site.',
 ];

@@ -182,6 +182,21 @@
     min-width: 0;
 }
 
+/* Reply sits at the end of the row, only for comments the moderator can answer. */
+.comments-field__item:has(.comments-field__reply) {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+}
+
+.comments-field__reply.btn {
+    align-self: center;
+    background-color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--gray-200);
+}
+
+.comments-field__reply.btn:hover {
+    background-color: var(--gray-050);
+}
+
 .comments-field__item .comments-field__name {
     font-weight: 600;
     color: var(--text-color);

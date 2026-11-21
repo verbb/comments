@@ -1832,6 +1832,20 @@ class Comment extends Element
             ]);
         }
 
+        if (Comments::$plugin->getCommentEditor()->canReply($this, Craft::$app->getUser()->getIdentity())) {
+            // Craft's icon font has no reply icon, so this uses Craft's own button with the SVG one.
+            $html .= Cp::buttonHtml([
+                'label' => Craft::t('comments', 'Reply'),
+                'icon' => 'reply',
+                'attributes' => [
+                    'data' => [
+                        'comments-reply' => $this->id,
+                        'comments-reply-site' => $this->siteId,
+                    ],
+                ],
+            ]);
+        }
+
         return $html;
     }
 
@@ -1997,6 +2011,30 @@ class Comment extends Element
 
         // Gives the editor Craft's View button, opening the comment in its thread on the site.
         return $url ? [['label' => Craft::t('comments', 'Comment on the site'), 'url' => $url]] : [];
+    }
+
+    protected function safeActionMenuItems(): array
+    {
+        $items = parent::safeActionMenuItems();
+
+        // Craft's slideout has no room for the page's own buttons, so Reply is in its menu instead.
+        if (
+            Craft::$app->getRequest()->getHeaders()->has('X-Craft-Container-Id')
+            && Comments::$plugin->getCommentEditor()->canReply($this, Craft::$app->getUser()->getIdentity())
+        ) {
+            $items[] = [
+                'icon' => 'reply',
+                'label' => Craft::t('comments', 'Reply'),
+                'attributes' => [
+                    'data' => [
+                        'comments-reply' => $this->id,
+                        'comments-reply-site' => $this->siteId,
+                    ],
+                ],
+            ];
+        }
+
+        return $items;
     }
 
     protected function showStatusField(): bool

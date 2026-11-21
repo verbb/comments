@@ -1,0 +1,46 @@
+{% import '_includes/forms' as forms %}
+
+<input type="hidden" name="commentId" value="{{ parent.id }}">
+<input type="hidden" name="siteId" value="{{ parent.siteId }}">
+
+{# The comment being answered, as it reads on the site, so the reply can be written beside it. #}
+<div class="comments-reply-parent">
+    <p class="comments-reply-parent__meta">
+        <strong>{{ parent.authorName ?: 'Guest' | t('comments') }}</strong>
+        <time class="light" datetime="{{ parent.commentDate | atom }}">{{ parent.commentDate | datetime('short') }}</time>
+    </p>
+    <p class="comments-reply-parent__text">{{ parent.getExcerpt(0, 600) }}</p>
+</div>
+
+{% set instructions = 'Posted as you and published straight away, without spam checks or moderation. The commenter and anyone following the discussion are told, as they would be for a reply on the site.' | t('comments') %}
+
+{% if rich %}
+    {# Editor fills these in as it's typed in, as it does on the comment's own page. #}
+    {{ forms.field({
+        label: 'Reply' | t('comments'),
+        instructions: instructions,
+        required: true,
+    }, tag('div', {
+        data: {
+            'editor-root': true,
+            'editor-from-plain': true,
+            'editor-options': editorOptions,
+            'editor-content': '[]',
+            'editor-placeholder': 'Write a reply…' | t('comments'),
+            'editor-label': 'Reply' | t('comments'),
+        },
+    })) }}
+    <input type="hidden" name="contentFormat" value="rich">
+    <input type="hidden" name="fields[editorContent]" value="">
+    <textarea name="fields[comment]" hidden></textarea>
+{% else %}
+    <input type="hidden" name="contentFormat" value="plain">
+    {{ forms.textareaField({
+        label: 'Reply' | t('comments'),
+        instructions: instructions,
+        id: 'comment',
+        name: 'fields[comment]',
+        rows: 8,
+        required: true,
+    }) }}
+{% endif %}

@@ -17,6 +17,7 @@ class CommentEditAsset extends AssetBundle
         $this->depends = [
             CommentsCpAsset::class,
             CommentEditKitAsset::class,
+            CommentReplyAsset::class,
             EditorAsset::class,
         ];
 

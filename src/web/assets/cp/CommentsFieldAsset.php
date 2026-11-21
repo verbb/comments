@@ -17,6 +17,7 @@ class CommentsFieldAsset extends AssetBundle
         $this->depends = [
             CraftCpAsset::class,
             CommentsCpAsset::class,
+            CommentReplyAsset::class,
         ];
 
         $this->css = [

@@ -98,3 +98,25 @@
 .comments-delete-permanently {
     color: var(--error-color);
 }
+
+/* A moderator's reply slideout: the comment being answered, quoted above the box. */
+.comments-reply-parent {
+    margin-block-end: 24px;
+    padding: 12px 16px;
+    border-inline-start: 3px solid var(--hairline-color);
+    background-color: var(--gray-050);
+    border-radius: var(--small-border-radius);
+}
+
+.comments-reply-parent__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 4px;
+}
+
+.comments-reply-parent__text {
+    margin: 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}

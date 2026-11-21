@@ -100,11 +100,18 @@ Use the note box at the top to leave something for other moderators, such as why
 
 Editing a comment's content needs `comments-edit`, so someone with only `comments-moderate` sees it read-only and makes decisions without changing what was written.
 
+### Replying to a Comment
+Moderators can answer a comment without going to the site. **Reply** sits beside **Preview** at the top of a comment's page, and in the **…** menu when the comment is open in a slideout. It opens a slideout with the comment quoted above a box for your reply, using the same editor and features as the site's comment form when [rich authoring](docs:feature-tour/rich-authoring) is on.
+
+**Post reply** publishes the reply under the comment straight away, as you, with your account's name and avatar. It isn't held for review or checked for spam. Everyone who would hear about a reply on the site is told the same way, including the commenter and anyone following the discussion.
+
+Replying needs the `comments-moderate` permission, and is only offered for comments that are published, including reported ones, so decide a waiting comment before answering it. Staff can still reply in a discussion that's closed, but not where comments are turned off, and **Maximum Reply Depth** applies as it does on the site.
+
 ## Moderating from an Element
 An element's Comments field, set up as described in [Per-Element Settings](docs:feature-tour/permissions#per-element-settings), shows people with the `comments-view` permission a summary of its discussion once the element is saved:
 
 - Comments waiting for review, with **Approve** and **Spam**, and reported comments, with **Keep** and **Remove**, each tinted and with a link to open it. Moderators can decide these without leaving the element. A held comment can only be removed from its own page, where you can give a reason.
-- The latest approved comments, with each commenter's photo or initials.
+- The latest approved comments, with each commenter's photo or initials, and **Reply** for moderators, which opens the same reply slideout as a [comment's page](#replying-to-a-comment). Reported comments have **Reply** too.
 - How many people follow the discussion, and a link to all of the element's comments in the Comments index.
 
 ![An entry's Comments tab, with the Default (Open) select, comments waiting for review and reported, the latest comments and how many people follow the discussion.](../../screenshots/entries/comments-field.png)

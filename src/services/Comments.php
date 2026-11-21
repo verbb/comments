@@ -217,14 +217,18 @@ class Comments extends Component
 
         $config = $conversations->getConfigForOwner($ownerId, $siteId);
 
-        if (!$config->isCommentingEnabled()) {
+        // Staff can still answer in a closed discussion from the control panel, but not where comments
+        // are off, since the thread isn't shown at all.
+        $fromControlPanel = $submission->fromControlPanel;
+
+        if ($fromControlPanel ? !$config->enabled : !$config->isCommentingEnabled()) {
             throw new RefusedException(Craft::t('comments', 'Comments are closed for this element.'), 'closed');
         }
 
         // Auto-closing depends on the element rather than its stored settings.
         $owner = Craft::$app->getElements()->getElementById($ownerId, null, $siteId);
 
-        if ($owner && $this->checkExpired($owner)) {
+        if (!$fromControlPanel && $owner && $this->checkExpired($owner)) {
             throw new RefusedException(Craft::t('comments', 'Comments are closed for this element.'), 'closed');
         }
 
@@ -242,7 +246,7 @@ class Comments extends Component
             }
         }
 
-        if ($submission->userId && $settings->maxUserComments) {
+        if ($submission->userId && $settings->maxUserComments && !$fromControlPanel) {
             $commentCount = Comment::find()
                 ->ownerId($ownerId)
                 ->ownerSiteId($siteId)
@@ -262,7 +266,8 @@ class Comments extends Component
             throw new RefusedException(Craft::t('comments', 'You are not permitted to comment in this discussion.'), 'blocked');
         }
 
-        $moderationState = $this->_resolveInitialModerationState($config);
+        // A reply from the control panel is published straight away, as a moderator approving it would.
+        $moderationState = $fromControlPanel ? ModerationState::Approved : $this->_resolveInitialModerationState($config);
         $commentDate = new DateTime();
 
         $comment = new Comment([
@@ -286,7 +291,13 @@ class Comments extends Component
             'skipAfterSaveSideEffects' => true,
         ]);
         CommentsPlugin::$plugin->getGiphy()->apply($comment, $submission->gif);
-        $comment->setScenario($prepareComment ? Comment::SCENARIO_FRONT_END : Comment::SCENARIO_LIVE);
+        // A staff reply skips the site form's rules (open or closed, keyword filters, length and required
+        // custom fields, which its form doesn't ask for) as well as protection, and validates as an element only.
+        $comment->setScenario(match (true) {
+            $fromControlPanel => Comment::SCENARIO_DEFAULT,
+            $prepareComment !== null => Comment::SCENARIO_FRONT_END,
+            default => Comment::SCENARIO_LIVE,
+        });
         $comment->setAction(Comment::ACTION_SAVE);
 
         if ($prepareComment) {
@@ -298,8 +309,11 @@ class Comments extends Component
         }
 
         // Spam providers are outside the transaction, so a slow response doesn't hold database locks.
-        // Nothing is written until this has passed.
-        CommentsPlugin::$plugin->getProtection()->check($comment, $submission->protectionEvidence, $submission->protectionRequest, $submission->headless);
+        // Nothing is written until this has passed. Staff replying from the control panel have already
+        // been checked for permission, and their reply shouldn't count against a rate limit or a classifier.
+        if (!$fromControlPanel) {
+            CommentsPlugin::$plugin->getProtection()->check($comment, $submission->protectionEvidence, $submission->protectionRequest, $submission->headless);
+        }
 
         if (!$submission->userId && $submission->email && !(new EmailValidator())->validate($submission->email)) {
             throw CommentValidationException::fromErrors(['email' => [Craft::t('comments', 'Enter a valid email address.')]]);
@@ -311,7 +325,7 @@ class Comments extends Component
         }
 
         try {
-            $result = Craft::$app->getDb()->transaction(function() use ($submission, $comment, $commentDate, $existingConversation, $ownerId, $siteId, $mentionIdentityIds, $settings, $conversations, $moderation) {
+            $result = Craft::$app->getDb()->transaction(function() use ($submission, $comment, $commentDate, $existingConversation, $ownerId, $siteId, $mentionIdentityIds, $settings, $conversations, $moderation, $fromControlPanel) {
                 $conversation = $existingConversation ?? $conversations->getOrCreateForOwner($ownerId, $siteId);
                 $identity = $this->_resolveSubmissionIdentity($submission);
 
@@ -328,7 +342,10 @@ class Comments extends Component
                     throw new RefusedException(Craft::t('comments', 'The maximum reply depth has been reached.'));
                 }
 
-                $this->_applyReviewSetting($comment, (int)$identity->id, (int)$conversation->id);
+                // A moderator's own review setting is for what they post on the site.
+                if (!$fromControlPanel) {
+                    $this->_applyReviewSetting($comment, (int)$identity->id, (int)$conversation->id);
+                }
 
                 $comment->conversationId = (int)$conversation->id;
                 $comment->identityId = (int)$identity->id;

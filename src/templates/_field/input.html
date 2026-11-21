@@ -2,6 +2,7 @@
 {% import _self as panel %}
 
 {% set moderation = craft.app.plugins.getPlugin('comments').getModeration() %}
+{% set commentEditor = craft.app.plugins.getPlugin('comments').getCommentEditor() %}
 
 {# The field stores `inherit`, `enabled`, `closed` or `disabled`, and the summary speaks in statuses. #}
 {% set valueForStatus = { open: 'enabled', closed: 'closed', disabled: 'disabled' } %}
@@ -84,6 +85,15 @@
                                     data-comment-id="{{ comment.id }}"
                                 >{{ moderation.decisionLabel(decision) }}</button>
                             {% endfor %}
+                            {# Only reported comments are published, so only they can be answered from here. #}
+                            {% if commentEditor.canReply(comment, currentUser) %}
+                                <button
+                                    type="button"
+                                    class="btn small comments-field__secondary"
+                                    data-comments-reply="{{ comment.id }}"
+                                    data-comments-reply-site="{{ comment.siteId }}"
+                                >{{ 'Reply' | t('comments') }}</button>
+                            {% endif %}
                             <a class="comments-field__open" href="{{ comment.cpEditUrl }}">{{ 'Open' | t('comments') }}</a>
                         </div>
                     </article>
@@ -108,6 +118,15 @@
                                 <time class="comments-field__age" datetime="{{ item.comment.commentDate | atom }}" title="{{ item.comment.commentDate | datetime('short') }}">{{ item.age }}</time>
                                 <div class="comments-field__line">{{ item.comment.getExcerpt(0, 160) }}</div>
                             </div>
+                            {% if commentEditor.canReply(item.comment, currentUser) %}
+                                <button
+                                    type="button"
+                                    class="btn small comments-field__reply"
+                                    data-comments-reply="{{ item.comment.id }}"
+                                    data-comments-reply-site="{{ item.comment.siteId }}"
+                                    aria-label="{{ 'Reply to {name}' | t('comments', { name: item.author.name }) }}"
+                                >{{ 'Reply' | t('comments') }}</button>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>

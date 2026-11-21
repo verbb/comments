@@ -3,11 +3,14 @@ namespace verbb\comments\services;
 
 use verbb\comments\Comments as CommentsPlugin;
 use verbb\comments\elements\Comment;
+use verbb\comments\enums\ContentFormat;
 use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\RemovalReason;
 use verbb\comments\enums\ReportStatus;
 use verbb\comments\models\CommentEditorTab;
+use verbb\comments\models\CommentResult;
+use verbb\comments\models\CommentSubmission;
 
 use Craft;
 use craft\base\Component;
@@ -240,6 +243,61 @@ class CommentEditor extends Component
         } elseif ($changes['state']) {
             CommentsPlugin::$plugin->getModeration()->setState($comment, $changes['state'], Craft::$app->getUser()->getIdentity());
         }
+    }
+
+    /**
+     * Whether someone can answer a comment from the control panel. Moderators reply to approved comments,
+     * reported ones included, in a discussion that isn't turned off and within **Maximum Reply Depth**.
+     * A waiting comment is decided first, so a published reply never sits under a comment the site hides.
+     */
+    public function canReply(Comment $parent, ?User $user): bool
+    {
+        if (!$user || !$parent->id || !CommentsPlugin::$plugin->getSignIn()->allowsModeration($user)) {
+            return false;
+        }
+
+        if (!$user->admin && !$user->can('comments-moderate')) {
+            return false;
+        }
+
+        if (CommentsPlugin::$plugin->getModeration()->currentState($parent) !== ModerationState::Approved) {
+            return false;
+        }
+
+        $maxReplyDepth = CommentsPlugin::$plugin->getSettings()->maxReplyDepth;
+
+        if (is_numeric($maxReplyDepth) && (int)$parent->depth >= (int)$maxReplyDepth) {
+            return false;
+        }
+
+        // Closed discussions can still be answered by staff, but one that's off isn't shown anywhere.
+        return CommentsPlugin::$plugin->getConversations()
+            ->getConfigForOwner((int)$parent->ownerId, (int)$parent->ownerSiteId)
+            ->enabled;
+    }
+
+    /**
+     * Post a moderator's reply from the control panel. It goes through the same create path as the site,
+     * so the thread, mentions, uploads, following and every notification behave as they would for a reply
+     * posted there, and is published straight away as the moderator.
+     */
+    public function reply(Comment $parent, User $user, ContentFormat $format, string $content): CommentResult
+    {
+        if (!$this->canReply($parent, $user)) {
+            throw new ForbiddenHttpException('User not authorized to reply to this comment.');
+        }
+
+        return CommentsPlugin::$plugin->getComments()->create(new CommentSubmission([
+            'conversationId' => (int)$parent->conversationId,
+            // The conversation decides where the reply goes. These scope its mentions and uploads.
+            'ownerId' => (int)$parent->ownerId,
+            'siteId' => (int)$parent->ownerSiteId,
+            'parentId' => (int)$parent->id,
+            'userId' => (int)$user->id,
+            'content' => $content,
+            'contentFormat' => $format,
+            'fromControlPanel' => true,
+        ]));
     }
 
     public function addTabs(CreateFieldLayoutFormEvent $event): void

@@ -2,11 +2,16 @@
 namespace verbb\comments\controllers;
 
 use verbb\comments\Comments;
+use verbb\comments\elements\Comment;
+use verbb\comments\enums\ContentFormat;
 use verbb\comments\enums\ModerationState;
+use verbb\comments\helpers\EditorContexts;
+use verbb\comments\web\assets\cp\CommentEditAsset;
 
 use Craft;
 use craft\web\Controller;
 
+use yii\base\UserException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -102,6 +107,62 @@ class ModerationController extends Controller
     }
 
     /**
+     * The reply form, in Craft's slideout, for a comment's page or an entry's Comments panel. The comment
+     * being answered sits above the box, so the reply can be written without switching back.
+     */
+    public function actionReply(): Response
+    {
+        $parent = $this->_replyParent();
+        $settings = Comments::$plugin->getSettings();
+
+        return $this->asCpScreen()
+            ->title(Craft::t('comments', 'Reply to {name}', ['name' => $parent->getAuthorName() ?: Craft::t('comments', 'Guest')]))
+            ->action('comments/moderation/save-reply')
+            ->submitButtonLabel(Craft::t('comments', 'Post reply'))
+            ->contentTemplate('comments/comments/_reply', [
+                'parent' => $parent,
+                'rich' => $settings->isRichAuthoringEnabled(),
+                'editorOptions' => $settings->isRichAuthoringEnabled()
+                    ? EditorContexts::browserOptions('comments.reply', (int)$parent->ownerId, (int)$parent->ownerSiteId)
+                    : null,
+            ])
+            ->prepareScreen(function(Response $response, string $containerId): void {
+                // The comment page's script starts Editor in the slideout, as it does in the editor itself.
+                $view = Craft::$app->getView();
+                $view->registerAssetBundle(CommentEditAsset::class);
+                $view->registerJsWithVars(static fn($selector) => "Craft.Comments.initCommentEditor(document.querySelector($selector));", [
+                    "#$containerId",
+                ]);
+            });
+    }
+
+    public function actionSaveReply(): Response
+    {
+        $this->requirePostRequest();
+
+        $parent = $this->_replyParent();
+        $format = ContentFormat::tryFrom((string)$this->request->getBodyParam('contentFormat')) ?? ContentFormat::Plain;
+        $content = (string)$this->request->getBodyParam('fields.editorContent', '');
+
+        // Editor fills the hidden document as it's typed in. Without rich authoring there's only the plain box.
+        if ($format !== ContentFormat::Rich || !Comments::$plugin->getSettings()->isRichAuthoringEnabled() || $content === '') {
+            $format = ContentFormat::Plain;
+            $content = (string)$this->request->getBodyParam('fields.comment', '');
+        }
+
+        try {
+            $result = Comments::$plugin->getCommentEditor()->reply($parent, Craft::$app->getUser()->getIdentity(), $format, $content);
+        } catch (UserException $e) {
+            return $this->asFailure($e->getMessage());
+        }
+
+        return $this->asSuccess(Craft::t('comments', 'Reply posted.'), [
+            'commentId' => (int)$result->comment->id,
+            'cpEditUrl' => $result->comment->getCpEditUrl(),
+        ]);
+    }
+
+    /**
      * What waits for a moderator, so the index can update its counts after a decision in a slideout.
      */
     public function actionQueueCounts(): Response
@@ -120,6 +181,26 @@ class ModerationController extends Controller
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * The comment being answered, in the site it's being edited in, once this person is known to be
+     * able to reply to it.
+     */
+    private function _replyParent(): Comment
+    {
+        $siteId = $this->request->getParam('siteId');
+        $parent = Comments::$plugin->getComments()->getCommentById((int)$this->request->getRequiredParam('commentId'), $siteId ? (int)$siteId : null);
+
+        if (!$parent) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        if (!Comments::$plugin->getCommentEditor()->canReply($parent, Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to reply to this comment.');
+        }
+
+        return $parent;
+    }
 
     /**
      * These act on a tab inside the comment's editor, so they answer with the refreshed tab rather than

@@ -53,6 +53,13 @@ class CommentSubmission extends Model
 
     public bool $headless = true;
 
+    /**
+     * A moderator's reply from the control panel. It skips spam protection, pre-moderation and the
+     * open or closed state, since staff wrote it. Only `CommentEditor::reply()` sets this, after
+     * checking the person may reply, and it's deliberately left out of `rules()`.
+     */
+    public bool $fromControlPanel = false;
+
 
     // Public Methods
     // =========================================================================
