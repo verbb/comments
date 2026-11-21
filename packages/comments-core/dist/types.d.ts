@@ -77,6 +77,8 @@ export type ConversationData = {
     /** Whether following by email is offered here. */
     followAvailable: boolean;
     reportReasons: ReportReason[];
+    /** False when the site's **Show Avatar** setting is off, so the thread draws no avatars. */
+    showAvatars?: boolean;
 };
 export type RichEditorData = {
     /** Editor's context handle, such as `comments.reply`. */

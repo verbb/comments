@@ -16,7 +16,7 @@
 
 {{ forms.selectField({
     label: 'Theme' | t('comments'),
-    instructions: '“Auto” follows the visitor’s colour-scheme preference. “None” outputs no styling at all, for sites providing their own.' | t('comments'),
+    instructions: '“Auto” follows the visitor’s color scheme. “None” loads only the base styles the thread needs to work, for sites providing their own look.' | t('comments'),
     name: 'theme',
     value: settings.theme,
     options: [

@@ -508,7 +508,7 @@ return [
   'You’re subscribed to this discussion.' => 'You’re subscribed to this discussion.',
   'You’re unsubscribed' => 'You’re unsubscribed',
   '{count} comments' => '{count} comments',
-  '“Auto” follows the visitor’s colour-scheme preference. “None” outputs no styling at all, for sites providing their own.' => '“Auto” follows the visitor’s colour-scheme preference. “None” outputs no styling at all, for sites providing their own.',
+  '“Auto” follows the visitor’s color scheme. “None” loads only the base styles the thread needs to work, for sites providing their own look.' => '“Auto” follows the visitor’s color scheme. “None” loads only the base styles the thread needs to work, for sites providing their own look.',
   '(guest)' => '(guest)',
   '(score {score})' => '(score {score})',
   '1 following' => '1 following',

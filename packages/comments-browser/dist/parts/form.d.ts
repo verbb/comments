@@ -19,6 +19,8 @@ export type FormView = {
     /** Whether the site draws this field's input itself. */
     overridden(handle: string): boolean;
     viewer: ViewerData | null;
+    /** False when the site's **Show Avatar** setting is off, so the form draws no avatar. */
+    avatars?: boolean;
     /** Whether the guest's name and email are asked for. */
     guest: {
         show: boolean;

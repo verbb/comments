@@ -91,6 +91,7 @@ export function createFormView(thread, mode, uid) {
         setValue: () => undefined,
         uploads: {},
         fileTray,
+        avatars: state.conversation?.showAvatars !== false,
         collapsible: mode === 'create' && member,
         collapsed: mode === 'create' && member,
         replyTo: mode === 'reply' ? parentName : null,

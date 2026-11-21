@@ -225,3 +225,5 @@ export declare class FormController {
 export declare function errorKey(name: string): string | null;
 /** Starts fetching Editor ahead of need, for a rich thread's visitor heading for a form. */
 export declare function prefetchEditor(host: Pick<FormHost, 'store' | 'loader' | 'nonce'>): void;
+/** Characters as the server counts them, so an emoji is one rather than two. */
+export declare function characterCount(text: string): number;

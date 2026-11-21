@@ -465,6 +465,10 @@
                     "items": {
                         "$ref": "#/$defs/ReportReason"
                     }
+                },
+                "showAvatars": {
+                    "description": "False when the site's **Show Avatar** setting is off, so the thread draws no avatars.",
+                    "type": "boolean"
                 }
             },
             "required": [

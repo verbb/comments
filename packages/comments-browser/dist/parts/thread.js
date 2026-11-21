@@ -14,8 +14,12 @@ export function threadTemplate(view) {
     // The waiting placeholder and the drawn thread are different elements, so what arrives is new
     // content in the reserved space rather than something already there being pushed down.
     return html `<div data-comments-region="live" class="comments__live" role="status" aria-live="polite" aria-atomic="true">${view.ui.live}</div>${view.part('header', partData(view), () => header(view))}${ready
-        ? html `<div data-comments-region="editor">${editorRegion(view)}</div><div data-comments-region="list">${list(view)}</div>`
+        ? html `<div data-comments-region="editor" data-comments-avatars=${avatarsOff(view)}>${editorRegion(view)}</div><div data-comments-region="list" data-comments-avatars=${avatarsOff(view)}>${list(view)}</div>`
         : html `<div data-comments-region="placeholder">${waiting(view)}</div>`}<div data-comments-region="toast">${toast(view)}</div>${ready && view.reportDialog ? html `<div data-comments-region="report-dialog">${view.reportDialog(view)}</div>` : nothing}`;
+}
+/** With the site's **Show Avatar** setting off, the regions say so, and the theme drops the avatar column. */
+function avatarsOff(view) {
+    return view.state.conversation?.showAvatars === false ? 'off' : nothing;
 }
 // The thread's parts have no comment to act on, so their actions are the same empty object each time.
 const NO_ACTIONS = Object.freeze({});
@@ -118,7 +122,7 @@ export function formPlaceholder(view, failed = false) {
     const viewer = view.state.viewer;
     // Typing can start before the form arrives; what's typed carries over. If the form couldn't
     // load, it says so, with Try again, which is also tried when someone heads for it.
-    return html `<div class="comments__editor comments__editor--create" data-comments-form-placeholder><div class="comments__editor-row">${viewer && !viewer.isGuest ? avatar(view, viewer, 36) : nothing}<div class="comments__frame" ?data-comments-collapsed=${!failed}>${failed
+    return html `<div class="comments__editor comments__editor--create" data-comments-form-placeholder><div class="comments__editor-row">${viewer && !viewer.isGuest && view.state.conversation?.showAvatars !== false ? avatar(view, viewer, 36) : nothing}<div class="comments__frame" ?data-comments-collapsed=${!failed}>${failed
         ? html `<p class="comments__form-error" role="alert">${view.labels.formFailed}</p><button ${attributes(view.control('secondaryButton', { attributes: { type: 'button', 'data-comments-action': 'retry-forms' } }))}>${view.labels.tryAgain}</button>`
         : html `<div class="comments__frame-box"><textarea ${attributes(view.control('textarea', { identify: 'comments__textarea-fallback', attributes: { rows: 1, placeholder: view.labels.editorPlaceholder, 'aria-label': view.labels.yourComment } }))}></textarea></div>`}</div></div></div>`;
 }

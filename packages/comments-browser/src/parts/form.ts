@@ -24,6 +24,8 @@ export type FormView = {
     /** Whether the site draws this field's input itself. */
     overridden(handle: string): boolean;
     viewer: ViewerData | null;
+    /** False when the site's **Show Avatar** setting is off, so the form draws no avatar. */
+    avatars?: boolean;
     /** Whether the guest's name and email are asked for. */
     guest: { show: boolean; required: boolean; name: string | null; email: string | null; offerReplyEmails: boolean };
     fields: FormFieldData[];
@@ -134,7 +136,7 @@ export function formTemplate(view: FormView): TemplateResult {
     const above = view.fields.some((field) => fieldPosition(field) === 'above');
     const below = view.fields.some((field) => fieldPosition(field) === 'below');
 
-    return html`${view.errors.form ? html`<p class="comments__form-error" tabindex="-1">${view.errors.form}</p>` : nothing}<div class="comments__editor-row">${member
+    return html`${view.errors.form ? html`<p class="comments__form-error" tabindex="-1">${view.errors.form}</p>` : nothing}<div class="comments__editor-row">${view.avatars === false ? nothing : member
         ? avatarFor(view, member)
         : html`<span ${attributes(view.control('avatar', { style: 'comments__avatar--guest', attributes: { 'aria-hidden': 'true' } }))}>${icon('user')}</span>`}<div class=${`comments__frame${view.fields.length ? ' comments__frame--fields' : ''}`} ?data-comments-collapsed=${view.collapsed}>${head
         ? html`<div class="comments__frame-head">${view.replyTo ? replyChip(view) : nothing}${member ? view.slots.postingAs : nothing}${view.guest.show ? view.slots.guestFields : nothing}</div>`

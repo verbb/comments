@@ -2493,6 +2493,7 @@ class Api extends Component
                 'canReport' => $settings->allowFlagging && $settings->allowGuestFlagging,
             ],
             'followAvailable' => $settings->allowsSubscriptionType(SubscriptionType::Conversation),
+            'showAvatars' => (bool)$settings->showAvatar,
             'reportReasons' => $settings->allowFlagging ? Frontend::reportReasons() : [],
         ];
     }

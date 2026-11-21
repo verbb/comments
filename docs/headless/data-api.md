@@ -69,7 +69,8 @@ Returns a page of an element's approved top-level comments, each with a preview 
         "maxLength": 5000,
         "guestPolicy": { "allowed": true, "nameAndEmail": "required", "canVote": false, "canReport": true },
         "followAvailable": true,
-        "reportReasons": [{ "value": "spam", "label": "Spam", "description": null }]
+        "reportReasons": [{ "value": "spam", "label": "Spam", "description": null }],
+        "showAvatars": true
     },
     "editor": { "authoring": "rich", "maxLength": 5000, "richEditor": { "context": "comments.reply", "module": "…", "css": "…" } },
     "comments": [],

@@ -284,6 +284,20 @@
   grid-column: 2;
 }
 
+/* With the site's Show Avatar setting off, nothing is drawn in the avatar column, so it closes up. */
+[data-comments-avatars='off'] .comments__comment > article {
+  grid-template-columns: 0 minmax(0, 1fr);
+  column-gap: 0;
+}
+
+[data-comments-avatars='off'] .comments__editor-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+[data-comments-avatars='off'] .comments__editor-row > .comments__field-error {
+  grid-column: 1;
+}
+
 .comments__comment > article > .comments__placeholder {
   grid-column: 1 / -1;
 }

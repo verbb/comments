@@ -1641,8 +1641,10 @@ export class ThreadController {
         const reason = String(data.get('reason') ?? '');
         if (!uid)
             return;
-        if (!reason) {
-            form.querySelector('input[name="reason"]')?.reportValidity();
+        // A reason is asked for when the site lists some. With none, a report goes without one.
+        const reasonInput = form.querySelector('input[name="reason"]');
+        if (!reason && reasonInput) {
+            reasonInput.reportValidity();
             return;
         }
         this.busy('report', true);

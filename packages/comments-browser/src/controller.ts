@@ -1856,8 +1856,11 @@ export class ThreadController implements CommentsController, FormHost {
 
         if (!uid) return;
 
-        if (!reason) {
-            form.querySelector<HTMLInputElement>('input[name="reason"]')?.reportValidity();
+        // A reason is asked for when the site lists some. With none, a report goes without one.
+        const reasonInput = form.querySelector<HTMLInputElement>('input[name="reason"]');
+
+        if (!reason && reasonInput) {
+            reasonInput.reportValidity();
             return;
         }
 

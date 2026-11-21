@@ -140,7 +140,7 @@ export function avatar(view, person, size = 32) {
 function author(view, comment) {
     const data = partData(view, comment);
     const badges = comment.author?.badges ?? [];
-    return html `<div class="comments__author">${view.part('avatar', data, () => avatar(view, comment.author))}<div class="comments__author-meta">${view.part('authorName', data, () => comment.author?.name ? html `<span class="comments__author-name">${comment.author.name}</span>` : nothing)}${authorScore(view, comment)}${badges.map((badge) => view.part('badge', { ...data, badge }, () => badgeTemplate(badge)))}${view.part('meta', data, () => meta(view, comment))}</div></div>`;
+    return html `<div class="comments__author">${view.state.conversation?.showAvatars === false ? nothing : view.part('avatar', data, () => avatar(view, comment.author))}<div class="comments__author-meta">${view.part('authorName', data, () => comment.author?.name ? html `<span class="comments__author-name">${comment.author.name}</span>` : nothing)}${authorScore(view, comment)}${badges.map((badge) => view.part('badge', { ...data, badge }, () => badgeTemplate(badge)))}${view.part('meta', data, () => meta(view, comment))}</div></div>`;
 }
 /** The author's net votes across their comments, as Comments 3 showed it, while the site shows scores. */
 function authorScore(view, comment) {

@@ -327,8 +327,9 @@ export class FormController {
         const limit = this.limit();
         if (!text.trim() && !this.gif)
             return labels.writeSomethingFirst;
-        if (limit > 0 && text.length > limit)
-            return format(labels.tooLong, { count: text.length - limit });
+        const length = characterCount(text);
+        if (limit > 0 && length > limit)
+            return format(labels.tooLong, { count: length - limit });
         return '';
     }
     limit() {
@@ -370,13 +371,14 @@ export class FormController {
             fieldFiles: (handle) => editFiles(this.editing?.fields[handle]),
             upload: (handle, file) => this.sendUpload(handle, file),
             collapsible: this.collapsible,
+            avatars: this.host.store.getState().conversation?.showAvatars !== false,
             // A file chosen, or a field set, keeps it open too, since the file picker takes focus away.
             collapsed: this.collapsible && !this.editorElement && !this.focusInside && !(this.box?.value ?? '') && !this.hasFieldContent(),
             replyTo: this.mode === 'reply' ? parentName : null,
             placeholder: this.mode === 'edit' ? labels.editPlaceholder : this.mode === 'reply' ? format(labels.replyTo, { name: parentName.split(/\s+/)[0] ?? parentName }) : labels.editorPlaceholder,
             submitLabel: this.mode === 'edit' ? labels.save : this.mode === 'reply' ? labels.reply : labels.post,
             limit: this.limit(),
-            length: (this.box?.value ?? '').length,
+            length: characterCount(this.box?.value ?? ''),
             draftState: this.draftState,
             notice: this.notice,
             posting: this.posting,
@@ -1169,4 +1171,8 @@ export function prefetchEditor(host) {
             .then(() => loadEditorFeatures(state.viewerEditor?.richEditor?.options ?? {}))
             .catch(() => undefined);
     }
+}
+/** Characters as the server counts them, so an emoji is one rather than two. */
+export function characterCount(text) {
+    return Array.from(text).length;
 }

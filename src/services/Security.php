@@ -7,7 +7,11 @@ use verbb\comments\enums\HeldReason;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\helpers\KeywordRules;
 
+use verbb\editor\RichText;
+
 use craft\base\Component;
+
+use Throwable;
 
 class Security extends Component
 {
@@ -107,7 +111,7 @@ class Security extends Component
                 && $settings->securityMaxLength > 0
                 && $settings->securityMaxLength == round($settings->securityMaxLength, 0)
             ) {
-                if (mb_strlen((string)$comment->getComment()) > (int)$settings->securityMaxLength) {
+                if ($this->_commentLength($comment) > (int)$settings->securityMaxLength) {
                     return false;
                 }
             }
@@ -119,6 +123,23 @@ class Security extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * A rich comment is counted as Editor's own limit counts it, without image alt text or file names,
+     * so a comment the editor allows isn't refused.
+     */
+    private function _commentLength(Comment $comment): int
+    {
+        if ($comment->isEditorContent() && $comment->bodyContent) {
+            try {
+                return RichText::from($comment->bodyContent)->getTextLength();
+            } catch (Throwable) {
+                // A document that can't be read is counted as its text.
+            }
+        }
+
+        return mb_strlen((string)$comment->getComment());
+    }
 
     private function _findInElementContent(Comment $comment, ?string $rules): bool
     {
