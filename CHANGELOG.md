@@ -131,6 +131,7 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Fixed an improper input validation vulnerability.
 - Fix approving, holding and re-approving a comment resending every notification, notifications being sent for comments removed before the queue job ran, and people receiving more than one email for the same comment. Each person now gets one email per comment.
 - Fix failed notification emails leaving the queue job marked as successful. All recipients are still tried, then the job fails so it shows up in the queue manager.
+- Fix the German email to moderators about an edited comment describing an approval.
 - Fix notification emails having no plain text part.
 - Fix the Dutch moderator and approval emails not using their translations.
 - Fix a removed moderator group exempting every signed-in user from moderation.

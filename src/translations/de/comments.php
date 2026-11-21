@@ -47,11 +47,11 @@ return [
     "A new comment on the post \"{{ element.title }}\" has been made and requires moderation.\n\n" .
     "{{comment.cpEditUrl}}.",
 
-  'comments_moderator_edit_notification_heading' => 'Wenn ein Kommentar durch Moderation freigeschaltet wurde:',
-  'comments_moderator_edit_notification_subject' => 'Ihr Kommentar bei {{ siteName }} wurde freigeschaltet',
+  'comments_moderator_edit_notification_heading' => 'Wenn ein Kommentar, der auf Prüfung wartet, bearbeitet wird, an die Moderatorengruppe:',
+  'comments_moderator_edit_notification_subject' => 'Ein Kommentar, der auf Prüfung wartet, wurde bei {{ siteName }} bearbeitet',
   'comments_moderator_edit_notification_body' => "Hallo {{user.friendlyName}},\n\n" .
-    "A comment on the post \"{{ element.title }}\" was edited and requires moderation.\n\n" .
-    "{{comment.cpEditUrl}}.",
+    "Ein Kommentar zu „{{ element.title }}“ wurde von seinem Verfasser bearbeitet und wartet auf Prüfung.\n\n" .
+    "{{comment.cpEditUrl}}",
 
   'comments_moderator_approved_notification_heading' => 'When a comment has been approved via moderation:',
   'comments_moderator_approved_notification_subject' => 'Your comment has been approved on {{ siteName }}',
