@@ -8,7 +8,7 @@ Start with whichever of these is closest to what you're doing.
 
 If your templates call `craft.comments.render(entry)` and you want the thread to look or behave differently, you don't need to install anything. The plugin's script exposes `window.Comments`, and the [Browser](/browser/) section explains everything you can do with it.
 
-- To restyle the thread, start with the [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/make-a-custom-theme) user guide, which walks through changing the colours, fonts and sizes from scratch. The plugin's [Theming](https://verbb.io/craft-plugins/comments/docs/v4/template-guides/theming) guide covers the CSS custom properties, and [Class Names and CSS Layers](/browser/class-names-css-layers) covers the stable `comments__*` classes and sites built with Tailwind.
+- To restyle the thread, start with the [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/make-a-custom-theme) user guide, which walks through changing the colours, fonts and sizes from scratch. The plugin's [Theming](https://verbb.io/craft-plugins/comments/docs/v4/template-guides/theming) guide covers the CSS custom properties, and [Class Names and CSS Layers](/browser/class-names-css-layers) covers the stable `comments__*` classes and sites built with Tailwind.
 - To put your design system's button and form classes on Comments' controls, use [`themeConfig` for Controls](/browser/theme-config).
 - To draw one part of the thread with your own markup, such as a badge or the empty state, use [Part Overrides](/browser/part-overrides), or [Field Overrides](/browser/field-overrides) for one custom field.
 - To track comments in your analytics, add your own validation or change what's drawn, use the [Browser Events](/browser/browser-events).
@@ -33,7 +33,7 @@ Where your app runs relative to Craft decides how people sign in. A front end on
 
 ## Step-by-Step Guides
 
-The plugin docs' user guides take one task from start to finish, explaining each step for someone new to it. They suit a first attempt at a task these docs cover as reference, such as [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/make-a-custom-theme), [Change a Part's Structure](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/change-a-parts-structure), [Bundle Comments in Your Own Build](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/bundle-comments-in-your-own-build) or [Comments on a Headless Site on Another Domain](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/comments-on-a-headless-site-on-another-domain).
+The plugin docs' user guides take one task from start to finish, explaining each step for someone new to it. They suit a first attempt at a task these docs cover as reference, such as [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/make-a-custom-theme), [Change a Part's Structure](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/change-a-parts-structure), [Bundle Comments in Your Own Build](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/front-end-headless/bundle-comments-in-your-own-build) or [Comments on a Headless Site on Another Domain](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/front-end-headless/comments-on-a-headless-site-on-another-domain).
 
 ## Working Examples
 

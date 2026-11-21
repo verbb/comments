@@ -11,7 +11,7 @@ Each has its own walkthrough, the first with a Nuxt app and the second with a Ne
 
 When you're done, your front end shows the full comment thread on each post, guests can comment, members comment as themselves, and the page's HTML includes the comment count and the comments as structured data for search engines.
 
-If your front end can be served from Craft's own domain instead, or forward Craft's requests through its own server, [Comments on a Headless Site on the Same Domain](docs:user-guides/comments-on-a-headless-site-on-the-same-domain) is simpler, and worth checking first.
+If your front end can be served from Craft's own domain instead, or forward Craft's requests through its own server, [Comments on a Headless Site on the Same Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-the-same-domain) is simpler, and worth checking first.
 
 ## What You'll Need
 
@@ -91,7 +91,7 @@ Add Comments' stylesheets to the app's main stylesheet, such as `app/assets/css/
 @import '@verbb/editor/styles';
 ```
 
-If your stylesheet uses Tailwind or other cascade layers, import them into a layer instead, as [Style Comments with Tailwind or a Design System](docs:user-guides/style-comments-with-tailwind-or-a-design-system#bundling-comments-stylesheet-into-your-own-build) shows.
+If your stylesheet uses Tailwind or other cascade layers, import them into a layer instead, as [Style Comments with Tailwind or a Design System](docs:user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system#bundling-comments-stylesheet-into-your-own-build) shows.
 
 Then put the thread on your post page, such as `app/pages/blog/[slug].vue`:
 

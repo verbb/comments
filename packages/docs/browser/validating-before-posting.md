@@ -23,7 +23,7 @@ document.addEventListener('comments:before-submit', (event) => {
 });
 ```
 
-A short comment isn't sent. “Please write at least 20 characters.” appears under the comment box, styled and announced to screen readers like the server's own errors, and the cursor goes back to the box with the comment still in it. The error clears when the comment is next posted. The [Validate and Track Comments](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/validate-and-track-comments) user guide builds a check like this, along with analytics, step by step.
+A short comment isn't sent. “Please write at least 20 characters.” appears under the comment box, styled and announced to screen readers like the server's own errors, and the cursor goes back to the box with the comment still in it. The error clears when the comment is next posted. The [Validate and Track Comments](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/forms-data/validate-and-track-comments) user guide builds a check like this, along with analytics, step by step.
 
 ## What the Event Gives You
 

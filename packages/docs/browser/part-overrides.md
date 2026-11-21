@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-Threads already drawn redraw with the override, and threads that haven't loaded yet use it from the start. The [Change a Part's Structure](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/change-a-parts-structure) user guide walks through an override like this from scratch.
+Threads already drawn redraw with the override, and threads that haven't loaded yet use it from the start. The [Change a Part's Structure](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/change-a-parts-structure) user guide walks through an override like this from scratch.
 
 ## The Parts
 

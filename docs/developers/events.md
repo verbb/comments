@@ -89,7 +89,7 @@ Badges appear in the thread and in every data API and GraphQL response that desc
 ## Data API Events
 
 ### The `defineCommentData` Event
-The event that is triggered when the data API puts comments in a response, so you can add your own data to each one. It runs once for all of a response's comments, given in `$event->comments` keyed by their UID, with the element they're on as `$event->owner` and its site as `$event->siteId`. Set `$event->custom` to an array keyed by comment UID, and each comment's data appears as that comment's `custom` property, where a [part override](https://docs.verbb.io/comments/browser/part-overrides) can draw it. [Add Your Own Data to Comments](docs:user-guides/add-your-own-data-to-comments) works through an example. Anything that isn't a non-empty array is left out.
+The event that is triggered when the data API puts comments in a response, so you can add your own data to each one. It runs once for all of a response's comments, given in `$event->comments` keyed by their UID, with the element they're on as `$event->owner` and its site as `$event->siteId`. Set `$event->custom` to an array keyed by comment UID, and each comment's data appears as that comment's `custom` property, where a [part override](https://docs.verbb.io/comments/browser/part-overrides) can draw it. [Add Your Own Data to Comments](docs:user-guides/forms-data/add-your-own-data-to-comments) works through an example. Anything that isn't a non-empty array is left out.
 
 This example adds the job title from a **Job Title** field (`jobTitle`) on each commenter's user account, looking the users up together:
 

@@ -24,7 +24,7 @@ This guide uses The Reading Room's files, `web/js/comments-parts.js` and `web/cs
 
 Comments draws its thread with its own script, which `render()` adds to the page. You don't need to build anything or install any packages to follow along.
 
-Before changing a part, check that a lighter change won't do. Removing something, such as voting or avatars, is a setting under **Comments** → **Settings**, which also stops the server offering it. Changing the wording is a static translation, described in [Text & Translations](docs:template-guides/text-translations). Changing the look is a token or a class name, as [Make a Custom Theme](docs:user-guides/make-a-custom-theme) shows. A part override is for when the markup itself has to change.
+Before changing a part, check that a lighter change won't do. Removing something, such as voting or avatars, is a setting under **Comments** → **Settings**, which also stops the server offering it. Changing the wording is a static translation, described in [Text & Translations](docs:template-guides/text-translations). Changing the look is a token or a class name, as [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) shows. A part override is for when the markup itself has to change.
 
 ## What a Part Is
 
@@ -326,4 +326,4 @@ export function Discussion({ uri }) {
 }
 ```
 
-A component can't return `defaultRender()`, so for the badges it doesn't change, it draws Comments' markup itself. To wrap Comments' own markup, as the actions override does, a component calls `renderDefaultInto(element)` with an element it renders, from an effect, and Comments draws its markup into that element and keeps it up to date. [Part Overrides for React](https://docs.verbb.io/comments/react/part-overrides) and [for Vue](https://docs.verbb.io/comments/vue/part-overrides) explain both, and [Comments on a Headless Site on the Same Domain](docs:user-guides/comments-on-a-headless-site-on-the-same-domain) sets up a React or Vue app with a thread to try them in.
+A component can't return `defaultRender()`, so for the badges it doesn't change, it draws Comments' markup itself. To wrap Comments' own markup, as the actions override does, a component calls `renderDefaultInto(element)` with an element it renders, from an effect, and Comments draws its markup into that element and keeps it up to date. [Part Overrides for React](https://docs.verbb.io/comments/react/part-overrides) and [for Vue](https://docs.verbb.io/comments/vue/part-overrides) explain both, and [Comments on a Headless Site on the Same Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-the-same-domain) sets up a React or Vue app with a thread to try them in.

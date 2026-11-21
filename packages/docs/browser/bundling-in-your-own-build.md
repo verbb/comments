@@ -1,6 +1,6 @@
 # Bundling in Your Own Build
 
-A Craft site with its own build, such as Vite or webpack, can include Comments' script in its bundle rather than loading the plugin's separate file. You get one bundle to cache, the package's TypeScript types, and control over when threads start, which matters for single-page apps. The mount points `craft.comments.render()` writes, and everything on the server, work the same either way. The [Bundle Comments in Your Own Build](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/bundle-comments-in-your-own-build) user guide walks through the switch for a Vite site.
+A Craft site with its own build, such as Vite or webpack, can include Comments' script in its bundle rather than loading the plugin's separate file. You get one bundle to cache, the package's TypeScript types, and control over when threads start, which matters for single-page apps. The mount points `craft.comments.render()` writes, and everything on the server, work the same either way. The [Bundle Comments in Your Own Build](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/front-end-headless/bundle-comments-in-your-own-build) user guide walks through the switch for a Vite site.
 
 ## Installing the Package
 

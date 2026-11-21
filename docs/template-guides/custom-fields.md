@@ -146,7 +146,7 @@ If you add your own data to comments with the [`defineCommentData`](docs:develop
 
 ## Drawing a Field Your Own Way
 
-To draw a field differently in the thread, such as a Number field drawn as stars on the form and on each comment, give it a field override by its handle. An `input` override draws the field on the comment form, inside Comments' own label, instructions and error message, and a `display` override draws its value on each comment. The [package docs](https://docs.verbb.io/comments/browser/field-overrides) explain field overrides for the bundled script, the web component and the React and Vue components, and [Ask Commenters for More with Custom Fields](docs:user-guides/ask-commenters-for-more-with-custom-fields) builds a star rating step by step.
+To draw a field differently in the thread, such as a Number field drawn as stars on the form and on each comment, give it a field override by its handle. An `input` override draws the field on the comment form, inside Comments' own label, instructions and error message, and a `display` override draws its value on each comment. The [package docs](https://docs.verbb.io/comments/browser/field-overrides) explain field overrides for the bundled script, the web component and the React and Vue components, and [Ask Commenters for More with Custom Fields](docs:user-guides/forms-data/ask-commenters-for-more-with-custom-fields) builds a star rating step by step.
 
 When your overrides are custom elements you've registered, you can name them in your template with `render()`'s `fields` option, keyed by field handle:
 

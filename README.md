@@ -21,7 +21,7 @@ Attach comments to entries, categories, assets, users or other Craft elements, a
 - Hold, mark as spam, or reject comments that match your own keywords and addresses.
 - Email element authors, commenters, followers and mentioned people about new comments, replies and mentions, and email guests once they confirm their address, with an unsubscribe link in every email.
 - Email your moderators about comments waiting for review, and a list of addresses about new comments and reports.
-- Use the styled default thread with light, dark and automatic themes, and [make it your own](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/make-a-custom-theme) with CSS variables, stable class names, your design system's button and form classes, or your own markup for any part of the thread.
+- Use the styled default thread with light, dark and automatic themes, and [make it your own](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/make-a-custom-theme) with CSS variables, stable class names, your design system's button and form classes, or your own markup for any part of the thread.
 - Load comments as visitors reach them, cache every page with comments for everyone while each visitor's own controls arrive separately, and link to any comment wherever it is in a thread.
 - Give search engines your approved comments as structured data, for crawlers that don't run scripts.
 - Query and post comments with GraphQL or a JSON data API, hook into the browser with events and a JavaScript API, and put threads in React and Vue apps with the companion packages.

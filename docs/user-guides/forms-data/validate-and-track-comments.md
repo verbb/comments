@@ -95,7 +95,7 @@ The same keys work for the other parts of the form. A guest's name and email are
 
 To apply a rule only to some forms, check `event.detail.mode`, which is `create` for a new comment, `reply` for a reply and `edit` for an edit. A rule for replies only might start with `if (event.detail.mode !== 'reply') return;`.
 
-If a rule is really "this field must be filled in", make the field required in its field layout instead, as [Ask Commenters for More with Custom Fields](docs:user-guides/ask-commenters-for-more-with-custom-fields) shows, and Comments checks it for you on the form and on the server.
+If a rule is really "this field must be filled in", make the field required in its field layout instead, as [Ask Commenters for More with Custom Fields](docs:user-guides/forms-data/ask-commenters-for-more-with-custom-fields) shows, and Comments checks it for you on the form and on the server.
 
 ### Rules That Must Hold Go in PHP Too
 
@@ -188,4 +188,4 @@ export function Discussion({ uri }) {
 
 In Vue, they're component events with the event's name, such as `@before-submit="checkRules"` and `@comment-created="trackComment"`, and the handlers are the same functions.
 
-To hear an event from every thread in a React app, such as tracking in one place for the whole site, `useCommentsEvent('comments:comment-created', handler)` listens without needing a prop on each thread. [React Hooks](https://docs.verbb.io/comments/react/hooks) explains it, and [Comments on a Headless Site on the Same Domain](docs:user-guides/comments-on-a-headless-site-on-the-same-domain) sets up an app to try these in.
+To hear an event from every thread in a React app, such as tracking in one place for the whole site, `useCommentsEvent('comments:comment-created', handler)` listens without needing a prop on each thread. [React Hooks](https://docs.verbb.io/comments/react/hooks) explains it, and [Comments on a Headless Site on the Same Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-the-same-domain) sets up an app to try these in.

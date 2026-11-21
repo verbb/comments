@@ -85,17 +85,9 @@
         "title": "User Guides",
         "collapsable": false,
         "children": [
-            "user-guides/make-a-custom-theme",
-            "user-guides/change-a-parts-structure",
-            "user-guides/add-your-own-data-to-comments",
-            "user-guides/ask-commenters-for-more-with-custom-fields",
-            "user-guides/style-comments-with-tailwind-or-a-design-system",
-            "user-guides/validate-and-track-comments",
-            "user-guides/bundle-comments-in-your-own-build",
-            "user-guides/comments-on-a-headless-site-on-the-same-domain",
-            "user-guides/comments-on-a-headless-site-on-another-domain",
-            "user-guides/comments-with-turbo-sprig-or-datastar",
-            "user-guides/upgrade-comments-3-custom-templates"
+            "user-guides/theming-markup/index",
+            "user-guides/forms-data/index",
+            "user-guides/front-end-headless/index"
         ]
     }
 ]

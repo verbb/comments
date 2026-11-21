@@ -83,7 +83,7 @@ startComments({
 });
 ```
 
-[Make a Custom Theme](docs:user-guides/make-a-custom-theme) explains `darkSelector`, and [Style Comments with Tailwind or a Design System](docs:user-guides/style-comments-with-tailwind-or-a-design-system) explains `themeConfig`. `startComments()` also returns the `Comments` object, the same one as `window.Comments`, for anything else your script needs to do with the threads.
+[Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) explains `darkSelector`, and [Style Comments with Tailwind or a Design System](docs:user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system) explains `themeConfig`. `startComments()` also returns the `Comments` object, the same one as `window.Comments`, for anything else your script needs to do with the threads.
 
 ## Starting the Thread Yourself
 
@@ -159,4 +159,4 @@ Check the whole thread works from your bundle, because some parts only load when
 
 If you use TypeScript, the package includes its types, so `startComments()`, `window.Comments`, each thread's controller and every `comments:` event are typed with no extra setup. [TypeScript](https://docs.verbb.io/comments/browser/typescript) in the package docs has the details, and [Bundling in Your Own Build](https://docs.verbb.io/comments/browser/bundling-in-your-own-build) covers the package's other options.
 
-If your site swaps pages with Turbo, Sprig or Datastar rather than loading them in full, your bundle handles that the same way the plugin's script does, as [Comments with Turbo, Sprig or Datastar](docs:user-guides/comments-with-turbo-sprig-or-datastar) explains.
+If your site swaps pages with Turbo, Sprig or Datastar rather than loading them in full, your bundle handles that the same way the plugin's script does, as [Comments with Turbo, Sprig or Datastar](docs:user-guides/front-end-headless/comments-with-turbo-sprig-or-datastar) explains.

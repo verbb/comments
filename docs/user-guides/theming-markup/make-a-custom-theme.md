@@ -408,4 +408,4 @@ If your site's CSS is built with Tailwind CSS 4, or otherwise organises its rule
 @layer comments-tokens, theme, base, components, utilities;
 ```
 
-Tailwind sites usually want their utility classes and `@apply` rules to win over Comments' class rules too, which takes one more setting. [Style Comments with Tailwind or a Design System](docs:user-guides/style-comments-with-tailwind-or-a-design-system) covers that, along with putting your design system's button and input classes on Comments' controls.
+Tailwind sites usually want their utility classes and `@apply` rules to win over Comments' class rules too, which takes one more setting. [Style Comments with Tailwind or a Design System](docs:user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system) covers that, along with putting your design system's button and input classes on Comments' controls.

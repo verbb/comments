@@ -26,7 +26,7 @@ The package is released with the plugin and shares its version number, so instal
 
 ## What You Can Change
 
-The thread is drawn from JSON, so there are no templates to copy and edit. Instead there's a set of options, each reaching a little further than the one before. Start with the lightest one that does what you need, because each keeps everything the lighter ones give you. For most sites that's a custom theme, which the [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/make-a-custom-theme) user guide walks through from start to finish. A site that replaces how a commenter's name is drawn still gets its theme, its translated wording, its own button classes, the events and all of the thread's behaviour.
+The thread is drawn from JSON, so there are no templates to copy and edit. Instead there's a set of options, each reaching a little further than the one before. Start with the lightest one that does what you need, because each keeps everything the lighter ones give you. For most sites that's a custom theme, which the [Make a Custom Theme](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/make-a-custom-theme) user guide walks through from start to finish. A site that replaces how a commenter's name is drawn still gets its theme, its translated wording, its own button classes, the events and all of the thread's behaviour.
 
 | What you want | Where it's covered |
 | --- | --- |

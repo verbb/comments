@@ -1,6 +1,6 @@
 # Turbo, Sprig and Datastar
 
-Libraries such as Turbo, Sprig, htmx and Datastar change a page without a full load, by swapping in new HTML from the server or morphing the page into it. Comments' script follows those changes by itself, starting threads that arrive and stopping threads that leave, so a thread rendered with `craft.comments.render()` works on these pages with no extra code. This page explains what happens in each case, and how to keep a drawn thread exactly as it is while the page around it changes. The [Craft starter](/starters/craft) has a working example of each, and the [Comments with Turbo, Sprig or Datastar](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/comments-with-turbo-sprig-or-datastar) user guide sets one up step by step.
+Libraries such as Turbo, Sprig, htmx and Datastar change a page without a full load, by swapping in new HTML from the server or morphing the page into it. Comments' script follows those changes by itself, starting threads that arrive and stopping threads that leave, so a thread rendered with `craft.comments.render()` works on these pages with no extra code. This page explains what happens in each case, and how to keep a drawn thread exactly as it is while the page around it changes. The [Craft starter](/starters/craft) has a working example of each, and the [Comments with Turbo, Sprig or Datastar](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/front-end-headless/comments-with-turbo-sprig-or-datastar) user guide sets one up step by step.
 
 ## Turbo Drive
 

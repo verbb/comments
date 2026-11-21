@@ -12,7 +12,7 @@
     "devDependencies": {
         "@tailwindcss/typography": "^0.5.19",
         "@tailwindcss/vite": "^4.2.4",
-        "@verbb/vitepress-theme": "1.0.0",
+        "@verbb/vitepress-theme": "1.0.2",
         "tailwindcss": "^4.2.4",
         "vitepress": "^1.6.4"
     }

@@ -1,6 +1,6 @@
 # Next.js
 
-In a Next.js app with the App Router, a post's comment count and its structured data render on the server with the rest of the page, and the thread itself loads in the browser when it's about to scroll into view. Everything the server renders comes from public reads that Craft and a CDN cache, so the page can be cached too, including with Next's incremental static regeneration. The [Next.js starter](/starters/next) is a complete app on another domain from Craft, with members signed in through member tokens, and the [Comments on a Headless Site on Another Domain](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/comments-on-a-headless-site-on-another-domain) user guide builds one step by step.
+In a Next.js app with the App Router, a post's comment count and its structured data render on the server with the rest of the page, and the thread itself loads in the browser when it's about to scroll into view. Everything the server renders comes from public reads that Craft and a CDN cache, so the page can be cached too, including with Next's incremental static regeneration. The [Next.js starter](/starters/next) is a complete app on another domain from Craft, with members signed in through member tokens, and the [Comments on a Headless Site on Another Domain](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/front-end-headless/comments-on-a-headless-site-on-another-domain) user guide builds one step by step.
 
 ## What Renders Where
 

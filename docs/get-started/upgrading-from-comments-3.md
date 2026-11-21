@@ -48,7 +48,7 @@ Every kind of change a template override made has a replacement, and most need f
 - Your own form fields become custom fields the site's form asks for, shown on comments or not, as described under [Custom Fields on Public Forms](#custom-fields-on-public-forms).
 - Rebuilt or reordered markup becomes a [part override](docs:template-guides/theming#changing-a-parts-markup) of one part, such as `comment`, `authorName` or `meta`.
 
-[Upgrade Comments 3 Custom Templates](docs:user-guides/upgrade-comments-3-custom-templates) maps each Comments 3 template file to its replacement, with a worked example for each kind of change. The simplest change, styles written against the Comments 3 classes, looks like this, making commenters' names pink:
+[Upgrade Comments 3 Custom Templates](docs:user-guides/theming-markup/upgrade-comments-3-custom-templates) maps each Comments 3 template file to its replacement, with a worked example for each kind of change. The simplest change, styles written against the Comments 3 classes, looks like this, making commenters' names pink:
 
 ::: code-group
 ```css [Comments 3]

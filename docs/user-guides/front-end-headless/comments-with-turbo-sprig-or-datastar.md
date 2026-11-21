@@ -93,7 +93,7 @@ Datastar patches can come back without a full page too, so the note on [Loading 
 
 If you can't wrap the thread, such as when a morph you don't control covers the page, the thread still works. When a morph puts the empty placeholder back over a drawn thread, Comments draws the same thread again from the data it already has, keeping what's typed in its forms and giving the keyboard focus back where it was. Readers may see it redraw, which is why the attribute is the better choice, but nothing breaks.
 
-To control exactly when a thread starts, such as after your own code has finished with a swap, put `data-comments-auto-mount="false"` on the thread's wrapper. Comments then leaves that thread for your code to start with `Comments.mount()`, as [Bundle Comments in Your Own Build](docs:user-guides/bundle-comments-in-your-own-build#starting-the-thread-yourself) shows.
+To control exactly when a thread starts, such as after your own code has finished with a swap, put `data-comments-auto-mount="false"` on the thread's wrapper. Comments then leaves that thread for your code to start with `Comments.mount()`, as [Bundle Comments in Your Own Build](docs:user-guides/front-end-headless/bundle-comments-in-your-own-build#starting-the-thread-yourself) shows.
 
 ## Testing It
 

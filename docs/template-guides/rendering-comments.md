@@ -45,7 +45,7 @@ For example, to show the ten oldest comments first:
 
 **Top** ranks comments by their votes, so it's only offered while **Interaction Mode** isn't set to **None**. Asking for `top` without interactions uses **Frontend Comment Order** instead.
 
-Any other options are ignored, as is a second argument that isn't a set of options. To change how the thread looks, see [Theming](docs:template-guides/theming), or follow [Make a Custom Theme](docs:user-guides/make-a-custom-theme) to match it to your site step by step. For control over the CSS and JavaScript, see [Loading Comment Assets](docs:template-guides/loading-comment-assets). Most of what's shown is controlled by settings under **Comments** → **Settings**, which are explained in [Configuration](docs:get-started/configuration).
+Any other options are ignored, as is a second argument that isn't a set of options. To change how the thread looks, see [Theming](docs:template-guides/theming), or follow [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) to match it to your site step by step. For control over the CSS and JavaScript, see [Loading Comment Assets](docs:template-guides/loading-comment-assets). Most of what's shown is controlled by settings under **Comments** → **Settings**, which are explained in [Configuration](docs:get-started/configuration).
 
 ## Choosing When Comments Load
 

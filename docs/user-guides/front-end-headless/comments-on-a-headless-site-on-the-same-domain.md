@@ -252,7 +252,7 @@ In production, the app has to be on Craft's origin, so the browser sends Craft's
 
 **Serve the app from its own server, and forward Craft's actions.** If the app runs on a host of its own, it can forward everything under `/actions/comments/` to Craft, the same way Vite's dev server does, with a rule in your web server or your hosting's rewrites. The forwarding has to do the same jobs as the dev server's proxy, and also tell Craft the visitor's real address, so rate limits apply to each visitor rather than to your server. [Forwarding Requests Through Your Front End](docs:headless/signing-in-across-sites#forwarding-requests-through-your-front-end) lists exactly what's needed.
 
-If neither is possible, and the app has to run on another subdomain or a different domain, follow [Comments on a Headless Site on Another Domain](docs:user-guides/comments-on-a-headless-site-on-another-domain) instead.
+If neither is possible, and the app has to run on another subdomain or a different domain, follow [Comments on a Headless Site on Another Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-another-domain) instead.
 
 ## Testing It
 
@@ -304,4 +304,4 @@ defineProps(['post']);
 
 Install `@verbb/comments-vue` in place of `@verbb/comments-react`. The Vite proxy (with `@vitejs/plugin-vue` in place of the React plugin), `src/comments.js` with its sign-in functions, and the production setup are the same as above.
 
-From here, the other guides apply to your app too. [Change a Part's Structure](docs:user-guides/change-a-parts-structure) shows how to draw parts of the thread with your own components, [Ask Commenters for More with Custom Fields](docs:user-guides/ask-commenters-for-more-with-custom-fields) adds fields such as a star rating, and [Validate and Track Comments](docs:user-guides/validate-and-track-comments) covers the thread's events as props.
+From here, the other guides apply to your app too. [Change a Part's Structure](docs:user-guides/theming-markup/change-a-parts-structure) shows how to draw parts of the thread with your own components, [Ask Commenters for More with Custom Fields](docs:user-guides/forms-data/ask-commenters-for-more-with-custom-fields) adds fields such as a star rating, and [Validate and Track Comments](docs:user-guides/forms-data/validate-and-track-comments) covers the thread's events as props.

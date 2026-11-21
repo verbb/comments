@@ -8,7 +8,7 @@ You'll work on a tea shop, Fernwood Tea Co., which runs on Craft Commerce and ta
 
 Extra data on a comment comes from one of two places, and it's worth deciding which before writing anything.
 
-**What the commenter tells you.** A rating, the city they're writing from, an order number for your support team, or a photo of their setup. These are custom fields on the comment form, which the commenter fills in. You set them up in Comments' settings without any code, and choose for each one whether it's kept private or shown on the comment. [Ask Commenters for More with Custom Fields](docs:user-guides/ask-commenters-for-more-with-custom-fields) covers them.
+**What the commenter tells you.** A rating, the city they're writing from, an order number for your support team, or a photo of their setup. These are custom fields on the comment form, which the commenter fills in. You set them up in Comments' settings without any code, and choose for each one whether it's kept private or shown on the comment. [Ask Commenters for More with Custom Fields](docs:user-guides/forms-data/ask-commenters-for-more-with-custom-fields) covers them.
 
 **What your site already knows.** Whether the commenter bought the product, which user group they're in, how long they've been a member, or something from your own database. The commenter doesn't enter any of this, and they shouldn't be able to, because a commenter could claim to be a verified buyer. Instead, your own PHP code adds it to the comment's data on the server, through two events:
 
@@ -257,7 +257,7 @@ Reload the thread's data address from earlier, and the verified review now has i
 
 ## Showing the Size on the Review
 
-Comments doesn't know what your custom data means, so it doesn't draw it. You draw it with a part override, which replaces one part of the thread's markup with your own. [Change a Part's Structure](docs:user-guides/change-a-parts-structure) explains part overrides in depth. Here you'll wrap the `meta` part, which holds the date after the commenter's name, so "Bought the 250 g tin" follows the date.
+Comments doesn't know what your custom data means, so it doesn't draw it. You draw it with a part override, which replaces one part of the thread's markup with your own. [Change a Part's Structure](docs:user-guides/theming-markup/change-a-parts-structure) explains part overrides in depth. Here you'll wrap the `meta` part, which holds the date after the commenter's name, so "Bought the 250 g tin" follows the date.
 
 Add this to a script that your product pages load, such as `web/js/site.js`:
 
@@ -396,7 +396,7 @@ Run through these with the product page open in a private window, signed out, so
 4. Signed in as the test customer, the **Posting as** line above the comment form shows their **Verified buyer** badge.
 5. In the thread's data at `/actions/comments/api/thread?ownerId=` and the product's ID, no review's `custom` holds anything you wouldn't want every visitor to see.
 
-To style the badge differently from Comments' other badges, use its class, `comments__badge--verified`, as [Make a Custom Theme](docs:user-guides/make-a-custom-theme) shows for the staff badge.
+To style the badge differently from Comments' other badges, use its class, `comments__badge--verified`, as [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) shows for the staff badge.
 
 ## Other Uses for the Same Events
 

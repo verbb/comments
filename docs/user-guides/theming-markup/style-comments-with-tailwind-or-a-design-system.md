@@ -36,7 +36,7 @@ This guide assumes your stylesheet already has some component classes for button
 }
 ```
 
-For colours, type and spacing alone, you don't need anything in this guide. [Make a Custom Theme](docs:user-guides/make-a-custom-theme) changes those through Comments' design tokens, which works the same on a Tailwind site. This guide is for when you want your site's own classes on the thread.
+For colours, type and spacing alone, you don't need anything in this guide. [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) changes those through Comments' design tokens, which works the same on a Tailwind site. This guide is for when you want your site's own classes on the thread.
 
 ## Why Tailwind's Rules Lose to Comments' at First
 
@@ -108,7 +108,7 @@ Rebuild and reload. Commenters' names are indigo, badges are rounded pills, a st
 
 Each badge has a second class naming its type, such as `comments__badge--staff` for the badge Comments gives staff members, which is how the last badge rule styles one kind of badge differently from the rest.
 
-These rules change how the thread looks and leave its structure to Comments. Because the rules are in a layer above Comments', a single class is enough for them to win, and you never need `!important`. For a change Comments' design tokens can make, such as the accent colour or the corner radius, the tokens are usually quicker, as [Make a Custom Theme](docs:user-guides/make-a-custom-theme) shows. On a site using layers, set the tokens outside any layer, or inside `@layer components`, which comes after `comments`.
+These rules change how the thread looks and leave its structure to Comments. Because the rules are in a layer above Comments', a single class is enough for them to win, and you never need `!important`. For a change Comments' design tokens can make, such as the accent colour or the corner radius, the tokens are usually quicker, as [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) shows. On a site using layers, set the tokens outside any layer, or inside `@layer components`, which comes after `comments`.
 
 ## Using the Site's Own Buttons and Fields
 
@@ -164,7 +164,7 @@ The quiet text buttons under each comment, such as **Reply**, keep Comments' loo
 
 `themeConfig` sets classes, a `title`, an `aria-label` and your own `data-*` attributes, such as a `data-track` attribute your analytics reads. It can't change attributes that Comments manages itself, such as `id`, `name`, `type`, `disabled` and the `aria-*` attributes it sets for accessibility. If you give it an unknown control name or one of those attributes, the browser console shows a warning saying so, and the rest of your settings still apply.
 
-`themeConfig` doesn't change the structure of the thread, add elements or remove them. To remove something, such as voting or avatars, turn it off in Comments' settings, which also stops the server offering it. To change the markup of a part of the thread, see [Change a Part's Structure](docs:user-guides/change-a-parts-structure).
+`themeConfig` doesn't change the structure of the thread, add elements or remove them. To remove something, such as voting or avatars, turn it off in Comments' settings, which also stops the server offering it. To change the markup of a part of the thread, see [Change a Part's Structure](docs:user-guides/theming-markup/change-a-parts-structure).
 
 ## Testing It
 
@@ -188,7 +188,7 @@ Many Tailwind sites switch to dark mode with a `dark` class on `<html>`, and Tai
     }
 ```
 
-To switch Comments' own colours with the same class, give it the same selector with `darkSelector`, as [Adding a Dark Version](docs:user-guides/make-a-custom-theme#adding-a-dark-version) in the theme guide explains:
+To switch Comments' own colours with the same class, give it the same selector with `darkSelector`, as [Adding a Dark Version](docs:user-guides/theming-markup/make-a-custom-theme#adding-a-dark-version) in the theme guide explains:
 
 ```js
 document.addEventListener('DOMContentLoaded', () => {
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ## Bundling Comments' Stylesheet into Your Own Build
 
-Instead of the plugin's stylesheet and the **CSS Layer** setting, you can import Comments' stylesheet straight into your Tailwind build. You'd do this when you already bundle Comments' script with your own JavaScript, as [Bundle Comments in Your Own Build](docs:user-guides/bundle-comments-in-your-own-build) describes, or when you'd like one stylesheet for the whole site.
+Instead of the plugin's stylesheet and the **CSS Layer** setting, you can import Comments' stylesheet straight into your Tailwind build. You'd do this when you already bundle Comments' script with your own JavaScript, as [Bundle Comments in Your Own Build](docs:user-guides/front-end-headless/bundle-comments-in-your-own-build) describes, or when you'd like one stylesheet for the whole site.
 
 Install the `@verbb/comments-browser` package with the same version number as your Comments plugin, then import its stylesheet into the `comments` layer in `src/css/site.css`:
 

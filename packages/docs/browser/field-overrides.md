@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-On the form, Comments keeps the field's label, its instructions and its error around your stars, and posts whatever `setValue()` was given last. On each comment that has a rating, the stars appear wherever the field is placed, after the date or in the list under the text. The [Ask Commenters for More with Custom Fields](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/ask-commenters-for-more-with-custom-fields) user guide starts from creating the fields in Craft and includes drawing a rating as stars.
+On the form, Comments keeps the field's label, its instructions and its error around your stars, and posts whatever `setValue()` was given last. On each comment that has a rating, the stars appear wherever the field is placed, after the date or in the list under the text. The [Ask Commenters for More with Custom Fields](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/forms-data/ask-commenters-for-more-with-custom-fields) user guide starts from creating the fields in Craft and includes drawing a rating as stars.
 
 ## What an Input Override Is Given
 

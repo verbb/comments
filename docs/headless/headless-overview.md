@@ -43,4 +43,4 @@ A front end that renders on the server, such as Next.js or Nuxt, can output the 
 
 ## Complete Walkthroughs
 
-For a complete walkthrough, from an empty app to a working thread you've tested, follow [Comments on a Headless Site on the Same Domain](docs:user-guides/comments-on-a-headless-site-on-the-same-domain) or [Comments on a Headless Site on Another Domain](docs:user-guides/comments-on-a-headless-site-on-another-domain).
+For a complete walkthrough, from an empty app to a working thread you've tested, follow [Comments on a Headless Site on the Same Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-the-same-domain) or [Comments on a Headless Site on Another Domain](docs:user-guides/front-end-headless/comments-on-a-headless-site-on-another-domain).

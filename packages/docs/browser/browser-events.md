@@ -1,6 +1,6 @@
 # Browser Events
 
-Each thread dispatches `comments:*` events from its root element as things happen in it, such as a comment being posted, a vote changing or a request failing. They're the place for analytics, your own validation and small changes to what's drawn, as the [Validate and Track Comments](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/validate-and-track-comments) user guide shows step by step. Events bubble, so a listener on `document` hears every thread on the page.
+Each thread dispatches `comments:*` events from its root element as things happen in it, such as a comment being posted, a vote changing or a request failing. They're the place for analytics, your own validation and small changes to what's drawn, as the [Validate and Track Comments](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/forms-data/validate-and-track-comments) user guide shows step by step. Events bubble, so a listener on `document` hears every thread on the page.
 
 ```js
 document.addEventListener('comments:comment-created', (event) => {

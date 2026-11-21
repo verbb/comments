@@ -84,7 +84,7 @@ Tailwind's preflight in `base` leaves the thread alone, and your components and 
 }
 ```
 
-Every [starter](/starters/) imports its stylesheets this way. Editor's stylesheet, for rich comments, goes in the same layer. The [Style Comments with Tailwind or a Design System](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/style-comments-with-tailwind-or-a-design-system) user guide builds a styled thread this way step by step.
+Every [starter](/starters/) imports its stylesheets this way. Editor's stylesheet, for rich comments, goes in the same layer. The [Style Comments with Tailwind or a Design System](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system) user guide builds a styled thread this way step by step.
 <!-- #endregion layers-build -->
 
 ### When the Plugin Loads the Stylesheet

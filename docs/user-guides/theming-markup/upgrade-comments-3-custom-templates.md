@@ -44,7 +44,7 @@ Every Comments 3 template has a counterpart in the thread Comments 4 draws. This
 | `_includes/form.html` | The comment form. It can't be replaced, because it carries spam protection and Editor, but it's styled with class names, tokens and `themeConfig`, and the sign-in card, the **Posting as** line and the custom fields around it are the `join`, `postingAs` and `formFields` parts. |
 | `form-fields/*` | Custom fields on the comment form, which are now chosen in Comments' settings and drawn by the thread, with a field override for any one field. |
 
-A **part** is a named piece of the thread whose markup you can replace on its own, with a **part override**. You'll only need one for a change that truly alters the markup. [Change a Part's Structure](docs:user-guides/change-a-parts-structure) explains them in depth.
+A **part** is a named piece of the thread whose markup you can replace on its own, with a **part override**. You'll only need one for a change that truly alters the markup. [Change a Part's Structure](docs:user-guides/theming-markup/change-a-parts-structure) explains them in depth.
 
 ## Choosing the Lightest Replacement
 
@@ -123,7 +123,7 @@ Here are the same changes for Comments 4:
 
 The token rule sets the thread's font, and the accent and link colours, which cover the **Post** button, the selected sort option, links and other highlighted controls. The commenter's name has no token of its own, so it's styled through its class. The extra `.comments` in front of the class makes the rule more specific than Comments' own, so it wins wherever your stylesheet loads.
 
-Reload the page, and the thread is in Georgia, with green names, buttons and links. [Make a Custom Theme](docs:user-guides/make-a-custom-theme) walks through the tokens in full, and inspecting an element in your browser's developer tools shows its `comments__` classes.
+Reload the page, and the thread is in Georgia, with green names, buttons and links. [Make a Custom Theme](docs:user-guides/theming-markup/make-a-custom-theme) walks through the tokens in full, and inspecting an element in your browser's developer tools shows its `comments__` classes.
 
 ## A Wrapper Becomes CSS
 
@@ -158,7 +158,7 @@ The example's `_includes/header.html` had this added after the commenter's name:
 
 A label beside the commenter's name is a **badge** now. Your own PHP adds it on the server, and the thread shows it with Comments' other badges, such as the one for staff, with no markup of your own.
 
-Add this to a module's `init()` method. If your project doesn't have a module, Craft's documentation on [how to build a module](https://craftcms.com/docs/5.x/extend/module-guide.html) explains how to add one, and [Add Your Own Data to Comments](docs:user-guides/add-your-own-data-to-comments#creating-the-module) walks through it for Comments:
+Add this to a module's `init()` method. If your project doesn't have a module, Craft's documentation on [how to build a module](https://craftcms.com/docs/5.x/extend/module-guide.html) explains how to add one, and [Add Your Own Data to Comments](docs:user-guides/forms-data/add-your-own-data-to-comments#creating-the-module) walks through it for Comments:
 
 ```php
 use verbb\comments\events\DefineBadgesEvent;
@@ -250,11 +250,11 @@ Go to **Comments** → **Settings** → **Comment Fields**, turn on the switch b
 }) }}
 ```
 
-`themeConfig` adds classes to the thread's controls, and `select` is every dropdown on the form. [Ask Commenters for More with Custom Fields](docs:user-guides/ask-commenters-for-more-with-custom-fields) covers the field modes, required fields and drawing a field your own way, and [Style Comments with Tailwind or a Design System](docs:user-guides/style-comments-with-tailwind-or-a-design-system) covers `themeConfig` for every control.
+`themeConfig` adds classes to the thread's controls, and `select` is every dropdown on the form. [Ask Commenters for More with Custom Fields](docs:user-guides/forms-data/ask-commenters-for-more-with-custom-fields) covers the field modes, required fields and drawing a field your own way, and [Style Comments with Tailwind or a Design System](docs:user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system) covers `themeConfig` for every control.
 
 ## Markup That Has to Be Different
 
-Everything the example changed had a lighter home than a template. If one of your changes really does need different markup, such as an extra button beside each comment's actions, replace just that part with a part override, as [Change a Part's Structure](docs:user-guides/change-a-parts-structure) shows. Override the smallest part that holds your change, such as `meta` rather than `comment`, because a smaller part leaves more of Comments' own markup and behaviour in place.
+Everything the example changed had a lighter home than a template. If one of your changes really does need different markup, such as an extra button beside each comment's actions, replace just that part with a part override, as [Change a Part's Structure](docs:user-guides/theming-markup/change-a-parts-structure) shows. Override the smallest part that holds your change, such as `meta` rather than `comment`, because a smaller part leaves more of Comments' own markup and behaviour in place.
 
 ### A Fully Custom Thread
 
@@ -262,7 +262,7 @@ Some Comments 3 sites didn't override the thread's templates at all, and instead
 
 To keep those features and still draw every comment and reply in your own markup, choose how much of the thread you want to own.
 
-To own each comment, override the `comment` part. It replaces everything inside a comment, replies included, while Comments keeps drawing the thread around it, with its sort options, sign-in card and comment form. Your override calls `form()` and `replies()` so that **Reply** and the comment's replies keep working, as [Replacing a Whole Comment](docs:user-guides/change-a-parts-structure#replacing-a-whole-comment-and-when-to-stop) explains. This suits a Twig site that wants a bespoke look for its comments and is happy with Comments' own form.
+To own each comment, override the `comment` part. It replaces everything inside a comment, replies included, while Comments keeps drawing the thread around it, with its sort options, sign-in card and comment form. Your override calls `form()` and `replies()` so that **Reply** and the comment's replies keep working, as [Replacing a Whole Comment](docs:user-guides/theming-markup/change-a-parts-structure#replacing-a-whole-comment-and-when-to-stop) explains. This suits a Twig site that wants a bespoke look for its comments and is happy with Comments' own form.
 
 To own everything, forms included, build your own interface. On a site without a JavaScript framework, the thread store from `@verbb/comments-core` gives your code the thread's comments, permissions and actions, such as voting and loading replies, with none of Comments' markup. `commentForm()` from `@verbb/comments-browser/form` then posts from your own `<form>`, with the site's spam protection mounted on it, for a new comment or a reply. [Your Own Interface](https://docs.verbb.io/comments/browser/your-own-interface) in the package docs walks through both.
 

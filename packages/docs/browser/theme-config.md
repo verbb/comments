@@ -27,7 +27,7 @@ Each control follows how it looks rather than its tag, so **Sign in** is a `prim
 
 Each control's element also carries `data-comments-control` with the control's name, so your CSS and tests can find it whatever classes it has.
 
-The [Style Comments with Tailwind or a Design System](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/style-comments-with-tailwind-or-a-design-system) user guide puts a design system's classes on the controls step by step, alongside the class names and CSS layers.
+The [Style Comments with Tailwind or a Design System](https://verbb.io/craft-plugins/comments/docs/v4/user-guides/theming-markup/style-comments-with-tailwind-or-a-design-system) user guide puts a design system's classes on the controls step by step, alongside the class names and CSS layers.
 <!-- #endregion theme-config-controls -->
 
 ## `attributes` and `resetClass`
