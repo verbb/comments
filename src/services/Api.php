@@ -627,7 +627,8 @@ class Api extends Component
                 : $this->_loadComments([...array_keys(array_filter($public, $isOwn)), ...array_keys($extras)], $owner, $user, array_keys($extras));
             $votes = $identity && $permissionRows ? $plugin->getInteractions()->getViewerState(array_keys($permissionRows), (int)$identity->id) : [];
             $reported = $identity && $permissionRows ? $this->_openReportIds(array_keys($permissionRows), (int)$identity->id) : [];
-            $blocked = $identity && $conversation && $plugin->getModeration()->isBlocked((int)$identity->id, (int)$conversation->id);
+            // A block everywhere applies before the element has a conversation too.
+            $blocked = $identity && $plugin->getModeration()->isBlocked((int)$identity->id, $conversation ? (int)$conversation->id : null);
             $canComment = !$blocked && $this->_canComment($owner, $config, $user);
             $closed = $this->_isClosed($owner, $config);
 
@@ -1168,7 +1169,8 @@ class Api extends Component
                 $config = $this->_config($owner);
                 $conversation = $plugin->getConversations()->findForOwner((int)$owner->id, (int)$owner->siteId);
                 $isModerator = $user && $plugin->getModeration()->canModerateComment($user);
-                $blocked = $identity && $conversation && $plugin->getModeration()->isBlocked((int)$identity->id, (int)$conversation->id);
+                // A block everywhere applies before the element has a conversation too.
+                $blocked = $identity && $plugin->getModeration()->isBlocked((int)$identity->id, $conversation ? (int)$conversation->id : null);
                 $canComment = !$blocked && $this->_canComment($owner, $config, $user);
 
                 return $this->_viewerData($owner, $config, $conversation, $user, $identity, (bool)$isModerator, $canComment, (bool)$blocked, false, $this->_isClosed($owner, $config));

@@ -476,7 +476,8 @@ class Moderation extends Component
     }
 
     /**
-     * Active (non-revoked, non-expired) restrictions for an Identity.
+     * Active (non-revoked, non-expired) restrictions for an Identity: those everywhere, and those on the
+     * conversation given. Without a conversation, only those everywhere.
      */
     public function getActiveRestrictions(int $identityId, ?int $conversationId = null): array
     {
@@ -491,13 +492,11 @@ class Moderation extends Component
                 ['>', 'endsAt', Db::prepareDateForDb(new DateTime())],
             ]);
 
-        if ($conversationId !== null) {
-            $query->andWhere([
-                'or',
-                ['conversationId' => null],
-                ['conversationId' => $conversationId],
-            ]);
-        }
+        // Those everywhere, and those on the conversation. Without one, such as on an element nobody has
+        // commented on yet, only those everywhere apply, never another conversation's.
+        $query->andWhere($conversationId !== null
+            ? ['or', ['conversationId' => null], ['conversationId' => $conversationId]]
+            : ['conversationId' => null]);
 
         return $query->all();
     }
