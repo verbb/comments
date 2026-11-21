@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\records;
 
+use verbb\comments\base\EmojiColumnsTrait;
+
 use craft\db\ActiveRecord;
 use craft\records\User;
 
@@ -15,6 +17,17 @@ class Identity extends ActiveRecord
     {
         return '{{%comments_identities}}';
     }
+
+    protected static function emojiColumns(): array
+    {
+        return ['name'];
+    }
+
+
+    // Traits
+    // =========================================================================
+
+    use EmojiColumnsTrait;
 
 
     // Public Methods

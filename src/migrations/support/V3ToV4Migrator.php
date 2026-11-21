@@ -8,6 +8,7 @@ use verbb\comments\enums\InteractionType;
 use verbb\comments\enums\ModerationState;
 use verbb\comments\enums\ReportStatus;
 use verbb\comments\enums\SubscriptionType;
+use verbb\comments\helpers\StringHelper;
 use verbb\comments\services\Moderation;
 use verbb\comments\services\Reports;
 
@@ -15,7 +16,6 @@ use craft\db\Connection;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 
 use yii\base\Exception;
 use yii\db\Expression;
@@ -139,7 +139,8 @@ final class V3ToV4Migrator
                     static fn(array $user): array => [
                         IdentityType::User->value,
                         (int)$user['id'],
-                        $user['fullName'] ?: ($user['username'] ?: null),
+                        // A name with emoji is stored with shortcodes if the table can't hold them, as the record would.
+                        StringHelper::emojiForDb($user['fullName'] ?: ($user['username'] ?: null), '{{%comments_identities}}'),
                         $user['email'],
                     ],
                     $users,
@@ -481,7 +482,7 @@ final class V3ToV4Migrator
     {
         $this->db->createCommand()->insert('{{%comments_identities}}', [
             'type' => IdentityType::Guest->value,
-            'name' => $name !== '' ? $name : null,
+            'name' => StringHelper::emojiForDb($name !== '' ? $name : null, '{{%comments_identities}}'),
             'email' => $email !== '' ? $email : null,
         ])->execute();
 

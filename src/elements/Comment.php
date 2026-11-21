@@ -1564,7 +1564,7 @@ class Comment extends Element
         $record->ownerSiteId = $this->ownerSiteId;
         $record->userId = $this->userId;
         $record->status = $this->status;
-        $record->name = $this->name;
+        $record->name = StringHelper::emojiForDb($this->name);
         $record->email = $this->email;
         $record->comment = StringHelper::emojiForDb($this->comment);
         $record->gifUrl = $this->gifUrl;

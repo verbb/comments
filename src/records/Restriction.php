@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\records;
 
+use verbb\comments\base\EmojiColumnsTrait;
+
 use craft\db\ActiveRecord;
 
 class Restriction extends ActiveRecord
@@ -12,4 +14,15 @@ class Restriction extends ActiveRecord
     {
         return '{{%comments_restrictions}}';
     }
+
+    protected static function emojiColumns(): array
+    {
+        return ['reason'];
+    }
+
+
+    // Traits
+    // =========================================================================
+
+    use EmojiColumnsTrait;
 }

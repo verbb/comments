@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\records;
 
+use verbb\comments\base\EmojiColumnsTrait;
+
 use craft\db\ActiveRecord;
 
 class ModerationAction extends ActiveRecord
@@ -12,4 +14,15 @@ class ModerationAction extends ActiveRecord
     {
         return '{{%comments_moderationactions}}';
     }
+
+    protected static function emojiColumns(): array
+    {
+        return ['reason'];
+    }
+
+
+    // Traits
+    // =========================================================================
+
+    use EmojiColumnsTrait;
 }

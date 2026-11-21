@@ -113,7 +113,7 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 
 ### Fixed
 - Comments deleted by their authors are no longer returned as approved. They have a new `author-removed` status.
-- Fix comments with emoji failing to save on databases that haven't been converted to `utf8mb4`. Emoji are stored as shortcodes there and shown as emoji everywhere, as are emoji from Comments 2. ([Upgrading from Comments 3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#running-the-upgrade))
+- Fix comments, guest names, report details and moderators' notes and reasons with emoji failing to save on databases that haven't been converted to `utf8mb4`. Comments checks each of its own tables, which can differ from Craft's, and stores emoji as shortcodes in a table that can't hold them. They're shown as emoji everywhere, as are emoji from Comments 2. ([Upgrading from Comments 3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#running-the-upgrade))
 - Fix keyword filters also matching a comment's status and format, ignoring words with accented characters, and matching case-sensitively in exact mode.
 - Fix Maximum Comment Length counting bytes and refusing a comment of exactly that length.
 - Fix the time since a comment was posted, such as “3 hours ago”, always being in English, whatever the site's language. ([#330](https://github.com/verbb/comments/issues/330))

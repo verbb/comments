@@ -336,15 +336,17 @@ class CommentQuery extends ElementQuery
     }
 
     /**
-     * Comments 2 stored emoji as shortcodes, and a database without 4-byte support still does (see
-     * `StringHelper::emojiForDb()`). Turning them back as each comment loads means every surface
-     * reads emoji: templates, the editor, GraphQL and the API. A rich comment's document stores
-     * emoji as JSON escapes instead, so it's left as it is.
+     * Comments 2 stored emoji as shortcodes, and a table without 4-byte support still does (see
+     * `StringHelper::emojiForDb()`), for comment text and guest names. Turning them back as each
+     * comment loads means every surface reads emoji: templates, the editor, GraphQL and the API. A
+     * rich comment's document stores emoji as JSON escapes instead, so it's left as it is.
      */
     public function createElement(array $row): ElementInterface
     {
-        if (isset($row['comment']) && is_string($row['comment'])) {
-            $row['comment'] = StringHelper::shortcodesToEmoji($row['comment']);
+        foreach (['comment', 'name'] as $column) {
+            if (isset($row[$column]) && is_string($row[$column])) {
+                $row[$column] = StringHelper::shortcodesToEmoji($row[$column]);
+            }
         }
 
         if (isset($row['bodyContent']) && is_string($row['bodyContent']) && ($row['contentFormat'] ?? null) !== ContentFormat::Rich->value) {
@@ -544,7 +546,12 @@ class CommentQuery extends ElementQuery
         }
 
         if ($this->name) {
-            $this->subQuery->andWhere(Db::parseParam('comments_comments.name', $this->name));
+            // Names are stored with emoji as shortcodes where the table can't hold them, so the value looked for is too.
+            $name = is_array($this->name)
+                ? array_map(static fn(mixed $value): mixed => is_string($value) ? StringHelper::emojiForDb($value) : $value, $this->name)
+                : (is_string($this->name) ? StringHelper::emojiForDb($this->name) : $this->name);
+
+            $this->subQuery->andWhere(Db::parseParam('comments_comments.name', $name));
         }
 
         if ($this->email) {

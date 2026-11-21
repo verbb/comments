@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\records;
 
+use verbb\comments\base\EmojiColumnsTrait;
+
 use craft\db\ActiveRecord;
 
 /**
@@ -16,4 +18,15 @@ class CommenterNote extends ActiveRecord
     {
         return '{{%comments_commenternotes}}';
     }
+
+    protected static function emojiColumns(): array
+    {
+        return ['note'];
+    }
+
+
+    // Traits
+    // =========================================================================
+
+    use EmojiColumnsTrait;
 }

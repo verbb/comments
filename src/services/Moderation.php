@@ -11,6 +11,7 @@ use verbb\comments\enums\ReportStatus;
 use verbb\comments\enums\RestrictionType;
 use verbb\comments\enums\ReviewSetting;
 use verbb\comments\events\ModerationEvent;
+use verbb\comments\helpers\StringHelper;
 use verbb\comments\records\Comment as CommentRecord;
 use verbb\comments\records\ModerationAction as ModerationActionRecord;
 use verbb\comments\records\CommenterNote as CommenterNoteRecord;
@@ -24,7 +25,6 @@ use craft\db\Table;
 use craft\elements\User;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\records\Element as ElementRecord;
 
@@ -1047,10 +1047,11 @@ class Moderation extends Component
                 'id' => (int)$row['id'],
                 // Who reported it: a person's account name first, as on the Commenters screen.
                 'identityId' => $row['identityId'] ? (int)$row['identityId'] : null,
-                'reporterName' => $row['fullName'] ?: ($row['reporterName'] ?: ($row['username'] ?: null)),
+                // Read without the records, so names and details stored with shortcodes are turned back here.
+                'reporterName' => $row['fullName'] ?: ($row['reporterName'] ? StringHelper::shortcodesToEmoji((string)$row['reporterName']) : ($row['username'] ?: null)),
                 'status' => (string)$row['status'],
                 'reason' => $row['reason'],
-                'details' => $row['details'],
+                'details' => $row['details'] !== null ? StringHelper::shortcodesToEmoji((string)$row['details']) : null,
                 'dateCreated' => $row['dateCreated']
                     ? DateTimeHelper::toIso8601(DateTimeHelper::toDateTime($row['dateCreated']))
                     : null,

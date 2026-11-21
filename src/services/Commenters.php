@@ -8,6 +8,7 @@ use verbb\comments\enums\RemovalReason;
 use verbb\comments\enums\ReportStatus;
 use verbb\comments\enums\RestrictionType;
 use verbb\comments\enums\ReviewSetting;
+use verbb\comments\helpers\StringHelper;
 use verbb\comments\records\Identity as IdentityRecord;
 use verbb\comments\records\Restriction as RestrictionRecord;
 
@@ -122,7 +123,8 @@ class Commenters extends Component
 
         $data = array_map(function(array $row) use ($settings, $lastOn, $canViewEmail, $photos): array {
             $id = (int)$row['id'];
-            $name = $this->_displayName($row['name'], $row['username'] ?? null, $id, null, $row['fullName'] ?? null);
+            // The row is read without the record, so a name stored with shortcodes is turned back here.
+            $name = $this->_displayName(StringHelper::shortcodesToEmoji((string)$row['name']), $row['username'] ?? null, $id, null, $row['fullName'] ?? null);
             $setting = $settings[$id] ?? ReviewSetting::Normal;
 
             return [
@@ -284,7 +286,7 @@ class Commenters extends Component
             ->all();
 
         foreach ($removals as $removal) {
-            $reason = $removal['reason'] ? (RemovalReason::tryFrom((string)$removal['reason'])?->label() ?? $removal['reason']) : null;
+            $reason = $removal['reason'] ? (RemovalReason::tryFrom((string)$removal['reason'])?->label() ?? StringHelper::shortcodesToEmoji((string)$removal['reason'])) : null;
 
             $items[] = $this->_historyItem(
                 $removal['dateCreated'],
@@ -386,7 +388,8 @@ class Commenters extends Component
 
         if ($search !== null && $search !== '') {
             $viewer = Craft::$app->getUser()->getIdentity();
-            $conditions = ['or', ['like', 'i.name', $search], ['like', 'u.username', $search], ['like', 'u.fullName', $search]];
+            // Guest names are stored with emoji as shortcodes where the table can't hold them, so they're searched that way.
+            $conditions = ['or', ['like', 'i.name', StringHelper::emojiForDb($search, IdentityRecord::tableName())], ['like', 'u.username', $search], ['like', 'u.fullName', $search]];
 
             // Searching by address would reveal who's commented to anyone who can't see addresses.
             if ($viewer && $viewer->admin) {

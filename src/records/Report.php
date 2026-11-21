@@ -1,6 +1,8 @@
 <?php
 namespace verbb\comments\records;
 
+use verbb\comments\base\EmojiColumnsTrait;
+
 use craft\db\ActiveRecord;
 
 use yii\db\ActiveQueryInterface;
@@ -14,6 +16,17 @@ class Report extends ActiveRecord
     {
         return '{{%comments_reports}}';
     }
+
+    protected static function emojiColumns(): array
+    {
+        return ['details'];
+    }
+
+
+    // Traits
+    // =========================================================================
+
+    use EmojiColumnsTrait;
 
 
     // Public Methods
