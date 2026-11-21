@@ -120,21 +120,13 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Fix comments, guest names, report details and moderators' notes and reasons with emoji failing to save on databases that haven't been converted to `utf8mb4`. Comments checks each of its own tables, which can differ from Craft's, and stores emoji as shortcodes in a table that can't hold them. They're shown as emoji everywhere, as are emoji from Comments 2. ([Upgrading from Comments 3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#running-the-upgrade))
 - Fix keyword filters also matching a comment's status and format, ignoring words with accented characters, and matching case-sensitively in exact mode.
 - Fix Maximum Comment Length counting bytes and refusing a comment of exactly that length.
-- Fix the time since a comment was posted, such as “3 hours ago”, always being in English, whatever the site's language. ([#330](https://github.com/verbb/comments/issues/330))
 - Fix vote and flag buttons being shown to guests when they aren't allowed to use them.
 - Fix comments on auto-closed elements being accepted through the API.
 - Fix the dashboard widget showing nothing until its settings were saved, and hiding flagged comments unless asked to show only those.
-- Fixed a high-severity broken access control vulnerability.
-- Fixed a high-severity mass assignment vulnerability.
-- Fixed an information disclosure vulnerability.
-- Fixed a moderate-severity information disclosure vulnerability.
-- Fixed a moderation bypass vulnerability.
-- Fixed an improper input validation vulnerability.
 - Fix approving, holding and re-approving a comment resending every notification, notifications being sent for comments removed before the queue job ran, and people receiving more than one email for the same comment. Each person now gets one email per comment.
 - Fix failed notification emails leaving the queue job marked as successful. All recipients are still tried, then the job fails so it shows up in the queue manager.
 - Fix the German email to moderators about an edited comment describing an approval.
 - Fix notification emails having no plain text part.
-- Fix the Dutch moderator and approval emails not using their translations.
 - Fix a removed moderator group exempting every signed-in user from moderation.
 - Fix votes and flags being accepted on unpublished comments.
 - Fix authors with no full name showing a blank name.
@@ -159,6 +151,23 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Remove `RenderCache::getCommentIds()` and `setCommentIds()`, which nothing used.
 - Remove `renderComment()`, `getRenderVariables()`, `getRenderJsVariables()`, `publishFrontEndAssets()` and `getComponentTemplatePath()` from the comments service, as threads are drawn in the browser.
 - Remove the `comments/new` control panel routes, which never opened a form. Moderators reply from a comment's page instead, and new discussions start on the site.
+
+## 3.0.26 - 2026-11-14
+
+### Fixed
+- Fixed a moderate-severity information disclosure vulnerability.
+- Fixed a low-severity cross-site request forgery vulnerability.
+- Fix the Dutch moderator and approval notification emails not using their Dutch translations.
+
+## 3.0.25 - 2026-11-12
+
+### Fixed
+- Fixed a moderate-severity missing authorization vulnerability.
+
+## 3.0.24 - 2026-11-10
+
+### Fixed
+- Fix “time ago” text for comments always showing in English, rather than the site’s language. ([#330](https://github.com/verbb/comments/issues/330))
 
 ## 3.0.23 - 2026-11-01
 
