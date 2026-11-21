@@ -137,6 +137,7 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Fix GraphQL `createComment` being registered under the name `saveComment`.
 - Fix GraphQL `voteComment` ignoring its `downvote` and `siteId` arguments, `flagComment` ignoring `siteId`, the `user` field on flags, and `createComment` keeping a name and email for signed-in users.
 - Fix GraphQL schemas with only the save or delete comment scopes having no mutations available.
+- Fix finding flagged or reported comments erroring on PostgreSQL, which also broke the Comments field on entry pages.
 - Fix comments failing to post from browsers that send a long user agent, such as Instagram's in-app browser, and very long guest names or comments failing with an error instead of a message.
 
 ### Removed

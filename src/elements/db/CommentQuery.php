@@ -611,7 +611,7 @@ class CommentQuery extends ElementQuery
         }
 
         if ($this->isFlagged !== null) {
-            $reportsQuery = '(SELECT DISTINCT commentId FROM {{%comments_reports}} WHERE [[status]] = \'open\')';
+            $reportsQuery = '(SELECT DISTINCT [[commentId]] FROM {{%comments_reports}} WHERE [[status]] = \'open\')';
 
             if ($this->isFlagged) {
                 $this->subQuery->innerJoin(
@@ -629,7 +629,7 @@ class CommentQuery extends ElementQuery
 
         if ($this->hasOpenReports !== null) {
             $reportsAlias = 'comments_open_reports';
-            $reportsQuery = '(SELECT DISTINCT commentId FROM {{%comments_reports}} WHERE [[status]] = \'open\')';
+            $reportsQuery = '(SELECT DISTINCT [[commentId]] FROM {{%comments_reports}} WHERE [[status]] = \'open\')';
 
             if ($this->hasOpenReports) {
                 $this->subQuery->innerJoin(
