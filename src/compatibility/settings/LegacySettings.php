@@ -6,6 +6,9 @@ use verbb\comments\enums\LoadMode;
 use verbb\comments\enums\SubscriptionType;
 use verbb\comments\services\Compatibility;
 
+use craft\db\Table;
+use craft\helpers\Db;
+
 use Closure;
 
 /**
@@ -208,6 +211,16 @@ trait LegacySettings
         // Settings from Comments 4's development: the staff settings replaced the first, and the second
         // checked a flag any client can send.
         unset($values['emailModeratorGroup'], $values['javascriptCheckEnabled']);
+
+        // Development builds of Comments 4, and a config file, can give the attachment volume by its ID. It's
+        // kept by its UID, so it stays the same volume on another environment. A file's ID wins over a saved
+        // UID unless the file sets `attachmentVolume` too.
+        $file = self::_configFile();
+        $volumeFromFile = ($file['attachmentVolumeId'] ?? null) !== null && !array_key_exists('attachmentVolume', $file);
+
+        if (($volumeFromFile || !array_key_exists('attachmentVolume', $values)) && is_numeric($values['attachmentVolumeId'] ?? null) && (int)$values['attachmentVolumeId'] > 0) {
+            $values['attachmentVolume'] = Db::uidById(Table::VOLUMES, (int)$values['attachmentVolumeId']);
+        }
 
         return $values;
     }

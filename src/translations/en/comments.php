@@ -432,7 +432,7 @@ return [
   'Tell Akismet these are test requests, so they don’t affect its results for your site.' => 'Tell Akismet these are test requests, so they don’t affect its results for your site.',
   'Templates' => 'Templates',
   'That interaction is not enabled.' => 'That interaction is not enabled.',
-  'The asset volume uploaded attachments are stored in. Attachments are disabled until a volume is chosen.' => 'The asset volume uploaded attachments are stored in. Attachments are disabled until a volume is chosen.',
+  'The asset volume uploaded attachments are stored in.' => 'The asset volume uploaded attachments are stored in.',
   'The comment attachment destination is unavailable.' => 'The comment attachment destination is unavailable.',
   'The configured comment structure couldn’t be found, so threads were read from the structures holding comments.' => 'The configured comment structure couldn’t be found, so threads were read from the structures holding comments.',
   'The default order comments are displayed on the public site.' => 'The default order comments are displayed on the public site.',

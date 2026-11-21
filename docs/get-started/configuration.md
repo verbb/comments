@@ -107,15 +107,15 @@ Whether signed-in commenters can mention people when [`authoringMode`](#authorin
 
 **Type:** `bool` · **Default:** `false`
 
-Whether signed-in commenters can add images and files when [`authoringMode`](#authoringMode) is `rich`. This needs [`attachmentVolumeId`](#attachmentVolumeId).
+Whether signed-in commenters can add images and files when [`authoringMode`](#authoringMode) is `rich`. This needs [`attachmentVolume`](#attachmentVolume).
 :::
 
 ::: reference
-#### `attachmentVolumeId`
+#### `attachmentVolume`
 
-**Type:** `int|null` · **Default:** `null`
+**Type:** `string|null` · **Default:** `null`
 
-The ID of the asset volume attachments are stored in. Required when [`allowAttachments`](#allowAttachments) is on.
+The UID of the asset volume attachments are stored in, so it's the same volume on every environment. Required when [`allowAttachments`](#allowAttachments) is on. A volume's UID is in its file under `config/project/volumes/`, which is named after its handle and UID. A volume's ID in `attachmentVolumeId` also works, including in `config/comments.php`, and choosing the volume in the control panel saves its UID.
 :::
 
 ::: reference
@@ -123,7 +123,7 @@ The ID of the asset volume attachments are stored in. Required when [`allowAttac
 
 **Type:** `string|null` · **Default:** `null`
 
-The folder in [`attachmentVolumeId`](#attachmentVolumeId) each comment's files go to, such as `'comments/{owner.section.handle}'`. It can use the comment's properties in Twig, as an Assets field's upload location can. Blank, or a folder that can't be worked out for a comment, is the volume's root.
+The folder in [`attachmentVolume`](#attachmentVolume) each comment's files go to, such as `'comments/{owner.section.handle}'`. It can use the comment's properties in Twig, as an Assets field's upload location can. Blank, or a folder that can't be worked out for a comment, is the volume's root.
 :::
 
 ::: reference

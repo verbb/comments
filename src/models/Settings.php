@@ -308,6 +308,10 @@ class Settings extends Model
     public string $theme = 'light';
     public bool $allowMentions = true;
     public bool $allowAttachments = false;
+    // The UID of the volume uploads go to, which is what project config keeps, so it's the same volume on
+    // every environment. Comments 4's development builds kept its ID instead.
+    public ?string $attachmentVolume = null;
+    // The volume's ID on this installation, worked out from `attachmentVolume`. Not saved.
     public ?int $attachmentVolumeId = null;
     // A folder in the volume for each comment's files, which can use the comment's properties in Twig,
     // such as `{owner.section.handle}`. Blank is the volume's root.
@@ -369,7 +373,7 @@ class Settings extends Model
         // GIPHY's beta keys return at most 50 results a search.
         $rules[] = [['giphyLimit'], 'integer', 'min' => 1, 'max' => 50];
         $rules[] = [['authorEditWindow'], 'integer', 'min' => 1];
-        $rules[] = [['attachmentVolumeId'], 'required', 'when' => fn() => $this->allowAttachments];
+        $rules[] = [['attachmentVolumeId'], 'required', 'when' => fn() => $this->allowAttachments && $this->attachmentVolume === null];
         $rules[] = [['spamRetentionDays'], 'integer', 'min' => 1];
         $rules[] = [['maxLinks'], 'integer', 'min' => 0];
         $rules[] = [['blockedEmailDomains'], 'validateBlockedEmailDomains'];
@@ -600,8 +604,9 @@ class Settings extends Model
     {
         $fields = parent::fields();
 
-        // Config only, so a site's classes never end up in project config.
-        unset($fields['themeConfig']);
+        // Config only, so a site's classes never end up in project config. The attachment volume is saved
+        // by its UID, and its ID is only this installation's.
+        unset($fields['themeConfig'], $fields['attachmentVolumeId']);
 
         // The Spam settings are kept in this installation's database instead. See `SpamSettings`.
         foreach (SpamSettings::KEYS as $key) {
@@ -865,6 +870,13 @@ class Settings extends Model
     {
         // Comments 3's settings, and those from Comments 4's development builds, become today's.
         $values = $this->normalizeLegacySettings($values);
+
+        // The attachment volume is chosen by its UID, and used by its ID on this installation.
+        if (array_key_exists('attachmentVolume', $values)) {
+            $uid = is_string($values['attachmentVolume']) && trim($values['attachmentVolume']) !== '' ? trim($values['attachmentVolume']) : null;
+            $values['attachmentVolume'] = $uid;
+            $values['attachmentVolumeId'] = $uid !== null ? Db::idByUid(Table::VOLUMES, $uid) : null;
+        }
 
         // A plain text input holds the list when it's posted from the settings page.
         if (isset($values['attachmentExtensions']) && is_string($values['attachmentExtensions'])) {

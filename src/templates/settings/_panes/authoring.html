@@ -111,7 +111,7 @@
     <div id="attachment-fields"{% if not settings.allowAttachments %} class="hidden"{% endif %}>
         {% set volumeOptions = [{ label: 'None' | t('comments'), value: '' }] %}
         {% for volume in craft.app.volumes.getAllVolumes() %}
-            {% set volumeOptions = volumeOptions | merge([{ label: volume.name, value: volume.id }]) %}
+            {% set volumeOptions = volumeOptions | merge([{ label: volume.name, value: volume.uid }]) %}
         {% endfor %}
 
         {% set volumeSiteOrigin = craft.comments.getAttachmentVolumeSiteOrigin(settings.attachmentVolumeId) %}
@@ -119,11 +119,12 @@
 
         {{ forms.selectField({
             label: 'Attachment Volume' | t('comments'),
-            instructions: 'The asset volume uploaded attachments are stored in. Attachments are disabled until a volume is chosen.' | t('comments'),
-            name: 'attachmentVolumeId',
-            value: settings.attachmentVolumeId,
+            instructions: 'The asset volume uploaded attachments are stored in.' | t('comments'),
+            name: 'attachmentVolume',
+            errors: settings.getErrors('attachmentVolume') | merge(settings.getErrors('attachmentVolumeId')),
+            value: settings.attachmentVolume,
             options: volumeOptions,
-            warning: [macros.configWarning('attachmentVolumeId', 'comments'), volumeWarning] | filter | join(' ') ?: null,
+            warning: [(macros.configWarning('attachmentVolume', 'comments') | trim) ?: (macros.configWarning('attachmentVolumeId', 'comments') | trim), volumeWarning] | filter | join(' ') ?: null,
         }) }}
 
         {{ forms.textField({
