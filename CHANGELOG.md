@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.27 - 2026-11-21
 
 ### Fixed
 - Fixed a high-severity broken access control vulnerability.
