@@ -21,6 +21,14 @@ class Comments extends Widget
         return Craft::getAlias('@verbb/comments/icon-mask.svg');
     }
 
+    /**
+     * The widget lists comments of any status, held and spam included, so it's for people who can view comments.
+     */
+    public static function isSelectable(): bool
+    {
+        return parent::isSelectable() && Craft::$app->getUser()->checkPermission('comments-view');
+    }
+
 
     // Properties
     // =========================================================================
@@ -47,6 +55,11 @@ class Comments extends Widget
 
     public function getBodyHtml(): ?string
     {
+        // A widget added before someone lost the permission shows nothing.
+        if (!Craft::$app->getUser()->checkPermission('comments-view')) {
+            return null;
+        }
+
         $comments = Comment::find()
             ->status($this->status === 'all' ? null : $this->status)
             ->limit($this->limit)
