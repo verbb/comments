@@ -4,7 +4,6 @@ namespace verbb\comments\formfields;
 use verbb\comments\Comments;
 use verbb\comments\base\FormFieldType;
 use verbb\comments\elements\Comment;
-use verbb\comments\helpers\UploadPolicy;
 
 use Craft;
 use craft\base\FieldInterface;
@@ -15,6 +14,8 @@ use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\ConfigHelper;
 
 use yii\base\InvalidArgumentException;
+
+use verbb\editor\helpers\UploadSafety;
 
 /**
  * Assets fields, as a file input. Files are uploaded first through `comments/api/upload` with the
@@ -48,7 +49,7 @@ class AssetsType extends FormFieldType
             $extensions = array_intersect($extensions, $fromKinds);
         }
 
-        return array_values(array_unique(array_filter($extensions, static fn(string $extension): bool => !UploadPolicy::isBlockedExtension($extension))));
+        return array_values(array_unique(array_filter($extensions, static fn(string $extension): bool => !UploadSafety::isBlockedExtension($extension))));
     }
 
     /**

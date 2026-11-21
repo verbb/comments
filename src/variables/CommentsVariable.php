@@ -10,7 +10,6 @@ use verbb\comments\enums\RemovalReason;
 use verbb\comments\enums\SubscriptionType;
 use verbb\comments\exceptions\ApiException;
 use verbb\comments\helpers\CommentsHelper;
-use verbb\comments\helpers\ImageMetadata;
 use verbb\comments\helpers\SettingsTabs;
 use verbb\comments\helpers\UploadPolicy;
 use verbb\comments\migrations\support\V3UpgradeLog;
@@ -22,6 +21,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Template;
 
 use Twig\Markup;
+use verbb\editor\helpers\UploadSafety;
 
 class CommentsVariable
 {
@@ -103,7 +103,7 @@ class CommentsVariable
      */
     public function getCanStripHeicAndAvif(): bool
     {
-        return ImageMetadata::canStripWithImagick('image/heic') && ImageMetadata::canStripWithImagick('image/avif');
+        return UploadSafety::canStripHeicAndAvif();
     }
 
     /**

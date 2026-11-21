@@ -821,6 +821,7 @@ return [
   'TIFF images can’t be uploaded here. Upload a JPEG or PNG instead.' => 'TIFF images can’t be uploaded here. Upload a JPEG or PNG instead.',
   'HEIC and AVIF images can only be uploaded when the server has ImageMagick to remove where they were taken. Upload a JPEG or PNG instead.' => 'HEIC and AVIF images can only be uploaded when the server has ImageMagick to remove where they were taken. Upload a JPEG or PNG instead.',
   'This kind of image can’t be uploaded here.' => 'This kind of image can’t be uploaded here.',
+  'Uploads are turned off on this site, because files waiting to be saved would be public.' => 'Uploads are turned off on this site, because files waiting to be saved would be public.',
   'File extensions commenters can attach, separated by commas. SVG, HTML, XML, scripts and TIFF images are never accepted, whatever is listed.' => 'File extensions commenters can attach, separated by commas. SVG, HTML, XML, scripts and TIFF images are never accepted, whatever is listed.',
   'HEIC and AVIF images are accepted when listed, with their metadata removed by ImageMagick.' => 'HEIC and AVIF images are accepted when listed, with their metadata removed by ImageMagick.',
   'HEIC and AVIF images are refused, because this server doesn’t have ImageMagick to remove where they were taken.' => 'HEIC and AVIF images are refused, because this server doesn’t have ImageMagick to remove where they were taken.',

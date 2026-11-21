@@ -1,7 +1,5 @@
 {
     "Cake\\Utility\\Hash": "cakephp/utility (optional Feed Me dependency)",
-    "Imagick": "ext-imagick (optional PHP extension, used to strip HEIC and AVIF metadata when present)",
-    "ImagickPixel": "ext-imagick (optional PHP extension, used by the HEIC and AVIF stripping tests when present)",
     "craft\\feedme\\Plugin": "craftcms/feed-me (optional import integration)",
     "craft\\feedme\\base\\Element": "craftcms/feed-me (optional import integration)",
     "craft\\feedme\\events\\FeedProcessEvent": "craftcms/feed-me (optional import integration)",

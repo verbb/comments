@@ -17,13 +17,15 @@ use verbb\editor\models\AssetConfig;
 use verbb\editor\models\EditorConfig;
 
 /**
- * Editor's Craft asset provider for Comments' contexts, with Comments' upload rules applied first.
- * Because the rules sit in the context rather than an endpoint, they hold however an upload arrives:
- * through `comments/api/upload`, through Editor's own action, or from PHP.
+ * Editor's Craft asset provider for Comments' contexts, with Comments' upload rules applied first, so
+ * a refusal has Comments' message and data API code. Editor's own provider then makes the same safety
+ * checks again, which leave a file that passed them unchanged. Because the rules sit in the context
+ * rather than an endpoint, they hold however an upload arrives: through `comments/api/upload`, through
+ * Editor's own action, or from PHP.
  *
- * A temporary upload made through another Editor context could otherwise be attached to a comment
- * without them, so finalising checks each temporary file again and only accepts one the rules leave
- * unchanged, which is what a file that came through them looks like.
+ * Editor cleans every upload, but a temporary upload made through another Editor context may have met
+ * a different allowed list or size limit, so finalising checks each temporary file again and only
+ * accepts one the rules leave unchanged, which is what a file that came through them looks like.
  */
 class EditorAssetProvider extends CraftAssetProvider
 {
@@ -32,7 +34,7 @@ class EditorAssetProvider extends CraftAssetProvider
 
     public function upload(UploadedFile $file, AssetConfig $config, EditorConfig $context, AssetKind $kind): array
     {
-        UploadPolicy::check($file, $config->getAllowedExtensions($kind), $config->getMaxFileSize());
+        UploadPolicy::check($file, self::_allowedExtensions($config), $config->getMaxFileSize());
 
         return parent::upload($file, $config, $context, $kind);
     }
@@ -64,6 +66,16 @@ class EditorAssetProvider extends CraftAssetProvider
     // Private Methods
     // =========================================================================
 
+    /**
+     * The file types Comments allows. Editor falls back to its own image types for inline images when the
+     * list is empty, but an emptied **Allowed File Types** means nothing can be uploaded. Existing files
+     * stay, because the features themselves stay on.
+     */
+    private static function _allowedExtensions(AssetConfig $config): array
+    {
+        return $config->allowedExtensions;
+    }
+
     private function _recheck(Asset $asset, AssetConfig $config, AssetKind $kind): void
     {
         try {
@@ -80,7 +92,7 @@ class EditorAssetProvider extends CraftAssetProvider
                 'type' => $asset->getMimeType(),
                 'size' => strlen($before),
                 'error' => UPLOAD_ERR_OK,
-            ]), $config->getAllowedExtensions($kind), $config->getMaxFileSize());
+            ]), self::_allowedExtensions($config), $config->getMaxFileSize());
 
             clearstatcache(true, $copy);
 

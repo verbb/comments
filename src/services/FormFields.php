@@ -56,6 +56,7 @@ use yii\web\UploadedFile;
 
 use Throwable;
 
+use verbb\editor\helpers\UploadSafety;
 use verbb\protect\models\RequestSignals;
 
 /**
@@ -758,6 +759,14 @@ class FormFields extends Component
             throw new ApiException(Craft::t('comments', 'No file was uploaded.'), 'validation_failed', 422, [
                 'file' => [Craft::t('comments', 'No file was uploaded.')],
             ]);
+        }
+
+        // Files wait on Craft's temporary upload filesystem until their comment is posted, unchecked by a
+        // moderator. If it has public URLs, anyone with an address could open one before then.
+        if (UploadSafety::temporaryUploadsArePublic()) {
+            Craft::warning('Comments refused a field upload because Craft’s temporary upload filesystem (the `tempAssetUploadFs` general config setting) has public URLs. Use a filesystem without public URLs for temporary uploads.', __METHOD__);
+
+            throw new ApiException(Craft::t('comments', 'Uploads are turned off on this site, because files waiting to be saved would be public.'), 'invalid_request', 400);
         }
 
         // What's run out goes first, so it doesn't count against anyone.

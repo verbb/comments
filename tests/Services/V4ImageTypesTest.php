@@ -1,14 +1,15 @@
 <?php
 use verbb\comments\exceptions\UploadRefusedException;
-use verbb\comments\helpers\ImageMetadata;
 use verbb\comments\helpers\UploadPolicy;
+use verbb\editor\helpers\ImageMetadata;
 use yii\web\UploadedFile;
 
 /**
  * TIFF, HEIC and AVIF uploads (SD-46, decision 7): TIFF is always refused, and HEIC and AVIF are accepted
- * only when ImageMagick can strip their metadata, which `UploadPolicy` checks for every upload path:
- * Editor's uploads, uploads for custom fields, and the check again when a comment's files are finalised.
- * The tests that need ImageMagick are skipped where PHP has no Imagick extension.
+ * only when ImageMagick can strip their metadata. Editor's `UploadSafety` decides, and has its own tests,
+ * including stripping with ImageMagick. These check that every Comments upload path, through
+ * `UploadPolicy`, refuses them with Comments' own messages. The HEIC and AVIF test is skipped where PHP
+ * has Imagick.
  */
 
 function imageTypesFile(string $name, string $contents): UploadedFile
@@ -51,41 +52,26 @@ it('refuses HEIC and AVIF with the reason when ImageMagick isn’t there to stri
         ->and(imageTypesRefusal(imageTypesFile('photo.heic', $heic), ['heic']))->toBe($message);
 });
 
-it('strips where a HEIC or AVIF photo was taken with ImageMagick, and leaves a clean one as it is', function(string $format, string $extension, string $mimeType) {
-    if (!ImageMetadata::canStripWithImagick($mimeType)) {
-        $this->markTestSkipped('Needs PHP’s Imagick extension with ' . $format . ' support.');
-    }
+it('refuses what Editor’s upload safety refuses with Comments’ message and data API code', function() {
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>';
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    $codeFor = static function(UploadedFile $file, array $extensions): ?string {
+        try {
+            UploadPolicy::check($file, $extensions);
+        } catch (UploadRefusedException $e) {
+            return $e->errorCode;
+        } finally {
+            @unlink($file->tempName);
+        }
 
-    $image = new Imagick();
-    $image->newImage(16, 12, new ImagickPixel('teal'));
-    $image->setImageFormat($format);
-    $image->setImageProperty('exif:GPSLatitude', '51/1, 30/1, 0/1');
-    $image->setImageProperty('comment', 'Taken at home');
-    $image->profileImage('xmp', '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/></x:xmpmeta>');
-    $path = tempnam(sys_get_temp_dir(), 'imgtype') . '.' . $extension;
-    $image->writeImage($path);
-    $image->clear();
-    $file = new UploadedFile(['name' => 'photo.' . $extension, 'tempName' => $path, 'type' => $mimeType, 'size' => filesize($path), 'error' => UPLOAD_ERR_OK]);
+        return null;
+    };
+    $message = 'This kind of file can’t be uploaded here.';
 
-    try {
-        UploadPolicy::check($file, [$extension]);
-        $stripped = (string)file_get_contents($path);
-        $check = new Imagick($path);
-        $properties = array_keys($check->getImageProperties('*', true));
-        $profiles = array_map('strtolower', array_keys($check->getImageProfiles('*', false)));
-        $check->clear();
-
-        // Checked again, as finalising a comment's files does, it isn't changed.
-        UploadPolicy::check($file, [$extension]);
-
-        expect(array_filter($properties, static fn(string $name): bool => (bool)preg_match('/^(exif|xmp|iptc|gps):/i', $name)))->toBe([])
-            ->and(array_intersect($profiles, ['exif', 'xmp', 'iptc', '8bim']))->toBe([])
-            ->and($stripped)->not->toContain('<x:xmpmeta')
-            ->and((string)file_get_contents($path))->toBe($stripped);
-    } finally {
-        @unlink($path);
-    }
-})->with([
-    'HEIC' => ['HEIC', 'heic', 'image/heic'],
-    'AVIF' => ['AVIF', 'avif', 'image/avif'],
-]);
+    // Listed or not, a file a browser can run is refused, as is one that isn't what its name says.
+    expect(imageTypesRefusal(imageTypesFile('drawing.svg', $svg), ['svg']))->toBe($message)
+        ->and(imageTypesRefusal(imageTypesFile('pixel.png', $svg), ['png']))->toBe($message)
+        ->and(imageTypesRefusal(imageTypesFile('broken.png', substr($png, 0, 20)), ['png']))->toBe($message)
+        ->and($codeFor(imageTypesFile('pixel.png', $svg), ['png']))->toBe('file_type_not_allowed')
+        ->and(imageTypesRefusal(imageTypesFile('pixel.png', $png), ['png']))->toBeNull();
+});

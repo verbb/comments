@@ -1371,6 +1371,38 @@ it('warns when collected files are stored where anyone can reach them (M4)', fun
     }
 });
 
+it('refuses field uploads while Craft’s temporary upload filesystem has public URLs', function() {
+    $photos = ffField(new Assets(['name' => 'Snapshots', 'restrictFiles' => true, 'allowedKinds' => ['image']]));
+    ffModes([$photos->getField()->handle => 'collect']);
+    $member = CommentsFixtureFactory::user('ffPublicTemp');
+    ffAs($member);
+    $handle = 'ffPublicTemp' . bin2hex(random_bytes(3));
+    $path = sys_get_temp_dir() . '/' . $handle;
+    $filesystem = new craft\fs\Local(['name' => $handle, 'handle' => $handle, 'path' => $path, 'hasUrls' => true, 'url' => 'https://uploads.example.test/' . $handle . '/']);
+    Craft::$app->getFs()->saveFilesystem($filesystem);
+    $general = Craft::$app->getConfig()->getGeneral();
+    $original = $general->tempAssetUploadFs;
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    $tempPath = tempnam(sys_get_temp_dir(), 'ff-public-temp-');
+    file_put_contents($tempPath, $png);
+    $file = new yii\web\UploadedFile(['name' => 'photo.png', 'tempName' => $tempPath, 'type' => 'image/png', 'size' => strlen($png), 'error' => UPLOAD_ERR_OK]);
+
+    try {
+        $general->tempAssetUploadFs = $handle;
+        $error = ffError(fn() => ffFormFields()->upload($file, $photos->getField()->handle, [$photos], $member, static fn() => null));
+
+        expect($error->errorCode)->toBe('invalid_request')
+            ->and($error->getMessage())->toBe('Uploads are turned off on this site, because files waiting to be saved would be public.')
+            ->and(is_file($tempPath))->toBeTrue();
+    } finally {
+        $general->tempAssetUploadFs = $original;
+        Craft::$app->getFs()->removeFilesystem($filesystem);
+        craft\helpers\FileHelper::removeDirectory($path);
+        @unlink($tempPath);
+        ffAs(null);
+    }
+});
+
 it('refuses the site’s actions on the control panel’s URL, and trusts only someone using the control panel (H1)', function() {
     $request = Craft::$app->getRequest();
     $member = CommentsFixtureFactory::user('ffCpUrlMember');

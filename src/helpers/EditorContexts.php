@@ -12,6 +12,7 @@ use craft\elements\User;
 use craft\helpers\UrlHelper;
 
 use verbb\editor\Editor;
+use verbb\editor\helpers\UploadSafety;
 use verbb\editor\models\AssetConfig;
 use verbb\editor\models\EditorConfig;
 use verbb\editor\models\ElementLinkConfig;
@@ -172,7 +173,7 @@ final class EditorContexts
                 // offered, whatever the setting lists.
                 'allowedExtensions' => array_values(array_filter(
                     $settings->attachmentExtensions,
-                    static fn(mixed $extension): bool => is_string($extension) && !UploadPolicy::isBlockedExtension($extension),
+                    static fn(mixed $extension): bool => is_string($extension) && !UploadSafety::isBlockedExtension($extension),
                 )),
                 'maxFileSize' => $settings->attachmentMaxSize * 1024 * 1024,
             ]),
