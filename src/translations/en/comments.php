@@ -960,4 +960,5 @@ return [
   'A word or phrase is missing.' => 'A word or phrase is missing.',
   '“{ip}” isn’t an IP address, range or CIDR block.' => '“{ip}” isn’t an IP address, range or CIDR block.',
   'Line {line}: {error}' => 'Line {line}: {error}',
+  'Comment is too long.' => 'Comment is too long.',
 ];

@@ -137,6 +137,7 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Fix GraphQL `createComment` being registered under the name `saveComment`.
 - Fix GraphQL `voteComment` ignoring its `downvote` and `siteId` arguments, `flagComment` ignoring `siteId`, the `user` field on flags, and `createComment` keeping a name and email for signed-in users.
 - Fix GraphQL schemas with only the save or delete comment scopes having no mutations available.
+- Fix comments failing to post from browsers that send a long user agent, such as Instagram's in-app browser, and very long guest names or comments failing with an error instead of a message.
 
 ### Removed
 - Remove the thread's Twig templates and the **Template Folder Override** setting (`templateFolderOverride`), as threads are drawn with JavaScript. A `templateFolderOverride` left in `config/comments.php` is ignored with a deprecation warning. The Upgrade Report lists any thread template files a site overrode, from the folder the setting named or `templates/_comments`, with a link to the upgrade guide. ([Upgrading from Comments 3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#template-overrides))

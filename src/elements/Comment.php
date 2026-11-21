@@ -452,6 +452,9 @@ class Comment extends Element
     public const SCENARIO_CP = 'cp';
     public const SCENARIO_FRONT_END = 'frontEnd';
 
+    // The `comment` column is a MySQL `TEXT` column, which holds 65,535 bytes.
+    public const COMMENT_MAX_BYTES = 65535;
+
     public const ACTION_SAVE = 'save';
     public const ACTION_DELETE = 'delete';
 
@@ -1490,6 +1493,18 @@ class Comment extends Element
             $this->addError('comment', Craft::t('comments', 'Comment must not be blank.'));
         }
 
+        // What the columns hold, so a long guest name or comment is refused rather than failing to save.
+        // Checked here because the site's scenario has no attribute rules.
+        foreach (['name' => Craft::t('comments', 'Name'), 'email' => Craft::t('comments', 'Email')] as $attribute => $label) {
+            if (mb_strlen((string)$this->$attribute) > 255) {
+                $this->addError($attribute, Craft::t('yii', '{attribute} should contain at most {max, number} {max, plural, one{character} other{characters}}.', ['attribute' => $label, 'max' => 255]));
+            }
+        }
+
+        if (strlen(StringHelper::emojiForDb((string)$this->comment)) > self::COMMENT_MAX_BYTES) {
+            $this->addError('comment', Craft::t('comments', 'Comment is too long.'));
+        }
+
         return parent::beforeValidate();
     }
 
@@ -1576,7 +1591,8 @@ class Comment extends Element
 
         $record->url = $this->url;
         $record->ipAddress = $this->ipAddress;
-        $record->userAgent = $this->userAgent;
+        // Some in-app browsers send a longer User-Agent than the column holds.
+        $record->userAgent = $this->userAgent !== null ? mb_substr($this->userAgent, 0, 255) : null;
         $record->commentDate = $this->commentDate;
         $record->editedAt = $this->editedAt;
         $record->heldReason = $this->heldReason;
