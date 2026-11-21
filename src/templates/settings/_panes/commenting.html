@@ -91,7 +91,7 @@
 <div id="allow-guest-none"{% if settings.allowGuest %} class="hidden"{% endif %}>
     {{ forms.textField({
         label: 'Guest Notice' | t('comments'),
-        instructions: 'Message shown to signed-out visitors instead of the comment form.' | t('comments'),
+        instructions: 'The error given to signed-out visitors who try to comment through GraphQL or Comments’ form actions. The thread shows them its own sign-in card.' | t('comments'),
         id: 'guestNotice',
         name: 'guestNotice',
         value: settings.guestNotice,

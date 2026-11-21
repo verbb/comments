@@ -302,7 +302,7 @@ return [
   'Member' => 'Member',
   'Mentions are disabled for comments.' => 'Mentions are disabled for comments.',
   'Mentions in an approved comment' => 'Mentions in an approved comment',
-  'Message shown to signed-out visitors instead of the comment form.' => 'Message shown to signed-out visitors instead of the comment form.',
+  'The error given to signed-out visitors who try to comment through GraphQL or Comments’ form actions. The thread shows them its own sign-in card.' => 'The error given to signed-out visitors who try to comment through GraphQL or Comments’ form actions. The thread shows them its own sign-in card.',
   'Minimum Form Time' => 'Minimum Form Time',
   'Minimum Score' => 'Minimum Score',
   'Minimum Time Between Comments' => 'Minimum Time Between Comments',

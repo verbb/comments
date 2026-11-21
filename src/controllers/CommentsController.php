@@ -209,12 +209,13 @@ class CommentsController extends Controller
             $plugin->getApi()->assertReplyTarget($parent, $owner);
         }
 
-        if (!$settings->commentingAvailable($owner)['permission']) {
-            throw new UserException(Craft::t('comments', 'Comment not allowed.'));
-        }
-
+        // Before the element's own rules, as for GraphQL, so a signed-out visitor gets Guest Notice.
         if (!$currentUser && !$settings->allowGuest) {
             throw new UserException($settings->guestNotice ?: Craft::t('comments', 'Must be logged in to comment.'));
+        }
+
+        if (!$settings->commentingAvailable($owner)['permission']) {
+            throw new UserException(Craft::t('comments', 'Comment not allowed.'));
         }
 
         if ($currentUser && !$settings->canComment($owner)) {
