@@ -304,7 +304,7 @@ it('shows a commenter’s page to moderators without their address, and to admin
     $moderated = httpBrowser(httpUser('httpPageModerator', ['accessPlugin-comments', 'comments-view', 'comments-moderate']))->get($path);
 
     expect($moderated['status'])->toBe(200, $moderated['body'])
-        ->and($moderated['body'])->toContain('comments-commenter__name')
+        ->and($moderated['body'])->toContain('comments-commenter__card')
         ->not->toContain($address);
 
     $admin = httpUser('httpPageAdmin', []);

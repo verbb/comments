@@ -164,7 +164,7 @@ function mountCommenters(root: HTMLElement): void {
 
     // Bulk: change the review setting of the selected commenters, in a dialog with an optional note.
     const change = element('pk-button' as keyof HTMLElementTagNameMap, { slot: 'selection-actions', size: 'small' }, t('Change review setting…'));
-    const dialog = element('pk-dialog' as keyof HTMLElementTagNameMap, { label: t('Change review setting') }) as HTMLElement & { open: boolean };
+    const dialog = element('pk-dialog' as keyof HTMLElementTagNameMap, { label: t('Change review setting'), class: 'comments-review-dialog' }) as HTMLElement & { open: boolean };
     const group = element('pk-radio-group' as keyof HTMLElementTagNameMap, { label: t('Review setting') }) as HTMLElement & { value: string };
     settings.forEach((setting) => {
         const radio = element('pk-radio' as keyof HTMLElementTagNameMap, { value: setting.value });

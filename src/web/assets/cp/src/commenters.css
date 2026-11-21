@@ -195,6 +195,16 @@
     margin-block-start: 0;
 }
 
+/* Each option in the bulk dialog has a line of help under its name, so the options and the note below them
+   need more room than the kit's single-line default. */
+.comments-review-dialog pk-radio-group {
+    margin-block-end: 24px;
+}
+
+.comments-review-dialog pk-radio-group::part(radios) {
+    gap: 12px;
+}
+
 /* The same space all round the rows, inside the box. */
 #details .comments-review-setting {
     padding: 8px;
