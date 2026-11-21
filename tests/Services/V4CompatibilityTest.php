@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use craft\elements\Entry;
+use craft\fieldlayoutelements\CustomField;
+use craft\models\FieldLayout;
+use craft\models\FieldLayoutTab;
 use craft\models\GqlSchema;
 use Tests\Support\Fixtures\CommentsFixtureFactory;
 use verbb\comments\Comments;
@@ -211,15 +214,28 @@ it('reads a Comments 3 field that was switched off as Closed, so existing commen
 
     // An upgraded entry keeps Comments 3's stored switch until it's next saved, so the conversation was
     // never closed by a save. Only the value is needed, so the entry stands in with it. Adding the field
-    // to a layout here would leave stale GraphQL types in this process, and later GraphQL tests in the
+    // to a saved layout here would leave stale GraphQL types in this process, and later GraphQL tests in the
     // run would fail with a duplicate `QueryArgument`. A fresh request builds the schema fine with a
     // Comments field on a layout, so it only affects tests that change layouts mid-run.
+    $layout = new FieldLayout(['type' => Entry::class]);
+    $tab = new FieldLayoutTab(['layout' => $layout, 'name' => 'Content', 'sortOrder' => 1]);
+    $tab->setElements([new CustomField($field)]);
+    $layout->setTabs([$tab]);
+
     $owner = new class() extends Entry {
-        public function getFieldValues(?array $fieldHandles = null): array
+        public ?FieldLayout $stubLayout = null;
+
+        public function getFieldLayout(): ?FieldLayout
         {
-            return ['commentsCompatibility' => ['commentEnabled' => false]];
+            return $this->stubLayout;
+        }
+
+        public function getFieldValue(string $fieldHandle): mixed
+        {
+            return $fieldHandle === 'commentsCompatibility' ? ['commentEnabled' => false] : null;
         }
     };
+    $owner->stubLayout = $layout;
 
     expect(CommentsField::isClosedValue(['commentEnabled' => false]))->toBeTrue()
         ->and(CommentsField::isClosedValue(['commentEnabled' => true]))->toBeFalse()

@@ -19,6 +19,7 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Add moderation on the public page, where moderators read held and reported comments in full, decide them in place, and see how many wait on that page.
 - Add an **Activity** tab to each comment in the editor, after its own fields: everything that's happened to it, newest first, with moderators' notes, which post straight away.
 - Add a Comments panel to owner elements' Comments field, with the comments waiting there to approve, mark as spam, keep or remove in place, the latest comments, and how many people follow the discussion.
+- Add a **Start Closed** setting to the Comments field, which closes elements without a setting of their own until an editor opens them, for sites where comments are opt-in. A Comments 3 field whose **Default Value** was off has it turned on.
 - Add guest subscriptions. Guests can subscribe to a discussion, or ask to be emailed about replies when they comment, after confirming their address.
 - Add an unsubscribe link and one-click `List-Unsubscribe` headers to every email about a discussion, for guests and people with an account alike. A link can stop that discussion's emails or all comment emails, and works without signing in or a cookie.
 - Add mention emails, with their own system message and a `beforeSendMentionEmail` event, sent once the comment is approved.

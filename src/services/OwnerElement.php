@@ -71,7 +71,7 @@ class OwnerElement extends Component
      *
      * Mirrors `Conversations::getConfigForOwner()` without the field's own override. The field is the
      * only writer of a Conversation's closed flag, so an inheriting element is closed only when the
-     * global setting closes everything.
+     * global setting closes everything or **Auto-close Comments** has closed it.
      */
     public function getSourceStatus(ElementInterface $owner): string
     {
@@ -89,14 +89,15 @@ class OwnerElement extends Component
             return 'disabled';
         }
 
-        return $settings->closed ? 'closed' : 'open';
+        return $settings->closed || CommentsPlugin::$plugin->getComments()->checkExpired($owner) ? 'closed' : 'open';
     }
 
     /**
      * The field's three explicit choices in display order, keyed by the value the field stores, with
-     * the matching summary status and the sentence explaining it.
+     * the matching summary status and the sentence explaining it. Pass the element's source permission,
+     * as Closed doesn't show comments on an element whose source doesn't allow them.
      */
-    public function getStateOptions(): array
+    public function getStateOptions(bool $sourceAllowed = true): array
     {
         $options = [];
 
@@ -108,7 +109,9 @@ class OwnerElement extends Component
             $options[$value] = [
                 'status' => $status,
                 'label' => $this->_statusLabel($status),
-                'text' => $this->_statusText($status),
+                'text' => $status === 'closed' && !$sourceAllowed
+                    ? Craft::t('comments', 'Comments stay hidden because this element isn’t included in Where Comments Are Allowed. Only Open overrides that.')
+                    : $this->_statusText($status),
             ];
         }
 

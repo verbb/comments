@@ -660,6 +660,7 @@ return [
   'User account' => 'User account',
   'Visitors can read and post.' => 'Visitors can read and post.',
   'Visitors can read, but not post.' => 'Visitors can read, but not post.',
+  'Comments stay hidden because this element isn’t included in Where Comments Are Allowed. Only Open overrides that.' => 'Comments stay hidden because this element isn’t included in Where Comments Are Allowed. Only Open overrides that.',
   'Waiting' => 'Waiting',
   'Waiting for review: {reason}' => 'Waiting for review: {reason}',
   'What’s wrong with it?' => 'What’s wrong with it?',
@@ -961,4 +962,6 @@ return [
   '“{ip}” isn’t an IP address, range or CIDR block.' => '“{ip}” isn’t an IP address, range or CIDR block.',
   'Line {line}: {error}' => 'Line {line}: {error}',
   'Comment is too long.' => 'Comment is too long.',
+  'Start Closed' => 'Start Closed',
+  'Elements without their own setting are closed, so their existing comments show, but nobody can post until an editor chooses Open.' => 'Elements without their own setting are closed, so their existing comments show, but nobody can post until an editor chooses Open.',
 ];

@@ -16,10 +16,12 @@ The field is a select with four options:
 
 | Option | Result |
 | --- | --- |
-| Default | Follows the settings above, and shows what they give in brackets, such as **Default (Open)**. This is what every element starts with. |
+| Default | Follows the settings above, and shows what they give in brackets, such as **Default (Open)**. This is what every element starts with, unless the field's **Start Closed** setting is on. |
 | Open | Visitors can read and post, even if the element's source doesn't allow comments. |
-| Closed | Visitors can read the existing comments, but not post. |
+| Closed | Visitors can read the existing comments, but not post. If the element's source doesn't allow comments, they stay hidden, as only **Open** overrides the source. |
 | Off | Comments are hidden from visitors, along with the form. |
+
+To make comments opt-in, turn on **Start Closed** in the field's settings. New elements, and existing ones that have never been saved with the field, are then **Closed**, so nobody can post until an editor chooses **Open**. An editor can still choose **Default** to follow the settings above.
 
 A note under the select explains the option chosen. The field also shows a summary of the element's comments to people who can view them, which [Moderation](docs:feature-tour/moderation#moderating-from-an-element) describes.
 

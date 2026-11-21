@@ -254,13 +254,13 @@ class Conversations extends Component
         $config->enabled = CommentsPlugin::$plugin->getComments()->checkPermissions($owner);
         $enabledOverride = null;
 
-        foreach ($owner->getFieldValues() as $handle => $value) {
-            $field = Craft::$app->getFields()->getFieldByHandle($handle);
-
+        // The layout's own fields, so a Comments field placed with a handle of its own is read too.
+        foreach ($owner->getFieldLayout()?->getCustomFields() ?? [] as $field) {
             if (!$field instanceof CommentsField) {
                 continue;
             }
 
+            $value = $owner->getFieldValue($field->handle);
             $fieldOverride = CommentsField::enabledOverride($value);
 
             if (CommentsField::isClosedValue($value)) {

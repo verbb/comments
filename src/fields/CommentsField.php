@@ -8,6 +8,7 @@ use verbb\comments\web\assets\cp\CommentsFieldAsset;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\helpers\App;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -106,14 +107,25 @@ class CommentsField extends Field
      */
     public bool $showSummary = true;
 
+    /**
+     * Whether an element without its own setting is closed, so comments are opt-in: existing ones show,
+     * and nobody can post until an editor chooses Open. Comments 3's **Default Value** turned off is
+     * read as this.
+     */
+    public bool $startClosed = false;
+
 
     // Public Methods
     // =========================================================================
 
     public function __construct($config = [])
     {
-        // v3 exposed a default lightswitch, but its true value only meant "do not veto".
-        // Removing both settings lets the source policy remain the sole inherited default.
+        // v3 exposed a default lightswitch. On, it only meant "do not veto", so the source policy is the
+        // inherited default. Off, elements without a value of their own were closed, which is Start Closed.
+        if (array_key_exists('default', $config) && !array_key_exists('startClosed', $config) && App::normalizeBooleanValue($config['default']) !== true) {
+            $config['startClosed'] = true;
+        }
+
         unset($config['columnType'], $config['commentEnabled'], $config['default']);
 
         parent::__construct($config);
@@ -127,17 +139,40 @@ class CommentsField extends Field
             'id' => 'show-summary',
             'name' => 'showSummary',
             'on' => $this->showSummary,
+        ]) . Cp::lightswitchFieldHtml([
+            'label' => Craft::t('comments', 'Start Closed'),
+            'instructions' => Craft::t('comments', 'Elements without their own setting are closed, so their existing comments show, but nobody can post until an editor chooses Open.'),
+            'id' => 'start-closed',
+            'name' => 'startClosed',
+            'on' => $this->startClosed,
         ]);
     }
 
     public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
+        // An element that has never had a value of its own, including a new one, starts closed. One an
+        // editor set to Default keeps following the source.
+        if ($this->startClosed && ($value === null || $value === '')) {
+            return self::STATE_CLOSED;
+        }
+
         return self::_normalizeState($value);
     }
 
     public function serializeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
         return self::_normalizeState($value);
+    }
+
+    public function beforeElementSave(ElementInterface $element, bool $isNew): bool
+    {
+        // Start Closed gives an element without a value of its own Closed. Save that value with it, so the
+        // closed flag afterElementSave() writes matches what the field shows if Start Closed is turned off.
+        if ($this->startClosed && $element->getIsCanonical() && !$element->isFieldDirty($this->handle) && $element->getFieldValue($this->handle) === self::STATE_CLOSED) {
+            $element->setFieldValue($this->handle, self::STATE_CLOSED);
+        }
+
+        return parent::beforeElementSave($element, $isNew);
     }
 
     public function afterElementSave(ElementInterface $element, bool $isNew): void
@@ -193,7 +228,7 @@ class CommentsField extends Field
             'value' => self::_normalizeState($value),
             'element' => $element,
             'summary' => $summary,
-            'stateOptions' => $ownerElement->getStateOptions(),
+            'stateOptions' => $ownerElement->getStateOptions(!$element || Comments::$plugin->getComments()->checkPermissions($element)),
             // What "inherit" resolves to, so the control can show it while nothing is overridden.
             'sourceStatus' => $element ? $ownerElement->getSourceStatus($element) : null,
         ]);
