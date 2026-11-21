@@ -73,6 +73,7 @@
     label: 'Default Subscription After Commenting' | t('comments'),
     instructions: 'Optionally subscribe signed-in commenters by default. An explicit opt-out is always preserved.' | t('comments'),
     name: 'subscriptionDefault',
+    errors: settings.getErrors('subscriptionDefault'),
     value: settings.subscriptionDefault,
     options: [
         { label: 'Do not subscribe automatically' | t('comments'), value: 'none' },

@@ -409,6 +409,23 @@ class Settings extends Model
     }
 
     /**
+     * The names the settings pages use, for their error messages.
+     */
+    public function attributeLabels(): array
+    {
+        return array_merge(parent::attributeLabels(), [
+            'subscriptionDefault' => Craft::t('comments', 'Default Subscription After Commenting'),
+            'attachmentVolume' => Craft::t('comments', 'Attachment Volume'),
+            'attachmentVolumeId' => Craft::t('comments', 'Attachment Volume'),
+            'autoCloseDays' => Craft::t('comments', 'Auto-close Comments'),
+            'securityMaxLength' => Craft::t('comments', 'Maximum Comment Length'),
+            'maxReplyDepth' => Craft::t('comments', 'Maximum Reply Depth'),
+            'maxUserComments' => Craft::t('comments', 'Maximum Comments per User'),
+            'securityFlooding' => Craft::t('comments', 'Minimum Time Between Comments'),
+        ]);
+    }
+
+    /**
      * The subfolder is rendered for each comment as it's posted, so a template that can't compile would
      * only fail then. Its syntax is checked now instead.
      */
@@ -600,6 +617,18 @@ class Settings extends Model
         }
     }
 
+    /**
+     * The settings pages don't show the Spam settings, so a problem with those, such as a challenge that
+     * a newly added site can't use, can't stop them saving. The Spam Protection page reports it.
+     */
+    public function scenarios(): array
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_SETTINGS] = array_values(array_diff($scenarios[self::SCENARIO_DEFAULT], SpamSettings::KEYS));
+
+        return $scenarios;
+    }
+
     public function fields(): array
     {
         $fields = parent::fields();
@@ -611,6 +640,12 @@ class Settings extends Model
         // The Spam settings are kept in this installation's database instead. See `SpamSettings`.
         foreach (SpamSettings::KEYS as $key) {
             unset($fields[$key]);
+        }
+
+        // Project config leaves out an empty list, which would bring back these lists' defaults, so an
+        // emptied one is saved as an empty string, which reads back as an empty list.
+        foreach (['participantNotifications', 'reportReasons', 'attachmentExtensions'] as $key) {
+            $fields[$key] = fn(): array|string => $this->$key ?: '';
         }
 
         return $fields;

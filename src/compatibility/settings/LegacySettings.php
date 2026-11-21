@@ -89,6 +89,15 @@ trait LegacySettings
         $this->formFields = [];
     }
 
+    /**
+     * A set of saved settings with their legacy keys translated into today's, so the settings page can
+     * write today's in their place.
+     */
+    public function translateLegacySettings(array $values): array
+    {
+        return $this->normalizeLegacySettings($values);
+    }
+
 
     // Protected Methods
     // =========================================================================

@@ -26,6 +26,7 @@
     instructions: 'Close comments on elements this many days after their post date. Leave blank to keep them open.' | t('comments'),
     id: 'autoCloseDays',
     name: 'autoCloseDays',
+    errors: settings.getErrors('autoCloseDays'),
     value: settings.autoCloseDays,
     warning: macros.configWarning('autoCloseDays', 'comments'),
 }) }}

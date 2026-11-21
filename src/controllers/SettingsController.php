@@ -4,7 +4,9 @@ namespace verbb\comments\controllers;
 use verbb\comments\Comments;
 use verbb\comments\elements\Comment;
 use verbb\comments\helpers\SettingsTabs;
+use verbb\comments\models\Settings;
 use verbb\comments\services\FormFields;
+use verbb\comments\services\SpamSettings;
 
 use Craft;
 
@@ -70,7 +72,7 @@ class SettingsController extends BaseSettingsController
     {
         $this->requirePostRequest();
 
-        if ($this->request->getBodyParam('settings.fieldLayout') !== null && $this->request->getParam('pluginHandle') === 'comments') {
+        if ($this->request->getBodyParam('settings.fieldLayout') !== null) {
             $layout = Craft::$app->getFields()->assembleLayoutFromPost('settings');
             $layout->type = Comment::class;
             $layout->reservedFieldHandles = FormFields::RESERVED_HANDLES;
@@ -89,6 +91,26 @@ class SettingsController extends BaseSettingsController
             }
         }
 
+        Comments::$plugin->getSettings()->setScenario(Settings::SCENARIO_SETTINGS);
+
         return parent::actionSaveSettings();
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * An upgraded site keeps Comments 3's settings in project config under their old names until they're
+     * next saved, and the settings model reads them as today's. Craft only writes the settings named in a
+     * save, so each one they translate to is named here, or saving any pane would drop them. What the pane
+     * posted still wins, and the Spam settings are left to their own page.
+     */
+    protected function prepareSubmittedSettings(array $settings): array
+    {
+        $stored = Craft::$app->getPlugins()->getStoredPluginInfo('comments')['settings'] ?? [];
+        $translated = array_diff_key((new Settings())->translateLegacySettings($stored), $stored, array_flip(SpamSettings::KEYS));
+
+        return array_replace($translated, $settings);
     }
 }

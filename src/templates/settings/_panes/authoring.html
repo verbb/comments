@@ -21,6 +21,7 @@
     label: 'Maximum Comment Length' | t('comments'),
     instructions: 'Limit the number of characters a comment can have.' | t('comments'),
     name: 'securityMaxLength',
+    errors: settings.getErrors('securityMaxLength'),
     value: settings.securityMaxLength,
     min: 1,
     warning: macros.configWarning('securityMaxLength', 'comments'),

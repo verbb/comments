@@ -50,6 +50,7 @@
             options: elementOptions,
             values: settings.permissions[element] ?? '*',
             showAllOption: true,
+            warning: macros.configWarning('permissions', 'comments'),
         }) }}
 
     {% endif %}
@@ -108,6 +109,7 @@
     instructions: 'Leave blank for unlimited replies, enter 0 to disable replies, or set the maximum nesting depth.' | t('comments'),
     id: 'maxReplyDepth',
     name: 'maxReplyDepth',
+    errors: settings.getErrors('maxReplyDepth'),
     value: settings.maxReplyDepth,
     min: 0,
     warning: macros.configWarning('maxReplyDepth', 'comments'),
@@ -119,6 +121,7 @@
     instructions: 'Maximum comments a signed-in user can add to one element. Leave blank for no limit.' | t('comments'),
     id: 'maxUserComments',
     name: 'maxUserComments',
+    errors: settings.getErrors('maxUserComments'),
     value: settings.maxUserComments,
     min: 1,
     warning: macros.configWarning('maxUserComments', 'comments'),
