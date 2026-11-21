@@ -1669,6 +1669,10 @@ class Comment extends Element
             return;
         }
 
+        // A decision from the comment's page is applied after the save, and queues its own notifications,
+        // so only what this save itself wrote counts as a direct approval below.
+        $savedStatus = $this->status;
+
         Comments::$plugin->getCommentEditor()->finalizeSave($this);
 
         if ($isNew) {
@@ -1684,7 +1688,7 @@ class Comment extends Element
         }
 
         // Direct element saves still pass notification timing through the canonical orchestrator.
-        if ($previousStatus == self::STATUS_PENDING && $this->status == self::STATUS_APPROVED) {
+        if ($previousStatus == self::STATUS_PENDING && $savedStatus == self::STATUS_APPROVED) {
             Comments::$plugin->getNotifications()->queueAfterModeration(
                 $this,
                 ModerationState::Pending,
