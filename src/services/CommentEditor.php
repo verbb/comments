@@ -94,12 +94,16 @@ class CommentEditor extends Component
                 'note' => (string)$request->getBodyParam('removalNote', ''),
             ];
         } elseif ($requestedStatus !== $comment->status) {
-            if (!$user->checkPermission('comments-moderate')) {
+            // The same rules as the decisions: nobody moderates their own comment, and removing or restoring
+            // one needs the permission to remove comments.
+            $moderation = CommentsPlugin::$plugin->getModeration();
+
+            if (!$moderation->canModerateComment($user->getIdentity(), $comment)) {
                 throw new ForbiddenHttpException('User not authorized to change this comment’s status.');
             }
 
-            if ($requestedStatus === Comment::STATUS_REMOVED && !$user->checkPermission('comments-trash')) {
-                throw new ForbiddenHttpException('User not authorized to remove this comment.');
+            if (($requestedStatus === Comment::STATUS_REMOVED || $comment->status === Comment::STATUS_REMOVED) && !$moderation->canRemoveComment($user->getIdentity())) {
+                throw new ForbiddenHttpException('User not authorized to remove or restore this comment.');
             }
 
             $changes['state'] = match ($requestedStatus) {

@@ -201,7 +201,8 @@ it('applies only the fields the editor offers', function() {
 });
 
 it('holds moderation changes back until the comment passes validation', function() {
-    $comment = editorComment();
+    // Someone else's comment, since nobody changes the status of their own.
+    $comment = editorComment((int)CommentsFixtureFactory::user('editorHold')->id);
 
     $invalid = postEditorForm($comment, [
         'status' => Comment::STATUS_SPAM,

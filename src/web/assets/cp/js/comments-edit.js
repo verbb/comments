@@ -109,6 +109,43 @@ Craft.Comments.initCommentEditor = function(root) {
             return;
         }
 
+        // Someone who can moderate but not edit sees the page read-only, with no form to submit, so the
+        // decision is sent on its own, as the entry's Comments panel sends it.
+        const $actions = $button.closest('[data-comments-actions]');
+
+        if ($actions.is('[data-comments-read-only]')) {
+            const $removePanel = $actions.find('[data-comments-remove-panel]');
+            $button.addClass('loading');
+
+            Craft.sendActionRequest('POST', 'comments/moderation/decide', {
+                data: {
+                    commentId: $actions.data('comments-comment-id'),
+                    decision: $button.data('comments-decision'),
+                    reason: $removePanel.find('select').val() || null,
+                    note: $removePanel.find('textarea').val() || null,
+                },
+            })
+                .then(({ data }) => {
+                    Craft.cp.displaySuccess(data.message);
+
+                    if (screen) {
+                        screen.close();
+
+                        if (Craft.elementIndex) {
+                            Craft.elementIndex.updateElements();
+                        }
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch(({ response }) => {
+                    $button.removeClass('loading');
+                    Craft.cp.displayError(response?.data?.message);
+                });
+
+            return;
+        }
+
         $form.find('input[data-comments-decision-input]').remove();
         $('<input/>', { type: 'hidden', name, value: $button.data('comments-decision'), 'data-comments-decision-input': true }).appendTo($form);
 

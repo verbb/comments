@@ -1861,10 +1861,20 @@ class Comment extends Element
             'comment' => $this,
             'ownerHandle' => $pickers['owner'],
             'showAuthor' => $pickers['author'],
-        ], View::TEMPLATE_MODE_CP) . $view->renderTemplate('comments/comments/_editor-status', ['comment' => $this], View::TEMPLATE_MODE_CP);
+        ], View::TEMPLATE_MODE_CP) . $view->renderTemplate('comments/comments/_editor-status', [
+            'comment' => $this,
+            // What saving the status accepts, so the menu offers no more than that. It's part of the form, so
+            // someone who can't save the comment uses the Actions buttons instead.
+            'canModerate' => $this->canSave(Craft::$app->getUser()->getIdentity()) && Comments::$plugin->getModeration()->canModerateComment(Craft::$app->getUser()->getIdentity(), $this),
+            'canRemove' => Comments::$plugin->getModeration()->canRemoveComment(Craft::$app->getUser()->getIdentity()),
+        ], View::TEMPLATE_MODE_CP);
 
         return Html::tag('div', $fields, ['class' => 'meta']) .
-            $view->renderTemplate('comments/comments/_editor-actions', ['comment' => $this], View::TEMPLATE_MODE_CP) .
+            $view->renderTemplate('comments/comments/_editor-actions', [
+                'comment' => $this,
+                // Without a form to submit, a decision is sent on its own.
+                'readOnly' => !$this->canSave(Craft::$app->getUser()->getIdentity()),
+            ], View::TEMPLATE_MODE_CP) .
             parent::getSidebarHtml($static);
     }
 

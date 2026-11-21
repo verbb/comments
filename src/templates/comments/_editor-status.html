@@ -1,6 +1,6 @@
 {% import '_includes/forms' as forms %}
 
-{% set canModerate = currentUser.can('comments-moderate') %}
+{% set canModerate = canModerate and (canRemove or comment.status != 'removed') %}
 {% set statuses = comment.statuses | filter((status, handle) => handle != 'author-removed') %}
 {% set currentStatus = statuses[comment.status] ?? comment.statuses[comment.status] %}
 {% set currentStatusColor = currentStatus.color.value ?? currentStatus.color ?? comment.status %}
@@ -25,7 +25,7 @@
             <div class="menu">
                 <ul class="padded">
                     {% for status, definition in statuses %}
-                        {% if status != 'removed' or currentUser.can('comments-trash') %}
+                        {% if status != 'removed' or canRemove %}
                             {% set color = definition.color.value ?? definition.color ?? status %}
                             <li>
                                 <a data-val="{{ status }}" data-label="{{ definition.label ?? definition }}" data-color="{{ color }}">

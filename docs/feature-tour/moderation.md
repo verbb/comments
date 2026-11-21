@@ -14,7 +14,7 @@ A comment has one of these statuses, and only **Approved** comments are public.
 | Removed | Taken down by a moderator. |
 | Deleted by author | Deleted by the person who wrote it. It's hidden from the site but stays in the control panel. It leaves **Needs review**, but stays under **Reported** while it has open reports, so you can still act on its author. |
 
-This is separate from Craft's trash. Craft's **Delete** action moves a comment to the trash, where someone with the `comments-trash` permission can bring it back with **Restore**. A comment is only deleted permanently when someone with the `comments-delete` permission chooses **Delete permanently…** on a spam comment's page or **Delete permanently** in Craft's trash, or when Craft's garbage collection empties the trash.
+This is separate from Craft's trash. Craft's **Delete** action moves a comment to the trash, where someone with the `comments-trash` permission can bring it back with **Restore**. A comment is only deleted permanently when someone with the `comments-delete` permission chooses **Delete permanently** in Craft's trash, or **Delete permanently…** on a spam comment's page if they can also moderate, or when Craft's garbage collection empties the trash.
 
 Hiding a comment doesn't take its replies with it. An approved reply under a comment that's pending, spam, removed, trashed or deleted by its author stays in place under a “Comment unavailable.” placeholder, and is still counted. A comment with replies can't be deleted permanently until they've gone, and when garbage collection purges a trashed comment, its replies join the top of their thread, or start a new one.
 
@@ -69,7 +69,7 @@ The decisions sit under **Actions** in the sidebar, and change with the comment'
 | --- | --- | --- |
 | Pending | **Approve**, **Spam** and **Remove…** | **Approve** publishes the comment, and **Spam** hides it and moves it to the Spam source. |
 | Approved with open reports | **Keep** and **Remove…** | **Keep** dismisses the open reports and leaves the comment on the site. |
-| Spam | **Not spam**, and **Delete permanently…** for people with the `comments-delete` permission | **Not spam** returns the comment to **Needs review**, so a moderator still decides whether it goes up. |
+| Spam | **Not spam**, and **Delete permanently…** for people who also have the `comments-delete` permission | **Not spam** returns the comment to **Needs review**, so a moderator still decides whether it goes up. |
 | Removed | **Restore** | **Restore** publishes the comment again. |
 
 **Remove…** and **Delete permanently…** are described below. A decision saves the form too, so any edits you've made to the comment are kept with it.

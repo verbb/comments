@@ -5,7 +5,7 @@
 
 {% if decisions %}
     {# A section of its own under Status, headed like Craft's own sidebar sections, with Craft's buttons. #}
-    <fieldset class="comments-sidebar-actions">
+    <fieldset class="comments-sidebar-actions" data-comments-actions data-comments-comment-id="{{ comment.id }}"{% if readOnly ?? false %} data-comments-read-only{% endif %}>
         <legend class="h6">{{ 'Actions' | t('comments') }}</legend>
         <div class="meta">
             <div class="comments-decisions" data-comments-decisions>
