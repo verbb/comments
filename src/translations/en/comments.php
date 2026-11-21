@@ -954,6 +954,7 @@ return [
   'The score from 1 to 6 at which OOPSpam’s answer counts as spam. Lower catches more.' => 'The score from 1 to 6 at which OOPSpam’s answer counts as spam. Lower catches more.',
   'Tell the classifier when a moderator marks a comment as spam or not spam.' => 'Tell the classifier when a moderator marks a comment as spam or not spam.',
   'Spam Protection' => 'Spam Protection',
+  'Only admins can use an environment variable or alias here.' => 'Only admins can use an environment variable or alias here.',
   'It needs a closing “]”.' => 'It needs a closing “]”.',
   'It’s empty.' => 'It’s empty.',
   'It has a “)” without a “(”.' => 'It has a “)” without a “(”.',

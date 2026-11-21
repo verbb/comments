@@ -66,6 +66,23 @@ class SpamSettings extends Component
         'blockedEmailDomains',
     ];
 
+    // The keys and addresses the page lets someone give as an environment variable or alias, which the site
+    // resolves when it uses them. A site key is sent to every visitor, so naming a variable there would publish it.
+    public const ENV_KEYS = [
+        'turnstileKey',
+        'turnstileSecret',
+        'recaptchaKey',
+        'recaptchaSecret',
+        'hcaptchaKey',
+        'hcaptchaSecret',
+        'friendlyCaptchaKey',
+        'friendlyCaptchaSecret',
+        'akismetApiKey',
+        'akismetBlogUrl',
+        'cleantalkApiKey',
+        'oopspamApiKey',
+    ];
+
     // Shown masked when saved as plain text, so people who manage spam settings can replace them
     // without reading them. An environment variable reference is shown as it is.
     public const SECRET_KEYS = [
@@ -83,6 +100,9 @@ class SpamSettings extends Component
     // =========================================================================
 
     private array|false|null $_stored = null;
+
+    // The secrets typed into the page in this request, which it shows again as typed if the save fails.
+    private array $_typedSecrets = [];
 
 
     // Public Methods
@@ -140,6 +160,8 @@ class SpamSettings extends Component
         foreach (self::SECRET_KEYS as $key) {
             if (($values[$key] ?? null) === self::SECRET_MASK) {
                 unset($values[$key]);
+            } elseif (is_string($values[$key] ?? null) && trim($values[$key]) !== '') {
+                $this->_typedSecrets[$key] = true;
             }
         }
 
@@ -184,14 +206,16 @@ class SpamSettings extends Component
     }
 
     /**
-     * How a setting appears on the Spam settings page: a secret saved as plain text shows as a mask.
+     * How a setting appears on the Spam settings page: a secret saved as plain text shows as a mask. One
+     * typed into the page in this request shows as typed, because the save failed on another setting,
+     * and posting its mask back would keep the old secret.
      */
     public function displayValue(Settings $settings, string $key): mixed
     {
         $value = $settings->$key;
 
         if (in_array($key, self::SECRET_KEYS, true) && is_string($value) && trim($value) !== '' && !str_starts_with(trim($value), '$')) {
-            return self::SECRET_MASK;
+            return isset($this->_typedSecrets[$key]) ? $value : self::SECRET_MASK;
         }
 
         return $value;
@@ -208,10 +232,14 @@ class SpamSettings extends Component
     // Private Methods
     // =========================================================================
 
+    /**
+     * The Spam settings `config/comments.php` sets. A key set to null, such as `App::env()` of a variable
+     * this environment doesn't have, isn't set, as the settings page's override warning also treats it.
+     */
     private static function _configFile(): array
     {
         $config = Craft::$app->getConfig()->getConfigFromFile('comments');
 
-        return is_array($config) ? $config : [];
+        return is_array($config) ? array_filter($config, static fn(mixed $value): bool => $value !== null) : [];
     }
 }

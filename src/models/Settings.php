@@ -31,12 +31,15 @@ use Twig\Source;
 use Closure;
 use Throwable;
 
+use verbb\protect\base\ProviderSettingsTrait;
+
 class Settings extends Model
 {
     // Traits
     // =========================================================================
 
     use LegacySettings;
+    use ProviderSettingsTrait;
 
 
     // Static Methods
@@ -163,16 +166,8 @@ class Settings extends Model
 
     public const GIPHY_RATINGS = ['g', 'pg', 'pg-13', 'r'];
 
-    public const CHALLENGE_NONE = '';
-    public const CHALLENGE_TURNSTILE = 'turnstile';
-    public const CHALLENGE_RECAPTCHA = 'recaptcha';
-    public const CHALLENGE_HCAPTCHA = 'hcaptcha';
-    public const CHALLENGE_FRIENDLY_CAPTCHA = 'friendly-captcha';
-
-    public const CLASSIFIER_NONE = '';
-    public const CLASSIFIER_AKISMET = 'akismet';
-    public const CLASSIFIER_CLEANTALK = 'cleantalk';
-    public const CLASSIFIER_OOPSPAM = 'oopspam';
+    // Saving the settings pages, which leave the Spam settings to the Spam Protection page.
+    public const SCENARIO_SETTINGS = 'settings';
 
 
     // Properties
@@ -254,11 +249,7 @@ class Settings extends Model
     public ?string $securitySpamlist = null;
     public ?string $securityBanned = null;
     public bool $securityMatchExact = false;
-    // Which challenge provider asks visitors to prove they're a person, or empty for none.
-    public string $challengeProvider = self::CHALLENGE_NONE;
-    public ?string $recaptchaKey = null;
-    public ?string $recaptchaSecret = null;
-    public float $recaptchaMinScore = 0.5;
+    // The challenge provider and spam classifier, with their keys, come from `ProviderSettingsTrait`.
     public bool $honeypotEnabled = true;
     public int $minimumSubmitTime = 3;
     public bool $replayProtectionEnabled = true;
@@ -266,7 +257,6 @@ class Settings extends Model
     public int $rateLimitCount = 5;
     public int $rateLimitWindow = 60;
     public bool $challengeAuthenticated = true;
-    public bool $challengeSendIp = false;
     public array $protectionHostnames = [];
     public bool $protectionFailClosed = false;
     public bool $saveSpam = true;
@@ -276,23 +266,6 @@ class Settings extends Model
     public mixed $maxLinks = null;
     // Email domains, one per line, whose commenters can't post. Each matches its subdomains too.
     public ?string $blockedEmailDomains = null;
-    public ?string $turnstileKey = null;
-    public ?string $turnstileSecret = null;
-    public ?string $hcaptchaKey = null;
-    public ?string $hcaptchaSecret = null;
-    public ?string $friendlyCaptchaKey = null;
-    public ?string $friendlyCaptchaSecret = null;
-    // Friendly Captcha's `global` or `eu` service.
-    public string $friendlyCaptchaEndpoint = 'global';
-    // Which service classifies comments as spam, or empty for none. A plan has one classifier.
-    public string $spamClassifier = self::CLASSIFIER_NONE;
-    public ?string $akismetApiKey = null;
-    public ?string $akismetBlogUrl = null;
-    public bool $akismetTestMode = false;
-    public ?string $cleantalkApiKey = null;
-    public ?string $oopspamApiKey = null;
-    // OOPSpam's score from 0 to 6 at which a comment is spam.
-    public int $oopspamSpamThreshold = 3;
     // Tells the classifier when a moderator marks a comment as spam or not spam, where it can be told.
     public bool $spamFeedbackEnabled = false;
 
@@ -380,20 +353,9 @@ class Settings extends Model
         $rules[] = [['sortDefaultKey'], 'in', 'range' => ['commentDate', 'dateUpdated', 'thread', 'status']];
         $rules[] = [['minimumSubmitTime'], 'integer', 'min' => 0, 'max' => 300];
         $rules[] = [['rateLimitCount', 'rateLimitWindow'], 'integer', 'min' => 1, 'max' => 86400];
-        $rules[] = [['challengeProvider'], 'in', 'range' => self::challengeProviders()];
-        $rules[] = [['turnstileKey', 'turnstileSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_TURNSTILE];
-        $rules[] = [['hcaptchaKey', 'hcaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_HCAPTCHA];
-        $rules[] = [['friendlyCaptchaKey', 'friendlyCaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_FRIENDLY_CAPTCHA];
-        $rules[] = [['friendlyCaptchaEndpoint'], 'in', 'range' => ['global', 'eu']];
-        $rules[] = [['spamClassifier'], 'in', 'range' => self::spamClassifiers()];
-        $rules[] = [['akismetApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_AKISMET];
-        $rules[] = [['cleantalkApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_CLEANTALK];
-        $rules[] = [['oopspamApiKey'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->spamClassifier === self::CLASSIFIER_OOPSPAM];
-        $rules[] = [['oopspamSpamThreshold'], 'integer', 'min' => 1, 'max' => 6];
-        $rules[] = [['akismetBlogUrl'], 'url'];
+        array_push($rules, ...$this->defineProviderRules(fn() => $this->enableSpamChecks));
         $rules[] = [['protectionHostnames'], 'each', 'rule' => ['match', 'pattern' => '/^[a-zA-Z0-9.-]+$/']];
         $rules[] = [['enableSpamChecks'], 'validateProtection'];
-        $rules[] = [['recaptchaMinScore'], 'number', 'min' => 0, 'max' => 1];
         $rules[] = [['autoCloseDays', 'securityMaxLength'], 'integer', 'min' => 1];
         $rules[] = [['maxReplyDepth', 'securityFlooding'], 'integer', 'min' => 0];
         $rules[] = [['maxUserComments', 'downvoteCommentLimit', 'flaggedCommentLimit'], 'integer', 'min' => 1];
@@ -408,7 +370,6 @@ class Settings extends Model
         $rules[] = [['giphyLimit'], 'integer', 'min' => 1, 'max' => 50];
         $rules[] = [['authorEditWindow'], 'integer', 'min' => 1];
         $rules[] = [['attachmentVolumeId'], 'required', 'when' => fn() => $this->allowAttachments];
-        $rules[] = [['recaptchaKey', 'recaptchaSecret'], 'required', 'when' => fn() => $this->enableSpamChecks && $this->challengeProvider === self::CHALLENGE_RECAPTCHA];
         $rules[] = [['spamRetentionDays'], 'integer', 'min' => 1];
         $rules[] = [['maxLinks'], 'integer', 'min' => 0];
         $rules[] = [['blockedEmailDomains'], 'validateBlockedEmailDomains'];
@@ -826,22 +787,6 @@ class Settings extends Model
 
         // An unresolved `$VARIABLE` comes back as itself, which is no key at all.
         return is_string($key) && trim($key) !== '' && !self::_isEnvReference($key) ? trim($key) : null;
-    }
-
-    /**
-     * The challenge providers the Spam settings offer, by handle.
-     */
-    public static function challengeProviders(): array
-    {
-        return [self::CHALLENGE_NONE, self::CHALLENGE_TURNSTILE, self::CHALLENGE_RECAPTCHA, self::CHALLENGE_HCAPTCHA, self::CHALLENGE_FRIENDLY_CAPTCHA];
-    }
-
-    /**
-     * The spam classifiers the Spam settings offer, by handle.
-     */
-    public static function spamClassifiers(): array
-    {
-        return [self::CLASSIFIER_NONE, self::CLASSIFIER_AKISMET, self::CLASSIFIER_CLEANTALK, self::CLASSIFIER_OOPSPAM];
     }
 
     /**

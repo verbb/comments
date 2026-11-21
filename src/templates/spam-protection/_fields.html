@@ -2,7 +2,11 @@
 {% import 'verbb-base/_macros' as macros %}
 
 {% set protectHidden = not settings.enableSpamChecks ? 'hidden' %}
+{# Only admins can use environment variables in keys here, so only they are offered them. #}
+{% set suggestEnvVars = currentUser.admin ?? false %}
 {% set challengeProvider = settings.challengeProvider %}
+{# The challenge provider and spam classifier fields are shared with every Verbb plugin through Protect. #}
+{% set protection = craft.app.plugins.getPlugin('comments').getProtection() %}
 
 {{ forms.lightswitchField({
     first: true,
@@ -58,6 +62,7 @@
         label: 'Minimum Time Between Comments' | t('comments'),
         instructions: 'Seconds each person has to wait between comments. Leave blank to allow bursts.' | t('comments'),
         name: 'securityFlooding',
+        errors: settings.getErrors('securityFlooding'),
         value: settings.securityFlooding,
         min: 0,
         warning: macros.configWarning('securityFlooding', 'comments'),
@@ -103,137 +108,7 @@
 <div class="protect-settings {{ protectHidden }}">
     <h3>{{ 'Challenge Verification' | t('comments') }}</h3>
 
-    {{ forms.selectField({
-        label: 'Challenge Provider' | t('comments'),
-        instructions: 'Ask a third-party service to check that each visitor is a person.' | t('comments'),
-        id: 'challengeProvider',
-        name: 'challengeProvider',
-        value: challengeProvider,
-        errors: settings.getErrors('challengeProvider'),
-        warning: macros.configWarning('challengeProvider', 'comments'),
-        toggle: true,
-        targetPrefix: '.protect-challenge-',
-        options: [
-            { label: 'None' | t('comments'), value: '' },
-            { label: 'Cloudflare Turnstile' | t('comments'), value: 'turnstile' },
-            { label: 'reCAPTCHA v3' | t('comments'), value: 'recaptcha' },
-            { label: 'hCaptcha' | t('comments'), value: 'hcaptcha' },
-            { label: 'Friendly Captcha' | t('comments'), value: 'friendly-captcha' },
-        ],
-    }) }}
-
-    <div class="protect-challenge-turnstile {{ challengeProvider != 'turnstile' ? 'hidden' }}">
-        {{ forms.autosuggestField({
-            label: 'Turnstile Site Key' | t('comments'),
-            name: 'turnstileKey',
-            value: settings.turnstileKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('turnstileKey'),
-            warning: macros.configWarning('turnstileKey', 'comments'),
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'Turnstile Secret Key' | t('comments'),
-            name: 'turnstileSecret',
-            value: secrets.turnstileSecret ?? settings.turnstileSecret,
-            suggestEnvVars: true,
-            errors: settings.getErrors('turnstileSecret'),
-            warning: macros.configWarning('turnstileSecret', 'comments'),
-        }) }}
-    </div>
-
-    <div class="protect-challenge-recaptcha {{ challengeProvider != 'recaptcha' ? 'hidden' }}">
-        {{ forms.autosuggestField({
-            label: 'reCAPTCHA Site Key' | t('comments'),
-            name: 'recaptchaKey',
-            suggestEnvVars: true,
-            value: settings.recaptchaKey,
-            warning: macros.configWarning('recaptchaKey', 'comments'),
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'reCAPTCHA Secret Key' | t('comments'),
-            name: 'recaptchaSecret',
-            suggestEnvVars: true,
-            value: secrets.recaptchaSecret ?? settings.recaptchaSecret,
-            errors: settings.getErrors('recaptchaSecret'),
-            warning: macros.configWarning('recaptchaSecret', 'comments'),
-        }) }}
-
-        {{ forms.selectField({
-            label: 'Minimum Score' | t('comments'),
-            instructions: 'The score a visitor needs to pass, from 0.0 (likely a bot) to 1.0 (likely a person).' | t('comments'),
-            name: 'recaptchaMinScore',
-            value: settings.recaptchaMinScore ?? '0.5',
-            options: {
-                '0.0': '0.0',
-                '0.1': '0.1',
-                '0.2': '0.2',
-                '0.3': '0.3',
-                '0.4': '0.4',
-                '0.5': '0.5',
-                '0.6': '0.6',
-                '0.7': '0.7',
-                '0.8': '0.8',
-                '0.9': '0.9',
-                '1.0': '1.0',
-            },
-            warning: macros.configWarning('recaptchaMinScore', 'comments'),
-        }) }}
-    </div>
-
-    <div class="protect-challenge-hcaptcha {{ challengeProvider != 'hcaptcha' ? 'hidden' }}">
-        {{ forms.autosuggestField({
-            label: 'hCaptcha Site Key' | t('comments'),
-            name: 'hcaptchaKey',
-            value: settings.hcaptchaKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('hcaptchaKey'),
-            warning: macros.configWarning('hcaptchaKey', 'comments'),
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'hCaptcha Secret Key' | t('comments'),
-            name: 'hcaptchaSecret',
-            value: secrets.hcaptchaSecret ?? settings.hcaptchaSecret,
-            suggestEnvVars: true,
-            errors: settings.getErrors('hcaptchaSecret'),
-            warning: macros.configWarning('hcaptchaSecret', 'comments'),
-        }) }}
-    </div>
-
-    <div class="protect-challenge-friendly-captcha {{ challengeProvider != 'friendly-captcha' ? 'hidden' }}">
-        {{ forms.autosuggestField({
-            label: 'Friendly Captcha Site Key' | t('comments'),
-            name: 'friendlyCaptchaKey',
-            value: settings.friendlyCaptchaKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('friendlyCaptchaKey'),
-            warning: macros.configWarning('friendlyCaptchaKey', 'comments'),
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'Friendly Captcha API Key' | t('comments'),
-            name: 'friendlyCaptchaSecret',
-            value: secrets.friendlyCaptchaSecret ?? settings.friendlyCaptchaSecret,
-            suggestEnvVars: true,
-            errors: settings.getErrors('friendlyCaptchaSecret'),
-            warning: macros.configWarning('friendlyCaptchaSecret', 'comments'),
-        }) }}
-
-        {{ forms.selectField({
-            label: 'Friendly Captcha Region' | t('comments'),
-            instructions: 'Use the EU service to keep verification within the European Union. It needs an account that includes it.' | t('comments'),
-            name: 'friendlyCaptchaEndpoint',
-            value: settings.friendlyCaptchaEndpoint,
-            options: [
-                { label: 'Global' | t('comments'), value: 'global' },
-                { label: 'EU' | t('comments'), value: 'eu' },
-            ],
-            errors: settings.getErrors('friendlyCaptchaEndpoint'),
-            warning: macros.configWarning('friendlyCaptchaEndpoint', 'comments'),
-        }) }}
-    </div>
+    {{ protection.renderSettings('challenge', settings, secrets) }}
 
     <div class="comments-settings-block protect-challenge-turnstile protect-challenge-recaptcha protect-challenge-hcaptcha protect-challenge-friendly-captcha {{ not challengeProvider ? 'hidden' }}">
         {{ forms.lightswitchField({
@@ -244,15 +119,6 @@
             errors: settings.getErrors('challengeAuthenticated'),
             warning: macros.configWarning('challengeAuthenticated', 'comments'),
         }) }}
-
-        {{ forms.lightswitchField({
-            label: 'Send IP to Provider' | t('comments'),
-            instructions: 'Share the visitor’s IP address with the provider during verification.' | t('comments'),
-            name: 'challengeSendIp',
-            on: settings.challengeSendIp,
-            errors: settings.getErrors('challengeSendIp'),
-            warning: macros.configWarning('challengeSendIp', 'comments'),
-        }) }}
     </div>
 </div>
 
@@ -261,96 +127,11 @@
 <div class="protect-settings {{ protectHidden }}">
     <h3>{{ 'Spam Classification' | t('comments') }}</h3>
 
-    {% set spamClassifier = settings.spamClassifier %}
-
-    {{ forms.selectField({
-        label: 'Spam Classifier' | t('comments'),
+    {{ protection.renderSettings('classifier', settings, secrets, {
         instructions: 'Send each comment to a service that says whether it’s spam.' | t('comments'),
-        id: 'spamClassifier',
-        name: 'spamClassifier',
-        value: spamClassifier,
-        toggle: true,
-        targetPrefix: '.protect-classifier-',
-        options: [
-            { label: 'None' | t('comments'), value: '' },
-            { label: 'Akismet' | t('comments'), value: 'akismet' },
-            { label: 'CleanTalk' | t('comments'), value: 'cleantalk' },
-            { label: 'OOPSpam' | t('comments'), value: 'oopspam' },
-        ],
-        errors: settings.getErrors('spamClassifier'),
-        warning: macros.configWarning('spamClassifier', 'comments'),
     }) }}
 
-    <div class="protect-classifier-akismet {{ spamClassifier != 'akismet' ? 'hidden' }}">
-        <p class="light">{{ 'Akismet receives the comment text, the author’s name and email, and the visitor’s IP address, browser and referring page.' | t('comments') }}</p>
-
-        {{ forms.autosuggestField({
-            label: 'Akismet API Key' | t('comments'),
-            name: 'akismetApiKey',
-            value: secrets.akismetApiKey ?? settings.akismetApiKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('akismetApiKey'),
-            warning: macros.configWarning('akismetApiKey', 'comments'),
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'Akismet Site URL' | t('comments'),
-            instructions: 'Defaults to this site’s base URL.' | t('comments'),
-            name: 'akismetBlogUrl',
-            value: settings.akismetBlogUrl,
-            suggestEnvVars: false,
-            errors: settings.getErrors('akismetBlogUrl'),
-            warning: macros.configWarning('akismetBlogUrl', 'comments'),
-        }) }}
-
-        {{ forms.lightswitchField({
-            label: 'Akismet Test Mode' | t('comments'),
-            instructions: 'Tell Akismet these are test requests, so they don’t affect its results for your site.' | t('comments'),
-            name: 'akismetTestMode',
-            on: settings.akismetTestMode,
-            errors: settings.getErrors('akismetTestMode'),
-            warning: macros.configWarning('akismetTestMode', 'comments'),
-        }) }}
-    </div>
-
-    <div class="protect-classifier-cleantalk {{ spamClassifier != 'cleantalk' ? 'hidden' }}">
-        <p class="light">{{ 'CleanTalk receives the comment text, the author’s name and email, and the visitor’s IP address, browser and referring page.' | t('comments') }}</p>
-
-        {{ forms.autosuggestField({
-            label: 'CleanTalk Access Key' | t('comments'),
-            name: 'cleantalkApiKey',
-            value: secrets.cleantalkApiKey ?? settings.cleantalkApiKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('cleantalkApiKey'),
-            warning: macros.configWarning('cleantalkApiKey', 'comments'),
-        }) }}
-    </div>
-
-    <div class="protect-classifier-oopspam {{ spamClassifier != 'oopspam' ? 'hidden' }}">
-        <p class="light">{{ 'OOPSpam receives the comment text, the author’s email and the visitor’s IP address.' | t('comments') }}</p>
-
-        {{ forms.autosuggestField({
-            label: 'OOPSpam API Key' | t('comments'),
-            name: 'oopspamApiKey',
-            value: secrets.oopspamApiKey ?? settings.oopspamApiKey,
-            suggestEnvVars: true,
-            errors: settings.getErrors('oopspamApiKey'),
-            warning: macros.configWarning('oopspamApiKey', 'comments'),
-        }) }}
-
-        {{ forms.textField({
-            type: 'number',
-            label: 'OOPSpam Spam Score' | t('comments'),
-            instructions: 'The score from 1 to 6 at which OOPSpam’s answer counts as spam. Lower catches more.' | t('comments'),
-            name: 'oopspamSpamThreshold',
-            value: settings.oopspamSpamThreshold,
-            min: 1,
-            max: 6,
-            size: 4,
-            errors: settings.getErrors('oopspamSpamThreshold'),
-            warning: macros.configWarning('oopspamSpamThreshold', 'comments'),
-        }) }}
-    </div>
+    {% set spamClassifier = settings.spamClassifier %}
 
     <div class="protect-classifier-akismet protect-classifier-oopspam {{ spamClassifier not in ['akismet', 'oopspam'] ? 'hidden' }}">
         {{ forms.lightswitchField({

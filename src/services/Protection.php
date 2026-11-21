@@ -28,13 +28,6 @@ use verbb\protect\errors\PreparationException;
 use verbb\protect\base\ChallengeProvider;
 use verbb\protect\base\ClassifierFeedbackInterface;
 use verbb\protect\base\ClassifierProvider;
-use verbb\protect\integrations\challenges\FriendlyCaptcha;
-use verbb\protect\integrations\challenges\Hcaptcha;
-use verbb\protect\integrations\challenges\RecaptchaV3;
-use verbb\protect\integrations\challenges\Turnstile;
-use verbb\protect\integrations\classifiers\Akismet;
-use verbb\protect\integrations\classifiers\CleanTalk;
-use verbb\protect\integrations\classifiers\OopSpam;
 use verbb\protect\models\Finding;
 use verbb\protect\models\ProtectionContent;
 use verbb\protect\models\ProtectionContext;
@@ -47,6 +40,8 @@ use verbb\protect\models\RateLimitRule;
 use verbb\protect\models\RequestSignals;
 use verbb\protect\models\SubjectReference;
 use verbb\protect\Protect as Module;
+
+use Twig\Markup;
 
 /** Comments owns plans and outcomes; all check mechanics live in the shared module. */
 class Protection extends Component
@@ -122,9 +117,10 @@ class Protection extends Component
             $rules[] = new RateLimitRule(['handle' => 'comments', 'limit' => $settings->rateLimitCount, 'window' => $settings->rateLimitWindow, 'dimensions' => $dimensions]);
         }
 
-        // Preserve the beta setting's intent while removing its database-query implementation.
+        // Preserve the beta setting's intent while removing its database-query implementation. Protect's
+        // windows cover at most a day, so a longer wait counts as a day rather than stopping every comment.
         if ((int)$settings->securityFlooding > 0) {
-            $rules[] = new RateLimitRule(['handle' => 'flooding', 'limit' => 1, 'window' => (int)$settings->securityFlooding, 'dimensions' => $dimensions]);
+            $rules[] = new RateLimitRule(['handle' => 'flooding', 'limit' => 1, 'window' => min((int)$settings->securityFlooding, 86400), 'dimensions' => $dimensions]);
         }
 
         $plan->add(new RateLimit(['rules' => $rules, 'enabled' => $rules !== []]));
@@ -437,12 +433,32 @@ class Protection extends Component
         }
     }
 
+    /**
+     * The Spam Protection page's challenge provider (`challenge`) or spam classifier (`classifier`)
+     * fields, which every Verbb plugin shares through Protect.
+     */
+    public function renderSettings(string $section, Settings $settings, array $secrets = [], array $variables = []): Markup
+    {
+        return Module::getInstance()->renderProviderSettings($section, [
+            ...$variables,
+            'settings' => $settings,
+            'pluginHandle' => 'comments',
+            'secrets' => $secrets,
+        ]);
+    }
+
     public function feedback(Comment $comment, bool $spam): void
     {
         $settings = Comments::$plugin->getSettings();
+
+        // Turning protection off turns off what the classifier is told, as well as what it's asked.
+        if (!$settings->enableSpamChecks || !$settings->spamFeedbackEnabled) {
+            return;
+        }
+
         $classifier = $this->_classifier((int)$comment->siteId, $settings);
 
-        if (!$settings->spamFeedbackEnabled || !$classifier instanceof ClassifierFeedbackInterface || !$comment->ipAddress) {
+        if (!$classifier instanceof ClassifierFeedbackInterface || !$comment->ipAddress) {
             return;
         }
 
@@ -557,40 +573,7 @@ class Protection extends Component
      */
     private function _challengeProvider(Settings $settings, string $action, array $hostnames, ?array $originKeys): ChallengeProvider
     {
-        $config = match ($settings->challengeProvider) {
-            Settings::CHALLENGE_TURNSTILE => [
-                'class' => Turnstile::class,
-                'siteKey' => (string)$settings->turnstileKey,
-                'secretKey' => (string)$settings->turnstileSecret,
-                'expectedAction' => $action,
-            ],
-            Settings::CHALLENGE_HCAPTCHA => [
-                'class' => Hcaptcha::class,
-                'siteKey' => (string)$settings->hcaptchaKey,
-                'secretKey' => (string)$settings->hcaptchaSecret,
-            ],
-            Settings::CHALLENGE_FRIENDLY_CAPTCHA => [
-                'class' => FriendlyCaptcha::class,
-                'siteKey' => (string)$settings->friendlyCaptchaKey,
-                'secretKey' => (string)$settings->friendlyCaptchaSecret,
-                'endpoint' => $settings->friendlyCaptchaEndpoint,
-            ],
-            default => [
-                'class' => RecaptchaV3::class,
-                'siteKey' => (string)$settings->recaptchaKey,
-                'secretKey' => (string)$settings->recaptchaSecret,
-                'expectedAction' => $action,
-                'minimumScore' => $settings->recaptchaMinScore,
-            ],
-        };
-
-        return Craft::createObject([
-            ...$config,
-            'siteKey' => $originKeys['siteKey'] ?? $config['siteKey'],
-            'secretKey' => $originKeys['secretKey'] ?? $config['secretKey'],
-            'hostnames' => $hostnames,
-            'sendIp' => $settings->challengeSendIp,
-        ]);
+        return $settings->createChallengeProvider($action, $hostnames, $originKeys);
     }
 
     /**
@@ -600,23 +583,6 @@ class Protection extends Component
     {
         $settings ??= Comments::$plugin->getSettings();
 
-        return match ($settings->spamClassifier) {
-            Settings::CLASSIFIER_AKISMET => Craft::createObject([
-                'class' => Akismet::class,
-                'apiKey' => (string)$settings->akismetApiKey,
-                'blogUrl' => $settings->akismetBlogUrl ?: (string)Craft::$app->getSites()->getSiteById($siteId)->getBaseUrl(),
-                'testMode' => $settings->akismetTestMode,
-            ]),
-            Settings::CLASSIFIER_CLEANTALK => Craft::createObject([
-                'class' => CleanTalk::class,
-                'apiKey' => (string)$settings->cleantalkApiKey,
-            ]),
-            Settings::CLASSIFIER_OOPSPAM => Craft::createObject([
-                'class' => OopSpam::class,
-                'apiKey' => (string)$settings->oopspamApiKey,
-                'spamThreshold' => $settings->oopspamSpamThreshold,
-            ]),
-            default => null,
-        };
+        return $settings->createSpamClassifier((string)Craft::$app->getSites()->getSiteById($siteId)->getBaseUrl());
     }
 }

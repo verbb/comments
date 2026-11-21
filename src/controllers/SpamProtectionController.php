@@ -5,6 +5,7 @@ use verbb\comments\Comments;
 use verbb\comments\services\SpamSettings;
 
 use Craft;
+use craft\helpers\App;
 use craft\web\Controller;
 
 use yii\web\ForbiddenHttpException;
@@ -60,9 +61,28 @@ class SpamProtectionController extends Controller
 
         $settings = Comments::$plugin->getSettings();
         $spamSettings = Comments::$plugin->getSpamSettings();
+        $saved = [];
+
+        foreach (SpamSettings::ENV_KEYS as $key) {
+            $saved[$key] = $settings->$key;
+        }
+
         $spamSettings->applyPosted($settings, (array)$this->request->getBodyParam('settings', []));
 
-        if (!$spamSettings->save($settings)) {
+        // People who manage spam settings without being admins can't read the server's environment, so a key
+        // they enter can't refer to a variable or alias, anywhere in it, unless an admin already saved it. A
+        // site key is resolved and sent to every visitor, which would publish any secret the server holds.
+        if (!Craft::$app->getUser()->getIsAdmin()) {
+            foreach (SpamSettings::ENV_KEYS as $key) {
+                $value = $settings->$key;
+
+                if (is_string($value) && $value !== $saved[$key] && (str_contains($value, '$') || str_starts_with(ltrim($value), '@') || App::parseEnv($value) !== $value)) {
+                    $settings->addError($key, Craft::t('comments', 'Only admins can use an environment variable or alias here.'));
+                }
+            }
+        }
+
+        if ($settings->hasErrors() || !$spamSettings->save($settings)) {
             $this->setFailFlash(Craft::t('comments', 'Couldn’t save settings.'));
 
             return null;

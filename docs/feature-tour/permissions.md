@@ -38,7 +38,7 @@ Comments adds these under each user group's permissions, alongside **Access Comm
 | Edit other users’ comments | `comments-edit` | Editing any comment in the control panel, including changing its element and author. This also lifts the **Author Edit Window**. |
 | Trash other users’ comments | `comments-trash` | Removing and restoring comments, and restoring comments from Craft's trash. |
 | Delete comments | `comments-delete` | Moving comments to Craft's trash from the Comments index and deleting them permanently from the trash. With **Moderate comments** as well, **Delete permanently…** on a spam comment's page. On the site, only a comment's author can delete it. |
-| Manage spam settings | `comments-manageSpamSettings` | Changing the settings on the [Spam Protection](docs:feature-tour/anti-spam) page, including provider keys and keyword filters, even where admin changes are turned off. |
+| Manage spam settings | `comments-manageSpamSettings` | Changing the settings on the [Spam Protection](docs:feature-tour/anti-spam) page, including provider keys and keyword filters, even where admin changes are turned off. Only admins can enter environment variables for the keys. |
 
 Admins can do all of this, along with seeing email addresses in Commenters and a comment's IP address, user agent and the page it was posted from. Changing **Comments** → **Settings** needs an admin account and Craft's `allowAdminChanges` setting. **Comments** → **Spam Protection** is open to admins and people with **Manage spam settings** on any environment. Nobody can make moderation decisions on their own comments.
 

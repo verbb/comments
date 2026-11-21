@@ -537,7 +537,7 @@ The length of a window, in seconds.
 
 **Type:** `int|null` · **Default:** `null`
 
-How many seconds each person has to wait between comments. Leave it empty to allow bursts.
+How many seconds each person has to wait between comments. Leave it empty to allow bursts. Waits longer than a day (`86400`) are treated as a day.
 :::
 
 ::: reference
