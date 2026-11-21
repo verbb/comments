@@ -170,6 +170,24 @@ it('won’t order comments by an address, network, browser or protection record 
         ->and($admin['data']['comments'])->toHaveCount(1);
 })->with(['email', 'ipAddress desc', 'comments_comments.userAgent', 'commentDate desc, protection']);
 
+it('won’t order a comment’s replies by an address over a public schema, however they’re loaded', function() {
+    $entry = CommentsFixtureFactory::entry('DX nested order owner');
+    $parent = dxComment($entry, dxUser('Nested', 'Parent'));
+    dxComment($entry, dxUser('Nested', 'Reply'), 'A reply', (int)$parent->id);
+    Craft::$app->getUser()->setIdentity(null);
+
+    // Craft eager-loads `children` for every comment in the list, so its arguments arrive with the results.
+    $refused = dxGql(['comments:read'], "{ comments(ownerId: {$entry->id}) { children(orderBy: \"email\") { id } } }", true);
+
+    expect($refused)->toHaveKey('errors')
+        ->and($refused['errors'][0]['message'])->toContain('can’t be ordered');
+
+    $allowed = dxGql(['comments:read'], "{ comments(ownerId: {$entry->id}, level: 1) { children(orderBy: \"commentDate\") { id } } }", true);
+
+    expect($allowed['errors'] ?? [])->toBe([])
+        ->and($allowed['data']['comments'][0]['children'])->toHaveCount(1);
+});
+
 it('still orders comments by public columns for anyone', function() {
     $entry = CommentsFixtureFactory::entry('DX public order owner');
     $author = dxUser('Public', 'Order');

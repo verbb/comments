@@ -17,7 +17,7 @@ Choose what a schema can do under the **Comments** heading when editing it.
 
 Some mutations are also left out of the schema while their feature is off. `voteComment` needs an **Interaction Mode** other than None, `flagComment` needs **Allow Reporting**, and `subscribeComment` needs at least one of the **Available Subscriptions**. The `comment` and `commentId` fields of a vote or report need **View comments**, and fields about users need the schema to be able to view users.
 
-On a public schema, queries only ever return approved comments that haven't been deleted by their author or trashed, whatever arguments are supplied. This also applies to the `children` and `parent` fields.
+On a public schema, queries only ever return approved comments that haven't been deleted by their author or trashed, whatever arguments are supplied. This also applies to the `children` and `parent` fields. The `comments` and `comment` queries don't take an element's own comment settings into account, so they also return approved comments on an element whose Comments field is **Off**, whose source doesn't allow comments, or that visitors can't see, such as a disabled entry. To get what visitors see on the site, use [`commentsThread`](#the-commentsThread-query).
 
 Commenters' email addresses, IP addresses and browsers aren't available through GraphQL. `orderBy` can't use the columns that hold them either, or what spam protection recorded, unless the request comes from a signed-in admin, as sorting by a value can reveal it. A schema that can't read every custom field is limited further, to the `orderBy` columns listed under [Custom Fields](docs:graphql/queries#custom-fields).
 
@@ -27,7 +27,7 @@ A guest's identity is the same on every comment they make, so a public schema ca
 
 ### Fetching the Latest Comments on an Entry
 
-This query fetches the two newest comments on the entry with the ID `2460`, with each commenter's name as the thread shows it. A public schema only returns approved comments, so this is what any visitor would see.
+This query fetches the two newest comments on the entry with the ID `2460`, with each commenter's name as the thread shows it. A public schema only returns approved comments.
 
 ::: code
 ```graphql GraphQL
