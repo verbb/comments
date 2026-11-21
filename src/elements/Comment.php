@@ -1141,10 +1141,27 @@ class Comment extends Element
             return false;
         }
 
+        if (!$this->isDiscussionOpenForEdits()) {
+            return false;
+        }
+
         return in_array(Comments::$plugin->getModeration()->currentState($this), [
             ModerationState::Approved,
             ModerationState::Pending,
         ], true);
+    }
+
+    /**
+     * Whether the comment's discussion takes edits: one that's closed or turned off doesn't, the same as
+     * saving an edit checks.
+     */
+    public function isDiscussionOpenForEdits(): bool
+    {
+        $config = $this->ownerId && $this->ownerSiteId
+            ? Comments::$plugin->getConversations()->getConfigForOwner((int)$this->ownerId, (int)$this->ownerSiteId)
+            : null;
+
+        return (bool)$config?->isCommentingEnabled();
     }
 
     /**

@@ -2657,7 +2657,7 @@ class Api extends Component
             'canReply' => $approved && $canComment && ($maxDepth === null || $row['depth'] < $maxDepth),
             // An author's comment marked as spam is reported like one waiting, so nothing gives it away.
             'canEdit' => $isOwn && $user && $comment && ($comment->canEdit() || (
-                $row['moderationState'] === ModerationState::Spam->value && !$row['removed'] && $comment->isWithinAuthorWindow($user)
+                $row['moderationState'] === ModerationState::Spam->value && !$row['removed'] && $comment->isWithinAuthorWindow($user) && $comment->isDiscussionOpenForEdits()
             )),
             'canDelete' => $isOwn && $user && $comment && !$comment->authorRemovedAt && $comment->canDelete($user),
             'canVote' => $approved && !$blocked && !$closed && $mode->isEnabled() && ($user || $settings->allowGuestVoting),
@@ -2919,6 +2919,11 @@ class Api extends Component
         }
 
         $spam = CommentsPlugin::$plugin->getModeration()->currentState($comment) === ModerationState::Spam;
+
+        // The same answer as any comment in a closed discussion, so a spam one isn't given away.
+        if ($spam && !$comment->isDiscussionOpenForEdits()) {
+            throw new ApiException(Craft::t('comments', 'You do not have permission to edit this comment.'), 'forbidden', 403);
+        }
 
         if ($spam && !$reading) {
             throw new ApiException(Craft::t('comments', 'This comment can’t be changed right now.'), 'forbidden', 403);
