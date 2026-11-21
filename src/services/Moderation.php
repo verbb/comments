@@ -246,7 +246,8 @@ class Moderation extends Component
         $pending = (int)(new Query())
             ->from(['c' => CommentRecord::tableName()])
             ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[c.id]]')
-            ->where(['c.moderationState' => ModerationState::Pending->value, 'e.dateDeleted' => null])
+            // A comment its author has deleted needs no decision, as under **Needs review**.
+            ->where(['c.moderationState' => ModerationState::Pending->value, 'c.authorRemovedAt' => null, 'e.dateDeleted' => null])
             ->count();
 
         $reported = (int)(new Query())

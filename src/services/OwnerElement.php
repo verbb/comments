@@ -52,6 +52,7 @@ class OwnerElement extends Component
                     ->ownerId($ownerId)
                     ->ownerSiteId($siteId)
                     ->moderationState(ModerationState::Pending->value)
+                    ->authorRemoved(false)
                     ->count(),
                 'openReports' => $this->_openReportCount($ownerId, $siteId),
             ],
@@ -158,7 +159,7 @@ class OwnerElement extends Component
         $viewer = Craft::$app->getUser()->getIdentity();
         $base = static fn(): \verbb\comments\elements\db\CommentQuery => Comment::find()->status(null)->ownerId($ownerId)->ownerSiteId($siteId)->orderBy(['commentDate' => SORT_ASC])->limit(5);
         $comments = array_merge(
-            $base()->moderationState(ModerationState::Pending->value)->all(),
+            $base()->moderationState(ModerationState::Pending->value)->authorRemoved(false)->all(),
             $base()->moderationState(ModerationState::Approved->value)->hasOpenReports(true)->all(),
         );
 

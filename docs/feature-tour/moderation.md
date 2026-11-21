@@ -9,10 +9,10 @@ A comment has one of these statuses, and only **Approved** comments are public.
 | Status | Meaning |
 | --- | --- |
 | Approved | Public. |
-| Pending | Waiting for a moderator, shown under **Needs review**. |
+| Pending | Waiting for a moderator, shown under **Needs review** unless its author deletes it. |
 | Spam | Found to be spam by a spam classifier or a keyword filter, or marked as spam by a moderator. |
 | Removed | Taken down by a moderator. |
-| Deleted by author | Deleted by the person who wrote it. It's hidden from the site but stays in the control panel. |
+| Deleted by author | Deleted by the person who wrote it. It's hidden from the site but stays in the control panel. It leaves **Needs review**, but stays under **Reported** while it has open reports, so you can still act on its author. |
 
 This is separate from Craft's trash. Craft's **Delete** action moves a comment to the trash, where someone with the `comments-trash` permission can bring it back with **Restore**. A comment is only deleted permanently when someone with the `comments-delete` permission chooses **Delete permanently…** on a spam comment's page or **Delete permanently** in Craft's trash, or when Craft's garbage collection empties the trash.
 
@@ -48,7 +48,7 @@ Comments come from the site, GraphQL or an import, such as with Feed Me's Commen
 ## The Needs Review, Reported and Spam Sources
 Open **Comments** and choose a source under **Moderation**:
 
-- **Needs review** lists pending comments, oldest first, so nothing waits longest by accident.
+- **Needs review** lists pending comments, oldest first, so nothing waits longest by accident. A pending comment its author deletes leaves it.
 - **Reported** lists approved comments with at least one open report, oldest first. They're still on the site while they wait.
 - **Spam** lists comments marked as spam, newest first.
 

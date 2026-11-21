@@ -62,7 +62,7 @@ it('exposes report filtering and owner type sources to the native element index'
     expect($sourcesByKey['owner-type:assets']['criteria'])->toBe(['ownerType' => Asset::class]);
     expect($sourcesByKey['owner-type:users']['criteria'])->toBe(['ownerType' => User::class]);
     expect(array_column($sourceHeadings, 'heading'))->toBe(['Moderation', 'Element Type']);
-    expect($sourcesByKey['needs-review']['criteria'])->toBe(['moderationState' => 'pending']);
+    expect($sourcesByKey['needs-review']['criteria'])->toBe(['moderationState' => 'pending', 'authorRemoved' => false]);
     expect($sourcesByKey['needs-review']['defaultSort'])->toBe(['commentDate', 'asc']);
     expect($sourcesByKey['reported']['criteria'])->toBe(['moderationState' => 'approved', 'hasOpenReports' => true]);
     expect($sourcesByKey['spam']['criteria'])->toBe(['moderationState' => 'spam']);
@@ -274,10 +274,12 @@ it('keeps reported comments in bulk and counts what waits for the nav badge', fu
     $reporter = Comments::$plugin->getIdentities()->createHistoricalGuest('Reporter', null);
     Comments::$plugin->getReports()->create((int)$comment->id, (int)$reporter->id, 'spam');
 
+    $nav = Comments::$plugin->getCpNavItem();
+
     expect(Comments::$plugin->getModeration()->getQueueCounts()['reported'])->toBe($before['reported'] + 1)
-        ->and(Comments::$plugin->getCpNavItem()['badgeCount'] ?? 0)->toBe($before['pending'] + $before['reported'] + 1);
+        ->and($nav['badgeCount'] ?? 0)->toBe($before['pending'] + $before['reported'] + 1)
+        ->and($nav['subnav']['comments']['badgeCount'] ?? 0)->toBe($nav['badgeCount']);
 
     expect((new KeepComments())->performAction(Comment::find()->status(null)->id($comment->id)))->toBeTrue()
         ->and(Comments::$plugin->getModeration()->getQueueCounts()['reported'])->toBe($before['reported']);
 });
-

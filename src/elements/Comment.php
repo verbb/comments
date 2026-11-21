@@ -246,7 +246,8 @@ class Comment extends Element
             $sources[] = [
                 'key' => 'needs-review',
                 'label' => Craft::t('comments', 'Needs review'),
-                'criteria' => ['moderationState' => ModerationState::Pending->value],
+                // A comment its author has deleted needs no decision, so it doesn't wait here.
+                'criteria' => ['moderationState' => ModerationState::Pending->value, 'authorRemoved' => false],
                 // Oldest first, so nothing waits longest by accident.
                 'defaultSort' => ['commentDate', 'asc'],
                 'badgeCount' => $counts['pending'],

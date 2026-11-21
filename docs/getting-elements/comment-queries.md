@@ -114,6 +114,32 @@ $comments = \verbb\comments\elements\Comment::find()
 :::
 
 ::: reference
+### `authorRemoved`
+
+Narrows the query results based on whether the comments' authors have deleted them. Pass `true` for comments their authors have deleted, or `false` for the rest. Unlike `.status('author-removed')`, this can be combined with any status or moderation state.
+
+::: code
+```twig Twig
+{# Fetch pending comments their authors haven't deleted #}
+{% set comments = craft.comments.fetch()
+    .status(null)
+    .moderationState('pending')
+    .authorRemoved(false)
+    .all() %}
+```
+
+```php PHP
+// Fetch pending comments their authors haven't deleted
+$comments = \verbb\comments\elements\Comment::find()
+    ->status(null)
+    ->moderationState('pending')
+    ->authorRemoved(false)
+    ->all();
+```
+:::
+:::
+
+::: reference
 ### `comment`
 
 Narrows the query results based on the comment's plain text. To look for words in comments, [search](#search) is usually a better fit.
@@ -493,7 +519,7 @@ Narrows the query results by moderation state, which is `approved`, `pending`, `
 
 ::: code
 ```twig Twig
-{# Fetch comments waiting for review #}
+{# Fetch pending comments #}
 {% set comments = craft.comments.fetch()
     .status(null)
     .moderationState('pending')
@@ -501,7 +527,7 @@ Narrows the query results by moderation state, which is `approved`, `pending`, `
 ```
 
 ```php PHP
-// Fetch comments waiting for review
+// Fetch pending comments
 $comments = \verbb\comments\elements\Comment::find()
     ->status(null)
     ->moderationState('pending')

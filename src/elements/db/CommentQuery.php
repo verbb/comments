@@ -57,6 +57,8 @@ class CommentQuery extends ElementQuery
     public mixed $conversationId = null;
     public mixed $identityId = null;
     public mixed $moderationState = null;
+    // Whether the comment's author has deleted it: true, false, or null for either.
+    public ?bool $authorRemoved = null;
     public mixed $rootId = null;
     public mixed $parentId = null;
 
@@ -302,6 +304,16 @@ class CommentQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query to comments their authors have deleted (true) or haven't (false).
+     */
+    public function authorRemoved(?bool $value = true): static
+    {
+        $this->authorRemoved = $value;
+
+        return $this;
+    }
+
+    /**
      * Leaves commenters' email addresses out of a search, even for someone who can see them.
      */
     public function searchTextAndNameOnly(bool $value = true): static
@@ -535,6 +547,12 @@ class CommentQuery extends ElementQuery
 
         if ($hasV4 && $this->moderationState) {
             $this->subQuery->andWhere(Db::parseParam('comments_comments.moderationState', $this->moderationState));
+        }
+
+        if ($hasV4 && $this->authorRemoved !== null) {
+            $this->subQuery->andWhere($this->authorRemoved
+                ? ['not', ['comments_comments.authorRemovedAt' => null]]
+                : ['comments_comments.authorRemovedAt' => null]);
         }
 
         if ($hasV4 && $this->rootId) {

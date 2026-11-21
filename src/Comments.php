@@ -211,13 +211,15 @@ class Comments extends Plugin
                 'url' => 'comments',
             ];
 
-            // What waits for a moderator: held comments plus reported ones still on the site.
+            // What waits for a moderator: held comments plus reported ones still on the site. It shows on Comments,
+            // which is all that's visible while the menu is collapsed, and again on the Comments item that lists them.
             if ($isAdmin || $user->checkPermission('comments-moderate')) {
                 $counts = $this->getModeration()->getQueueCounts();
                 $waiting = $counts['pending'] + $counts['reported'];
 
                 if ($waiting) {
                     $nav['badgeCount'] = $waiting;
+                    $nav['subnav']['comments']['badgeCount'] = $waiting;
                 }
             }
         }
