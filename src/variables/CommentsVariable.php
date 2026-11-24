@@ -136,6 +136,16 @@ class CommentsVariable
         return Comments::$plugin->getReports()->reasonLabel($reason);
     }
 
+    /**
+     * For the control panel only. It isn't part of the documented Twig API, and can change in any release.
+     *
+     * @internal
+     */
+    public function getHasAnyComment(): bool
+    {
+        return Comments::$plugin->getComments()->hasAnyComment();
+    }
+
     public function fetch($criteria = null): CommentQuery
     {
         return Comments::$plugin->getComments()->fetch($criteria);

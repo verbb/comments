@@ -1,0 +1,40 @@
+/* The Comments page before the first comment: Plugin Kit's page empty state straight on the page background, without
+   Craft's content pane around it. */
+.comments-bare-content #content.content-pane {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.comments-bare-content #content > pk-state-panel[layout='page'] {
+    flex: 0 0 auto;
+}
+
+/* Comments' spot illustration: a duotone in Comments' brand colour (#ffa515, from icon.svg), a darker line on white
+   with a soft tinted fill and the icon's three dots in the brand colour itself. */
+.comments-spot {
+    --comments-spot-line: #b86b00;
+    --comments-spot-tint: #fff3df;
+    --comments-spot-dot: #ffa515;
+    overflow: visible;
+}
+
+.comments-spot :is(.comments-spot__paper, .comments-spot__fill, .comments-spot__line) {
+    stroke: var(--comments-spot-line);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.comments-spot .comments-spot__paper { fill: var(--white, #fff); }
+.comments-spot .comments-spot__fill { fill: var(--comments-spot-tint); }
+.comments-spot .comments-spot__line { fill: none; }
+.comments-spot .comments-spot__dot { fill: var(--comments-spot-dot); }
+
+/* The tag to copy, sized to the tag so it sits under the sentence without scrolling. */
+.comments-tag {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    margin: 16px auto 0;
+}

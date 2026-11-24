@@ -1,0 +1,22 @@
+{# The Comments page until the first comment, extended by `comments/index` in place of Craft's empty index. Comments are
+   posted on the site, so there's nothing to create here. The panel gives the one tag that shows them there, and its one
+   grey button opens the guide. #}
+{% extends '_layouts/cp' %}
+
+{% set bodyClass = (bodyClass ?? [])|explodeClass|push('comments-bare-content') %}
+{% set tag = '{{ craft.comments.render(entry) }}' %}
+
+{% do view.registerAssetBundle('verbb\\comments\\web\\assets\\cp\\CommentsFirstRunAsset') %}
+
+{% block content %}
+    <pk-state-panel layout="page" heading="{{ 'Add comments to your templates'|t('comments') }}" heading-level="2">
+        {% include 'comments/_includes/spots/comments' %}
+        {{ 'Add this tag where an entry’s comments should appear, and the comments people post will land here.'|t('comments') }}
+        {# Plugin Kit's copy pattern: a read-only input with the copy button inside its end slot. #}
+        <pk-input class="comments-tag" value="{{ tag }}" readonly mono aria-label="{{ 'Comments tag'|t('comments') }}">
+            <pk-copy-button slot="end" value="{{ tag }}" aria-label="{{ 'Copy'|t('comments') }}" copied-label="{{ 'Copied'|t('comments') }}"></pk-copy-button>
+        </pk-input>
+
+        <a slot="actions" class="btn" href="https://verbb.io/craft-plugins/comments/docs/v4/get-started/adding-comments-to-an-entry" target="_blank" rel="noopener">{{ 'Read the guide'|t('comments') }}</a>
+    </pk-state-panel>
+{% endblock %}

@@ -1,5 +1,10 @@
-{% extends '_layouts/elementindex' %}
 {% requirePermission 'comments-view' %}
+
+{# Comments only arrive once the site's templates show them, so until the first one the page explains how, in place of
+   Craft's empty index. A link from one element's Comments field still opens the index. #}
+{% set ownerId = craft.app.request.getQueryParam('ownerId') %}
+{% set firstRun = not ownerId and not craft.comments.getHasAnyComment() %}
+{% extends firstRun ? 'comments/_first-run' : '_layouts/elementindex' %}
 
 {% set elementType = 'verbb\\comments\\elements\\Comment' %}
 {% set selectedSubnavItem = 'comments' %}
@@ -9,7 +14,6 @@
 {% set crumbs = [{ label: craft.comments.getPluginName() | t('comments'), url: url('comments') }] %}
 
 {# Linked to from an element's Comments field, to show just that element's comments. #}
-{% set ownerId = craft.app.request.getQueryParam('ownerId') %}
 {% set owner = ownerId matches '/^\\d+$/' ? craft.app.elements.getElementById(ownerId, null, '*') : null %}
 
 {% if owner %}

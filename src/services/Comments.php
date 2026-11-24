@@ -157,6 +157,15 @@ class Comments extends Component
     }
 
     /**
+     * Whether any comment has ever been saved, on any site and in any state. It reads the comments table rather than
+     * an element query, so trashed comments count too and deleting a test comment doesn't bring back the first-run page.
+     */
+    public function hasAnyComment(): bool
+    {
+        return CommentRecord::find()->exists();
+    }
+
+    /**
      * Canonical Comment create — Conversation/Identity, hierarchy, content, moderation,
      * persistence, subscriptions and notifications.
      *

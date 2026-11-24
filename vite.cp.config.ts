@@ -18,6 +18,7 @@ export default defineConfig({
         commenters: path.resolve(cpRoot, 'src/commenters.ts'),
         'comment-edit': path.resolve(cpRoot, 'src/comment-edit.ts'),
         'comment-fields': path.resolve(cpRoot, 'src/comment-fields.ts'),
+        'comments-first-run': path.resolve(cpRoot, 'src/comments-first-run.ts'),
       },
       formats: ['es'],
       fileName: (_format, name) => `${name}.js`,
