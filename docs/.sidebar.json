@@ -12,7 +12,7 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
-            "feature-tour/control-panel",
+            "feature-tour/comments",
             "feature-tour/anti-spam",
             "feature-tour/security",
             "feature-tour/reply-with-gifs-giphy",
