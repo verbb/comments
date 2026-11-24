@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.28 - 2026-11-24
+
+### Changed
+- Document comment threads, moderation and permissions.
+
 ## 3.0.27 - 2026-11-21
 
 ### Fixed
