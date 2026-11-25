@@ -388,7 +388,7 @@ it('lists the files in the folder the setting named in the Upgrade Report, and d
             ->and($yaml)->toBe(['pluginName' => 'Comments'])
             ->and($issue['count'] ?? null)->toBe(3)
             ->and($issue['items'] ?? null)->toBe(['_site-comments/_includes/comment.html', '_site-comments/comments.html', '_site-comments/form-fields/fields/assets.html'])
-            ->and($issue['url'] ?? null)->toBe('https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#template-overrides')
+            ->and($issue['url'] ?? null)->toBe('https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-v3#template-overrides')
             ->and($issue['label'] ?? '')->toContain('overrides the thread’s templates');
     });
 });

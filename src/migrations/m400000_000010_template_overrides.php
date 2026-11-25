@@ -38,7 +38,7 @@ class m400000_000010_template_overrides extends Migration
     // Files found only in `templates/_comments`, which may be a site's own form partials rather than
     // overrides, so the report words them more gently.
     public const NOTICE_CONVENTIONAL = 'templates.conventionalFolder';
-    public const GUIDE_URL = 'https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-comments-3#template-overrides';
+    public const GUIDE_URL = 'https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-v3#template-overrides';
     public const CONVENTIONAL_FOLDER = '_comments';
 
     // A templates folder is the site's own, so its walk is bounded: at most this many entries are looked

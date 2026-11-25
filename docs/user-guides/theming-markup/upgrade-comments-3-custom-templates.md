@@ -8,7 +8,7 @@ In the example, a site's `templates/_comments` folder overrides five of Comments
 
 ## What You'll Need
 
-You'll need to have run the upgrade to Comments 4, as described in [Upgrading from Comments 3](docs:get-started/upgrading-from-comments-3), with your site working on the new version. Keep your old override folder, either in place or in your version control's history, because you'll work through it file by file.
+You'll need to have run the upgrade to Comments 4, as described in [Upgrading from Comments 3](docs:get-started/upgrading-from-v3), with your site working on the new version. Keep your old override folder, either in place or in your version control's history, because you'll work through it file by file.
 
 It helps to have Comments 3's own copies of the templates to compare yours with, so you can see exactly what you changed. They're in Comments 3's source on GitHub, in [`src/templates/_special`](https://github.com/verbb/comments/tree/craft-5/src/templates/_special), or in `vendor/verbb/comments/src/templates/_special` in a copy of your project from before the upgrade.
 
@@ -258,7 +258,7 @@ Everything the example changed had a lighter home than a template. If one of you
 
 ### A Fully Custom Thread
 
-Some Comments 3 sites didn't override the thread's templates at all, and instead listed comments with `craft.comments.fetch()` in their own templates, posting with their own forms. That approach still works. Your listing is an ordinary element query, and your forms can keep posting to Comments' form actions, with the changes described under [Custom Forms](docs:get-started/upgrading-from-comments-3#custom-forms) in the upgrade guide. Everything else the thread does, such as voting, loading replies in place and letting moderators decide held comments, is then yours to build as well.
+Some Comments 3 sites didn't override the thread's templates at all, and instead listed comments with `craft.comments.fetch()` in their own templates, posting with their own forms. That approach still works. Your listing is an ordinary element query, and your forms can keep posting to Comments' form actions, with the changes described under [Custom Forms](docs:get-started/upgrading-from-v3#custom-forms) in the upgrade guide. Everything else the thread does, such as voting, loading replies in place and letting moderators decide held comments, is then yours to build as well.
 
 To keep those features and still draw every comment and reply in your own markup, choose how much of the thread you want to own.
 

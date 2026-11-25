@@ -39,7 +39,7 @@ Stops new comments everywhere, while existing comments stay visible. A Comments 
 
 **Type:** `bool` · **Default:** `true`
 
-Keeps Comments 3's Twig helpers, comment methods, query parameters, GraphQL arguments and fields, console commands and browser events working on a site that has upgraded. Turn it off once your templates and code are updated, as [Turning Off Compatibility Mode](docs:get-started/upgrading-from-comments-3#before-disabling-compatibility-mode) describes.
+Keeps Comments 3's Twig helpers, comment methods, query parameters, GraphQL arguments and fields, console commands and browser events working on a site that has upgraded. Turn it off once your templates and code are updated, as [Turning Off Compatibility Mode](docs:get-started/upgrading-from-v3#before-disabling-compatibility-mode) describes.
 :::
 
 ::: reference

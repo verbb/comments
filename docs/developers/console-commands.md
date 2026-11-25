@@ -7,7 +7,7 @@ Comments includes console commands you can run from your Craft project’s direc
 ::: reference
 ### `comments/diagnostics/scan`
 
-Checks comment threads and the elements comments belong to, and lists any warnings from the upgrade, which the [upgrade guide](docs:get-started/upgrading-from-comments-3#what-gets-checked) explains. It changes nothing. A reply whose parent comment is missing is reported as an error, while a comment or conversation whose element no longer exists is a warning.
+Checks comment threads and the elements comments belong to, and lists any warnings from the upgrade, which the [upgrade guide](docs:get-started/upgrading-from-v3#what-gets-checked) explains. It changes nothing. A reply whose parent comment is missing is reported as an error, while a comment or conversation whose element no longer exists is a warning.
 
 The command exits with an error code if it finds an error, so you can use it in a deployment check. If there are no errors or warnings about your comments, it prints “No problems found.”
 
