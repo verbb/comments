@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-25
+
 ### Added
 - Add `@verbb/comments-web-components`, with `registerCommentsWebComponents()` and `<verbb-comments>`, which draws a Comments thread in the light DOM on any page through `@verbb/comments-browser`. It's released alongside the Comments plugin at the same version.
 - Add the `owner-id`, `owner-uri`, `site-id`, `endpoint`, `load-mode`, `sort` and `theme` attributes, and the matching properties. Threads by URI get element IDs of their own. Changing which thread starts it again once, and `sort` and `theme` change the drawn thread in place.

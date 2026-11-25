@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-25
+
 ### Added
 - Add `@verbb/comments-browser`, the renderer that draws every Comments thread in the browser, built on `lit-html` and `@verbb/comments-core`. It's released alongside the Comments plugin at the same version.
 - Add `startComments()`, which starts every thread on the page, threads added later and Turbo Drive's page swaps, hands over to a copy already running, and leaves threads marked `data-comments-auto-mount="false"` for `Comments.mount()`. Importing the package starts nothing.
@@ -39,4 +41,3 @@
 - Add the visitor's own badges to the "Posting as" line, as their comments show them.
 - Add GIFs from GIPHY when the site turns them on: a GIF button beside Cancel in the plain form, opening a picker that searches GIPHY from the browser in a chunk of its own, loaded only when someone opens it, with "Powered by GIPHY", GIPHY's results untouched and its pings. The chosen GIF shows under the text with Remove, can be posted on its own, and an edit sends it only when it changed. A comment's GIF is drawn at its size when it's known, so the page doesn't move as it loads. The new `comments__gif-*` classes are in `markup/classes.json`. With rich authoring, Editor's own GIF control in its toolbar takes over, and the form posts the GIF chosen there. The search is Editor's (`@verbb/editor/gifs`), so this package now depends on `@verbb/editor` for it, without loading Editor itself.
 - Add folded comments and author scores from Comments 3. A comment the site folds after reports or downvotes shows its author and actions with “Comment marked as inappropriate” or “Comment hidden due to low rating” and a **Show comment** button in place of its text, GIF and field values, which opens it for that page view and moves focus to it. An author's score shows beside their name as `+12`, `0` or `-3`. The new `comments__folded*` and `comments__author-score*` classes are in `markup/classes.json`.
-

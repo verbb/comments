@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-25
+
 ### Added
 - Add `@verbb/comments-react`, React 19 components and hooks for Comments threads, released alongside the Comments plugin at the same version.
 - Add `<CommentsThread>`, which renders only the mount point on the server, marked so the plugin's own script leaves it alone, and draws the thread with `@verbb/comments-browser` in the browser, with props for the owner, site, endpoint, load mode, sort, page size, theme, `darkSelector`, `themeConfig`, part and field overrides, labels and the count, and an event prop for every browser event, such as `onCommentCreated`.

@@ -1,6 +1,6 @@
 {
     "name": "@verbb/comments-browser",
-    "version": "4.0.0-beta.1",
+    "version": "4.0.0",
     "description": "The renderer for Comments threads in the browser, with lazy loading, the comment editor, themes, control classes and part overrides.",
     "keywords": [
         "craftcms",
@@ -63,7 +63,7 @@
         "classes": "UPDATE_CLASSES=1 vitest run tests/classes.test.ts"
     },
     "dependencies": {
-        "@verbb/comments-core": "4.0.0-beta.1",
+        "@verbb/comments-core": "4.0.0",
         "@verbb/editor": "^1.0.0",
         "@verbb/protect": "^1.0.0",
         "lit-html": "3.3.3"

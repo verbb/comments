@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-25
+
 ### Added
 - Add `@verbb/comments-core`, the data layer for Comments front ends, with no DOM, so it runs in browsers, Node, workers and server components. It's released alongside the Comments plugin at the same version.
 - Add `createCommentsClient()` for the data API (`comments/api/*`), over REST or, through `@verbb/comments-core/graphql`, GraphQL, with the API version check, typed errors whose message is always safe to show a visitor, an `operationId` on every write that's resent once with the same ID after a dropped connection, and `cookieSession()` sign-in for Craft's own domain and for another subdomain of the same site.
@@ -22,4 +24,3 @@
 - Add `badges` to the viewer's own data, in the same shape as a comment author's, for the "Posting as" line.
 - Add GIFs from GIPHY to the types and schema: `gifWidth` and `gifHeight` beside a comment's `gifUrl`, `editor.gifs` (`GifsData`) on `viewer` and `edit` reads, the `edit` read's `content.gif`, and an optional `gif` on a write's `content`, where an update leaves the comment's GIF alone without it and takes it off with `null`.
 - Add Comments 3's folded comments and author scores to the types and schema: `folded` on every comment (`reports`, `downvotes` or `null`, as `FoldReason`) and `score` on its author.
-
