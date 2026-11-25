@@ -147,8 +147,9 @@ const pieces = [
     ['The renderer, when a thread nears view', rendererFiles, 34 * 1024],
     // Raised from 10 KB to 12 KB for `commentForm()`, a public entry built on the same form code, and the
     // GIF control GIPHY's return added to the form (SD-54). The picker itself is a chunk of its own.
-    // Raised to 14 KB when Protect, which only someone posting needs, moved here from the renderer (SD-55).
-    ['The comment forms, when someone heads for one', formFiles, 14 * 1024],
+    // Raised to 14 KB when Protect, which only someone posting needs, moved here from the renderer (SD-55),
+    // then to 15 KB when the spam rules, providers and GIF control took it to 14.45 KB (SD-85).
+    ['The comment forms, when someone heads for one', formFiles, 15 * 1024],
     ['The file tray, for a form with an Assets field', trayFiles, 4 * 1024],
     // GIPHY's search, loaded only when a site has GIFs on and someone opens the picker (SD-52).
     ['The GIF picker, when someone opens it', gifFiles, 3 * 1024],
