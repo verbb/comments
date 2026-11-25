@@ -1,0 +1,5 @@
+[mysqld]
+# Sequel Pro's legacy MySQL client cannot negotiate MySQL 8's default
+# caching_sha2_password authentication. Keep this local development database
+# compatible with it; production databases must continue using stronger auth.
+default-authentication-plugin=mysql_native_password
