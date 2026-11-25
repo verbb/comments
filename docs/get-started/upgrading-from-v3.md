@@ -1,4 +1,4 @@
-# Upgrading from Comments 3
+# Upgrading from v3
 Comments 4 changes the way comments are stored, and replaces the Twig templates and browser script that showed them with a thread drawn in the browser from JSON. Your comments, threads, votes, flags and subscriptions move to the new storage in place when you run Craft's migrations, and each comment keeps its element ID, custom field values and dates.
 
 Comments 4 has a compatibility mode, on by default, which keeps many of Comments 3's Twig helpers, comment methods, query parameters, GraphQL arguments and fields, console commands and browser events working, so your site doesn't break the moment it updates. Each one logs a deprecation warning under **Utilities** → **Deprecation Warnings** when it's used, and the changes below say which they are. Once the warnings stop, turn the mode off, as [Turning Off Compatibility Mode](#before-disabling-compatibility-mode) describes.
