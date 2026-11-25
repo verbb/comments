@@ -153,6 +153,19 @@ Comments 4 is a major redevelopment with breaking changes to templates, settings
 - Remove `renderComment()`, `getRenderVariables()`, `getRenderJsVariables()`, `publishFrontEndAssets()` and `getComponentTemplatePath()` from the comments service, as threads are drawn in the browser.
 - Remove the `comments/new` control panel routes, which never opened a form. Moderators reply from a comment's page instead, and new discussions start on the site.
 
+## 3.0.28 - 2026-11-24
+
+### Changed
+- Document comment threads, moderation and permissions.
+
+## 3.0.27 - 2026-11-21
+
+### Fixed
+- Fixed a high-severity broken access control vulnerability.
+- Fixed a moderate-severity missing authorization vulnerability.
+- Fixed a low-severity moderation bypass vulnerability.
+- Fix moderator notifications going to every user, and every signed-in user skipping moderation when moderators are excluded, after the moderator user group is deleted.
+
 ## 3.0.26 - 2026-11-14
 
 ### Fixed
