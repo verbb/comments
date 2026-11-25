@@ -43,7 +43,7 @@ An author's edit goes through the same check as a new comment. With moderation o
 
 Each row shows the commenter's photo, or their initials on a colour, with their name above an excerpt of the comment and a **Guest** label for guests. You can add the date updated, name, votes and reports as columns, and admins can also add the commenter's email. Craft's status menu narrows any source to one status, or shows what's in the trash. People with `comments-delete` can move comments to the trash from here, and those with `comments-trash` can restore them.
 
-Comments come from the site, GraphQL or an import, such as with Feed Me's Comment element type, and can't be created in the control panel.
+Comments come from the site, GraphQL or an import, such as with Feed Me's Comment element type. A new discussion can't be started in the control panel, but moderators can [reply to a comment](#replying-to-a-comment) from its page in the control panel.
 
 ## The Needs Review, Reported and Spam Sources
 Open **Comments** and choose a source under **Moderation**:
