@@ -1,8 +1,8 @@
 {
-  "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js": {
+  "../../../../node_modules/@verbb/protect/dist/index.js": {
     "file": "js/chunks/dist-yjg6AO3v.js",
     "name": "dist",
-    "src": "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+    "src": "../../../../node_modules/@verbb/protect/dist/index.js",
     "isDynamicEntry": true
   },
   "../../../../packages/comments-browser/dist/form-controller.js": {
@@ -11,7 +11,7 @@
     "src": "../../../../packages/comments-browser/dist/form-controller.js",
     "isDynamicEntry": true,
     "imports": [
-      "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+      "../../../../node_modules/@verbb/protect/dist/index.js",
       "../../../../packages/comments-browser/dist/threads.js"
     ],
     "dynamicImports": [
@@ -43,7 +43,7 @@
     "src": "../../../../packages/comments-browser/dist/threads.js",
     "isDynamicEntry": true,
     "dynamicImports": [
-      "../../../../../../../protect/craft5/plugin/packages/protect/dist/index.js",
+      "../../../../node_modules/@verbb/protect/dist/index.js",
       "../../../../packages/comments-browser/dist/parts/report.js",
       "../../../../packages/comments-browser/dist/form-controller.js"
     ]

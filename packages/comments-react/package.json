@@ -59,8 +59,8 @@
     "dependencies": {
         "@verbb/comments-browser": "4.0.0-beta.1",
         "@verbb/comments-core": "4.0.0-beta.1",
-        "@verbb/editor": "file:../../../../../editor/craft5/plugin/packages/editor",
-        "@verbb/protect": "file:../../../../../protect/craft5/plugin/packages/protect"
+        "@verbb/editor": "^1.0.0",
+        "@verbb/protect": "^1.0.0"
     },
     "devDependencies": {
         "@testing-library/dom": "10.4.2",

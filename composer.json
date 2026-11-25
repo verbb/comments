@@ -45,8 +45,8 @@
         "craftcms/cms": "^5.10.0",
         "theiconic/name-parser": "^1.0",
         "verbb/base": "^3.0.20",
-        "verbb/editor": "*@dev",
-        "verbb/protect": "*@dev"
+        "verbb/editor": "^1.0",
+        "verbb/protect": "^1.0"
     },
     "require-dev": {
         "craftcms/cms": "^5.10.0",

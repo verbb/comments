@@ -33,11 +33,11 @@
     },
     "dependencies": {
         "@verbb/plugin-kit-web": "^2.3.0",
-        "@verbb/protect": "file:../../../protect/craft5/plugin/packages/protect"
+        "@verbb/protect": "^1.0.0"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "0.18.5",
-        "@verbb/editor": "file:../../../editor/craft5/plugin/packages/editor",
+        "@verbb/editor": "^1.0.0",
         "publint": "0.3.25",
         "typescript": "^5.7.3",
         "vite": "^8.3.5"

@@ -1,6 +1,8 @@
-import { A as e, C as t, D as n, E as r, M as i, S as a, T as o, _ as s, a as c, c as l, g as u, h as ee, i as d, j as f, k as p, l as m, m as te, n as ne, o as re, p as h, r as g, t as _, u as v, v as y, w as b, x, y as S } from "./pk-copy-button-Dfji6-PV.js";
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/form-control.styles-CQ93gnVf.js
-var C = i`
+import { C as e, S as t, a as n, b as r, c as i, g as a, h as o, i as s, l as c, m as l, n as ee, o as u, p as d, r as f, t as p, u as te, v as m, w as h, x as g, y as _ } from "./pk-copy-button-Dfji6-PV.js";
+import { i as v, n as y, o as b, r as x, s as S, t as C } from "./directive.js";
+import { i as w, r as T } from "./directive-helpers.js";
+// node_modules/@verbb/plugin-kit-web/dist/chunks/form-control.styles-CQ93gnVf.js
+var E = h`
     @layer pk-component {
         .form-control {
             display: flex;
@@ -100,7 +102,7 @@ var C = i`
             opacity: 0.5;
         }
     }
-`, w = [
+`, D = [
 	"aria-labelledby",
 	"aria-describedby",
 	"aria-invalid",
@@ -108,19 +110,19 @@ var C = i`
 	"aria-required",
 	"aria-label"
 ];
-function T(e) {
+function O(e) {
 	return e.hasAttribute("aria-labelledby") || e.hasAttribute("aria-describedby") || e.hasAttribute("aria-errormessage");
 }
-function E(e, t) {
-	for (let n of w) {
+function k(e, t) {
+	for (let n of D) {
 		let r = e.getAttribute(n);
 		r === null ? t.removeAttribute(n) : t.setAttribute(n, r);
 	}
 }
-function D({ control: e, labelId: t, instructionsId: n, hasLabel: r, hasInstructions: i, required: a = !1, invalid: o = !1 }) {
+function A({ control: e, labelId: t, instructionsId: n, hasLabel: r, hasInstructions: i, required: a = !1, invalid: o = !1 }) {
 	r && t ? e.setAttribute("aria-labelledby", t) : e.removeAttribute("aria-labelledby"), i && n ? e.setAttribute("aria-describedby", n) : e.removeAttribute("aria-describedby"), a ? e.setAttribute("aria-required", "true") : e.removeAttribute("aria-required"), o ? e.setAttribute("aria-invalid", "true") : e.removeAttribute("aria-invalid"), e.removeAttribute("aria-errormessage");
 }
-var O = class {
+var j = class {
 	constructor(e, t, n) {
 		this.host = e, this.getTarget = t, this.onSync = n;
 	}
@@ -129,21 +131,21 @@ var O = class {
 			this.sync();
 		}), this.observer.observe(this.host, {
 			attributes: !0,
-			attributeFilter: [...w]
+			attributeFilter: [...D]
 		});
 	}
 	disconnect() {
 		this.observer?.disconnect(), this.observer = void 0;
 	}
 	sync() {
-		if (!T(this.host)) {
+		if (!O(this.host)) {
 			this.onSync?.();
 			return;
 		}
 		let e = this.getTarget();
-		e && E(this.host, e);
+		e && k(this.host, e);
 	}
-}, k = class extends Event {
+}, M = class extends Event {
 	constructor() {
 		super("pk-invalid", {
 			bubbles: !0,
@@ -152,7 +154,7 @@ var O = class {
 		});
 	}
 };
-function ie() {
+function N() {
 	return {
 		observedAttributes: ["custom-error"],
 		checkValidity(e) {
@@ -165,12 +167,12 @@ function ie() {
 		}
 	};
 }
-var A = class extends b {
+var P = class extends g {
 	static {
 		this.formAssociated = !0;
 	}
 	static get validators() {
-		return [ie()];
+		return [N()];
 	}
 	static get observedAttributes() {
 		let e = new Set(super.observedAttributes ?? []);
@@ -179,7 +181,7 @@ var A = class extends b {
 	}
 	constructor() {
 		super(), this.internals = this.attachInternals(), this.assumeInteractionOn = ["input"], this.validators = [], this.name = null, this.disabled = !1, this.required = !1, this.customError = null, this.valueHasChanged = !1, this.hasInteracted = !1, this.emittedEvents = [], this.emitInvalid = (e) => {
-			e.target === this && (this.hasInteracted = !0, this.dispatchEvent(new k()));
+			e.target === this && (this.hasInteracted = !0, this.dispatchEvent(new M()));
 		}, this.handleInteraction = (e) => {
 			this.emittedEvents.includes(e.type) || this.emittedEvents.push(e.type), this.emittedEvents.length >= this.assumeInteractionOn.length && (this.hasInteracted = !0, this.updateValidity());
 		}, this.addEventListener("invalid", this.emitInvalid);
@@ -205,7 +207,7 @@ var A = class extends b {
 	}
 	syncStandaloneAria() {}
 	connectHostAriaMirror() {
-		this.hostAriaMirror?.disconnect(), this.hostAriaMirror = new O(this, () => this.getAriaMirrorTarget(), () => this.syncStandaloneAria()), this.hostAriaMirror.connect();
+		this.hostAriaMirror?.disconnect(), this.hostAriaMirror = new j(this, () => this.getAriaMirrorTarget(), () => this.syncStandaloneAria()), this.hostAriaMirror.connect();
 	}
 	syncHostAriaMirror() {
 		this.hostAriaMirror?.sync();
@@ -299,24 +301,24 @@ var A = class extends b {
 	resetToDefaultValue() {}
 	restoreFormState(e) {}
 };
-o([t({ reflect: !0 })], A.prototype, "name", void 0), o([t({
+t([r({ reflect: !0 })], P.prototype, "name", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], A.prototype, "disabled", void 0), o([t({
+})], P.prototype, "disabled", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], A.prototype, "required", void 0), o([t({
+})], P.prototype, "required", void 0), t([r({
 	attribute: "custom-error",
 	reflect: !0
-})], A.prototype, "customError", void 0), o([t({
+})], P.prototype, "customError", void 0), t([r({
 	attribute: !1,
 	state: !0
-})], A.prototype, "valueHasChanged", void 0), o([t({
+})], P.prototype, "valueHasChanged", void 0), t([r({
 	attribute: !1,
 	state: !0
-})], A.prototype, "hasInteracted", void 0);
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/required-validator-I58oJGZ3.js
-function j(e = {}) {
+})], P.prototype, "hasInteracted", void 0);
+// node_modules/@verbb/plugin-kit-web/dist/chunks/required-validator-I58oJGZ3.js
+function F(e = {}) {
 	let { validationElement: t, validationProperty: n } = e;
 	!t && typeof document < "u" && (t = Object.assign(document.createElement("input"), { required: !0 })), n ||= "value";
 	let r = {
@@ -335,15 +337,15 @@ function j(e = {}) {
 	};
 	return r;
 }
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/field-labels-pY-gQDwQ.js
-function M(e, t) {
+// node_modules/@verbb/plugin-kit-web/dist/chunks/field-labels-pY-gQDwQ.js
+function I(e, t) {
 	return t || (e.getAttribute("hint") ?? "");
 }
-function N(e, t, n = !1) {
+function L(e, t, n = !1) {
 	return !!t || e("instructions", n) || e("hint");
 }
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/mirror-validator-BkZlEv1Z.js
-function P() {
+// node_modules/@verbb/plugin-kit-web/dist/chunks/mirror-validator-BkZlEv1Z.js
+function R() {
 	return { checkValidity(e) {
 		let t = e.input, n = {
 			message: "",
@@ -362,51 +364,31 @@ function P() {
 		return n;
 	} };
 }
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/focus-DcVUPVqn.js
-var F = 0;
-function I(e = "pk") {
-	return F += 1, `${e}-${F}`;
+// node_modules/@verbb/plugin-kit-web/dist/chunks/focus-DcVUPVqn.js
+var z = 0;
+function B(e = "pk") {
+	return z += 1, `${e}-${z}`;
 }
-// ../../../plugin-kit/plugin-kit/node_modules/lit-html/directive-helpers.js
-var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => document.createComment(""), V = (e, t, n) => {
-	let r = e._$AA.parentNode, i = t === void 0 ? e._$AB : t._$AA;
-	if (n === void 0) n = new L(r.insertBefore(B(), i), r.insertBefore(B(), i), e, e.options);
-	else {
-		let t = n._$AB.nextSibling, a = n._$AM, o = a !== e;
-		if (o) {
-			let t;
-			n._$AQ?.(e), n._$AM = e, n._$AP !== void 0 && (t = e._$AU) !== a._$AU && n._$AP(t);
-		}
-		if (t !== i || o) {
-			let e = n._$AA;
-			for (; e !== t;) {
-				let t = R(e).nextSibling;
-				R(r).insertBefore(e, i), e = t;
-			}
-		}
-	}
-	return n;
-}, H = (e, t, n = e) => (e._$AI(t, n), e), U = {}, W = (e, t = U) => e._$AH = t, G = (e) => e._$AH, K = (e) => {
-	e._$AR(), e._$AA.remove();
-}, q = te(class extends ee {
+// node_modules/lit-html/directives/live.js
+var V = C(class extends y {
 	constructor(e) {
-		if (super(e), e.type !== u.PROPERTY && e.type !== u.ATTRIBUTE && e.type !== u.BOOLEAN_ATTRIBUTE) throw Error("The `live` directive is not allowed on child or event bindings");
-		if (!z(e)) throw Error("`live` bindings can only contain a single expression");
+		if (super(e), e.type !== x.PROPERTY && e.type !== x.ATTRIBUTE && e.type !== x.BOOLEAN_ATTRIBUTE) throw Error("The `live` directive is not allowed on child or event bindings");
+		if (!w(e)) throw Error("`live` bindings can only contain a single expression");
 	}
 	render(e) {
 		return e;
 	}
 	update(e, [t]) {
-		if (t === p || t === n) return t;
-		let r = e.element, i = e.name;
-		if (e.type === u.PROPERTY) {
-			if (t === r[i]) return p;
-		} else if (e.type === u.BOOLEAN_ATTRIBUTE) {
-			if (!!t === r.hasAttribute(i)) return p;
-		} else if (e.type === u.ATTRIBUTE && r.getAttribute(i) === t + "") return p;
-		return W(e), t;
+		if (t === b || t === v) return t;
+		let n = e.element, r = e.name;
+		if (e.type === x.PROPERTY) {
+			if (t === n[r]) return b;
+		} else if (e.type === x.BOOLEAN_ATTRIBUTE) {
+			if (!!t === n.hasAttribute(r)) return b;
+		} else if (e.type === x.ATTRIBUTE && n.getAttribute(r) === t + "") return b;
+		return T(e), t;
 	}
-}), J = (e) => e ?? n, Y = class extends Event {
+}), H = (e) => e ?? v, U = class extends Event {
 	constructor() {
 		super("pk-clear", {
 			bubbles: !0,
@@ -414,7 +396,7 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 			composed: !0
 		});
 	}
-}, ae = /* @__PURE__ */ new Set([
+}, W = /* @__PURE__ */ new Set([
 	"button",
 	"submit",
 	"reset",
@@ -423,11 +405,11 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 	"file",
 	"image",
 	"hidden"
-]), oe = "pk-implicit-submit", se = (e, t) => {
+]), G = "pk-implicit-submit", K = (e, t) => {
 	if (e.key !== "Enter" || e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return !1;
 	let n = (t || "text").toLowerCase();
-	return !ae.has(n);
-}, ce = (e) => {
+	return !W.has(n);
+}, q = (e) => {
 	let t = e.closest?.("pk-dialog");
 	if (t) {
 		let e = t.querySelector("form");
@@ -435,14 +417,14 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 	}
 	let n = e.form;
 	return n && n.id === "main" ? e.closest?.("form") === n ? null : e.closest("form") : n;
-}, le = (e, t, n) => {
-	if (e.disabled || e.readonly || !se(t, n)) return !1;
-	let r = ce(e);
-	return !r || r.id === "main" ? !1 : (t.preventDefault(), t.stopPropagation(), r.dispatchEvent(new CustomEvent(oe, {
+}, J = (e, t, n) => {
+	if (e.disabled || e.readonly || !K(t, n)) return !1;
+	let r = q(e);
+	return !r || r.id === "main" ? !1 : (t.preventDefault(), t.stopPropagation(), r.dispatchEvent(new CustomEvent(G, {
 		bubbles: !1,
 		cancelable: !0
 	})), !0);
-}, ue = i`
+}, Y = h`
     @layer pk-component {
         :host {
             display: block;
@@ -853,24 +835,24 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
             line-height: 1;
         }
     }
-`, X = class extends A {
+`, X = class extends P {
 	constructor(...e) {
-		super(...e), this.assumeInteractionOn = ["blur", "input"], this.hasSlotController = new d(this, "instructions", "hint", "label", "start", "end"), this.inputId = I("pk-input"), this.type = "text", this._value = null, this.defaultValue = null, this.size = "default", this.label = "", this.instructions = "", this.withClear = !1, this.clearLabel = "Clear", this.placeholder = "", this.readonly = !1, this.invalid = !1, this.fitCell = !1, this.mono = !1, this.autofocus = !1, this.withLabel = !1, this.withInstructions = !1;
+		super(...e), this.assumeInteractionOn = ["blur", "input"], this.hasSlotController = new s(this, "instructions", "hint", "label", "start", "end"), this.inputId = B("pk-input"), this.type = "text", this._value = null, this.defaultValue = null, this.size = "default", this.label = "", this.instructions = "", this.withClear = !1, this.clearLabel = "Clear", this.placeholder = "", this.readonly = !1, this.invalid = !1, this.fitCell = !1, this.mono = !1, this.autofocus = !1, this.withLabel = !1, this.withInstructions = !1;
 	}
 	static {
 		this.styles = [
-			C,
-			S(),
-			y(".input", "var(--pk-input-border-radius, var(--pk-radius-sm))"),
-			s(".input"),
-			ue
+			E,
+			a(),
+			o(".input", "var(--pk-input-border-radius, var(--pk-radius-sm))"),
+			l(".input"),
+			Y
 		];
 	}
 	static get validators() {
 		return [
 			...super.validators,
-			P(),
-			j()
+			R(),
+			F()
 		];
 	}
 	get value() {
@@ -881,7 +863,7 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 		this._value !== t && (this.valueHasChanged = !0, this._value = t);
 	}
 	connectedCallback() {
-		this.instructions = M(this, this.instructions), this.hasAttribute("with-hint") && (this.withInstructions = !0), super.connectedCallback();
+		this.instructions = I(this, this.instructions), this.hasAttribute("with-hint") && (this.withInstructions = !0), super.connectedCallback();
 	}
 	syncFormValue() {
 		this.setValue(this.value || "");
@@ -900,8 +882,8 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 	}
 	syncStandaloneAria() {
 		if (!this.input) return;
-		let e = !!this.label || this.hasSlotController.test("label", this.withLabel), t = N((e, t) => this.hasSlotController.test(e, t), this.instructions, this.withInstructions);
-		D({
+		let e = !!this.label || this.hasSlotController.test("label", this.withLabel), t = L((e, t) => this.hasSlotController.test(e, t), this.instructions, this.withInstructions);
+		A({
 			control: this.input,
 			labelId: `${this.inputId}-label`,
 			instructionsId: `${this.inputId}-instructions`,
@@ -915,7 +897,7 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 		return !!this.label || this.hasSlotController.test("label", this.withLabel);
 	}
 	hasInstructionsContent() {
-		return N((e, t) => this.hasSlotController.test(e, t), this.instructions, this.withInstructions);
+		return L((e, t) => this.hasSlotController.test(e, t), this.instructions, this.withInstructions);
 	}
 	focus(e) {
 		this.input?.focus(e);
@@ -939,10 +921,10 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 		}));
 	}
 	handleKeyDown(e) {
-		le(this, e, this.type);
+		J(this, e, this.type);
 	}
 	handleClearClick(e) {
-		e.preventDefault(), this.value !== "" && (this.value = "", this.dispatchEvent(new Y()), this.dispatchEvent(new Event("input", {
+		e.preventDefault(), this.value !== "" && (this.value = "", this.dispatchEvent(new U()), this.dispatchEvent(new Event("input", {
 			bubbles: !0,
 			composed: !0
 		})), this.dispatchEvent(new Event("change", {
@@ -957,12 +939,12 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 		this.requestUpdate();
 	}
 	render() {
-		let t = this.hasLabelContent(), r = this.hasInstructionsContent(), i = this.withClear && !this.disabled && !this.readonly && this.value.length > 0, a = this.hasSlotController.test("start"), o = this.hasSlotController.test("end");
-		return e`
+		let e = this.hasLabelContent(), t = this.hasInstructionsContent(), n = this.withClear && !this.disabled && !this.readonly && this.value.length > 0, r = this.hasSlotController.test("start"), i = this.hasSlotController.test("end");
+		return S`
             <div part="form-control" class="form-control">
-                ${t || r ? e`
+                ${e || t ? S`
                         <div part="header" class="form-control__header">
-                            ${t ? e`
+                            ${e ? S`
                                     <label
                                         part="label"
                                         class="form-control__label"
@@ -971,9 +953,9 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
                                     >
                                         <slot name="label">${this.label}</slot>
                                     </label>
-                                ` : n}
+                                ` : v}
 
-                            ${r ? e`
+                            ${t ? S`
                                     <p
                                         part="instructions"
                                         class="form-control__instructions"
@@ -982,32 +964,32 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
                                         <slot name="instructions">${this.instructions}</slot>
                                         <slot name="hint"></slot>
                                     </p>
-                                ` : n}
+                                ` : v}
                         </div>
-                    ` : n}
+                    ` : v}
 
                 <div part="base" class="form-control__input">
-                    ${a ? e`
+                    ${r ? S`
                             <span part="start" class="form-control__start">
                                 <slot name="start"></slot>
                             </span>
-                        ` : e`<slot name="start" hidden></slot>`}
+                        ` : S`<slot name="start" hidden></slot>`}
 
                     <input
                         part="input"
                         class="input"
                         ?data-custom-clear=${this.withClear}
-                        id=${t ? `${this.inputId}-control` : n}
+                        id=${e ? `${this.inputId}-control` : v}
                         type=${this.type}
-                        .value=${q(this.value)}
-                        placeholder=${this.placeholder || n}
-                        pattern=${J(this.pattern)}
-                        minlength=${J(this.minlength)}
-                        maxlength=${J(this.maxlength)}
-                        min=${J(this.min)}
-                        max=${J(this.max)}
-                        step=${J(this.step)}
-                        autocomplete=${J(this.autocomplete)}
+                        .value=${V(this.value)}
+                        placeholder=${this.placeholder || v}
+                        pattern=${H(this.pattern)}
+                        minlength=${H(this.minlength)}
+                        maxlength=${H(this.maxlength)}
+                        min=${H(this.min)}
+                        max=${H(this.max)}
+                        step=${H(this.step)}
+                        autocomplete=${H(this.autocomplete)}
                         ?disabled=${this.disabled}
                         ?readonly=${this.readonly}
                         ?required=${this.required}
@@ -1025,7 +1007,7 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
 		}))}
                     />
 
-                    ${i ? e`
+                    ${n ? S`
                             <button
                                 part="clear-button"
                                 class="icon-button clear-button"
@@ -1035,54 +1017,54 @@ var { I: L } = f, R = (e) => e, z = (e) => e.strings === void 0, B = () => docum
                             >
                                 <slot name="clear-icon">×</slot>
                             </button>
-                        ` : n}
+                        ` : v}
 
-                    ${o ? e`
+                    ${i ? S`
                             <span part="end" class=${this.endHasAction() ? "form-control__end has-action" : "form-control__end"}>
                                 <slot name="end" @slotchange=${this.handleEndSlotChange}></slot>
                             </span>
-                        ` : e`<slot name="end" hidden></slot>`}
+                        ` : S`<slot name="end" hidden></slot>`}
                 </div>
             </div>
         `;
 	}
 };
-o([x("input")], X.prototype, "input", void 0), o([t({ reflect: !0 })], X.prototype, "type", void 0), o([a()], X.prototype, "value", null), o([t({
+t([m("input")], X.prototype, "input", void 0), t([r({ reflect: !0 })], X.prototype, "type", void 0), t([_()], X.prototype, "value", null), t([r({
 	attribute: "value",
 	reflect: !0
-})], X.prototype, "defaultValue", void 0), o([t({ reflect: !0 })], X.prototype, "size", void 0), o([t()], X.prototype, "label", void 0), o([t()], X.prototype, "instructions", void 0), o([t({
+})], X.prototype, "defaultValue", void 0), t([r({ reflect: !0 })], X.prototype, "size", void 0), t([r()], X.prototype, "label", void 0), t([r()], X.prototype, "instructions", void 0), t([r({
 	attribute: "with-clear",
 	type: Boolean
-})], X.prototype, "withClear", void 0), o([t({ attribute: "clear-label" })], X.prototype, "clearLabel", void 0), o([t()], X.prototype, "placeholder", void 0), o([t({
+})], X.prototype, "withClear", void 0), t([r({ attribute: "clear-label" })], X.prototype, "clearLabel", void 0), t([r()], X.prototype, "placeholder", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], X.prototype, "readonly", void 0), o([t({
+})], X.prototype, "readonly", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], X.prototype, "invalid", void 0), o([t({
+})], X.prototype, "invalid", void 0), t([r({
 	type: Boolean,
 	reflect: !0,
 	attribute: "fit-cell"
-})], X.prototype, "fitCell", void 0), o([t({
+})], X.prototype, "fitCell", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], X.prototype, "mono", void 0), o([t()], X.prototype, "pattern", void 0), o([t({ type: Number })], X.prototype, "minlength", void 0), o([t({ type: Number })], X.prototype, "maxlength", void 0), o([t()], X.prototype, "min", void 0), o([t()], X.prototype, "max", void 0), o([t()], X.prototype, "step", void 0), o([t()], X.prototype, "autocomplete", void 0), o([t({
+})], X.prototype, "mono", void 0), t([r()], X.prototype, "pattern", void 0), t([r({ type: Number })], X.prototype, "minlength", void 0), t([r({ type: Number })], X.prototype, "maxlength", void 0), t([r()], X.prototype, "min", void 0), t([r()], X.prototype, "max", void 0), t([r()], X.prototype, "step", void 0), t([r()], X.prototype, "autocomplete", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], X.prototype, "autofocus", void 0), o([t({
+})], X.prototype, "autofocus", void 0), t([r({
 	attribute: "with-label",
 	type: Boolean
-})], X.prototype, "withLabel", void 0), o([t({
+})], X.prototype, "withLabel", void 0), t([r({
 	attribute: "with-instructions",
 	type: Boolean
-})], X.prototype, "withInstructions", void 0), X = o([r("pk-input")], X);
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/components/icon/pk-icon.js
-var Z = class extends b {
+})], X.prototype, "withInstructions", void 0), X = t([e("pk-input")], X);
+// node_modules/@verbb/plugin-kit-web/dist/components/icon/pk-icon.js
+var Z = class extends g {
 	constructor(...e) {
 		super(...e), this.icon = "", this.name = "", this.unsubscribeRegistry = null;
 	}
 	static {
-		this.styles = i`
+		this.styles = h`
         :host {
             display: inline-flex;
             align-items: center;
@@ -1107,7 +1089,7 @@ var Z = class extends b {
     `;
 	}
 	connectedCallback() {
-		super.connectedCallback(), this.unsubscribeRegistry = v(() => {
+		super.connectedCallback(), this.unsubscribeRegistry = te(() => {
 			this.requestUpdate();
 		});
 	}
@@ -1115,13 +1097,13 @@ var Z = class extends b {
 		this.unsubscribeRegistry?.(), this.unsubscribeRegistry = null, super.disconnectedCallback();
 	}
 	render() {
-		let t = m(this.icon || this.name);
-		return t ? e`${h(l(t, { title: this.label }))}` : n;
+		let e = c(this.icon || this.name);
+		return e ? S`${d(i(e, { title: this.label }))}` : v;
 	}
 };
-o([t()], Z.prototype, "icon", void 0), o([t()], Z.prototype, "name", void 0), o([t()], Z.prototype, "label", void 0), Z = o([r("pk-icon")], Z);
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/pk-state-panel-BjL_ch5N.js
-var de = i`
+t([r()], Z.prototype, "icon", void 0), t([r()], Z.prototype, "name", void 0), t([r()], Z.prototype, "label", void 0), Z = t([e("pk-icon")], Z);
+// node_modules/@verbb/plugin-kit-web/dist/chunks/pk-state-panel-BjL_ch5N.js
+var ne = h`
     @layer pk-component {
         :host {
             display: flex;
@@ -1556,18 +1538,18 @@ var de = i`
             --pk-btn-radius-default: var(--_pk-state-panel-action-radius);
         }
     }
-`, fe = 3e3, Q = {
-	empty: c.emptySet,
-	info: c.circleInfo,
-	success: c.circleCheck,
-	warning: c.triangleExclamation,
-	error: c.triangleExclamation
-}, $ = class extends b {
+`, re = 3e3, Q = {
+	empty: n.emptySet,
+	info: n.circleInfo,
+	success: n.circleCheck,
+	warning: n.triangleExclamation,
+	error: n.triangleExclamation
+}, $ = class extends g {
 	constructor(...e) {
-		super(...e), this.hasSlotController = new d(this, "title", "icon", "details", "actions"), this.variant = "empty", this.size = "default", this.layout = "region", this.heading = "", this.headingLevel = 2, this.icon = "", this.hideIcon = !1, this.announce = "off", this.detailsLabel = "Details", this.detailsOpen = !1, this.copyable = !1, this.copyLabel = "Copy details", this.copiedLabel = "Details copied.", this.copyErrorLabel = "Copy failed. Select the details and copy them manually.", this.copyStatus = "", this.copyFailed = !1;
+		super(...e), this.hasSlotController = new s(this, "title", "icon", "details", "actions"), this.variant = "empty", this.size = "default", this.layout = "region", this.heading = "", this.headingLevel = 2, this.icon = "", this.hideIcon = !1, this.announce = "off", this.detailsLabel = "Details", this.detailsOpen = !1, this.copyable = !1, this.copyLabel = "Copy details", this.copiedLabel = "Details copied.", this.copyErrorLabel = "Copy failed. Select the details and copy them manually.", this.copyStatus = "", this.copyFailed = !1;
 	}
 	static {
-		this.styles = de;
+		this.styles = ne;
 	}
 	disconnectedCallback() {
 		window.clearTimeout(this.copyStatusResetTimer), super.disconnectedCallback();
@@ -1581,7 +1563,7 @@ var de = i`
 	resetCopyStatusLater() {
 		window.clearTimeout(this.copyStatusResetTimer), this.copyStatusResetTimer = window.setTimeout(() => {
 			this.copyStatus = "", this.copyFailed = !1;
-		}, fe);
+		}, re);
 	}
 	showCopySuccess() {
 		this.copyFailed = !1, this.copyStatus = this.copiedLabel, this.resetCopyStatusLater();
@@ -1606,54 +1588,54 @@ var de = i`
 	}
 	async copyDetails() {
 		let e = this.detailsValue;
-		if (!e) this.showCopyError(), this.dispatchEvent(new _());
+		if (!e) this.showCopyError(), this.dispatchEvent(new p());
 		else if (this.copyButton) this.copyButton.value = e, await this.copyButton.copy();
 		else try {
-			await g(e), this.showCopySuccess();
-			let t = new ne(e);
+			await f(e), this.showCopySuccess();
+			let t = new ee(e);
 			this.dispatchEvent(t);
 		} catch {
-			this.showCopyError(), this.selectDetails(), this.dispatchEvent(new _());
+			this.showCopyError(), this.selectDetails(), this.dispatchEvent(new p());
 		}
 	}
 	handleDetailsToggle(e) {
 		this.detailsOpen = e.currentTarget.open;
 	}
 	renderIcon() {
-		if (this.hideIcon) return n;
-		let t;
-		return t = this.hasSlotController.test("icon") ? e`<slot name="icon"></slot>` : this.icon ? e`<pk-icon .icon=${this.icon}></pk-icon>` : h(re(Q[this.variant] ?? Q.empty)), e`
+		if (this.hideIcon) return v;
+		let e;
+		return e = this.hasSlotController.test("icon") ? S`<slot name="icon"></slot>` : this.icon ? S`<pk-icon .icon=${this.icon}></pk-icon>` : d(u(Q[this.variant] ?? Q.empty)), S`
             <span part="icon-shell" class="icon-shell" aria-hidden="true">
-                <span part="icon" class="icon">${t}</span>
+                <span part="icon" class="icon">${e}</span>
             </span>
         `;
 	}
 	render() {
-		let t = this.announce === "assertive" ? "alert" : this.announce === "polite" ? "status" : n, r = this.announce === "off" ? n : this.announce, i = this.hasSlotController.test("details"), a = this.hasSlotController.test("actions");
-		return e`
+		let e = this.announce === "assertive" ? "alert" : this.announce === "polite" ? "status" : v, t = this.announce === "off" ? v : this.announce, n = this.hasSlotController.test("details"), r = this.hasSlotController.test("actions");
+		return S`
             <div
                 part="base"
                 class="panel"
-                role=${t}
-                aria-live=${r}
-                aria-atomic=${this.announce === "off" ? n : "true"}
+                role=${e}
+                aria-live=${t}
+                aria-atomic=${this.announce === "off" ? v : "true"}
             >
                 ${this.renderIcon()}
 
-                ${this.hasTitle() ? e`
+                ${this.hasTitle() ? S`
                         <div
                             part="title"
                             class="title"
                             role="heading"
                             aria-level=${this.headingLevel}
                         >
-                            ${this.hasSlotController.test("title") ? e`<slot name="title"></slot>` : this.heading}
+                            ${this.hasSlotController.test("title") ? S`<slot name="title"></slot>` : this.heading}
                         </div>
-                    ` : n}
+                    ` : v}
 
                 <div part="body" class="body"><slot></slot></div>
 
-                ${i ? e`
+                ${n ? S`
                         <details
                             part="details"
                             class="details"
@@ -1663,7 +1645,7 @@ var de = i`
                             <summary part="details-summary">${this.detailsLabel}</summary>
                             <div part="details-content" class="details-content">
                                 <div class="details-scroll">
-                                    ${this.copyable ? e`
+                                    ${this.copyable ? S`
                                             <div class="copy-overlay">
                                                 <pk-copy-button
                                                     part="copy-button"
@@ -1676,43 +1658,43 @@ var de = i`
                                                     @pk-copy-error=${this.handleCopyError}
                                                 ></pk-copy-button>
                                             </div>
-                                        ` : n}
+                                        ` : v}
                                     <slot name="details"></slot>
                                 </div>
                             </div>
 
-                            ${this.copyable ? e`
+                            ${this.copyable ? S`
                                     <span
                                         part="copy-status"
                                         class="copy-status"
-                                        data-error=${this.copyFailed ? "" : n}
+                                        data-error=${this.copyFailed ? "" : v}
                                         role="status"
                                         aria-live="polite"
                                     >${this.copyStatus}</span>
-                                ` : n}
+                                ` : v}
                         </details>
-                    ` : n}
+                    ` : v}
 
-                ${a ? e`<div part="actions" class="actions"><slot name="actions"></slot></div>` : n}
+                ${r ? S`<div part="actions" class="actions"><slot name="actions"></slot></div>` : v}
             </div>
         `;
 	}
 };
-o([t({ reflect: !0 })], $.prototype, "variant", void 0), o([t({ reflect: !0 })], $.prototype, "size", void 0), o([t({ reflect: !0 })], $.prototype, "layout", void 0), o([t()], $.prototype, "heading", void 0), o([t({
+t([r({ reflect: !0 })], $.prototype, "variant", void 0), t([r({ reflect: !0 })], $.prototype, "size", void 0), t([r({ reflect: !0 })], $.prototype, "layout", void 0), t([r()], $.prototype, "heading", void 0), t([r({
 	type: Number,
 	attribute: "heading-level"
-})], $.prototype, "headingLevel", void 0), o([t()], $.prototype, "icon", void 0), o([t({
+})], $.prototype, "headingLevel", void 0), t([r()], $.prototype, "icon", void 0), t([r({
 	type: Boolean,
 	attribute: "hide-icon",
 	reflect: !0
-})], $.prototype, "hideIcon", void 0), o([t({ reflect: !0 })], $.prototype, "announce", void 0), o([t({ attribute: "details-label" })], $.prototype, "detailsLabel", void 0), o([t({
+})], $.prototype, "hideIcon", void 0), t([r({ reflect: !0 })], $.prototype, "announce", void 0), t([r({ attribute: "details-label" })], $.prototype, "detailsLabel", void 0), t([r({
 	type: Boolean,
 	attribute: "details-open",
 	reflect: !0
-})], $.prototype, "detailsOpen", void 0), o([t({
+})], $.prototype, "detailsOpen", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], $.prototype, "copyable", void 0), o([t({ attribute: "copy-label" })], $.prototype, "copyLabel", void 0), o([t({ attribute: "copied-label" })], $.prototype, "copiedLabel", void 0), o([t({ attribute: "copy-error-label" })], $.prototype, "copyErrorLabel", void 0), o([x("slot[name=\"details\"]")], $.prototype, "detailsSlot", void 0), o([x("pk-copy-button.copy")], $.prototype, "copyButton", void 0), o([a()], $.prototype, "copyStatus", void 0), o([a()], $.prototype, "copyFailed", void 0), $ = o([r("pk-state-panel")], $);
-export { K as a, V as c, N as d, M as f, C as g, D as h, G as i, I as l, A as m, J as n, W as o, j as p, q as r, H as s, Y as t, P as u };
+})], $.prototype, "copyable", void 0), t([r({ attribute: "copy-label" })], $.prototype, "copyLabel", void 0), t([r({ attribute: "copied-label" })], $.prototype, "copiedLabel", void 0), t([r({ attribute: "copy-error-label" })], $.prototype, "copyErrorLabel", void 0), t([m("slot[name=\"details\"]")], $.prototype, "detailsSlot", void 0), t([m("pk-copy-button.copy")], $.prototype, "copyButton", void 0), t([_()], $.prototype, "copyStatus", void 0), t([_()], $.prototype, "copyFailed", void 0), $ = t([e("pk-state-panel")], $);
+export { R as a, F as c, E as d, B as i, P as l, H as n, L as o, V as r, I as s, U as t, A as u };
 
 //# sourceMappingURL=pk-state-panel-BjL_ch5N.js.map

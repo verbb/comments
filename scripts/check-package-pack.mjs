@@ -79,7 +79,7 @@ const packages = [
             './form': ['commentForm'],
         },
         // Linked from the workspace for the consumer, as they would be installed beside it.
-        dependencies: ['@verbb/comments-core', '@verbb/protect', 'lit-html'],
+        dependencies: ['@verbb/comments-core', '@verbb/editor', '@verbb/protect', 'lit-html'],
         consumer: 'packages/comments-browser/tests/package/consumer.ts',
         domFree: false,
         sideEffects: ['**/*.css'],

@@ -49,7 +49,7 @@
     },
     "dependencies": {
         "@verbb/comments-browser": "4.0.0-beta.1",
-        "@verbb/editor": "file:../../../../../editor/craft5/plugin/packages/editor"
+        "@verbb/editor": "^1.0.0"
     },
     "devDependencies": {
         "happy-dom": "21.0.4",

@@ -54,7 +54,7 @@
         "schema": "node scripts/generate-schema.mjs --write"
     },
     "dependencies": {
-        "@verbb/protect": "file:../../../../../protect/craft5/plugin/packages/protect"
+        "@verbb/protect": "^1.0.0"
     },
     "devDependencies": {
         "typescript": "^5.7.3",

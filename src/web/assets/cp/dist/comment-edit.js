@@ -1,5 +1,6 @@
-import { A as e, C as t, D as n, E as r, M as i, S as a, T as o, a as s, i as c, n as l, o as u, p as d, r as f, t as p, w as m, x as h } from "./chunks/pk-copy-button-Dfji6-PV.js";
-// ../../../plugin-kit/plugin-kit/plugin-kit-web/dist/chunks/pk-alert-CgKRyPJu.js
+import { C as e, S as t, a as n, b as r, i, n as a, o, p as s, r as c, t as l, v as u, w as d, x as f, y as p } from "./chunks/pk-copy-button-Dfji6-PV.js";
+import { i as m, s as h } from "./chunks/directive.js";
+// node_modules/@verbb/plugin-kit-web/dist/chunks/pk-alert-CgKRyPJu.js
 var g = class extends Event {
 	constructor() {
 		super("pk-dismiss", {
@@ -8,7 +9,7 @@ var g = class extends Event {
 			composed: !0
 		});
 	}
-}, _ = i`
+}, _ = d`
     @layer pk-component {
         :host {
             display: block;
@@ -430,14 +431,14 @@ var g = class extends Event {
         }
     }
 `, v = 3e3, y = {
-	neutral: s.circleInfo,
-	info: s.circleInfo,
-	success: s.circleCheck,
-	warning: s.triangleExclamation,
-	error: s.circleExclamation
-}, b = class extends m {
+	neutral: n.circleInfo,
+	info: n.circleInfo,
+	success: n.circleCheck,
+	warning: n.triangleExclamation,
+	error: n.circleExclamation
+}, b = class extends f {
 	constructor(...e) {
-		super(...e), this.hasSlotController = new c(this, "title", "icon", "actions", "details"), this.variant = "info", this.size = "default", this.appearance = "accent", this.heading = "", this.hideIcon = !1, this.dismissible = !1, this.announce = "off", this.detailsLabel = "Details", this.detailsOpen = !1, this.copyable = !1, this.copyLabel = "Copy details", this.copiedLabel = "Details copied.", this.copyErrorLabel = "Copy failed. Select the details and copy them manually.", this.dismissLabel = "Dismiss", this.copyStatus = "", this.copyFailed = !1;
+		super(...e), this.hasSlotController = new i(this, "title", "icon", "actions", "details"), this.variant = "info", this.size = "default", this.appearance = "accent", this.heading = "", this.hideIcon = !1, this.dismissible = !1, this.announce = "off", this.detailsLabel = "Details", this.detailsOpen = !1, this.copyable = !1, this.copyLabel = "Copy details", this.copiedLabel = "Details copied.", this.copyErrorLabel = "Copy failed. Select the details and copy them manually.", this.dismissLabel = "Dismiss", this.copyStatus = "", this.copyFailed = !1;
 	}
 	static {
 		this.styles = _;
@@ -482,14 +483,14 @@ var g = class extends Event {
 	}
 	async copyDetails() {
 		let e = this.detailsValue;
-		if (!e) this.showCopyError(), this.dispatchEvent(new p());
+		if (!e) this.showCopyError(), this.dispatchEvent(new l());
 		else if (this.copyButton) this.copyButton.value = e, await this.copyButton.copy();
 		else try {
-			await f(e), this.showCopySuccess();
-			let t = new l(e);
+			await c(e), this.showCopySuccess();
+			let t = new a(e);
 			this.dispatchEvent(t);
 		} catch {
-			this.showCopyError(), this.selectDetails(), this.dispatchEvent(new p());
+			this.showCopyError(), this.selectDetails(), this.dispatchEvent(new l());
 		}
 	}
 	dismiss() {
@@ -502,34 +503,34 @@ var g = class extends Event {
 		this.detailsOpen = e.currentTarget.open;
 	}
 	renderIcon() {
-		if (this.hideIcon) return n;
-		let t = this.hasSlotController.test("icon") ? e`<slot name="icon"></slot>` : d(u(y[this.variant] ?? y.info));
-		return e`<span part="icon" class="icon" aria-hidden="true">${t}</span>`;
+		if (this.hideIcon) return m;
+		let e = this.hasSlotController.test("icon") ? h`<slot name="icon"></slot>` : s(o(y[this.variant] ?? y.info));
+		return h`<span part="icon" class="icon" aria-hidden="true">${e}</span>`;
 	}
 	render() {
-		let t = this.announce === "assertive" ? "alert" : this.announce === "polite" ? "status" : n, r = this.announce === "off" ? n : this.announce, i = this.hasSlotController.test("actions"), a = this.hasDetails();
-		return e`
+		let e = this.announce === "assertive" ? "alert" : this.announce === "polite" ? "status" : m, t = this.announce === "off" ? m : this.announce, r = this.hasSlotController.test("actions"), i = this.hasDetails();
+		return h`
             <div
                 part="base"
                 class="alert"
-                role=${t}
-                aria-live=${r}
-                aria-atomic=${this.announce === "off" ? n : "true"}
+                role=${e}
+                aria-live=${t}
+                aria-atomic=${this.announce === "off" ? m : "true"}
             >
                 <div part="notice" class="notice">
                     ${this.renderIcon()}
 
                     <div part="content" class="content">
-                        ${this.hasTitle() ? e`
+                        ${this.hasTitle() ? h`
                                 <strong part="title" class="title">
-                                    ${this.hasSlotController.test("title") ? e`<slot name="title"></slot>` : this.heading}
+                                    ${this.hasSlotController.test("title") ? h`<slot name="title"></slot>` : this.heading}
                                 </strong>
-                            ` : n}
+                            ` : m}
 
                         <div part="body" class="body"><slot></slot></div>
                     </div>
 
-                    ${this.dismissible ? e`
+                    ${this.dismissible ? h`
                             <button
                                 part="dismiss-button"
                                 class="dismiss"
@@ -537,14 +538,14 @@ var g = class extends Event {
                                 aria-label=${this.dismissLabel}
                                 @click=${this.dismiss}
                             >
-                                ${d(u(s.xmark))}
+                                ${s(o(n.xmark))}
                             </button>
-                        ` : n}
+                        ` : m}
                 </div>
 
-                ${i ? e`<div part="actions" class="actions"><slot name="actions"></slot></div>` : n}
+                ${r ? h`<div part="actions" class="actions"><slot name="actions"></slot></div>` : m}
 
-                ${a ? e`
+                ${i ? h`
                         <details
                             part="details"
                             class="details"
@@ -554,7 +555,7 @@ var g = class extends Event {
                             <summary part="details-summary">${this.detailsLabel}</summary>
                             <div part="details-content" class="details-content">
                                 <div class="details-scroll">
-                                    ${this.copyable ? e`
+                                    ${this.copyable ? h`
                                             <div class="copy-overlay">
                                                 <pk-copy-button
                                                     part="copy-button"
@@ -567,40 +568,40 @@ var g = class extends Event {
                                                     @pk-copy-error=${this.handleCopyError}
                                                 ></pk-copy-button>
                                             </div>
-                                        ` : n}
+                                        ` : m}
                                     <slot name="details"></slot>
                                 </div>
                             </div>
 
-                            ${this.copyable ? e`
+                            ${this.copyable ? h`
                                     <span
                                         part="copy-status"
                                         class="copy-status"
-                                        data-error=${this.copyFailed ? "" : n}
+                                        data-error=${this.copyFailed ? "" : m}
                                         role="status"
                                         aria-live="polite"
                                     >${this.copyStatus}</span>
-                                ` : n}
+                                ` : m}
                         </details>
-                    ` : n}
+                    ` : m}
             </div>
         `;
 	}
 };
-o([t({ reflect: !0 })], b.prototype, "variant", void 0), o([t({ reflect: !0 })], b.prototype, "size", void 0), o([t({ reflect: !0 })], b.prototype, "appearance", void 0), o([t()], b.prototype, "heading", void 0), o([t({
+t([r({ reflect: !0 })], b.prototype, "variant", void 0), t([r({ reflect: !0 })], b.prototype, "size", void 0), t([r({ reflect: !0 })], b.prototype, "appearance", void 0), t([r()], b.prototype, "heading", void 0), t([r({
 	type: Boolean,
 	attribute: "hide-icon",
 	reflect: !0
-})], b.prototype, "hideIcon", void 0), o([t({
+})], b.prototype, "hideIcon", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], b.prototype, "dismissible", void 0), o([t({ reflect: !0 })], b.prototype, "announce", void 0), o([t({ attribute: "details-label" })], b.prototype, "detailsLabel", void 0), o([t({
+})], b.prototype, "dismissible", void 0), t([r({ reflect: !0 })], b.prototype, "announce", void 0), t([r({ attribute: "details-label" })], b.prototype, "detailsLabel", void 0), t([r({
 	type: Boolean,
 	attribute: "details-open",
 	reflect: !0
-})], b.prototype, "detailsOpen", void 0), o([t({
+})], b.prototype, "detailsOpen", void 0), t([r({
 	type: Boolean,
 	reflect: !0
-})], b.prototype, "copyable", void 0), o([t({ attribute: "copy-label" })], b.prototype, "copyLabel", void 0), o([t({ attribute: "copied-label" })], b.prototype, "copiedLabel", void 0), o([t({ attribute: "copy-error-label" })], b.prototype, "copyErrorLabel", void 0), o([t({ attribute: "dismiss-label" })], b.prototype, "dismissLabel", void 0), o([h("slot[name=\"details\"]")], b.prototype, "detailsSlot", void 0), o([h("pk-copy-button.copy")], b.prototype, "copyButton", void 0), o([a()], b.prototype, "copyStatus", void 0), o([a()], b.prototype, "copyFailed", void 0), b = o([r("pk-alert")], b);
+})], b.prototype, "copyable", void 0), t([r({ attribute: "copy-label" })], b.prototype, "copyLabel", void 0), t([r({ attribute: "copied-label" })], b.prototype, "copiedLabel", void 0), t([r({ attribute: "copy-error-label" })], b.prototype, "copyErrorLabel", void 0), t([r({ attribute: "dismiss-label" })], b.prototype, "dismissLabel", void 0), t([u("slot[name=\"details\"]")], b.prototype, "detailsSlot", void 0), t([u("pk-copy-button.copy")], b.prototype, "copyButton", void 0), t([p()], b.prototype, "copyStatus", void 0), t([p()], b.prototype, "copyFailed", void 0), b = t([e("pk-alert")], b);
 
 //# sourceMappingURL=comment-edit.js.map
