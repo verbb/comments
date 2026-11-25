@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix a comment refused by a `beforeSave` event listener showing its errors as JSON, or none at all when edited. An error the listener adds to the comment is now shown beside the field. ([#323](https://github.com/verbb/comments/issues/323))
+
 ## 4.0.0 - 2026-11-25
 
 > {warning} Before upgrading to Comments 4, review the [Upgrading from v3](https://verbb.io/craft-plugins/comments/docs/v4/get-started/upgrading-from-v3) guide for breaking changes and required migration steps.

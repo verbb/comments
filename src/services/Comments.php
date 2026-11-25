@@ -363,9 +363,7 @@ class Comments extends Component
                 $comment->depth = $depth;
 
                 if (!Craft::$app->getElements()->saveElement($comment, false, false, false)) {
-                    throw new UserException(
-                        Craft::t('comments', 'Could not save comment.') . ' ' . Json::encode($comment->getErrors())
-                    );
+                    throw $this->_saveRefusal($comment);
                 }
 
                 // The bypass is only for the canonical create transaction. Do not let the returned
@@ -898,7 +896,7 @@ class Comments extends Component
             ->scalar());
 
         if (!Craft::$app->getElements()->saveElement($comment, false, false)) {
-            throw new UserException(Craft::t('comments', 'Could not save comment.'));
+            throw $this->_saveRefusal($comment);
         }
 
         $moderation = CommentsPlugin::$plugin->getModeration();
@@ -1635,6 +1633,19 @@ class Comments extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Why a comment that passed validation wasn't saved. A `beforeSave` listener that adds an error is
+     * shown beside the field like a validation error, and one that doesn't gets a plain message.
+     */
+    private function _saveRefusal(Comment $comment): UserException
+    {
+        if ($comment->hasErrors()) {
+            return CommentValidationException::fromErrors($comment->getErrors());
+        }
+
+        return new UserException(Craft::t('comments', 'Could not save comment.'));
+    }
 
     /**
      * A GIF a form posted as Comments 3's `gifUrl`, with `gifWidth` and `gifHeight` if it gave them. As in

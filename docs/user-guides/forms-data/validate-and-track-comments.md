@@ -101,7 +101,7 @@ If a rule is really "this field must be filled in", make the field required in i
 
 Checks in the browser help readers, by catching a problem before they wait for an answer. They can't enforce anything, though. Someone who wants to get around them can switch off JavaScript, change your script, or send a comment straight to your site without using the form at all.
 
-So for a rule that really matters, such as banning links in comments, check it on the server too, in a [`beforeSave`](docs:developers/events#the-beforeSave-event) event listener in a module, where nobody can skip it. The browser rule then gives readers a quick, friendly message, and the server rule makes sure.
+So for a rule that really matters, such as banning links in comments, check it on the server too, in a [`beforeSave`](docs:developers/events#the-beforeSave-event) event listener in a module, where nobody can skip it. Add an error to the comment before refusing it, and the reader sees your message beside the comment box. The browser rule then gives readers a quick, friendly message, and the server rule makes sure.
 
 ## Tracking Comments, Votes, Follows and Reports
 

@@ -7,7 +7,7 @@ Comments provides events for extending its functionality. Modules and plugins ca
 <span id="the-beforesavecomment-event"></span>
 
 ### The `beforeSave` Event
-The event that is triggered before a comment is saved, whether it's new or being edited. This is Craft's own element event, `Comment::EVENT_BEFORE_SAVE`, which every comment save goes through. Event handlers can prevent the comment from being saved by setting `$event->isValid` to false.
+The event that is triggered before a comment is saved, whether it's new or being edited. This is Craft's own element event, `Comment::EVENT_BEFORE_SAVE`, which every comment save goes through. Event handlers can prevent the comment from being saved by setting `$event->isValid` to false. Add an error to the comment as well, and the visitor sees it beside the comment box, the same as Comments' own validation errors.
 
 ```php
 use craft\events\ModelEvent;
@@ -15,8 +15,13 @@ use verbb\comments\elements\Comment;
 use yii\base\Event;
 
 Event::on(Comment::class, Comment::EVENT_BEFORE_SAVE, function(ModelEvent $event) {
+    /** @var Comment $comment */
     $comment = $event->sender;
-    $event->isValid = false;
+
+    if (str_contains((string)$comment->comment, 'http')) {
+        $comment->addError('comment', 'Links aren’t allowed in comments.');
+        $event->isValid = false;
+    }
 });
 ```
 
