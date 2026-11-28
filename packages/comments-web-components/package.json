@@ -1,6 +1,6 @@
 {
     "name": "@verbb/comments-web-components",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "A light-DOM <verbb-comments> element that draws a Comments thread on any page, with or without a framework.",
     "keywords": [
         "craftcms",
@@ -48,7 +48,7 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@verbb/comments-browser": "4.0.0",
+        "@verbb/comments-browser": "4.0.1",
         "@verbb/editor": "^1.0.0"
     },
     "devDependencies": {

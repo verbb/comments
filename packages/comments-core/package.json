@@ -1,6 +1,6 @@
 {
     "name": "@verbb/comments-core",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "The data layer for Comments front ends, with the JSON types, REST and GraphQL transports, sign-in and a thread store, and no DOM.",
     "keywords": [
         "craftcms",

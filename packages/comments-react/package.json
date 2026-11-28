@@ -1,6 +1,6 @@
 {
     "name": "@verbb/comments-react",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "React components and hooks for Comments threads, with a provider, component part overrides, hooks for your own interface and server helpers.",
     "keywords": [
         "craftcms",
@@ -57,8 +57,8 @@
         "react-dom": "^19.0.0"
     },
     "dependencies": {
-        "@verbb/comments-browser": "4.0.0",
-        "@verbb/comments-core": "4.0.0",
+        "@verbb/comments-browser": "4.0.1",
+        "@verbb/comments-core": "4.0.1",
         "@verbb/editor": "^1.0.0",
         "@verbb/protect": "^1.0.0"
     },

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 4.0.1 - 2026-11-28
+
+### Changed
+- Released alongside Comments 4.0.1 with no changes to this package.
+
 ## 4.0.0 - 2026-11-25
 
 ### Added

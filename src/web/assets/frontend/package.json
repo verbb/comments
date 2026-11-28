@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "dependencies": {
-        "@verbb/comments-browser": "4.0.0"
+        "@verbb/comments-browser": "4.0.1"
     },
     "devDependencies": {
         "vite": "^8.3.5"
